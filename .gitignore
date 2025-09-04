@@ -8,6 +8,9 @@ node_modules/
 build/
 dist/
 
+# AI Assistant Configuration
+.trae/
+
 # Environment variables
 .env
 .env.local
