@@ -1,14 +1,14 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-import { cn } from '@/lib/utils';
-import { useAuth } from '@/lib/contexts/auth-context';
-import { PERMISSIONS } from '@/lib/permissions';
-import { Button } from '@/components/ui/button';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { Separator } from '@/components/ui/separator';
+import { useState } from "react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { cn } from "@/lib/utils";
+import { useAuth } from "@/lib/contexts/auth-context";
+import { PERMISSIONS } from "@/lib/permissions";
+import { Button } from "@/components/ui/button";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Separator } from "@/components/ui/separator";
 import {
   LayoutDashboard,
   Users,
@@ -29,103 +29,103 @@ import {
   Shield,
   GraduationCap,
   Building2,
-} from 'lucide-react';
+} from "lucide-react";
 
 const navigation = [
   {
-    name: 'Dashboard',
-    href: '/dashboard',
+    name: "Dashboard",
+    href: "/dashboard",
     icon: LayoutDashboard,
     permission: null,
   },
   {
-    name: 'Members',
-    href: '/dashboard/members',
+    name: "Members",
+    href: "/dashboard/members",
     icon: Users,
     permission: PERMISSIONS.VIEW_MEMBERS,
     children: [
       {
-        name: 'Attendance',
-        href: '/dashboard/attendance',
+        name: "Attendance",
+        href: "/dashboard/attendance",
         icon: UserCheck,
         permission: PERMISSIONS.VIEW_MEMBERS,
       },
       {
-        name: 'Groups',
-        href: '/dashboard/groups',
+        name: "Groups",
+        href: "/dashboard/groups",
         icon: UsersRound,
         permission: PERMISSIONS.VIEW_MEMBERS,
       },
       {
-        name: 'Sunday School',
-        href: '/dashboard/sunday-school',
+        name: "Sunday School",
+        href: "/dashboard/sunday-school",
         icon: GraduationCap,
         permission: PERMISSIONS.VIEW_MEMBERS,
       },
-       {
-    name: 'Departments',
-    href: '/dashboard/departments',
-    icon: Building2,
-    permission: PERMISSIONS.VIEW_MEMBERS,
-  },
+      {
+        name: "Departments",
+        href: "/dashboard/departments",
+        icon: Building2,
+        permission: PERMISSIONS.VIEW_MEMBERS,
+      },
     ],
   },
- 
+
   {
-    name: 'Finance',
-    href: '/dashboard/finance',
+    name: "Finance",
+    href: "/dashboard/finance",
     icon: DollarSign,
     permission: PERMISSIONS.VIEW_FINANCE,
     children: [
       {
-        name: 'Donations',
-        href: '/dashboard/finance/donations',
+        name: "Donations",
+        href: "/dashboard/finance/donations",
         icon: Wallet,
       },
       {
-        name: 'Tithes & Offerings',
-        href: '/dashboard/finance/tithes-offerings',
+        name: "Tithes & Offerings",
+        href: "/dashboard/finance/tithes-offerings",
         icon: Heart,
       },
       {
-        name: 'Budgets',
-        href: '/dashboard/finance/budgets',
+        name: "Budgets",
+        href: "/dashboard/finance/budgets",
         icon: FileText,
       },
       {
-        name: 'Reports',
-        href: '/dashboard/finance/reports',
+        name: "Reports",
+        href: "/dashboard/finance/reports",
         icon: BarChart3,
       },
     ],
   },
   {
-    name: 'Communications',
-    href: '/dashboard/communications',
+    name: "Communications",
+    href: "/dashboard/communications",
     icon: MessageSquare,
     permission: PERMISSIONS.SEND_SMS,
   },
   {
-    name: 'Events',
-    href: '/dashboard/events',
+    name: "Events",
+    href: "/dashboard/events",
     icon: Calendar,
     permission: PERMISSIONS.MANAGE_EVENTS,
   },
   {
-    name: 'Prayer Requests',
-    href: '/dashboard/prayer-requests',
+    name: "Prayer Requests",
+    href: "/dashboard/prayer-requests",
     icon: Heart,
     permission: PERMISSIONS.VIEW_MEMBERS,
   },
   {
-    name: 'Analytics',
-    href: '/dashboard/analytics',
+    name: "Analytics",
+    href: "/dashboard/analytics",
     icon: BarChart3,
     permission: PERMISSIONS.VIEW_REPORTS,
   },
   {
-    name: 'Settings',
-    href: '/dashboard/settings',
+    name: "Settings",
+    href: "/dashboard/settings",
     icon: Settings,
     permission: PERMISSIONS.MANAGE_ROLES,
   },
@@ -136,20 +136,24 @@ export default function Sidebar() {
   const pathname = usePathname();
   const { hasPermission } = useAuth();
 
-  const filteredNavigation = navigation.filter(item => 
-    !item.permission || hasPermission(item.permission)
+  const filteredNavigation = navigation.filter(
+    (item) => !item.permission || hasPermission(item.permission)
   );
 
   return (
-    <div className={cn(
-      "bg-card border-r border-border flex flex-col transition-all duration-300 h-screen",
-      isCollapsed ? "w-16" : "w-64"
-    )}>
+    <div
+      className={cn(
+        "bg-card border-r border-border flex flex-col transition-all duration-300 h-screen",
+        isCollapsed ? "w-16" : "w-64"
+      )}
+    >
       <div className="p-4 flex items-center justify-between flex-shrink-0">
         {!isCollapsed && (
           <div className="flex items-center space-x-2">
             <Church className="h-8 w-8 text-brand-primary" />
-            <span className="text-xl font-bold text-brand-primary">ChurchMS</span>
+            <span className="text-xl font-bold text-brand-primary">
+              ChurchMS
+            </span>
           </div>
         )}
         <Button
@@ -165,9 +169,9 @@ export default function Sidebar() {
           )}
         </Button>
       </div>
-      
+
       <Separator className="flex-shrink-0" />
-      
+
       <ScrollArea className="flex-1 px-3 py-4 h-full">
         <nav className="space-y-2">
           {filteredNavigation.map((item) => (
@@ -185,7 +189,7 @@ export default function Sidebar() {
                 <item.icon className="h-5 w-5 flex-shrink-0" />
                 {!isCollapsed && <span>{item.name}</span>}
               </Link>
-              
+
               {item.children && !isCollapsed && (
                 <div className="ml-6 mt-2 space-y-1">
                   {item.children.map((child) => (
