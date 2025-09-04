@@ -50,7 +50,7 @@ import {
 import { groupsService } from '@/services';
 import { Group, GroupEvent } from '@/lib/types/groups';
 import { toast } from 'sonner';
-import Breadcrumb from '@/components/ui/breadcrumb';
+
 
 const statusOptions = ['All', 'Upcoming', 'Ongoing', 'Completed', 'Cancelled'];
 
@@ -186,12 +186,7 @@ export default function GroupEventsPage() {
     );
   }
 
-  const breadcrumbItems = [
-    { label: 'Dashboard', href: '/dashboard' },
-    { label: 'Groups', href: '/dashboard/groups' },
-    { label: group?.name || 'Group', href: `/dashboard/groups/${groupId}` },
-    { label: 'Events', isCurrentPage: true }
-  ];
+
 
   const stats = getEventStats();
 
@@ -216,7 +211,7 @@ export default function GroupEventsPage() {
               </p>
             </div>
           </div>
-          <Breadcrumb items={breadcrumbItems} />
+    
         </div>
         
         <Button onClick={handleAddEvent} className="bg-brand-primary hover:bg-brand-primary/90">

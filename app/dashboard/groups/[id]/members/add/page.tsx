@@ -30,7 +30,7 @@ import { groupsService, membersService } from '@/services';
 import { Group, GroupRole, GroupMemberFormData } from '@/lib/types/groups';
 import { Member } from '@/lib/types/members';
 import { toast } from 'sonner';
-import Breadcrumb from '@/components/ui/breadcrumb';
+
 
 export default function AddGroupMemberPage() {
   const router = useRouter();
@@ -187,13 +187,7 @@ export default function AddGroupMemberPage() {
     );
   }
 
-  const breadcrumbItems = [
-    { label: 'Dashboard', href: '/dashboard' },
-    { label: 'Groups', href: '/dashboard/groups' },
-    { label: group?.name || 'Group', href: `/dashboard/groups/${groupId}` },
-    { label: 'Members', href: `/dashboard/groups/${groupId}/members` },
-    { label: 'Add Members', isCurrentPage: true }
-  ];
+
 
   return (
     <div className="space-y-6">
@@ -215,7 +209,7 @@ export default function AddGroupMemberPage() {
               </p>
             </div>
           </div>
-          <Breadcrumb items={breadcrumbItems} />
+    
         </div>
       </div>
 

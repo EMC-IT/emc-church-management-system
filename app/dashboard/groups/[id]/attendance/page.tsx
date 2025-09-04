@@ -53,7 +53,7 @@ import { groupsService } from '@/services';
 import { Group, GroupMember, GroupAttendance, GroupAttendanceFormData, GroupEvent } from '@/lib/types/groups';
 import { AttendanceStatus } from '@/lib/types/attendance';
 import { toast } from 'sonner';
-import Breadcrumb from '@/components/ui/breadcrumb';
+
 
 const attendanceStatusOptions = ['All', 'Present', 'Absent', 'Excused'];
 const eventTypeOptions = ['All', 'Meeting', 'Bible Study', 'Prayer Meeting', 'Fellowship', 'Service Project', 'Other'];
@@ -243,12 +243,7 @@ export default function GroupAttendancePage() {
     );
   }
 
-  const breadcrumbItems = [
-    { label: 'Dashboard', href: '/dashboard' },
-    { label: 'Groups', href: '/dashboard/groups' },
-    { label: group?.name || 'Group', href: `/dashboard/groups/${groupId}` },
-    { label: 'Attendance', isCurrentPage: true }
-  ];
+
 
   const stats = getAttendanceStats();
 
@@ -273,7 +268,7 @@ export default function GroupAttendancePage() {
               </p>
             </div>
           </div>
-          <Breadcrumb items={breadcrumbItems} />
+    
         </div>
         
         <div className="flex items-center space-x-2">

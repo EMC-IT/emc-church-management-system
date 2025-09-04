@@ -27,7 +27,7 @@ import Link from 'next/link';
 import { groupsService } from '@/services';
 import { Group, GroupMember, GroupEvent } from '@/lib/types/groups';
 import { toast } from 'sonner';
-import Breadcrumb from '@/components/ui/breadcrumb';
+
 
 export default function GroupDetailsPage() {
   const router = useRouter();
@@ -128,11 +128,7 @@ export default function GroupDetailsPage() {
     );
   }
 
-  const breadcrumbItems = [
-    { label: 'Dashboard', href: '/dashboard' },
-    { label: 'Groups', href: '/dashboard/groups' },
-    { label: group.name, isCurrentPage: true }
-  ];
+  
 
   const getEngagementColor = (engagement: number) => {
     if (engagement >= 90) return 'text-brand-success';
@@ -168,7 +164,7 @@ export default function GroupDetailsPage() {
               <p className="text-muted-foreground">{group.description}</p>
             </div>
           </div>
-          <Breadcrumb items={breadcrumbItems} />
+    
         </div>
         
         <div className="flex space-x-2">

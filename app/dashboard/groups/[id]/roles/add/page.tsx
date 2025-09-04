@@ -26,7 +26,7 @@ import {
 import { groupsService } from '@/services';
 import { Group, GroupRole, GroupRoleFormData } from '@/lib/types/groups';
 import { toast } from 'sonner';
-import Breadcrumb from '@/components/ui/breadcrumb';
+
 
 const availablePermissions = [
   {
@@ -108,13 +108,7 @@ export default function AddGroupRolePage() {
     }
   };
 
-  const breadcrumbItems = [
-    { label: 'Dashboard', href: '/dashboard' },
-    { label: 'Groups', href: '/dashboard/groups' },
-    { label: group?.name || 'Group', href: `/dashboard/groups/${groupId}` },
-    { label: 'Roles', href: `/dashboard/groups/${groupId}/roles` },
-    { label: 'Create Role', isCurrentPage: true }
-  ];
+
 
   const handleInputChange = (field: string, value: any) => {
     setFormData(prev => ({
@@ -223,7 +217,7 @@ export default function AddGroupRolePage() {
               </p>
             </div>
           </div>
-          <Breadcrumb items={breadcrumbItems} />
+    
         </div>
       </div>
 

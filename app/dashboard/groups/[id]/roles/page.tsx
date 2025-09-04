@@ -50,7 +50,7 @@ import {
 import { groupsService } from '@/services';
 import { Group, GroupRole, GroupMember } from '@/lib/types/groups';
 import { toast } from 'sonner';
-import Breadcrumb from '@/components/ui/breadcrumb';
+
 
 const roleIcons = {
   'Leader': Crown,
@@ -174,12 +174,7 @@ export default function GroupRolesPage() {
     );
   }
 
-  const breadcrumbItems = [
-    { label: 'Dashboard', href: '/dashboard' },
-    { label: 'Groups', href: '/dashboard/groups' },
-    { label: group?.name || 'Group', href: `/dashboard/groups/${groupId}` },
-    { label: 'Roles', isCurrentPage: true }
-  ];
+
 
   return (
     <div className="space-y-6">
@@ -202,7 +197,7 @@ export default function GroupRolesPage() {
               </p>
             </div>
           </div>
-          <Breadcrumb items={breadcrumbItems} />
+    
         </div>
         
         <Button onClick={handleAddRole} className="bg-brand-primary hover:bg-brand-primary/90">

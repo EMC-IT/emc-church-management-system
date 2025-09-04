@@ -26,7 +26,7 @@ import {
 import { groupsService } from '@/services';
 import { GroupFormData } from '@/lib/types';
 import { toast } from 'sonner';
-import Breadcrumb from '@/components/ui/breadcrumb';
+
 
 const categories = ['Ministry', 'Fellowship', 'Study', 'Prayer', 'Outreach', 'Service'];
 const statusOptions = ['Active', 'Inactive', 'Archived'];
@@ -50,11 +50,7 @@ export default function AddGroupPage() {
     status: 'Active'
   });
 
-  const breadcrumbItems = [
-    { label: 'Dashboard', href: '/dashboard' },
-    { label: 'Groups', href: '/dashboard/groups' },
-    { label: 'Create Group', isCurrentPage: true }
-  ];
+  
 
   const handleInputChange = (field: string, value: any) => {
     if (field.startsWith('leader.')) {
@@ -144,7 +140,7 @@ export default function AddGroupPage() {
               <p className="text-muted-foreground">Add a new group to your church community</p>
             </div>
           </div>
-          <Breadcrumb items={breadcrumbItems} />
+
         </div>
       </div>
 

@@ -53,7 +53,7 @@ import {
 import { groupsService } from '@/services';
 import { GroupCategory } from '@/lib/types/groups';
 import { toast } from 'sonner';
-import Breadcrumb from '@/components/ui/breadcrumb';
+
 
 interface CategoryFormData {
   name: string;
@@ -262,11 +262,7 @@ export default function GroupCategoriesPage() {
     );
   }
 
-  const breadcrumbItems = [
-    { label: 'Dashboard', href: '/dashboard' },
-    { label: 'Groups', href: '/dashboard/groups' },
-    { label: 'Categories', isCurrentPage: true }
-  ];
+
 
   const stats = getCategoryStats();
 
@@ -291,7 +287,7 @@ export default function GroupCategoriesPage() {
               </p>
             </div>
           </div>
-          <Breadcrumb items={breadcrumbItems} />
+    
         </div>
         
         <Button onClick={handleAddCategory} className="bg-brand-primary hover:bg-brand-primary/90">

@@ -50,7 +50,7 @@ import {
 import { groupsService } from '@/services';
 import { Group, GroupMember, GroupRole } from '@/lib/types/groups';
 import { toast } from 'sonner';
-import Breadcrumb from '@/components/ui/breadcrumb';
+
 
 const roleIcons = {
   'Leader': Crown,
@@ -178,12 +178,7 @@ export default function GroupMembersPage() {
     );
   }
 
-  const breadcrumbItems = [
-    { label: 'Dashboard', href: '/dashboard' },
-    { label: 'Groups', href: '/dashboard/groups' },
-    { label: group?.name || 'Group', href: `/dashboard/groups/${groupId}` },
-    { label: 'Members', isCurrentPage: true }
-  ];
+
 
   const uniqueRoles = Array.from(new Set(members.map(m => m.role)));
 
@@ -208,7 +203,7 @@ export default function GroupMembersPage() {
               </p>
             </div>
           </div>
-          <Breadcrumb items={breadcrumbItems} />
+    
         </div>
         
         <Button onClick={handleAddMember} className="bg-brand-primary hover:bg-brand-primary/90">

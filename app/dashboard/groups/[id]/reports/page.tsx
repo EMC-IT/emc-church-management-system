@@ -42,7 +42,7 @@ import { groupsService } from '@/services';
 import { Group, GroupMember, GroupEvent, GroupAttendance, GroupStats } from '@/lib/types/groups';
 import { AttendanceStatus } from '@/lib/types/attendance';
 import { toast } from 'sonner';
-import Breadcrumb from '@/components/ui/breadcrumb';
+
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, PieChart as RechartsPieChart, Cell } from 'recharts';
 
 const reportTypes = [
@@ -497,12 +497,7 @@ export default function GroupReportsPage() {
     );
   }
 
-  const breadcrumbItems = [
-    { label: 'Dashboard', href: '/dashboard' },
-    { label: 'Groups', href: '/dashboard/groups' },
-    { label: group?.name || 'Group', href: `/dashboard/groups/${groupId}` },
-    { label: 'Reports', isCurrentPage: true }
-  ];
+
 
   return (
     <div className="space-y-6">
@@ -525,7 +520,7 @@ export default function GroupReportsPage() {
               </p>
             </div>
           </div>
-          <Breadcrumb items={breadcrumbItems} />
+    
         </div>
         
         <Button 

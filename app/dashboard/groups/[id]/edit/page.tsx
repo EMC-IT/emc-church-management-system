@@ -27,7 +27,7 @@ import {
 import { groupsService } from '@/services';
 import { Group, GroupFormData } from '@/lib/types/groups';
 import { toast } from 'sonner';
-import Breadcrumb from '@/components/ui/breadcrumb';
+
 import {
   AlertDialog,
   AlertDialogAction,
@@ -103,12 +103,7 @@ export default function EditGroupPage() {
     }
   };
 
-  const breadcrumbItems = [
-    { label: 'Dashboard', href: '/dashboard' },
-    { label: 'Groups', href: '/dashboard/groups' },
-    { label: group?.name || 'Loading...', href: `/dashboard/groups/${groupId}` },
-    { label: 'Edit', isCurrentPage: true }
-  ];
+
 
   const handleInputChange = (field: string, value: any) => {
     if (field.startsWith('leader.')) {
@@ -233,7 +228,7 @@ export default function EditGroupPage() {
               <p className="text-muted-foreground">Update group information and settings</p>
             </div>
           </div>
-          <Breadcrumb items={breadcrumbItems} />
+
         </div>
       </div>
 

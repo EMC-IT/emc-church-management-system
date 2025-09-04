@@ -28,7 +28,7 @@ import {
 import { groupsService } from '@/services';
 import { Group, GroupEvent, GroupEventFormData } from '@/lib/types/groups';
 import { toast } from 'sonner';
-import Breadcrumb from '@/components/ui/breadcrumb';
+
 
 const eventTypes = [
   'Meeting',
@@ -232,13 +232,7 @@ export default function AddGroupEventPage() {
     );
   }
 
-  const breadcrumbItems = [
-    { label: 'Dashboard', href: '/dashboard' },
-    { label: 'Groups', href: '/dashboard/groups' },
-    { label: group?.name || 'Group', href: `/dashboard/groups/${groupId}` },
-    { label: 'Events', href: `/dashboard/groups/${groupId}/events` },
-    { label: isEditing ? 'Edit Event' : 'Create Event', isCurrentPage: true }
-  ];
+
 
   return (
     <div className="space-y-6">
@@ -263,7 +257,7 @@ export default function AddGroupEventPage() {
               </p>
             </div>
           </div>
-          <Breadcrumb items={breadcrumbItems} />
+
         </div>
       </div>
 
