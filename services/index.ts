@@ -12,6 +12,7 @@ export { default as givingService } from './giving-service';
 export { default as attendanceService } from './attendance-service';
 export { default as groupsService } from './groups-service';
 export { default as sundaySchoolService } from './sunday-school-service';
+export { default as departmentsService } from './departments-service';
 
 // Export types from services
 export type {
@@ -82,3 +83,10 @@ export type {
   GroupsResponse,
   GroupSearchParams,
 } from './groups-service';
+
+export type {
+  DepartmentResponse,
+  DepartmentsResponse,
+  DepartmentStatsResponse,
+  DepartmentReportResponse,
+} from '../lib/types/departments';

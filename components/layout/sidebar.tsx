@@ -28,6 +28,7 @@ import {
   FileText,
   Shield,
   GraduationCap,
+  Building2,
 } from 'lucide-react';
 
 const navigation = [
@@ -61,14 +62,15 @@ const navigation = [
         icon: GraduationCap,
         permission: PERMISSIONS.VIEW_MEMBERS,
       },
-      {
-        name: 'Department',
-        href: '/dashboard/members/department',
-        icon: Shield,
-        permission: PERMISSIONS.VIEW_MEMBERS,
-      },
+       {
+    name: 'Departments',
+    href: '/dashboard/departments',
+    icon: Building2,
+    permission: PERMISSIONS.VIEW_MEMBERS,
+  },
     ],
   },
+ 
   {
     name: 'Finance',
     href: '/dashboard/finance',
