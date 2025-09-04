@@ -1,0 +1,863 @@
+'use client';
+
+import { useState, useEffect } from 'react';
+import { useParams, useRouter } from 'next/navigation';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+
+import { DataTable } from '@/components/ui/data-table';
+import { Progress } from '@/components/ui/progress';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Calendar } from '@/components/ui/calendar';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { 
+  ArrowLeft, 
+  Users, 
+  UserCheck, 
+  UserX, 
+  Clock, 
+  TrendingUp, 
+  TrendingDown, 
+  Search,
+  Filter,
+  Download,
+  CalendarIcon,
+  Eye,
+  MoreHorizontal,
+  BarChart3,
+  PieChart,
+  RefreshCw,
+  Building2,
+  Award,
+  Target,
+  Mail,
+  Phone,
+  MapPin,
+  Edit,
+  Settings
+} from 'lucide-react';
+import { format, subDays, startOfMonth, endOfMonth } from 'date-fns';
+import { cn } from '@/lib/utils';
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  PieChart as RechartsPieChart,
+  Cell,
+  Pie,
+  LineChart,
+  Line,
+  Area,
+  AreaChart
+} from 'recharts';
+import { attendanceService } from '@/services/attendance-service';
+import { AttendanceStatus, ServiceType } from '@/lib/types';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+
+// Mock department data
+const MOCK_DEPARTMENT_DETAILS = {
+  'dept_001': {
+    id: 'dept_001',
+    name: 'Media Ministry',
+    type: 'Technical',
+    head: 'Brother Emmanuel Osei',
+    headContact: {
+      email: 'emmanuel.osei@church.com',
+      phone: '+233 24 789 0123'
+    },
+    description: 'Responsible for all technical aspects of church services including sound, video, and live streaming.',
+    totalMembers: 25,
+    activeMembers: 23,
+    averageAttendance: 21,
+    attendanceRate: 92,
+    lastActivity: '2024-01-21',
+    nextMeeting: '2024-01-28',
+    meetingSchedule: 'Sundays 7:00 AM',
+    location: 'Media Room',
+    growth: 8.5,
+    streak: 12,
+    responsibilities: ['Sound System Management', 'Video Production', 'Live Streaming', 'Equipment Maintenance'],
+    budget: 15000,
+    equipment: 'Professional',
+    established: '2018-03-15',
+    vision: 'To enhance worship experience through excellent technical support and media production.'
+  }
+};
+
+// Mock members data for the department
+const MOCK_DEPARTMENT_MEMBERS = [
+  {
+    id: 'mem_001',
+    name: 'John Doe',
+    role: 'Sound Engineer',
+    avatar: 'https://trae-api-sg.mchost.guru/api/ide/v1/text_to_image?prompt=professional%20headshot%20of%20a%20young%20african%20man%20in%20church%20attire&image_size=square',
+    phone: '+233 24 123 4567',
+    email: 'john.doe@church.com',
+    joinDate: '2020-01-15',
+    attendanceRate: 95,
+    lastAttended: '2024-01-21',
+    streak: 8,
+    totalSessions: 20,
+    attendedSessions: 19,
+    status: 'Active'
+  },
+  {
+    id: 'mem_007',
+    name: 'Emmanuel Osei',
+    role: 'Department Head',
+    avatar: 'https://trae-api-sg.mchost.guru/api/ide/v1/text_to_image?prompt=professional%20headshot%20of%20a%20young%20african%20man%20in%20church%20attire&image_size=square',
+    phone: '+233 24 789 0123',
+    email: 'emmanuel.osei@church.com',
+    joinDate: '2018-03-15',
+    attendanceRate: 98,
+    lastAttended: '2024-01-21',
+    streak: 12,
+    totalSessions: 20,
+    attendedSessions: 20,
+    status: 'Active'
+  },
+  {
+    id: 'mem_009',
+    name: 'Samuel Asante',
+    role: 'Video Technician',
+    avatar: 'https://trae-api-sg.mchost.guru/api/ide/v1/text_to_image?prompt=professional%20headshot%20of%20a%20young%20african%20man%20in%20church%20attire&image_size=square',
+    phone: '+233 24 456 7890',
+    email: 'samuel.asante@church.com',
+    joinDate: '2021-06-10',
+    attendanceRate: 88,
+    lastAttended: '2024-01-21',
+    streak: 4,
+    totalSessions: 20,
+    attendedSessions: 18,
+    status: 'Active'
+  },
+  {
+    id: 'mem_010',
+    name: 'Grace Mensah',
+    role: 'Live Stream Coordinator',
+    avatar: 'https://trae-api-sg.mchost.guru/api/ide/v1/text_to_image?prompt=professional%20headshot%20of%20a%20young%20african%20woman%20in%20church%20attire&image_size=square',
+    phone: '+233 24 567 8901',
+    email: 'grace.mensah@church.com',
+    joinDate: '2022-02-20',
+    attendanceRate: 92,
+    lastAttended: '2024-01-21',
+    streak: 6,
+    totalSessions: 20,
+    attendedSessions: 18,
+    status: 'Active'
+  },
+  {
+    id: 'mem_011',
+    name: 'Daniel Kwame',
+    role: 'Assistant Sound Engineer',
+    avatar: 'https://trae-api-sg.mchost.guru/api/ide/v1/text_to_image?prompt=professional%20headshot%20of%20a%20young%20african%20man%20in%20church%20attire&image_size=square',
+    phone: '+233 24 678 9012',
+    email: 'daniel.kwame@church.com',
+    joinDate: '2023-01-08',
+    attendanceRate: 85,
+    lastAttended: '2024-01-14',
+    streak: 2,
+    totalSessions: 20,
+    attendedSessions: 17,
+    status: 'Active'
+  }
+];
+
+// Mock attendance data for the department
+const departmentAttendanceHistory = [
+  { week: 'Week 1', present: 20, late: 2, absent: 3, rate: 88 },
+  { week: 'Week 2', present: 21, late: 1, absent: 3, rate: 84 },
+  { week: 'Week 3', present: 22, late: 1, absent: 2, rate: 88 },
+  { week: 'Week 4', present: 23, late: 0, absent: 2, rate: 92 }
+];
+
+const roleDistribution = [
+  { name: 'Sound Engineers', value: 8, color: '#2E8DB0' },
+  { name: 'Video Technicians', value: 6, color: '#28ACD1' },
+  { name: 'Live Stream Team', value: 4, color: '#C49831' },
+  { name: 'Equipment Maintenance', value: 3, color: '#A5CF5D' },
+  { name: 'Support Staff', value: 4, color: '#8B5CF6' }
+];
+
+const monthlyPerformance = [
+  { month: 'Jan', attendance: 21, target: 23, rate: 91 },
+  { month: 'Feb', attendance: 22, target: 23, rate: 96 },
+  { month: 'Mar', attendance: 20, target: 23, rate: 87 },
+  { month: 'Apr', attendance: 23, target: 23, rate: 100 }
+];
+
+const memberColumns = [
+  {
+    accessorKey: 'name',
+    header: 'Member',
+    cell: ({ row }: any) => {
+      const member = row.original;
+      return (
+        <div className="flex items-center space-x-3">
+          <Avatar className="h-8 w-8">
+            <AvatarImage src={member.avatar} alt={member.name} />
+            <AvatarFallback>
+              {member.name.split(' ').map((n: string) => n[0]).join('')}
+            </AvatarFallback>
+          </Avatar>
+          <div>
+            <div className="font-medium">{member.name}</div>
+            <div className="text-sm text-muted-foreground">{member.role}</div>
+          </div>
+        </div>
+      );
+    }
+  },
+  {
+    accessorKey: 'attendanceRate',
+    header: 'Attendance Rate',
+    cell: ({ row }: any) => {
+      const rate = row.getValue('attendanceRate') as number;
+      return (
+        <div className="flex items-center space-x-2">
+          <Progress value={rate} className="w-16" />
+          <span className="text-sm font-medium">{rate}%</span>
+        </div>
+      );
+    }
+  },
+  {
+    accessorKey: 'totalSessions',
+    header: 'Sessions',
+    cell: ({ row }: any) => {
+      const member = row.original;
+      return (
+        <div className="text-center">
+          <div className="font-medium">{member.attendedSessions}/{member.totalSessions}</div>
+          <div className="text-xs text-muted-foreground">Attended/Total</div>
+        </div>
+      );
+    }
+  },
+  {
+    accessorKey: 'streak',
+    header: 'Streak',
+    cell: ({ row }: any) => {
+      const streak = row.getValue('streak') as number;
+      return (
+        <Badge 
+          variant="outline" 
+          className={cn(
+            streak >= 8 ? "bg-green-100 text-green-800 border-green-200" :
+            streak >= 4 ? "bg-yellow-100 text-yellow-800 border-yellow-200" :
+            "bg-gray-100 text-gray-800 border-gray-200"
+          )}
+        >
+          {streak} weeks
+        </Badge>
+      );
+    }
+  },
+  {
+    accessorKey: 'lastAttended',
+    header: 'Last Attended',
+    cell: ({ row }: any) => {
+      const date = new Date(row.getValue('lastAttended'));
+      return format(date, 'MMM dd, yyyy');
+    }
+  },
+  {
+    accessorKey: 'status',
+    header: 'Status',
+    cell: ({ row }: any) => {
+      const status = row.getValue('status') as string;
+      return (
+        <Badge 
+          variant="outline" 
+          className={cn(
+            status === 'Active' ? "bg-green-100 text-green-800 border-green-200" :
+            "bg-gray-100 text-gray-800 border-gray-200"
+          )}
+        >
+          {status}
+        </Badge>
+      );
+    }
+  },
+  {
+    id: 'actions',
+    header: 'Actions',
+    cell: ({ row }: any) => {
+      const member = row.original;
+      return (
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" className="h-8 w-8 p-0">
+              <MoreHorizontal className="h-4 w-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuItem onClick={() => window.open(`/dashboard/members/${member.id}`, '_blank')}>
+              <Eye className="mr-2 h-4 w-4" />
+              View Profile
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => window.open(`/dashboard/attendance/member/${member.id}`, '_blank')}>
+              <BarChart3 className="mr-2 h-4 w-4" />
+              Attendance History
+            </DropdownMenuItem>
+            <DropdownMenuItem>
+              <Mail className="mr-2 h-4 w-4" />
+              Send Message
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      );
+    }
+  }
+];
+
+export default function DepartmentAttendanceDetailPage() {
+  const params = useParams();
+  const router = useRouter();
+  const departmentId = params.id as string;
+  
+  const [isLoading, setIsLoading] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedPeriod, setSelectedPeriod] = useState('monthly');
+  const [dateRange, setDateRange] = useState<{ from: Date; to: Date }>({
+    from: startOfMonth(new Date()),
+    to: endOfMonth(new Date())
+  });
+  const [activeTab, setActiveTab] = useState('overview');
+
+  // Get department details (in real app, this would be fetched from API)
+  const department = MOCK_DEPARTMENT_DETAILS[departmentId as keyof typeof MOCK_DEPARTMENT_DETAILS] || MOCK_DEPARTMENT_DETAILS['dept_001'];
+  const members = MOCK_DEPARTMENT_MEMBERS;
+
+  const filteredMembers = members.filter(member => 
+    member.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    member.role.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+
+
+  const handleExportData = async () => {
+    setIsLoading(true);
+    try {
+      // Simulate export functionality
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      const csvContent = 'Member Name,Role,Attendance Rate,Sessions Attended,Total Sessions,Streak,Last Attended,Status\n' +
+        filteredMembers.map(member => 
+          `${member.name},${member.role},${member.attendanceRate}%,${member.attendedSessions},${member.totalSessions},${member.streak},${member.lastAttended},${member.status}`
+        ).join('\n');
+      
+      const blob = new Blob([csvContent], { type: 'text/csv' });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.style.display = 'none';
+      a.href = url;
+      a.download = `${department.name.toLowerCase().replace(/\s+/g, '-')}-attendance-${format(new Date(), 'yyyy-MM-dd')}.csv`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Export failed:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return (
+    <div className="space-y-6">
+
+
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div className="flex items-center gap-4">
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={() => router.back()}
+          >
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Back
+          </Button>
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900">{department.name}</h1>
+            <p className="text-muted-foreground mt-1">
+              {department.type} Department • Led by {department.head}
+            </p>
+          </div>
+        </div>
+        <div className="flex gap-2">
+          <Button variant="outline">
+            <Edit className="h-4 w-4 mr-2" />
+            Edit Department
+          </Button>
+          <Button variant="outline" onClick={handleExportData} disabled={isLoading}>
+            <Download className="h-4 w-4 mr-2" />
+            Export Data
+          </Button>
+        </div>
+      </div>
+
+      {/* Department Info Card */}
+      <Card>
+        <CardContent className="p-6">
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+            <div className="space-y-2">
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <Building2 className="h-4 w-4" />
+                Department Info
+              </div>
+              <div className="space-y-1">
+                <div className="font-medium">{department.name}</div>
+                <div className="text-sm text-muted-foreground">{department.type}</div>
+                <div className="text-sm text-muted-foreground">Est. {format(new Date(department.established), 'MMM yyyy')}</div>
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <Users className="h-4 w-4" />
+                Leadership
+              </div>
+              <div className="space-y-1">
+                <div className="font-medium">{department.head}</div>
+                <div className="text-sm text-muted-foreground flex items-center gap-1">
+                  <Mail className="h-3 w-3" />
+                  {department.headContact.email}
+                </div>
+                <div className="text-sm text-muted-foreground flex items-center gap-1">
+                  <Phone className="h-3 w-3" />
+                  {department.headContact.phone}
+                </div>
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <MapPin className="h-4 w-4" />
+                Meeting Details
+              </div>
+              <div className="space-y-1">
+                <div className="font-medium">{department.meetingSchedule}</div>
+                <div className="text-sm text-muted-foreground">{department.location}</div>
+                <div className="text-sm text-muted-foreground">Next: {format(new Date(department.nextMeeting), 'MMM dd, yyyy')}</div>
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <Target className="h-4 w-4" />
+                Performance
+              </div>
+              <div className="space-y-1">
+                <div className="font-medium">{department.attendanceRate}% Rate</div>
+                <div className="text-sm text-muted-foreground">{department.streak} week streak</div>
+                <div className="text-sm text-muted-foreground">₵{(department.budget / 1000).toFixed(0)}K budget</div>
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Stats Cards */}
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-muted-foreground">Total Members</p>
+                <p className="text-2xl font-bold">{department.totalMembers}</p>
+                <p className="text-xs text-muted-foreground">{department.activeMembers} active</p>
+              </div>
+              <Users className="h-8 w-8 text-muted-foreground" />
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-muted-foreground">Avg Attendance</p>
+                <p className="text-2xl font-bold">{department.averageAttendance}</p>
+                <p className="text-xs text-muted-foreground">per service</p>
+              </div>
+              <UserCheck className="h-8 w-8 text-green-600" />
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-muted-foreground">Attendance Rate</p>
+                <p className="text-2xl font-bold">{department.attendanceRate}%</p>
+                <Progress value={department.attendanceRate} className="mt-1" />
+              </div>
+              <TrendingUp className="h-8 w-8 text-brand-primary" />
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-muted-foreground">Growth Rate</p>
+                <p className="text-2xl font-bold text-green-600">+{department.growth}%</p>
+                <p className="text-xs text-muted-foreground">{department.streak} week streak</p>
+              </div>
+              <Award className="h-8 w-8 text-brand-accent" />
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Analytics Tabs */}
+      <Tabs value={activeTab} onValueChange={setActiveTab}>
+        <TabsList className="grid w-full grid-cols-4">
+          <TabsTrigger value="overview">Overview</TabsTrigger>
+          <TabsTrigger value="members">Members</TabsTrigger>
+          <TabsTrigger value="analytics">Analytics</TabsTrigger>
+          <TabsTrigger value="details">Details</TabsTrigger>
+        </TabsList>
+
+        {/* Overview Tab */}
+        <TabsContent value="overview" className="space-y-6">
+          <div className="grid gap-6 lg:grid-cols-2">
+            {/* Weekly Attendance Trend */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <BarChart3 className="h-5 w-5 text-brand-primary" />
+                  Weekly Attendance
+                </CardTitle>
+                <CardDescription>
+                  Recent attendance patterns for {department.name}
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ResponsiveContainer width="100%" height={300}>
+                  <BarChart data={departmentAttendanceHistory}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="week" />
+                    <YAxis />
+                    <Tooltip />
+                    <Bar dataKey="present" stackId="a" fill="#A5CF5D" name="Present" />
+                    <Bar dataKey="late" stackId="a" fill="#C49831" name="Late" />
+                    <Bar dataKey="absent" stackId="a" fill="#EF4444" name="Absent" />
+                  </BarChart>
+                </ResponsiveContainer>
+              </CardContent>
+            </Card>
+
+            {/* Role Distribution */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <PieChart className="h-5 w-5 text-brand-primary" />
+                  Role Distribution
+                </CardTitle>
+                <CardDescription>
+                  Members by role within the department
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ResponsiveContainer width="100%" height={300}>
+                  <RechartsPieChart>
+                    <Pie
+                      data={roleDistribution}
+                      cx="50%"
+                      cy="50%"
+                      innerRadius={60}
+                      outerRadius={120}
+                      paddingAngle={5}
+                      dataKey="value"
+                    >
+                      {roleDistribution.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={entry.color} />
+                      ))}
+                    </Pie>
+                    <Tooltip />
+                  </RechartsPieChart>
+                </ResponsiveContainer>
+                <div className="grid grid-cols-1 gap-2 mt-4">
+                  {roleDistribution.map((item, index) => (
+                    <div key={index} className="flex items-center gap-2">
+                      <div 
+                        className="w-3 h-3 rounded-full" 
+                        style={{ backgroundColor: item.color }}
+                      />
+                      <span className="text-sm">{item.name}</span>
+                      <span className="text-sm font-medium ml-auto">{item.value}</span>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Monthly Performance */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Monthly Performance vs Target</CardTitle>
+              <CardDescription>
+                Attendance performance compared to department targets
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <ResponsiveContainer width="100%" height={300}>
+                <LineChart data={monthlyPerformance}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="month" />
+                  <YAxis />
+                  <Tooltip />
+                  <Line type="monotone" dataKey="attendance" stroke="#2E8DB0" strokeWidth={2} name="Actual" />
+                  <Line type="monotone" dataKey="target" stroke="#C49831" strokeDasharray="5 5" strokeWidth={2} name="Target" />
+                </LineChart>
+              </ResponsiveContainer>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Members Tab */}
+        <TabsContent value="members" className="space-y-6">
+          {/* Search and Filters */}
+          <Card>
+            <CardContent className="p-4">
+              <div className="flex flex-col sm:flex-row gap-4">
+                <div className="relative flex-1">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                  <Input
+                    placeholder="Search members or roles..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="pl-10"
+                  />
+                </div>
+                <Button variant="outline">
+                  <Filter className="h-4 w-4 mr-2" />
+                  Filters
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Members Table */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Department Members ({filteredMembers.length})</CardTitle>
+              <CardDescription>
+                All members and their attendance records
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <DataTable
+                columns={memberColumns}
+                data={filteredMembers}
+                searchKey="name"
+                searchPlaceholder="Search members..."
+              />
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Analytics Tab */}
+        <TabsContent value="analytics" className="space-y-6">
+          <div className="grid gap-6 lg:grid-cols-2">
+            {/* Top Performers */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Top Performers</CardTitle>
+                <CardDescription>
+                  Members with highest attendance rates
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {members
+                    .sort((a, b) => b.attendanceRate - a.attendanceRate)
+                    .slice(0, 5)
+                    .map((member, index) => (
+                    <div key={member.id} className="flex items-center justify-between p-3 border rounded-lg">
+                      <div className="flex items-center space-x-3">
+                        <div className="h-8 w-8 rounded-full bg-brand-primary/10 flex items-center justify-center">
+                          <span className="text-sm font-medium text-brand-primary">#{index + 1}</span>
+                        </div>
+                        <Avatar className="h-8 w-8">
+                          <AvatarImage src={member.avatar} alt={member.name} />
+                          <AvatarFallback>
+                            {member.name.split(' ').map(n => n[0]).join('')}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div>
+                          <div className="font-medium">{member.name}</div>
+                          <div className="text-sm text-muted-foreground">{member.role}</div>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <div className="font-medium">{member.attendanceRate}%</div>
+                        <div className="text-sm text-muted-foreground">{member.streak} week streak</div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Attendance Insights */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Attendance Insights</CardTitle>
+                <CardDescription>
+                  Key metrics and trends
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between p-3 border rounded-lg">
+                    <div>
+                      <div className="font-medium">Perfect Attendance</div>
+                      <div className="text-sm text-muted-foreground">Members with 100% rate</div>
+                    </div>
+                    <div className="text-2xl font-bold text-green-600">
+                      {members.filter(m => m.attendanceRate === 100).length}
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-center justify-between p-3 border rounded-lg">
+                    <div>
+                      <div className="font-medium">Long Streaks</div>
+                      <div className="text-sm text-muted-foreground">8+ week streaks</div>
+                    </div>
+                    <div className="text-2xl font-bold text-brand-primary">
+                      {members.filter(m => m.streak >= 8).length}
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-center justify-between p-3 border rounded-lg">
+                    <div>
+                      <div className="font-medium">Average Streak</div>
+                      <div className="text-sm text-muted-foreground">Department average</div>
+                    </div>
+                    <div className="text-2xl font-bold text-brand-accent">
+                      {Math.round(members.reduce((sum, m) => sum + m.streak, 0) / members.length)}
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-center justify-between p-3 border rounded-lg">
+                    <div>
+                      <div className="font-medium">Needs Attention</div>
+                      <div className="text-sm text-muted-foreground">Below 85% rate</div>
+                    </div>
+                    <div className="text-2xl font-bold text-yellow-600">
+                      {members.filter(m => m.attendanceRate < 85).length}
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </TabsContent>
+
+        {/* Details Tab */}
+        <TabsContent value="details" className="space-y-6">
+          <div className="grid gap-6 lg:grid-cols-2">
+            {/* Department Information */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Department Information</CardTitle>
+                <CardDescription>
+                  Detailed information about {department.name}
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div>
+                  <label className="text-sm font-medium text-muted-foreground">Description</label>
+                  <p className="text-sm mt-1">{department.description}</p>
+                </div>
+                
+                <div>
+                  <label className="text-sm font-medium text-muted-foreground">Vision</label>
+                  <p className="text-sm mt-1">{department.vision}</p>
+                </div>
+                
+                <div>
+                  <label className="text-sm font-medium text-muted-foreground">Responsibilities</label>
+                  <ul className="text-sm mt-1 space-y-1">
+                    {department.responsibilities.map((responsibility, index) => (
+                      <li key={index} className="flex items-center gap-2">
+                        <div className="w-1.5 h-1.5 rounded-full bg-brand-primary" />
+                        {responsibility}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+                
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-sm font-medium text-muted-foreground">Established</label>
+                    <p className="text-sm mt-1">{format(new Date(department.established), 'MMMM dd, yyyy')}</p>
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium text-muted-foreground">Equipment Level</label>
+                    <p className="text-sm mt-1">{department.equipment}</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Quick Actions */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Quick Actions</CardTitle>
+                <CardDescription>
+                  Common department management tasks
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <Button className="w-full justify-start" variant="outline">
+                  <Users className="h-4 w-4 mr-2" />
+                  Add New Member
+                </Button>
+                
+                <Button className="w-full justify-start" variant="outline">
+                  <CalendarIcon className="h-4 w-4 mr-2" />
+                  Schedule Meeting
+                </Button>
+                
+                <Button className="w-full justify-start" variant="outline">
+                  <BarChart3 className="h-4 w-4 mr-2" />
+                  Generate Report
+                </Button>
+                
+                <Button className="w-full justify-start" variant="outline">
+                  <Mail className="h-4 w-4 mr-2" />
+                  Send Announcement
+                </Button>
+                
+                <Button className="w-full justify-start" variant="outline">
+                  <Settings className="h-4 w-4 mr-2" />
+                  Department Settings
+                </Button>
+              </CardContent>
+            </Card>
+          </div>
+        </TabsContent>
+      </Tabs>
+    </div>
+  );
+}

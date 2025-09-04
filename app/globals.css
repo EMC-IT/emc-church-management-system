@@ -1,0 +1,142 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 0 0% 3.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 3.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 3.9%;
+    /* Brand Colors - Light Mode */
+    --primary: 196 62% 44%;        /* #2E8DB0 - Deep Blue */
+    --primary-foreground: 0 0% 98%;
+    --secondary: 199 66% 50%;       /* #28ACD1 - Light Blue */
+    --secondary-foreground: 0 0% 9%;
+    --accent: 44 55% 48%;           /* #C49831 - Gold */
+    --accent-foreground: 0 0% 9%;
+    --success: 75 46% 58%;          /* #A5CF5D - Green */
+    --success-foreground: 0 0% 9%;
+    --muted: 0 0% 96.1%;
+    --muted-foreground: 0 0% 45.1%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 0 0% 89.8%;
+    --input: 0 0% 89.8%;
+    --ring: 196 62% 44%;
+    /* Chart Colors */
+    --chart-1: 196 62% 44%;        /* #2E8DB0 */
+    --chart-2: 199 66% 50%;        /* #28ACD1 */
+    --chart-3: 44 55% 48%;         /* #C49831 */
+    --chart-4: 75 46% 58%;         /* #A5CF5D */
+    --chart-5: 0 0% 3%;            /* #080A09 */
+    --radius: 0.5rem;
+  }
+  
+  .dark {
+    --background: 0 0% 7%;          /* #121212 - Softer dark background */
+    --foreground: 0 0% 98%;
+    --card: 0 0% 7%;                /* #121212 - Same as background */
+    --card-foreground: 0 0% 98%;
+    --popover: 0 0% 7%;             /* #121212 - Same as background */
+    --popover-foreground: 0 0% 98%;
+    /* Brand Colors - Dark Mode */
+    --primary: 196 62% 44%;        /* #2E8DB0 - Deep Blue */
+    --primary-foreground: 0 0% 98%;
+    --secondary: 199 66% 50%;       /* #28ACD1 - Light Blue */
+    --secondary-foreground: 0 0% 98%;
+    --accent: 44 55% 48%;           /* #C49831 - Gold */
+    --accent-foreground: 0 0% 98%;
+    --success: 75 46% 58%;          /* #A5CF5D - Green */
+    --success-foreground: 0 0% 98%;
+    --muted: 0 0% 12%;              /* Slightly lighter than background for subtle contrast */
+    --muted-foreground: 0 0% 63.9%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 0 0% 15%;             /* #262626 - Lighter border for card definition */
+    --input: 0 0% 12%;              /* Matching muted for inputs */
+    --ring: 196 62% 44%;
+    /* Chart Colors - Dark Mode */
+    --chart-1: 196 62% 44%;        /* #2E8DB0 */
+    --chart-2: 199 66% 50%;        /* #28ACD1 */
+    --chart-3: 44 55% 48%;         /* #C49831 */
+    --chart-4: 75 46% 58%;         /* #A5CF5D */
+    --chart-5: 0 0% 98%;           /* Light text for dark mode */
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+    /* Prevent body scroll when using layout containers */
+    overflow: hidden;
+  }
+}
+
+/* Enhanced Scrollbar Styling */
+@layer utilities {
+  /* WebKit browsers (Chrome, Safari, Edge) */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: hsl(var(--muted));
+    border-radius: 4px;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: hsl(var(--primary) / 0.6);
+    border-radius: 4px;
+    border: 1px solid hsl(var(--muted));
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: hsl(var(--primary) / 0.8);
+  }
+
+  ::-webkit-scrollbar-corner {
+    background: hsl(var(--muted));
+  }
+
+  /* Firefox */
+  html {
+    scrollbar-width: thin;
+    scrollbar-color: hsl(var(--primary) / 0.6) hsl(var(--muted));
+  }
+
+  /* For specific scrollable containers */
+  .scrollbar-thin::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-track {
+    background: hsl(var(--muted));
+    border-radius: 3px;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    background: hsl(var(--primary) / 0.6);
+    border-radius: 3px;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+    background: hsl(var(--primary) / 0.8);
+  }
+
+  /* Hide scrollbar for specific elements */
+  .scrollbar-hide {
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+  }
+  
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;  /* Chrome, Safari and Opera */
+  }
+}
