@@ -11,6 +11,7 @@ export { default as documentsService } from './documents-service';
 export { default as givingService } from './giving-service';
 export { default as attendanceService } from './attendance-service';
 export { default as groupsService } from './groups-service';
+export { default as sundaySchoolService } from './sunday-school-service';
 
 // Export types from services
 export type {

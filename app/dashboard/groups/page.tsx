@@ -26,7 +26,8 @@ import {
   Eye,
   Edit,
   Download,
-  Loader2
+  Loader2,
+  Settings
 } from 'lucide-react';
 import Link from 'next/link';
 import { groupsService } from '@/services';
@@ -107,6 +108,10 @@ export default function GroupsPage() {
     router.push('/dashboard/groups/add');
   };
 
+  const handleManageCategories = () => {
+    router.push('/dashboard/groups/categories');
+  };
+
   const handleViewGroup = (groupId: string) => {
     router.push(`/dashboard/groups/${groupId}`);
   };
@@ -134,6 +139,10 @@ export default function GroupsPage() {
           <Button variant="outline">
             <Download className="mr-2 h-4 w-4" />
             Export Contacts
+          </Button>
+          <Button variant="outline" onClick={handleManageCategories}>
+            <Settings className="mr-2 h-4 w-4" />
+            Manage Categories
           </Button>
           <Button 
             onClick={handleCreateGroup}
