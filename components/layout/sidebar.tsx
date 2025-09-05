@@ -78,8 +78,8 @@ const navigation = [
     permission: PERMISSIONS.VIEW_FINANCE,
     children: [
       {
-        name: "Donations",
-        href: "/dashboard/finance/donations",
+        name: "Giving",
+        href: "/dashboard/finance/giving",
         icon: Wallet,
       },
       {

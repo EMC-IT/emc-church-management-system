@@ -230,7 +230,7 @@ export default function FinanceOverviewPage() {
             Export Report
           </Button>
           <Button asChild>
-            <Link href="/dashboard/finance/donations/add">
+            <Link href="/dashboard/finance/giving/donations/add">
               <Plus className="mr-2 h-4 w-4" />
               Record Donation
             </Link>
@@ -315,15 +315,15 @@ export default function FinanceOverviewPage() {
 
       {/* Quick Actions */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => router.push('/dashboard/finance/donations')}>
+        <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => router.push('/dashboard/finance/giving')}>
           <CardContent className="p-6">
             <div className="flex items-center space-x-4">
               <div className="p-2 bg-blue-100 rounded-lg">
                 <Receipt className="h-6 w-6 text-blue-600" />
               </div>
               <div>
-                <h3 className="font-semibold">Donations</h3>
-                <p className="text-sm text-muted-foreground">Manage donations</p>
+                <h3 className="font-semibold">Giving</h3>
+                <p className="text-sm text-muted-foreground">Manage giving</p>
               </div>
             </div>
           </CardContent>
@@ -374,15 +374,15 @@ export default function FinanceOverviewPage() {
 
       {/* Charts and Analytics */}
       <div className="grid gap-6 md:grid-cols-2">
-        {/* Recent Donations */}
+        {/* Recent Giving */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center">
               <BarChart3 className="mr-2 h-5 w-5" />
-              Recent Donations
+              Recent Giving
             </CardTitle>
             <CardDescription>
-              Latest donations recorded
+              Latest giving transactions recorded
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -397,8 +397,8 @@ export default function FinanceOverviewPage() {
             />
             <div className="mt-4 text-center">
               <Button variant="outline" asChild>
-                <Link href="/dashboard/finance/donations">
-                  View All Donations
+                <Link href="/dashboard/finance/giving">
+                  View All Giving
                 </Link>
               </Button>
             </div>
@@ -442,7 +442,7 @@ export default function FinanceOverviewPage() {
         <CardHeader>
           <CardTitle>Category Breakdown</CardTitle>
           <CardDescription>
-            Donations by category this month
+            Giving by category this month
           </CardDescription>
         </CardHeader>
         <CardContent>

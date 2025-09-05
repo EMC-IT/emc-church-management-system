@@ -477,8 +477,12 @@ const BREADCRUMB_CONFIG = {
   '/dashboard/prayer-requests/add': { label: 'Submit Request' },
   '/dashboard/prayer-requests/[id]': { label: (data) => data.title },
   '/dashboard/finance': { label: 'Finance' },
-  '/dashboard/finance/donations': { label: 'Donations' },
-  '/dashboard/finance/donations/add': { label: 'Record Donation' },
+  '/dashboard/finance/giving': { label: 'Giving' },
+  '/dashboard/finance/giving/donations': { label: 'Donations' },
+  '/dashboard/finance/giving/donations/add': { label: 'Record Donation' },
+  '/dashboard/finance/giving/pledges': { label: 'Pledges' },
+  '/dashboard/finance/giving/categories': { label: 'Categories' },
+  '/dashboard/finance/giving/reports': { label: 'Reports' },
   '/dashboard/events': { label: 'Events' },
   '/dashboard/events/add': { label: 'Create Event' },
   '/dashboard/events/[id]': { label: (data) => data.title },
@@ -557,12 +561,28 @@ app/dashboard/
 │           └── page.tsx         # Edit prayer request (/dashboard/prayer-requests/:id/edit)
 ├── finance/
 │   ├── page.tsx                 # Finance overview (/dashboard/finance)
-│   ├── donations/
-│   │   ├── page.tsx             # Donations list (/dashboard/finance/donations)
+│   ├── giving/
+│   ├── page.tsx             # Giving overview (/dashboard/finance/giving)
+│   ├── categories/
+│   │   ├── page.tsx         # Categories list (/dashboard/finance/giving/categories)
 │   │   ├── add/
-│   │   │   └── page.tsx         # Record donation (/dashboard/finance/donations/add)
+│   │   │   └── page.tsx     # Add category (/dashboard/finance/giving/categories/add)
 │   │   └── [id]/
-│   │       └── page.tsx         # Donation details (/dashboard/finance/donations/:id)
+│   │       └── page.tsx     # Category details (/dashboard/finance/giving/categories/:id)
+│   ├── pledges/
+│   │   ├── page.tsx         # Pledges list (/dashboard/finance/giving/pledges)
+│   │   ├── add/
+│   │   │   └── page.tsx     # Record pledge (/dashboard/finance/giving/pledges/add)
+│   │   └── [id]/
+│   │       └── page.tsx     # Pledge details (/dashboard/finance/giving/pledges/:id)
+│   ├── donations/
+│   │   ├── page.tsx         # Donations list (/dashboard/finance/giving/donations)
+│   │   ├── add/
+│   │   │   └── page.tsx     # Record donation (/dashboard/finance/giving/donations/add)
+│   │   └── [id]/
+│   │       └── page.tsx     # Donation details (/dashboard/finance/giving/donations/:id)
+│   └── reports/
+│       └── page.tsx         # Giving reports (/dashboard/finance/giving/reports)
 │   ├── budgets/
 │   │   ├── page.tsx             # Budgets list (/dashboard/finance/budgets)
 │   │   ├── add/
