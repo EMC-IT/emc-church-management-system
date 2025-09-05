@@ -8,6 +8,9 @@ import { Badge } from '@/components/ui/badge';
 import { DataTable } from '@/components/ui/data-table';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { LazySection } from '@/components/ui/lazy-section';
+import { LazyLoader } from '@/components/ui/lazy-loader';
+import { CardSkeleton, ProfileSkeleton, TableSkeleton } from '@/components/ui/skeleton-loaders';
 import { 
   ArrowLeft, 
   Edit, 
@@ -317,18 +320,23 @@ export default function PledgeDetailsPage() {
   if (loading || !pledge) {
     return (
       <div className="space-y-6">
-        <div className="flex items-center space-x-4">
-          <div className="h-8 w-8 bg-gray-200 rounded animate-pulse" />
-          <div>
-            <div className="h-8 w-48 bg-gray-200 rounded animate-pulse mb-2" />
-            <div className="h-4 w-32 bg-gray-200 rounded animate-pulse" />
-          </div>
-        </div>
-        <div className="grid gap-4 md:grid-cols-4">
-          {[...Array(4)].map((_, i) => (
-            <div key={i} className="h-24 bg-gray-200 rounded animate-pulse" />
-          ))}
-        </div>
+        <ProfileSkeleton 
+          className="mb-6"
+        />
+        <CardSkeleton 
+          count={4} 
+          className="grid gap-4 md:grid-cols-4" 
+        />
+        <CardSkeleton 
+          count={2} 
+          className="grid gap-6 md:grid-cols-2" 
+        />
+        <TableSkeleton 
+          rows={3} 
+          columns={5} 
+          showHeader 
+          className="mt-6" 
+        />
       </div>
     );
   }
@@ -463,57 +471,66 @@ export default function PledgeDetailsPage() {
       )}
 
       {/* Statistics Cards */}
-      <div className="grid gap-4 md:grid-cols-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Pledged</CardTitle>
-            <Target className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{formatCurrency(pledge.pledgeDetails.totalAmount)}</div>
-            <p className="text-xs text-muted-foreground">
-              {pledge.pledgeDetails.installments} installments
-            </p>
-          </CardContent>
-        </Card>
+      <LazySection
+        strategy="immediate"
+        showSkeleton
+        skeletonVariant="card"
+        skeletonCount={4}
+        className="grid gap-4 md:grid-cols-4"
+        threshold={0.1}
+      >
+        <div className="grid gap-4 md:grid-cols-4">
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Total Pledged</CardTitle>
+              <Target className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{formatCurrency(pledge.pledgeDetails.totalAmount)}</div>
+              <p className="text-xs text-muted-foreground">
+                {pledge.pledgeDetails.installments} installments
+              </p>
+            </CardContent>
+          </Card>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Amount Paid</CardTitle>
-            <BadgeCent className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{formatCurrency(pledge.pledgeDetails.paidAmount)}</div>
-            <p className="text-xs text-muted-foreground">
-              {payments.length} payments made
-            </p>
-          </CardContent>
-        </Card>
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Amount Paid</CardTitle>
+              <BadgeCent className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{formatCurrency(pledge.pledgeDetails.paidAmount)}</div>
+              <p className="text-xs text-muted-foreground">
+                {payments.length} payments made
+              </p>
+            </CardContent>
+          </Card>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Remaining</CardTitle>
-            <Clock className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{formatCurrency(pledge.pledgeDetails.remainingAmount)}</div>
-            <p className="text-xs text-muted-foreground">
-              {isCompleted ? 'Completed' : `${pledge.pledgeDetails.installments - payments.length} payments left`}
-            </p>
-          </CardContent>
-        </Card>
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Remaining</CardTitle>
+              <Clock className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{formatCurrency(pledge.pledgeDetails.remainingAmount)}</div>
+              <p className="text-xs text-muted-foreground">
+                {isCompleted ? 'Completed' : `${pledge.pledgeDetails.installments - payments.length} payments left`}
+              </p>
+            </CardContent>
+          </Card>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Progress</CardTitle>
-            <TrendingUp className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{progress.toFixed(1)}%</div>
-            <Progress value={progress} className="mt-2" />
-          </CardContent>
-        </Card>
-      </div>
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Progress</CardTitle>
+              <TrendingUp className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{progress.toFixed(1)}%</div>
+              <Progress value={progress} className="mt-2" />
+            </CardContent>
+          </Card>
+        </div>
+      </LazySection>
 
       <Tabs defaultValue="details" className="space-y-4">
         <TabsList>
@@ -523,7 +540,8 @@ export default function PledgeDetailsPage() {
         </TabsList>
 
         <TabsContent value="details" className="space-y-4">
-          <div className="grid gap-6 md:grid-cols-2">
+          <LazyLoader threshold={0.2}>
+            <div className="grid gap-6 md:grid-cols-2">
             <Card>
               <CardHeader>
                 <CardTitle>Pledge Information</CardTitle>
@@ -622,11 +640,13 @@ export default function PledgeDetailsPage() {
                 </div>
               </CardContent>
             </Card>
-          </div>
+            </div>
+          </LazyLoader>
         </TabsContent>
 
         <TabsContent value="payments" className="space-y-4">
-          <Card>
+          <LazyLoader threshold={0.3}>
+            <Card>
             <CardHeader>
               <CardTitle>Payment History</CardTitle>
               <CardDescription>
@@ -649,11 +669,13 @@ export default function PledgeDetailsPage() {
                 </div>
               )}
             </CardContent>
-          </Card>
+            </Card>
+          </LazyLoader>
         </TabsContent>
 
         <TabsContent value="schedule" className="space-y-4">
-          <Card>
+          <LazyLoader threshold={0.4}>
+            <Card>
             <CardHeader>
               <CardTitle>Payment Schedule</CardTitle>
               <CardDescription>
@@ -672,7 +694,8 @@ export default function PledgeDetailsPage() {
                 </div>
               </div>
             </CardContent>
-          </Card>
+            </Card>
+          </LazyLoader>
         </TabsContent>
       </Tabs>
     </div>

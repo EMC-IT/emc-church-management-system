@@ -9,6 +9,9 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { LazySection } from '@/components/ui/lazy-section';
+import { LazyLoader } from '@/components/ui/lazy-loader';
+import { ProfileSkeleton, CardSkeleton, TableSkeleton } from '@/components/ui/skeleton-loaders';
 import { 
   ArrowLeft, 
   Edit, 
@@ -254,18 +257,17 @@ export default function DonationDetailsPage() {
   if (loading || !donation) {
     return (
       <div className="space-y-6">
-        <div className="flex items-center space-x-4">
-          <div className="h-8 w-8 bg-gray-200 rounded animate-pulse" />
-          <div>
-            <div className="h-8 w-48 bg-gray-200 rounded animate-pulse mb-2" />
-            <div className="h-4 w-32 bg-gray-200 rounded animate-pulse" />
-          </div>
-        </div>
-        <div className="grid gap-4 md:grid-cols-3">
-          {[...Array(3)].map((_, i) => (
-            <div key={i} className="h-32 bg-gray-200 rounded animate-pulse" />
-          ))}
-        </div>
+        <ProfileSkeleton 
+          className="mb-6"
+        />
+        <CardSkeleton 
+          count={3} 
+          className="grid gap-4 md:grid-cols-3" 
+        />
+        <CardSkeleton 
+          count={2} 
+          className="grid gap-6 md:grid-cols-2" 
+        />
       </div>
     );
   }
@@ -350,7 +352,14 @@ export default function DonationDetailsPage() {
       </div>
 
       {/* Status Cards */}
-      <div className="grid gap-4 md:grid-cols-3">
+      <LazySection
+        strategy="immediate"
+        showSkeleton
+        skeletonVariant="card"
+        skeletonCount={3}
+        className="grid gap-4 md:grid-cols-3"
+        threshold={0.1}
+      >
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Amount</CardTitle>
@@ -395,7 +404,7 @@ export default function DonationDetailsPage() {
             </p>
           </CardContent>
         </Card>
-      </div>
+      </LazySection>
 
       <Tabs defaultValue="details" className="space-y-4">
         <TabsList>
@@ -404,9 +413,10 @@ export default function DonationDetailsPage() {
         </TabsList>
 
         <TabsContent value="details" className="space-y-4">
-          <div className="grid gap-6 md:grid-cols-2">
-            {/* Donation Information */}
-            <Card>
+          <LazyLoader threshold={0.2}>
+            <div className="grid gap-6 md:grid-cols-2">
+              {/* Donation Information */}
+              <Card>
               <CardHeader>
                 <CardTitle>Donation Information</CardTitle>
                 <CardDescription>
@@ -523,79 +533,88 @@ export default function DonationDetailsPage() {
               </CardContent>
             </Card>
 
-            {/* Donor Information */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center space-x-2">
-                  <User className="h-5 w-5" />
-                  <span>Donor Information</span>
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                {donation.isAnonymous ? (
-                  <div className="text-center py-8">
-                    <User className="mx-auto h-12 w-12 text-muted-foreground" />
-                    <h3 className="mt-2 text-sm font-semibold text-gray-900">Anonymous Donation</h3>
-                    <p className="mt-1 text-sm text-gray-500">Donor information is not available for anonymous donations.</p>
-                  </div>
-                ) : (
-                  <div className="space-y-4">
-                    <div className="flex justify-between">
-                      <span className="text-sm text-muted-foreground">Name:</span>
-                      <span className="font-medium">{donation.memberName}</span>
-                    </div>
-                    
-                    {donation.memberEmail && (
-                      <div className="flex justify-between">
-                        <span className="text-sm text-muted-foreground">Email:</span>
-                        <span className="font-medium">{donation.memberEmail}</span>
+              {/* Donor Information */}
+              <LazySection
+                strategy="lazy"
+                showSkeleton
+                skeletonVariant="card"
+                threshold={0.3}
+              >
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center space-x-2">
+                      <User className="h-5 w-5" />
+                      <span>Donor Information</span>
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    {donation.isAnonymous ? (
+                      <div className="text-center py-8">
+                        <User className="mx-auto h-12 w-12 text-muted-foreground" />
+                        <h3 className="mt-2 text-sm font-semibold text-gray-900">Anonymous Donation</h3>
+                        <p className="mt-1 text-sm text-gray-500">Donor information is not available for anonymous donations.</p>
+                      </div>
+                    ) : (
+                      <div className="space-y-4">
+                        <div className="flex justify-between">
+                          <span className="text-sm text-muted-foreground">Name:</span>
+                          <span className="font-medium">{donation.memberName}</span>
+                        </div>
+                        
+                        {donation.memberEmail && (
+                          <div className="flex justify-between">
+                            <span className="text-sm text-muted-foreground">Email:</span>
+                            <span className="font-medium">{donation.memberEmail}</span>
+                          </div>
+                        )}
+                        
+                        {donation.memberPhone && (
+                          <div className="flex justify-between">
+                            <span className="text-sm text-muted-foreground">Phone:</span>
+                            <span className="font-medium">{donation.memberPhone}</span>
+                          </div>
+                        )}
+                        
+                        <div className="flex justify-between">
+                          <span className="text-sm text-muted-foreground">Member ID:</span>
+                          <span className="font-medium">{donation.memberId}</span>
+                        </div>
                       </div>
                     )}
                     
-                    {donation.memberPhone && (
-                      <div className="flex justify-between">
-                        <span className="text-sm text-muted-foreground">Phone:</span>
-                        <span className="font-medium">{donation.memberPhone}</span>
-                      </div>
-                    )}
+                    <hr />
                     
-                    <div className="flex justify-between">
-                      <span className="text-sm text-muted-foreground">Member ID:</span>
-                      <span className="font-medium">{donation.memberId}</span>
+                    <div className="space-y-2">
+                      <div className="flex justify-between">
+                        <span className="text-sm text-muted-foreground">Receipt #:</span>
+                        <span className="font-medium">{donation.receiptNumber}</span>
+                      </div>
+                      
+                      <div className="flex justify-between">
+                        <span className="text-sm text-muted-foreground">Date:</span>
+                        <span className="font-medium">{new Date(donation.date).toLocaleDateString()}</span>
+                      </div>
+                      
+                      <div className="flex justify-between">
+                        <span className="text-sm text-muted-foreground">Created:</span>
+                        <span className="font-medium">{new Date(donation.createdAt).toLocaleDateString()}</span>
+                      </div>
+                      
+                      <div className="flex justify-between">
+                        <span className="text-sm text-muted-foreground">Last Updated:</span>
+                        <span className="font-medium">{new Date(donation.updatedAt).toLocaleDateString()}</span>
+                      </div>
                     </div>
-                  </div>
-                )}
-                
-                <hr />
-                
-                <div className="space-y-2">
-                  <div className="flex justify-between">
-                    <span className="text-sm text-muted-foreground">Receipt #:</span>
-                    <span className="font-medium">{donation.receiptNumber}</span>
-                  </div>
-                  
-                  <div className="flex justify-between">
-                    <span className="text-sm text-muted-foreground">Date:</span>
-                    <span className="font-medium">{new Date(donation.date).toLocaleDateString()}</span>
-                  </div>
-                  
-                  <div className="flex justify-between">
-                    <span className="text-sm text-muted-foreground">Created:</span>
-                    <span className="font-medium">{new Date(donation.createdAt).toLocaleDateString()}</span>
-                  </div>
-                  
-                  <div className="flex justify-between">
-                    <span className="text-sm text-muted-foreground">Last Updated:</span>
-                    <span className="font-medium">{new Date(donation.updatedAt).toLocaleDateString()}</span>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
+                  </CardContent>
+                </Card>
+              </LazySection>
+            </div>
+          </LazyLoader>
         </TabsContent>
 
         <TabsContent value="history" className="space-y-4">
-          <Card>
+          <LazyLoader threshold={0.4}>
+            <Card>
             <CardHeader>
               <CardTitle>Activity History</CardTitle>
               <CardDescription>
@@ -627,7 +646,8 @@ export default function DonationDetailsPage() {
                 )}
               </div>
             </CardContent>
-          </Card>
+            </Card>
+          </LazyLoader>
         </TabsContent>
       </Tabs>
     </div>

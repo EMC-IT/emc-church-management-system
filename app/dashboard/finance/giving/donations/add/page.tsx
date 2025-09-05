@@ -11,6 +11,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Switch } from '@/components/ui/switch';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { LazySection } from '@/components/ui/lazy-section';
+import { LoadingSpinner } from '@/components/ui/loading-spinner';
+import { FormSkeleton } from '@/components/ui/skeleton-loaders';
 import { 
   ArrowLeft, 
   Save, 
@@ -161,7 +164,13 @@ export default function AddDonationPage() {
           {/* Main Form */}
           <div className="lg:col-span-2 space-y-6">
             {/* Donor Information */}
-            <Card>
+            <LazySection
+              strategy="immediate"
+              showSkeleton
+              skeletonVariant="form"
+              threshold={0.1}
+            >
+              <Card>
               <CardHeader>
                 <CardTitle className="flex items-center space-x-2">
                   <User className="h-5 w-5" />
@@ -208,10 +217,17 @@ export default function AddDonationPage() {
                   </div>
                 </div>
               </CardContent>
-            </Card>
+              </Card>
+            </LazySection>
 
             {/* Donation Details */}
-            <Card>
+            <LazySection
+              strategy="lazy"
+              showSkeleton
+              skeletonVariant="form"
+              threshold={0.2}
+            >
+              <Card>
               <CardHeader>
                 <CardTitle className="flex items-center space-x-2">
                   <BadgeCent className="h-5 w-5" />
@@ -331,12 +347,20 @@ export default function AddDonationPage() {
                   />
                 </div>
               </CardContent>
-            </Card>
+              </Card>
+            </LazySection>
           </div>
 
           {/* Summary Sidebar */}
-          <div className="space-y-6">
-            <Card>
+          <LazySection
+            strategy="lazy"
+            showSkeleton
+            skeletonVariant="card"
+            skeletonCount={3}
+            threshold={0.3}
+          >
+            <div className="space-y-6">
+              <Card>
               <CardHeader>
                 <CardTitle className="flex items-center space-x-2">
                   <BadgeCent className="h-5 w-5" />
@@ -458,19 +482,24 @@ export default function AddDonationPage() {
               </CardContent>
             </Card>
 
-            {/* Action Buttons */}
-            <div className="space-y-2">
-              <Button type="submit" className="w-full" disabled={loading}>
-                <Save className="mr-2 h-4 w-4" />
-                {loading ? 'Recording...' : 'Record Donation'}
-              </Button>
-              <Button type="button" variant="outline" className="w-full" asChild>
-                <Link href="/dashboard/finance/giving/donations">
-                  Cancel
-                </Link>
-              </Button>
+              {/* Action Buttons */}
+              <div className="space-y-2">
+                <Button type="submit" className="w-full" disabled={loading}>
+                  {loading ? (
+                    <LoadingSpinner size="sm" className="mr-2" />
+                  ) : (
+                    <Save className="mr-2 h-4 w-4" />
+                  )}
+                  {loading ? 'Recording...' : 'Record Donation'}
+                </Button>
+                <Button type="button" variant="outline" className="w-full" asChild>
+                  <Link href="/dashboard/finance/giving/donations">
+                    Cancel
+                  </Link>
+                </Button>
+              </div>
             </div>
-          </div>
+          </LazySection>
         </div>
       </form>
     </div>

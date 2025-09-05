@@ -6,6 +6,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { DataTable } from '@/components/ui/data-table';
 import { SearchInput } from '@/components/ui/search-input';
+import { LazySection } from '@/components/ui/lazy-section';
+import { LazyLoader } from '@/components/ui/lazy-loader';
+import { CardSkeleton, ChartSkeleton, TableSkeleton } from '@/components/ui/skeleton-loaders';
 import { 
   Plus, 
   BadgeCent,
@@ -270,20 +273,20 @@ export default function GivingOverviewPage() {
             <p className="text-muted-foreground">Track and manage church giving</p>
           </div>
         </div>
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-          {[...Array(4)].map((_, i) => (
-            <Card key={i}>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <div className="h-4 w-20 bg-gray-200 rounded animate-pulse" />
-                <div className="h-4 w-4 bg-gray-200 rounded animate-pulse" />
-              </CardHeader>
-              <CardContent>
-                <div className="h-8 w-24 bg-gray-200 rounded animate-pulse mb-2" />
-                <div className="h-3 w-16 bg-gray-200 rounded animate-pulse" />
-              </CardContent>
-            </Card>
-          ))}
-        </div>
+        <CardSkeleton 
+          count={4} 
+          className="grid gap-4 md:grid-cols-2 lg:grid-cols-4" 
+        />
+        <CardSkeleton 
+          count={4} 
+          className="grid gap-4 md:grid-cols-2 lg:grid-cols-4" 
+        />
+        <TableSkeleton 
+          rows={3} 
+          columns={5} 
+          showHeader 
+          className="mt-6" 
+        />
       </div>
     );
   }
@@ -313,7 +316,14 @@ export default function GivingOverviewPage() {
       </div>
 
       {/* Statistics Cards */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <LazySection
+        strategy="immediate"
+        showSkeleton
+        skeletonVariant="card"
+        skeletonCount={4}
+        className="grid gap-4 md:grid-cols-2 lg:grid-cols-4"
+        threshold={0.1}
+      >
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Giving</CardTitle>
@@ -366,10 +376,17 @@ export default function GivingOverviewPage() {
             </p>
           </CardContent>
         </Card>
-      </div>
+      </LazySection>
 
       {/* Quick Actions */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <LazySection
+        strategy="lazy"
+        showSkeleton
+        skeletonVariant="card"
+        skeletonCount={4}
+        className="grid gap-4 md:grid-cols-2 lg:grid-cols-4"
+        threshold={0.2}
+      >
         {quickActions.map((action) => {
           const IconComponent = action.icon;
           return (
@@ -392,33 +409,35 @@ export default function GivingOverviewPage() {
             </Card>
           );
         })}
-      </div>
+      </LazySection>
 
       {/* Recent Giving */}
-      <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <div>
-              <CardTitle>Recent Giving</CardTitle>
-              <CardDescription>Latest giving transactions</CardDescription>
+      <LazyLoader threshold={0.3}>
+        <Card>
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <div>
+                <CardTitle>Recent Giving</CardTitle>
+                <CardDescription>Latest giving transactions</CardDescription>
+              </div>
+              <Button variant="outline" size="sm" asChild>
+                <Link href="/dashboard/finance/giving/donations">
+                  View All
+                  <ArrowRight className="ml-2 h-4 w-4" />
+                </Link>
+              </Button>
             </div>
-            <Button variant="outline" size="sm" asChild>
-              <Link href="/dashboard/finance/giving/donations">
-                View All
-                <ArrowRight className="ml-2 h-4 w-4" />
-              </Link>
-            </Button>
-          </div>
-        </CardHeader>
-        <CardContent>
-          <DataTable
-            columns={columns}
-            data={recentGiving}
-            searchKey="description"
-            searchPlaceholder="Search giving..."
-          />
-        </CardContent>
-      </Card>
+          </CardHeader>
+          <CardContent>
+            <DataTable
+              columns={columns}
+              data={recentGiving}
+              searchKey="description"
+              searchPlaceholder="Search giving..."
+            />
+          </CardContent>
+        </Card>
+      </LazyLoader>
     </div>
   );
 }

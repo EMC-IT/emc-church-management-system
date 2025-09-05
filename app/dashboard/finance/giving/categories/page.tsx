@@ -6,6 +6,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { DataTable } from '@/components/ui/data-table';
 import { SearchInput } from '@/components/ui/search-input';
+import { LazySection } from '@/components/ui/lazy-section';
+import { LazyLoader } from '@/components/ui/lazy-loader';
+import { CardSkeleton, TableSkeleton } from '@/components/ui/skeleton-loaders';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -348,7 +351,14 @@ export default function GivingCategoriesPage() {
       </div>
 
       {/* Summary Cards */}
-      <div className="grid gap-4 md:grid-cols-3">
+      <LazySection
+        strategy="immediate"
+        showSkeleton
+        skeletonVariant="card"
+        skeletonCount={3}
+        className="grid gap-4 md:grid-cols-3"
+        threshold={0.1}
+      >
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Categories</CardTitle>
@@ -387,25 +397,36 @@ export default function GivingCategoriesPage() {
             </p>
           </CardContent>
         </Card>
-      </div>
+      </LazySection>
 
       {/* Categories Table */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Categories</CardTitle>
-          <CardDescription>
-            Manage giving categories and view their performance
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <DataTable
-            columns={columns}
-            data={categories}
-            searchKey="name"
-            searchPlaceholder="Search categories..."
-          />
-        </CardContent>
-      </Card>
+      <LazyLoader threshold={0.3}>
+        <Card>
+          <CardHeader>
+            <CardTitle>Categories</CardTitle>
+            <CardDescription>
+              Manage giving categories and view their performance
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            {loading ? (
+              <TableSkeleton 
+                rows={7} 
+                columns={6} 
+                showHeader 
+                showPagination 
+              />
+            ) : (
+              <DataTable
+                columns={columns}
+                data={categories}
+                searchKey="name"
+                searchPlaceholder="Search categories..."
+              />
+            )}
+          </CardContent>
+        </Card>
+      </LazyLoader>
     </div>
   );
 }

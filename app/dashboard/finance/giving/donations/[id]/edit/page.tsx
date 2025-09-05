@@ -11,6 +11,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Switch } from '@/components/ui/switch';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { LazySection } from '@/components/ui/lazy-section';
+import { LoadingSpinner } from '@/components/ui/loading-spinner';
+import { FormSkeleton } from '@/components/ui/skeleton-loaders';
 import { 
   ArrowLeft, 
   Save, 
@@ -206,10 +209,23 @@ export default function EditDonationPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <div className="flex items-center space-x-2">
-          <Loader2 className="h-6 w-6 animate-spin" />
-          <span>Loading donation details...</span>
+      <div className="space-y-6">
+        <div className="flex items-center space-x-4">
+          <div className="h-8 w-8 bg-gray-200 rounded animate-pulse" />
+          <div>
+            <div className="h-8 w-48 bg-gray-200 rounded animate-pulse mb-2" />
+            <div className="h-4 w-32 bg-gray-200 rounded animate-pulse" />
+          </div>
+        </div>
+        <div className="grid gap-6 lg:grid-cols-3">
+          <div className="lg:col-span-2 space-y-6">
+            <FormSkeleton className="h-48" />
+            <FormSkeleton className="h-64" />
+          </div>
+          <div className="space-y-6">
+            <FormSkeleton className="h-48" />
+            <FormSkeleton className="h-32" />
+          </div>
         </div>
       </div>
     );
@@ -253,7 +269,13 @@ export default function EditDonationPage() {
           {/* Main Form */}
           <div className="lg:col-span-2 space-y-6">
             {/* Donor Information */}
-            <Card>
+            <LazySection
+              strategy="immediate"
+              showSkeleton
+              skeletonVariant="form"
+              threshold={0.1}
+            >
+              <Card>
               <CardHeader>
                 <CardTitle className="flex items-center space-x-2">
                   <User className="h-5 w-5" />
@@ -300,10 +322,17 @@ export default function EditDonationPage() {
                   </div>
                 </div>
               </CardContent>
-            </Card>
+              </Card>
+            </LazySection>
 
             {/* Donation Details */}
-            <Card>
+            <LazySection
+              strategy="lazy"
+              showSkeleton
+              skeletonVariant="form"
+              threshold={0.2}
+            >
+              <Card>
               <CardHeader>
                 <CardTitle className="flex items-center space-x-2">
                   <BadgeCent className="h-5 w-5" />
@@ -423,12 +452,20 @@ export default function EditDonationPage() {
                   />
                 </div>
               </CardContent>
-            </Card>
+              </Card>
+            </LazySection>
           </div>
 
           {/* Summary Sidebar */}
-          <div className="space-y-6">
-            <Card>
+          <LazySection
+            strategy="lazy"
+            showSkeleton
+            skeletonVariant="card"
+            skeletonCount={2}
+            threshold={0.3}
+          >
+            <div className="space-y-6">
+              <Card>
               <CardHeader>
                 <CardTitle className="flex items-center space-x-2">
                   <BadgeCent className="h-5 w-5" />
@@ -484,28 +521,29 @@ export default function EditDonationPage() {
               </CardContent>
             </Card>
 
-            {/* Action Buttons */}
-            <div className="space-y-2">
-              <Button type="submit" className="w-full" disabled={saving}>
-                {saving ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Updating...
-                  </>
-                ) : (
-                  <>
-                    <Save className="mr-2 h-4 w-4" />
-                    Update Donation
-                  </>
-                )}
-              </Button>
-              <Button type="button" variant="outline" className="w-full" asChild>
-                <Link href={`/dashboard/finance/giving/donations/${donationId}`}>
-                  Cancel
-                </Link>
-              </Button>
+              {/* Action Buttons */}
+              <div className="space-y-2">
+                <Button type="submit" className="w-full" disabled={saving}>
+                  {saving ? (
+                    <>
+                      <LoadingSpinner size="sm" className="mr-2" />
+                      Updating...
+                    </>
+                  ) : (
+                    <>
+                      <Save className="mr-2 h-4 w-4" />
+                      Update Donation
+                    </>
+                  )}
+                </Button>
+                <Button type="button" variant="outline" className="w-full" asChild>
+                  <Link href={`/dashboard/finance/giving/donations/${donationId}`}>
+                    Cancel
+                  </Link>
+                </Button>
+              </div>
             </div>
-          </div>
+          </LazySection>
         </div>
       </form>
     </div>

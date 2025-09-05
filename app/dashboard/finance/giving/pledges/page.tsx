@@ -6,6 +6,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { DataTable } from '@/components/ui/data-table';
 import { DeleteDialog, useDeleteDialog } from '@/components/ui/delete-dialog';
+import { LazySection } from '@/components/ui/lazy-section';
+import { LazyLoader } from '@/components/ui/lazy-loader';
+import { CardSkeleton, TableSkeleton, ChartSkeleton } from '@/components/ui/skeleton-loaders';
 import { 
   Plus, 
   BadgeCent,
@@ -420,7 +423,14 @@ export default function PledgesPage() {
       </div>
 
       {/* Statistics Cards */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <LazySection
+        strategy="immediate"
+        showSkeleton
+        skeletonVariant="card"
+        skeletonCount={4}
+        className="grid gap-4 md:grid-cols-2 lg:grid-cols-4"
+        threshold={0.1}
+      >
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Pledges</CardTitle>
@@ -475,33 +485,36 @@ export default function PledgesPage() {
             </p>
           </CardContent>
         </Card>
-      </div>
+      </LazySection>
 
       {/* Pledges Table */}
-      <Card>
-        <CardHeader>
-          <CardTitle>All Pledges</CardTitle>
-          <CardDescription>
-            View and manage all giving pledges with payment tracking
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          {loading ? (
-            <div className="space-y-4">
-              {[...Array(5)].map((_, i) => (
-                <div key={i} className="h-12 bg-gray-200 rounded animate-pulse" />
-              ))}
-            </div>
-          ) : (
-            <DataTable
-              columns={columns}
-              data={pledges}
-              searchKey="description"
-              searchPlaceholder="Search pledges..."
-            />
-          )}
-        </CardContent>
-      </Card>
+      <LazyLoader threshold={0.3}>
+        <Card>
+          <CardHeader>
+            <CardTitle>All Pledges</CardTitle>
+            <CardDescription>
+              View and manage all giving pledges with payment tracking
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            {loading ? (
+              <TableSkeleton 
+                rows={10} 
+                columns={6} 
+                showHeader 
+                showPagination 
+              />
+            ) : (
+              <DataTable
+                columns={columns}
+                data={pledges}
+                searchKey="description"
+                searchPlaceholder="Search pledges..."
+              />
+            )}
+          </CardContent>
+        </Card>
+      </LazyLoader>
 
       {/* Delete Confirmation Dialog */}
       <DeleteDialog

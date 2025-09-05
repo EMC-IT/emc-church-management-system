@@ -6,6 +6,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { DataTable } from '@/components/ui/data-table';
 import { DeleteDialog, useDeleteDialog } from '@/components/ui/delete-dialog';
+import { LazySection } from '@/components/ui/lazy-section';
+import { LazyLoader } from '@/components/ui/lazy-loader';
+import { CardSkeleton, TableSkeleton } from '@/components/ui/skeleton-loaders';
 import { 
   Plus, 
   BadgeCent,
@@ -431,7 +434,14 @@ export default function DonationsPage() {
       </div>
 
       {/* Statistics Cards */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <LazySection
+        strategy="immediate"
+        showSkeleton
+        skeletonVariant="card"
+        skeletonCount={4}
+        className="grid gap-4 md:grid-cols-2 lg:grid-cols-4"
+        threshold={0.1}
+      >
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Donations</CardTitle>
@@ -483,17 +493,23 @@ export default function DonationsPage() {
             </p>
           </CardContent>
         </Card>
-      </div>
+      </LazySection>
 
       {/* Filters */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Filters</CardTitle>
-          <CardDescription>
-            Filter donations by category, status, method, and date range
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
+      <LazySection
+        strategy="lazy"
+        showSkeleton
+        skeletonVariant="form"
+        threshold={0.2}
+      >
+        <Card>
+          <CardHeader>
+            <CardTitle>Filters</CardTitle>
+            <CardDescription>
+              Filter donations by category, status, method, and date range
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
             <div className="space-y-2">
               <Label>Search</Label>
@@ -602,34 +618,38 @@ export default function DonationsPage() {
               </Button>
             </div>
           )}
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
+      </LazySection>
 
       {/* Donations Table */}
-      <Card>
-        <CardHeader>
-          <CardTitle>All Donations</CardTitle>
-          <CardDescription>
-            {filteredDonations.length} of {donations.length} donations
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          {loading ? (
-            <div className="space-y-4">
-              {[...Array(5)].map((_, i) => (
-                <div key={i} className="h-12 bg-gray-200 rounded animate-pulse" />
-              ))}
-            </div>
-          ) : (
-            <DataTable
-              columns={columns}
-              data={filteredDonations}
-              searchKey="description"
-              searchPlaceholder="Search donations..."
-            />
-          )}
-        </CardContent>
-      </Card>
+      <LazyLoader threshold={0.3}>
+        <Card>
+          <CardHeader>
+            <CardTitle>All Donations</CardTitle>
+            <CardDescription>
+              {filteredDonations.length} of {donations.length} donations
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            {loading ? (
+              <TableSkeleton 
+                rows={5} 
+                columns={8} 
+                showHeader 
+                showPagination 
+              />
+            ) : (
+              <DataTable
+                columns={columns}
+                data={filteredDonations}
+                searchKey="description"
+                searchPlaceholder="Search donations..."
+              />
+            )}
+          </CardContent>
+        </Card>
+      </LazyLoader>
 
       {/* Delete Confirmation Dialog */}
       <DeleteDialog
