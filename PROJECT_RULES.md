@@ -120,6 +120,46 @@
 .rounded-xl  /* 12px - Large containers */
 ```
 
+### Currency-Neutral Icon Guidelines
+
+**MANDATORY**: When building financial dashboards, expenses pages, or accounting apps that should work for any country, avoid currency-specific icons like $, ₵, or €. Instead, use universal Lucide icons that represent money, transactions, and reports.
+
+#### 💳 Money & Transactions (Neutral)
+
+- **wallet** → general money/expenses
+- **banknote** → cash representation (currency-free)
+- **coins** → generic small money amounts
+- **credit-card** → card payments
+- **piggy-bank** → savings
+
+#### 📑 Records & Documents
+
+- **receipt** → invoices, receipts, bills
+- **file-text** → financial statements
+- **book** → accounting ledger
+- **clipboard-list** → expense tracking
+
+#### 📊 Reports & Analytics
+
+- **bar-chart** → expense analysis
+- **pie-chart** → spending categories
+- **line-chart** → trends over time
+
+#### 🛒 Purchases & Services
+
+- **shopping-cart** → purchases
+- **shopping-bag** → goods bought
+- **tag** → categories/labels
+- **package** → items, inventory, or supplies
+
+#### ✅ Best Practices
+
+- Use **wallet** or **banknote** for general money indicators
+- Use **bar-chart** or **pie-chart** for summaries and analytics
+- Use **receipt** for invoices, bills, or proof of payment
+- Always display the real currency (₵) in text/figures, not in the icon
+- Keep icons universal and avoid region-specific symbols
+
 ---
 
 ## 📱 Responsive Design Guidelines

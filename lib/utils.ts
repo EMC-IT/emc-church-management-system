@@ -17,7 +17,7 @@ export const CURRENCIES = {
   USD: {
     code: 'USD',
     name: 'US Dollar',
-    symbol: '$',
+    symbol: '₵',
     position: 'before' as const,
     decimalPlaces: 2,
   },
@@ -71,11 +71,11 @@ export function formatCurrency(
   }).format(amount);
   
   if (showSymbol && showCode) {
-    return `${currency.symbol}${formattedNumber} (${currency.code})`;
+      return `${currency.symbol}${formattedNumber} (${currency.code})`;
   } else if (showSymbol) {
     return `${currency.symbol}${formattedNumber}`;
   } else if (showCode) {
-    return `${formattedNumber} ${currency.code}`;
+      return `${formattedNumber} ${currency.code}`;
   } else {
     return formattedNumber;
   }

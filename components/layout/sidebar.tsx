@@ -89,6 +89,11 @@ const navigation = [
         icon: BadgeCent,
       },
       {
+        name: "Expenses",
+        href: "/dashboard/finance/expenses",
+        icon: FileText,
+      },
+      {
         name: "Tithes & Offerings",
         href: "/dashboard/finance/tithes-offerings",
         icon: Heart,

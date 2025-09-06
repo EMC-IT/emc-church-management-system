@@ -39,11 +39,11 @@ export function CurrencyProvider({ children }: { children: ReactNode }) {
     }).format(amount);
     
     if (showSymbol && showCode) {
-      return `${currencyInfo.symbol}${formattedNumber} (${currencyInfo.code})`;
+        return `${currencyInfo.symbol}${formattedNumber} (${currencyInfo.code})`;
     } else if (showSymbol) {
-      return `${currencyInfo.symbol}${formattedNumber}`;
+        return `${currencyInfo.symbol}${formattedNumber}`;
     } else if (showCode) {
-      return `${formattedNumber} ${currencyInfo.code}`;
+          return `${formattedNumber} ${currencyInfo.code}`;
     } else {
       return formattedNumber;
     }
@@ -62,4 +62,4 @@ export function useCurrency() {
     throw new Error('useCurrency must be used within a CurrencyProvider');
   }
   return context;
-} 
+}

@@ -264,15 +264,7 @@ export default function EditPledgePage() {
 
   const installmentAmount = formData.amount / formData.installments;
 
-  // Breadcrumb items
-  const breadcrumbItems = [
-    { label: 'Dashboard', href: '/dashboard' },
-    { label: 'Finance', href: '/dashboard/finance' },
-    { label: 'Giving', href: '/dashboard/finance/giving' },
-    { label: 'Pledges', href: '/dashboard/finance/giving/pledges' },
-    { label: pledge?.memberName || 'Pledge', href: `/dashboard/finance/giving/pledges/${pledgeId}` },
-    { label: 'Edit', isCurrentPage: true },
-  ];
+
 
   if (loading) {
     return (
@@ -392,10 +384,10 @@ export default function EditPledgePage() {
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="GHS">GHS (₵)</SelectItem>
-                        <SelectItem value="USD">USD ($)</SelectItem>
-                        <SelectItem value="EUR">EUR (€)</SelectItem>
-                      </SelectContent>
+                          <SelectItem value="GHS">GHS (₵)</SelectItem>
+                          <SelectItem value="EUR">EUR (€)</SelectItem>
+                          <SelectItem value="USD">USD ($)</SelectItem>
+                        </SelectContent>
                     </Select>
                   </div>
                 </div>
