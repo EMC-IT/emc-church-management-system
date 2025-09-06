@@ -12,7 +12,7 @@ import { Giving, GivingType, GivingCategory, GivingStatus, Member } from '@/lib/
 import { 
   ArrowLeft, 
   Plus, 
-  DollarSign, 
+  BadgeCent, 
   TrendingUp,
   TrendingDown,
   Calendar,
@@ -696,4 +696,4 @@ export default function GivingPage() {
       </Card>
     </div>
   );
-} 
+}

@@ -9,7 +9,7 @@ import { CurrencyDisplay } from '@/components/ui/currency-display';
 import { 
   Users, 
   UserCheck, 
-  DollarSign, 
+  BadgeCent, 
   Calendar,
   TrendingUp,
   TrendingDown,
@@ -101,7 +101,7 @@ export default function DashboardPage() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">This Month's Giving</CardTitle>
-            <DollarSign className="h-4 w-4 text-muted-foreground" />
+            <BadgeCent className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
@@ -243,7 +243,7 @@ export default function DashboardPage() {
               Take Attendance
             </Button>
             <Button variant="outline" className="h-20 flex flex-col items-center justify-center">
-              <DollarSign className="h-5 w-5 mb-2" />
+              <BadgeCent className="h-5 w-5 mb-2" />
               Record Donation
             </Button>
             <Button variant="outline" className="h-20 flex flex-col items-center justify-center">

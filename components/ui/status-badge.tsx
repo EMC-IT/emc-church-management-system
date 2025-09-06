@@ -15,7 +15,7 @@ import {
   Building,
   Home,
   Calendar,
-  DollarSign,
+  BadgeCent,
   Heart,
   Star,
   Shield,
@@ -420,4 +420,4 @@ export function StatusBadgeGroup({
       ))}
     </div>
   );
-} 
+}

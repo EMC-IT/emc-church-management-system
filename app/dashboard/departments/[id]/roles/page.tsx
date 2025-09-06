@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
-import { Plus, Search, MoreHorizontal, Edit, Trash2, Users, Crown, Shield, FileText, DollarSign, User, UserCheck } from 'lucide-react';
+import { Plus, Search, MoreHorizontal, Edit, Trash2, Users, Crown, Shield, FileText, BadgeCent, User, UserCheck } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -158,7 +158,7 @@ export default function DepartmentRolesPage() {
       case 'head': return <Crown className="h-5 w-5 text-brand-primary" />;
       case 'assistant_head': return <UserCheck className="h-5 w-5 text-green-600" />;
       case 'secretary': return <FileText className="h-5 w-5 text-purple-600" />;
-      case 'treasurer': return <DollarSign className="h-5 w-5 text-orange-600" />;
+      case 'treasurer': return <BadgeCent className="h-5 w-5 text-orange-600" />;
       case 'coordinator': return <Users className="h-5 w-5 text-yellow-600" />;
       default: return <User className="h-5 w-5 text-gray-600" />;
     }

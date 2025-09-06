@@ -13,7 +13,7 @@ import {
   LayoutDashboard,
   Users,
   UserCheck,
-  DollarSign,
+  BadgeCent,
   MessageSquare,
   Calendar,
   BookOpen,
@@ -29,6 +29,7 @@ import {
   Shield,
   GraduationCap,
   Building2,
+  HandCoins,
 } from "lucide-react";
 
 const navigation = [
@@ -74,13 +75,18 @@ const navigation = [
   {
     name: "Finance",
     href: "/dashboard/finance",
-    icon: DollarSign,
+    icon: Wallet,
     permission: PERMISSIONS.VIEW_FINANCE,
     children: [
       {
         name: "Giving",
         href: "/dashboard/finance/giving",
-        icon: Wallet,
+        icon: HandCoins,
+      },
+      {
+        name: "Income",
+        href: "/dashboard/finance/income",
+        icon: BadgeCent,
       },
       {
         name: "Tithes & Offerings",

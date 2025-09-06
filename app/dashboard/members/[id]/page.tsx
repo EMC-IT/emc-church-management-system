@@ -26,7 +26,7 @@ import {
   Download,
   Share2,
   Upload,
-  DollarSign,
+  BadgeCent,
   Plus
 } from 'lucide-react';
 import Link from 'next/link';
@@ -615,7 +615,7 @@ export default function MemberProfilePage() {
 
               <TabsContent value="giving" className="space-y-4">
                 <div className="text-center py-8">
-                  <DollarSign className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
+                  <BadgeCent className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
                   <h3 className="text-lg font-semibold mb-2">Giving History</h3>
                   <p className="text-muted-foreground mb-4">
                     Track tithes, offerings, donations, and fundraising
@@ -641,4 +641,4 @@ export default function MemberProfilePage() {
       </div>
     </div>
   );
-} 
+}
