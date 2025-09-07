@@ -1,158 +1,195 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
+import {
+  Plus,
+  Wallet,
+  TrendingUp,
+  Calendar,
+  PieChart,
+  FileText,
+  ArrowRight,
+  Receipt,
+  Tag,
+  BarChart3,
+  Heart,
+  Gift
+} from 'lucide-react';
+
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { DataTable } from '@/components/ui/data-table';
 import { Badge } from '@/components/ui/badge';
-import { Input } from '@/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
-import { useToast } from '@/hooks/use-toast';
-import { financeService } from '@/services';
-import { TitheOffering, TitheType, ServiceType, Currency } from '@/lib/types';
-import { CurrencyDisplay } from '@/components/ui/currency-display';
-import { 
-  Plus, 
-  Download, 
-  Search, 
-  Filter, 
-  Edit,
-  Trash2,
-  Eye,
-  TrendingUp,
-  BadgeCent,
-  Users,
-  Calendar,
-  Heart
-} from 'lucide-react';
-import Link from 'next/link';
+import { LazySection } from '@/components/ui/lazy-section';
+import { LazyLoader } from '@/components/ui/lazy-loader';
 import { ColumnDef } from '@tanstack/react-table';
-import { format } from 'date-fns';
 
-export default function TithesOfferingsPage() {
-  const [tithesOfferings, setTithesOfferings] = useState<TitheOffering[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [total, setTotal] = useState(0);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize, setPageSize] = useState(10);
-  const [search, setSearch] = useState('');
-  const [filters, setFilters] = useState({
-    type: '',
-    serviceType: '',
-    branch: '',
-    dateRange: { start: '', end: '' }
-  });
-  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [titheToDelete, setTitheToDelete] = useState<TitheOffering | null>(null);
+// Tithe & Offering data interface
+interface TitheOfferingRecord {
+  id: string;
+  memberName: string;
+  type: 'Tithe' | 'Offering' | 'First Fruits' | 'Special Offering';
+  category: string;
+  amount: number;
+  date: string;
+  paymentMethod: string;
+  receiptNumber: string;
+  notes?: string;
+}
+
+// Mock data for tithes & offerings overview
+const titheOfferingStats = {
+  totalAmount: 125000,
+  thisMonth: 18500,
+  totalCount: 186,
+  growth: 12.5,
+  averageAmount: 672.04,
+  categoriesCount: 8
+};
+
+const quickActions = [
+  {
+    title: 'Record Tithe/Offering',
+    description: 'Add new tithe or offering',
+    href: '/dashboard/finance/tithes-offerings/add',
+    icon: Plus,
+    color: 'bg-brand-primary'
+  },
+  {
+    title: 'Categories',
+    description: 'Manage offering categories',
+    href: '/dashboard/finance/tithes-offerings/categories',
+    icon: Tag,
+    color: 'bg-brand-secondary'
+  },
+  {
+    title: 'Reports',
+    description: 'View giving reports',
+    href: '/dashboard/finance/tithes-offerings/reports',
+    icon: BarChart3,
+    color: 'bg-brand-accent'
+  },
+  {
+    title: 'Export Data',
+    description: 'Export giving data',
+    href: '/dashboard/finance/tithes-offerings/reports?export=true',
+    icon: FileText,
+    color: 'bg-brand-success'
+  }
+];
+
+const recentTithesOfferings = [
+  {
+    id: '1',
+    memberName: 'John Smith',
+    type: 'Tithe' as const,
+    category: 'Regular Tithe',
+    amount: 500,
+    date: '2024-01-15',
+    paymentMethod: 'Mobile Money',
+    receiptNumber: 'TO-2024-001',
+    notes: 'Monthly tithe'
+  },
+  {
+    id: '2',
+    memberName: 'Mary Johnson',
+    type: 'Offering' as const,
+    category: 'Sunday Offering',
+    amount: 200,
+    date: '2024-01-14',
+    paymentMethod: 'Cash',
+    receiptNumber: 'TO-2024-002'
+  },
+  {
+    id: '3',
+    memberName: 'David Wilson',
+    type: 'First Fruits' as const,
+    category: 'First Fruits',
+    amount: 1000,
+    date: '2024-01-12',
+    paymentMethod: 'Bank Transfer',
+    receiptNumber: 'TO-2024-003',
+    notes: 'January first fruits'
+  },
+  {
+    id: '4',
+    memberName: 'Sarah Brown',
+    type: 'Special Offering' as const,
+    category: 'Building Fund',
+    amount: 750,
+    date: '2024-01-10',
+    paymentMethod: 'Card',
+    receiptNumber: 'TO-2024-004'
+  },
+  {
+    id: '5',
+    memberName: 'Michael Davis',
+    type: 'Offering' as const,
+    category: 'Missions',
+    amount: 300,
+    date: '2024-01-08',
+    paymentMethod: 'Mobile Money',
+    receiptNumber: 'TO-2024-005',
+    notes: 'Mission support'
+  }
+];
+
+export default function TithesOfferingsOverviewPage() {
   const router = useRouter();
-  const { toast } = useToast();
-
-  // Load tithes and offerings
-  const loadTithesOfferings = async () => {
-    try {
-      setLoading(true);
-      const response = await financeService.getTithesOfferings({
-        page: currentPage,
-        limit: pageSize,
-        search,
-        ...filters
-      });
-      setTithesOfferings(response.data);
-      setTotal(response.total);
-    } catch (error: any) {
-      toast({
-        title: 'Error',
-        description: error.message || 'Failed to load tithes and offerings',
-        variant: 'destructive',
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    loadTithesOfferings();
-  }, [currentPage, pageSize, search, filters]);
+    // Simulate data loading
+    const timer = setTimeout(() => {
+      setLoading(false);
+    }, 1000);
 
-  // Handle delete
-  const handleDelete = async (tithe: TitheOffering) => {
-    try {
-      // Note: This would need to be implemented in the service
-      toast({
-        title: 'Success',
-        description: 'Tithe/Offering deleted successfully',
-      });
-      loadTithesOfferings();
-    } catch (error: any) {
-      toast({
-        title: 'Error',
-        description: error.message || 'Failed to delete tithe/offering',
-        variant: 'destructive',
-      });
+    return () => clearTimeout(timer);
+  }, []);
+
+  const formatCurrency = (amount: number) => {
+    return new Intl.NumberFormat('en-GH', {
+      style: 'currency',
+      currency: 'GHS'
+    }).format(amount);
+  };
+
+  const getTypeBadge = (type: string) => {
+    switch (type) {
+      case 'Tithe':
+        return <Badge variant="default" className="bg-brand-primary">Tithe</Badge>;
+      case 'Offering':
+        return <Badge variant="default" className="bg-brand-secondary">Offering</Badge>;
+      case 'First Fruits':
+        return <Badge variant="default" className="bg-brand-accent">First Fruits</Badge>;
+      case 'Special Offering':
+        return <Badge variant="default" className="bg-brand-success">Special</Badge>;
+      default:
+        return <Badge variant="outline">{type}</Badge>;
     }
   };
 
-  // Handle export
-  const handleExport = async () => {
-    try {
-      const result = await financeService.exportData({
-        format: 'csv',
-        dateRange: filters.dateRange.start && filters.dateRange.end ? {
-          start: filters.dateRange.start,
-          end: filters.dateRange.end
-        } : undefined,
-        groupBy: 'category'
-      });
-      
-      if (result.success) {
-        toast({
-          title: 'Export Successful',
-          description: 'Tithes and offerings exported successfully',
-        });
-      }
-    } catch (error: any) {
-      toast({
-        title: 'Error',
-        description: error.message || 'Failed to export tithes and offerings',
-        variant: 'destructive',
-      });
-    }
+  const getGrowthIcon = (growth: number) => {
+    return growth > 0 ? (
+      <TrendingUp className="h-3 w-3 text-brand-success" />
+    ) : (
+      <TrendingUp className="h-3 w-3 text-red-500 rotate-180" />
+    );
   };
 
-  // Calculate summary stats
-  const totalAmount = tithesOfferings.reduce((sum, tithe) => sum + tithe.amount, 0);
-  const tithesAmount = tithesOfferings.filter(t => t.type === 'Tithe').reduce((sum, t) => sum + t.amount, 0);
-  const offeringsAmount = tithesOfferings.filter(t => t.type === 'Offering').reduce((sum, t) => sum + t.amount, 0);
-
-  // Table columns
-  const columns: ColumnDef<TitheOffering>[] = [
+  const columns: ColumnDef<TitheOfferingRecord>[] = [
     {
       accessorKey: 'memberName',
       header: 'Member',
       cell: ({ row }) => {
-        const tithe = row.original;
+        const record = row.original;
         return (
           <div>
-            <div className="font-medium">{tithe.memberName || 'Anonymous'}</div>
-            {tithe.memberId && (
-              <div className="text-sm text-muted-foreground">ID: {tithe.memberId}</div>
-            )}
+            <div className="font-medium">{record.memberName}</div>
+            <div className="text-sm text-muted-foreground">{record.receiptNumber}</div>
           </div>
-        );
-      },
-    },
-    {
-      accessorKey: 'amount',
-      header: 'Amount',
-      cell: ({ row }) => {
-        const tithe = row.original;
-        return (
-          <CurrencyDisplay 
-            amount={tithe.amount} 
-            className="font-medium"
-          />
         );
       },
     },
@@ -160,104 +197,40 @@ export default function TithesOfferingsPage() {
       accessorKey: 'type',
       header: 'Type',
       cell: ({ row }) => {
-        const tithe = row.original;
-        const typeColors = {
-          'Tithe': 'bg-blue-500',
-          'Offering': 'bg-green-500',
-          'First Fruits': 'bg-purple-500',
-          'Special Offering': 'bg-orange-500'
-        };
-        return (
-          <Badge className={typeColors[tithe.type]}>
-            {tithe.type}
-          </Badge>
-        );
+        const type = row.getValue('type') as string;
+        return getTypeBadge(type);
       },
     },
     {
-      accessorKey: 'serviceType',
-      header: 'Service',
+      accessorKey: 'category',
+      header: 'Category',
       cell: ({ row }) => {
-        const tithe = row.original;
-        return <Badge variant="outline">{tithe.serviceType}</Badge>;
+        const category = row.getValue('category') as string;
+        return <Badge variant="outline">{category}</Badge>;
       },
     },
     {
-      accessorKey: 'serviceDate',
+      accessorKey: 'amount',
+      header: 'Amount',
+      cell: ({ row }) => {
+        const amount = parseFloat(row.getValue('amount'));
+        return <div className="font-medium text-brand-success">{formatCurrency(amount)}</div>;
+      },
+    },
+    {
+      accessorKey: 'date',
       header: 'Date',
       cell: ({ row }) => {
-        const tithe = row.original;
-        return (
-          <div className="text-sm">
-            {format(new Date(tithe.serviceDate), 'MMM dd, yyyy')}
-          </div>
-        );
+        const date = new Date(row.getValue('date'));
+        return <div>{date.toLocaleDateString()}</div>;
       },
     },
     {
-      accessorKey: 'branch',
-      header: 'Branch',
+      accessorKey: 'paymentMethod',
+      header: 'Method',
       cell: ({ row }) => {
-        const tithe = row.original;
-        return <div className="text-sm">{tithe.branch}</div>;
-      },
-    },
-    {
-      id: 'actions',
-      header: 'Actions',
-      cell: ({ row }) => {
-        const tithe = row.original;
-        return (
-          <div className="flex items-center space-x-2">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => router.push(`/dashboard/finance/tithes-offerings/${tithe.id}`)}
-            >
-              <Eye className="h-4 w-4" />
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => router.push(`/dashboard/finance/tithes-offerings/${tithe.id}/edit`)}
-            >
-              <Edit className="h-4 w-4" />
-            </Button>
-            <AlertDialog>
-              <AlertDialogTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setTitheToDelete(tithe)}
-                >
-                  <Trash2 className="h-4 w-4" />
-                </Button>
-              </AlertDialogTrigger>
-              <AlertDialogContent>
-                <AlertDialogHeader>
-                  <AlertDialogTitle>Delete Tithe/Offering</AlertDialogTitle>
-                  <AlertDialogDescription>
-                    Are you sure you want to delete this tithe/offering? This action cannot be undone.
-                  </AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                  <AlertDialogCancel>Cancel</AlertDialogCancel>
-                  <AlertDialogAction
-                    onClick={() => {
-                      if (titheToDelete) {
-                        handleDelete(titheToDelete);
-                        setTitheToDelete(null);
-                      }
-                    }}
-                    className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                  >
-                    Delete
-                  </AlertDialogAction>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialog>
-          </div>
-        );
+        const method = row.getValue('paymentMethod') as string;
+        return <span className="text-sm text-muted-foreground">{method}</span>;
       },
     },
   ];
@@ -268,195 +241,147 @@ export default function TithesOfferingsPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Tithes & Offerings</h1>
-          <p className="text-muted-foreground">Manage tithes and offerings from members</p>
+          <p className="text-muted-foreground">Track and manage church tithes and offerings</p>
         </div>
         <div className="flex items-center space-x-2">
-          <Button variant="outline" onClick={handleExport}>
-            <Download className="mr-2 h-4 w-4" />
-            Export
+          <Button variant="outline" asChild>
+            <Link href="/dashboard/finance/tithes-offerings/reports">
+              <FileText className="mr-2 h-4 w-4" />
+              View Reports
+            </Link>
           </Button>
           <Button asChild>
             <Link href="/dashboard/finance/tithes-offerings/add">
               <Plus className="mr-2 h-4 w-4" />
-              Add Tithe/Offering
+              Record Giving
             </Link>
           </Button>
         </div>
       </div>
 
-      {/* Summary Cards */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      {/* Statistics Cards */}
+      <LazySection
+        strategy="immediate"
+        showSkeleton
+        skeletonVariant="card"
+        skeletonCount={4}
+        className="grid gap-4 md:grid-cols-2 lg:grid-cols-4"
+        threshold={0.1}
+      >
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Amount</CardTitle>
-            <BadgeCent className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-sm font-medium">Total Received</CardTitle>
+            <Wallet className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">
-              <CurrencyDisplay amount={totalAmount} />
-            </div>
+            <div className="text-2xl font-bold text-brand-success">{formatCurrency(titheOfferingStats.totalAmount)}</div>
             <p className="text-xs text-muted-foreground">
-              {tithesOfferings.length} records this period
+              {titheOfferingStats.totalCount} transactions
             </p>
           </CardContent>
         </Card>
-        
+
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Tithes</CardTitle>
-            <TrendingUp className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-sm font-medium">This Month</CardTitle>
+            <Calendar className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-blue-600">
-              <CurrencyDisplay amount={tithesAmount} />
+            <div className="text-2xl font-bold text-brand-success">{formatCurrency(titheOfferingStats.thisMonth)}</div>
+            <div className="flex items-center text-xs text-muted-foreground">
+              {getGrowthIcon(titheOfferingStats.growth)}
+              <span className="ml-1">{Math.abs(titheOfferingStats.growth)}% from last month</span>
             </div>
-            <p className="text-xs text-muted-foreground">
-              {tithesOfferings.filter(t => t.type === 'Tithe').length} tithes
-            </p>
           </CardContent>
         </Card>
-        
+
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Offerings</CardTitle>
+            <CardTitle className="text-sm font-medium">Average Giving</CardTitle>
             <Heart className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-green-600">
-              <CurrencyDisplay amount={offeringsAmount} />
-            </div>
+            <div className="text-2xl font-bold">{formatCurrency(titheOfferingStats.averageAmount)}</div>
             <p className="text-xs text-muted-foreground">
-              {tithesOfferings.filter(t => t.type === 'Offering').length} offerings
+              Per transaction
             </p>
           </CardContent>
         </Card>
-        
+
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Average</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-sm font-medium">Categories</CardTitle>
+            <PieChart className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">
-              <CurrencyDisplay 
-                amount={tithesOfferings.length > 0 ? totalAmount / tithesOfferings.length : 0} 
-              />
-            </div>
+            <div className="text-2xl font-bold">{titheOfferingStats.categoriesCount}</div>
             <p className="text-xs text-muted-foreground">
-              Per tithe/offering
+              Active categories
             </p>
           </CardContent>
         </Card>
-      </div>
+      </LazySection>
 
-      {/* Filters */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center">
-            <Filter className="mr-2 h-5 w-5" />
-            Filters
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Search</label>
-              <div className="relative">
-                <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                <Input
-                  placeholder="Search members, receipts..."
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
-                  className="pl-10"
-                />
+      {/* Quick Actions */}
+      <LazySection
+        strategy="lazy"
+        showSkeleton
+        skeletonVariant="card"
+        skeletonCount={4}
+        className="grid gap-4 md:grid-cols-2 lg:grid-cols-4"
+        threshold={0.2}
+      >
+        {quickActions.map((action) => {
+          const IconComponent = action.icon;
+          return (
+            <Card key={action.title} className="hover:shadow-md transition-shadow cursor-pointer" onClick={() => router.push(action.href)}>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <div>
+                  <CardTitle className="text-sm font-medium">{action.title}</CardTitle>
+                  <CardDescription className="text-xs">{action.description}</CardDescription>
+                </div>
+                <div className={`p-2 rounded-md ${action.color}`}>
+                  <IconComponent className="h-4 w-4 text-white" />
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-muted-foreground">Manage</span>
+                  <ArrowRight className="h-4 w-4 text-muted-foreground" />
+                </div>
+              </CardContent>
+            </Card>
+          );
+        })}
+      </LazySection>
+
+      {/* Recent Tithes & Offerings */}
+      <LazyLoader threshold={0.3}>
+        <Card>
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <div>
+                <CardTitle>Recent Tithes & Offerings</CardTitle>
+                <CardDescription>Latest giving transactions</CardDescription>
               </div>
+              <Button variant="outline" size="sm" asChild>
+                <Link href="/dashboard/finance/tithes-offerings">
+                  View All
+                  <ArrowRight className="ml-2 h-4 w-4" />
+                </Link>
+              </Button>
             </div>
-            
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Type</label>
-              <Select
-                value={filters.type || 'none'}
-                onValueChange={(value) => setFilters(prev => ({ ...prev, type: value === 'none' ? '' : value }))}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="All types" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="none">All types</SelectItem>
-                  <SelectItem value="Tithe">Tithe</SelectItem>
-                  <SelectItem value="Offering">Offering</SelectItem>
-                  <SelectItem value="First Fruits">First Fruits</SelectItem>
-                  <SelectItem value="Special Offering">Special Offering</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Service Type</label>
-              <Select
-                value={filters.serviceType || 'none'}
-                onValueChange={(value) => setFilters(prev => ({ ...prev, serviceType: value === 'none' ? '' : value }))}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="All services" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="none">All services</SelectItem>
-                  <SelectItem value="Sunday Service">Sunday Service</SelectItem>
-                  <SelectItem value="Midweek Service">Midweek Service</SelectItem>
-                  <SelectItem value="Special Service">Special Service</SelectItem>
-                  <SelectItem value="Other">Other</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Branch</label>
-              <Select
-                value={filters.branch || 'none'}
-                onValueChange={(value) => setFilters(prev => ({ ...prev, branch: value === 'none' ? '' : value }))}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="All branches" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="none">All branches</SelectItem>
-                  <SelectItem value="Adenta (HQ)">Adenta (HQ)</SelectItem>
-                  <SelectItem value="Adusa">Adusa</SelectItem>
-                  <SelectItem value="Liberia">Liberia</SelectItem>
-                  <SelectItem value="Somanya">Somanya</SelectItem>
-                  <SelectItem value="Mampong">Mampong</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Data Table */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Tithes & Offerings</CardTitle>
-          <CardDescription>
-            A list of all tithes and offerings with their details.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <DataTable
-            columns={columns}
-            data={tithesOfferings}
-            loading={loading}
-            searchKey="memberName"
-            showSearch={false}
-            showFilters={false}
-            pagination={{
-              pageSize,
-              pageSizeOptions: [10, 20, 50],
-            }}
-            className="bg-card"
-          />
-        </CardContent>
-      </Card>
+          </CardHeader>
+          <CardContent>
+            <DataTable
+              columns={columns}
+              data={recentTithesOfferings}
+              searchKey="memberName"
+              searchPlaceholder="Search by member name..."
+            />
+          </CardContent>
+        </Card>
+      </LazyLoader>
     </div>
   );
 }
