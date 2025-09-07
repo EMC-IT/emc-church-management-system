@@ -5,17 +5,92 @@
 // Authentication Types
 export * from './auth';
 
-// Member Types
-export * from './members';
+// Member Types (explicit export to avoid Department conflict)
+export type {
+  Member,
+  MemberFormData,
+  Family,
+  Gender,
+  MaritalStatus,
+  Department as MemberDepartment
+} from './members';
 
-// Attendance Types (primary)
-export * from './attendance';
+
+// Department Types (explicit export to avoid EventStatus conflict)
+export type {
+  DepartmentCategory,
+  DepartmentRoleType,
+  DepartmentRole,
+  MeetingType,
+  MeetingStatus,
+  DepartmentMeeting,
+  EventType,
+  EventStatus as DepartmentEventStatus,
+  DepartmentEvent,
+  DepartmentAttendance,
+  DepartmentMember,
+  DepartmentStats,
+  DepartmentReport,
+  DepartmentFormData,
+  DepartmentRoleFormData,
+  DepartmentMeetingFormData,
+  DepartmentEventFormData,
+  DepartmentCategoryFormData,
+  DepartmentQueryParams,
+  DepartmentMeetingQueryParams,
+  DepartmentEventQueryParams,
+  DepartmentResponse,
+  DepartmentsResponse,
+  DepartmentStatsResponse,
+  DepartmentReportResponse,
+  Department
+} from './departments';
+
+// Group Types
+export * from './groups';
 
 // Finance Types
 export * from './finance';
 
-// Groups Types
-export * from './groups';
+// Assets Types (explicit export to avoid Amount conflict)
+export type {
+  Currency,
+  Amount as AssetAmount,
+  AssetCategory,
+  AssetStatus,
+  AssetCondition,
+  AssetPriority,
+  MaintenanceType,
+  MaintenanceStatus,
+  AssignmentType,
+  AssignmentStatus,
+  Asset,
+  AssetMaintenance,
+  AssetAssignment,
+  AssetCategoryData,
+  AssetFormData,
+  AssetMaintenanceFormData,
+  AssetAssignmentFormData,
+  AssetSearchParams,
+  AssetMaintenanceSearchParams,
+  AssetAnalytics,
+  AssetReport,
+  AssetListResponse,
+  AssetMaintenanceListResponse,
+  AssetAssignmentListResponse,
+
+  AssetCategoryType,
+  AssetStatusType,
+  AssetConditionType,
+  AssetPriorityType,
+  MaintenanceTypeType,
+  MaintenanceStatusType,
+  AssignmentTypeType,
+  AssignmentStatusType
+} from './assets';
+
+// Attendance Types
+export * from './attendance';
 
 // Sunday School Types (with aliases for conflicts)
 export type {

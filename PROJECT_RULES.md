@@ -564,6 +564,149 @@ export function NavigationProvider({ children }) {
 }
 ```
 
+### Back Navigation System
+
+#### Implementation Guidelines
+
+**MANDATORY**: All detail pages, edit pages, and nested pages must implement back navigation for better user experience and navigation flow.
+
+#### Back Navigation Design Pattern
+
+**Standard Layout**: Follow the expenses page design pattern for consistent back navigation across all pages.
+
+```tsx
+// Standard back navigation header layout
+<div className="flex items-center gap-4 mb-6">
+  <Button
+    variant="outline"
+    size="icon"
+    className="h-12 w-12"
+    onClick={() => router.back()}
+  >
+    <ArrowLeft className="h-4 w-4" />
+  </Button>
+  
+  <div className="flex items-center gap-3">
+    <div className="p-2 bg-brand-primary/10 rounded-lg">
+      <RelevantIcon className="h-6 w-6 text-brand-primary" />
+    </div>
+    <div>
+      <h1 className="text-2xl font-bold tracking-tight">Page Title</h1>
+      <p className="text-muted-foreground">Page description</p>
+    </div>
+  </div>
+</div>
+```
+
+#### Back Navigation Requirements
+
+**Required Pages**:
+- All detail pages (`[id]/page.tsx`)
+- All edit pages (`[id]/edit/page.tsx`)
+- All add/create pages (`add/page.tsx`)
+- All nested functionality pages (assignment, maintenance, etc.)
+
+**Design Specifications**:
+- **Button**: `variant="outline"` with `size="icon"`
+- **Size**: `h-12 w-12` for consistent touch targets
+- **Icon**: `ArrowLeft` from Lucide React
+- **Spacing**: `gap-4` between back button and content
+- **Layout**: Flex layout with proper alignment
+
+#### Icon Selection Guidelines
+
+**Context-Appropriate Icons**: Use relevant icons that represent the page content
+
+```tsx
+// Asset pages
+<Package className="h-6 w-6 text-brand-primary" />     // Asset details
+<Settings className="h-6 w-6 text-brand-primary" />    // Asset maintenance
+<Users className="h-6 w-6 text-brand-primary" />       // Asset assignment
+<BarChart3 className="h-6 w-6 text-brand-primary" />   // Asset reports
+<FolderOpen className="h-6 w-6 text-brand-primary" />  // Asset categories
+
+// Member pages
+<User className="h-6 w-6 text-brand-primary" />        // Member details
+<UserPlus className="h-6 w-6 text-brand-primary" />    // Add member
+<Users className="h-6 w-6 text-brand-primary" />       // Member family
+
+// Finance pages
+<Wallet className="h-6 w-6 text-brand-primary" />      // Financial details
+<Receipt className="h-6 w-6 text-brand-primary" />     // Donations/expenses
+<PieChart className="h-6 w-6 text-brand-primary" />    // Financial reports
+```
+
+#### Navigation Behavior
+
+**Router Back**: Use `router.back()` for browser history navigation
+
+```tsx
+import { useRouter } from 'next/navigation';
+
+export default function DetailPage() {
+  const router = useRouter();
+  
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center gap-4">
+        <Button
+          variant="outline"
+          size="icon"
+          className="h-12 w-12"
+          onClick={() => router.back()}
+        >
+          <ArrowLeft className="h-4 w-4" />
+        </Button>
+        {/* Rest of header */}
+      </div>
+      {/* Page content */}
+    </div>
+  );
+}
+```
+
+#### Responsive Considerations
+
+**Mobile Optimization**:
+- Maintain `h-12 w-12` size for proper touch targets
+- Ensure adequate spacing on smaller screens
+- Keep icon container visible and accessible
+
+**Tablet & Desktop**:
+- Consistent layout across all screen sizes
+- Proper alignment with page content
+- Visual hierarchy maintained
+
+#### Accessibility Requirements
+
+**ARIA Labels**: Provide descriptive labels for screen readers
+
+```tsx
+<Button
+  variant="outline"
+  size="icon"
+  className="h-12 w-12"
+  onClick={() => router.back()}
+  aria-label="Go back to previous page"
+>
+  <ArrowLeft className="h-4 w-4" />
+</Button>
+```
+
+**Keyboard Navigation**: Ensure back button is keyboard accessible and follows tab order
+
+#### Implementation Checklist
+
+- [ ] Back button with outline variant
+- [ ] Proper sizing (`h-12 w-12`)
+- [ ] ArrowLeft icon from Lucide
+- [ ] Context-appropriate page icon
+- [ ] Proper spacing and layout
+- [ ] Router.back() functionality
+- [ ] ARIA labels for accessibility
+- [ ] Responsive design maintained
+- [ ] Consistent with expenses page pattern
+
 ---
 
 ## 📄 Page Layout Patterns

@@ -30,6 +30,7 @@ import {
   GraduationCap,
   Building2,
   HandCoins,
+  Package,
 } from "lucide-react";
 
 const navigation = [
@@ -109,6 +110,12 @@ const navigation = [
         icon: BarChart3,
       },
     ],
+  },
+  {
+    name: "Assets",
+    href: "/dashboard/assets",
+    icon: Package,
+    permission: PERMISSIONS.VIEW_FINANCE,
   },
   {
     name: "Communications",
