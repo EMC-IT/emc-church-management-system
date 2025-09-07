@@ -77,9 +77,9 @@ const ageDistribution = [
 const departmentEngagement = [
   { department: 'Worship Team', members: 25, engagement: 95 },
   { department: 'Youth Ministry', members: 85, engagement: 88 },
-  { department: 'Women\'s Fellowship', members: 45, engagement: 92 },
-  { department: 'Men\'s Ministry', members: 32, engagement: 85 },
-  { department: 'Children\'s Ministry', members: 65, engagement: 90 },
+  { department: "Women's Fellowship", members: 45, engagement: 92 },
+  { department: "Men's Ministry", members: 32, engagement: 85 },
+  { department: "Children's Ministry", members: 65, engagement: 90 },
   { department: 'Prayer Team', members: 28, engagement: 98 },
 ];
 
@@ -178,8 +178,8 @@ export default function AnalyticsPage() {
                 <Area 
                   type="monotone" 
                   dataKey="members" 
-                  stroke="hsl(var(--brand-primary))" 
-                  fill="hsl(var(--brand-primary))" 
+                  stroke="#2E8DB0" 
+                  fill="#2E8DB0" 
                   fillOpacity={0.3}
                 />
               </AreaChart>

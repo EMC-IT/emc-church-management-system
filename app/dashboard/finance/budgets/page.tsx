@@ -15,6 +15,17 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
 import { 
   Table,
   TableBody,
@@ -133,10 +144,43 @@ const departmentSpending = [
   { department: 'Children', budget: 8000, spent: 5200 },
 ];
 
+// Quick Actions for budget management
+const quickActions = [
+  {
+    title: 'Create Budget',
+    description: 'Set up new budget',
+    href: '/dashboard/finance/budgets/add',
+    icon: Plus,
+    color: 'bg-brand-primary'
+  },
+  {
+    title: 'Manage Categories',
+    description: 'Budget categories',
+    href: '/dashboard/finance/budgets/categories',
+    icon: Tag,
+    color: 'bg-brand-secondary'
+  },
+  {
+    title: 'View Reports',
+    description: 'Budget analytics',
+    href: '/dashboard/finance/budgets/reports',
+    icon: BarChart3,
+    color: 'bg-brand-accent'
+  },
+  {
+    title: 'Allocate Funds',
+    description: 'Manage allocations',
+    href: '/dashboard/finance/budgets/allocations',
+    icon: Users,
+    color: 'bg-brand-success'
+  }
+];
+
 export default function BudgetsPage() {
+  const router = useRouter();
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [budgetToDelete, setBudgetToDelete] = useState<any>(null);
 
   const filteredBudgets = budgets.filter(budget => {
     const matchesSearch = budget.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -170,6 +214,13 @@ export default function BudgetsPage() {
     return 'text-green-600';
   };
 
+  const handleDeleteBudget = (budget: any) => {
+    // In a real app, this would call an API
+    console.log('Deleting budget:', budget.name);
+    // For now, just show a success message or update local state
+    setBudgetToDelete(null);
+  };
+
   const totalBudget = budgets.reduce((sum, budget) => sum + budget.amount, 0);
   const totalSpent = budgets.reduce((sum, budget) => sum + budget.spent, 0);
   const utilizationRate = Math.round((totalSpent / totalBudget) * 100);
@@ -186,112 +237,12 @@ export default function BudgetsPage() {
             <Download className="mr-2 h-4 w-4" />
             Export Budgets
           </Button>
-          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-            <DialogTrigger asChild>
-              <Button>
-                <Plus className="mr-2 h-4 w-4" />
-                Create Budget
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="sm:max-w-[525px]">
-              <DialogHeader>
-                <DialogTitle>Create New Budget</DialogTitle>
-                <DialogDescription>
-                  Set up a new budget for a department or ministry
-                </DialogDescription>
-              </DialogHeader>
-              <div className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="budgetName">Budget Name</Label>
-                    <Input id="budgetName" placeholder="e.g., Worship Ministry Q2" />
-                  </div>
-                  <div>
-                    <Label htmlFor="department">Department</Label>
-                    <Select>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select department" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="worship">Worship</SelectItem>
-                        <SelectItem value="youth">Youth</SelectItem>
-                        <SelectItem value="missions">Missions</SelectItem>
-                        <SelectItem value="facilities">Facilities</SelectItem>
-                        <SelectItem value="children">Children</SelectItem>
-                        <SelectItem value="administration">Administration</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-                
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="amount">Budget Amount</Label>
-                    <Input id="amount" type="number" placeholder="15000" />
-                  </div>
-                  <div>
-                    <Label htmlFor="period">Period</Label>
-                    <Select>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select period" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="q1-2024">Q1 2024</SelectItem>
-                        <SelectItem value="q2-2024">Q2 2024</SelectItem>
-                        <SelectItem value="q3-2024">Q3 2024</SelectItem>
-                        <SelectItem value="q4-2024">Q4 2024</SelectItem>
-                        <SelectItem value="annual-2024">Annual 2024</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-                
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="startDate">Start Date</Label>
-                    <Input id="startDate" type="date" />
-                  </div>
-                  <div>
-                    <Label htmlFor="endDate">End Date</Label>
-                    <Input id="endDate" type="date" />
-                  </div>
-                </div>
-                
-                <div>
-                  <Label htmlFor="owner">Budget Owner</Label>
-                  <Select>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select owner" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="music-director">Music Director</SelectItem>
-                      <SelectItem value="youth-pastor">Youth Pastor</SelectItem>
-                      <SelectItem value="missions-director">Missions Director</SelectItem>
-                      <SelectItem value="facilities-manager">Facilities Manager</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                
-                <div>
-                  <Label htmlFor="description">Description</Label>
-                  <Textarea 
-                    id="description" 
-                    placeholder="Brief description of budget purpose and scope"
-                    rows={3}
-                  />
-                </div>
-                
-                <div className="flex justify-end space-x-2">
-                  <Button variant="outline" onClick={() => setIsDialogOpen(false)}>
-                    Cancel
-                  </Button>
-                  <Button onClick={() => setIsDialogOpen(false)}>
-                    Create Budget
-                  </Button>
-                </div>
-              </div>
-            </DialogContent>
-          </Dialog>
+          <Button asChild>
+            <Link href="/dashboard/finance/budgets/add">
+              <Plus className="mr-2 h-4 w-4" />
+              Create Budget
+            </Link>
+          </Button>
         </div>
       </div>
 
@@ -346,7 +297,33 @@ export default function BudgetsPage() {
         </Card>
       </div>
 
-      {/* Charts */}
+        {/* Quick Actions */}
+        <div className="space-y-4">
+          <h2 className="text-xl font-semibold">Quick Actions</h2>
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+            {quickActions.map((action, index) => (
+              <Card key={index} className="group hover:shadow-md transition-shadow cursor-pointer">
+                <Link href={action.href} className="block p-4">
+                  <div className="flex items-center space-x-3">
+                    <div className={`p-2 rounded-lg ${action.color}`}>
+                      <action.icon className="h-5 w-5 text-white" />
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="font-medium group-hover:text-brand-primary transition-colors">
+                        {action.title}
+                      </h3>
+                      <p className="text-sm text-muted-foreground">
+                        {action.description}
+                      </p>
+                    </div>
+                  </div>
+                </Link>
+              </Card>
+            ))}
+          </div>
+        </div>
+
+        {/* Charts */}
       <div className="grid gap-4 md:grid-cols-2">
         <Card>
           <CardHeader>
@@ -437,7 +414,11 @@ export default function BudgetsPage() {
                 const utilization = Math.round((budget.spent / budget.amount) * 100);
                 
                 return (
-                  <TableRow key={budget.id}>
+                  <TableRow 
+                    key={budget.id}
+                    className="cursor-pointer hover:bg-muted/50"
+                    onClick={() => router.push(`/dashboard/finance/budgets/${budget.id}`)}
+                  >
                     <TableCell>
                       <div>
                         <p className="font-medium">{budget.name}</p>
@@ -470,14 +451,54 @@ export default function BudgetsPage() {
                       </Badge>
                     </TableCell>
                     <TableCell>{budget.owner}</TableCell>
-                    <TableCell>
+                    <TableCell onClick={(e) => e.stopPropagation()}>
                       <div className="flex space-x-1">
-                        <Button variant="ghost" size="icon">
+                        <Button 
+                          variant="ghost" 
+                          size="icon"
+                          onClick={() => router.push(`/dashboard/finance/budgets/${budget.id}`)}
+                        >
+                          <Eye className="h-4 w-4" />
+                        </Button>
+                        <Button 
+                          variant="ghost" 
+                          size="icon"
+                          onClick={() => router.push(`/dashboard/finance/budgets/${budget.id}/edit`)}
+                        >
                           <Edit className="h-4 w-4" />
                         </Button>
-                        <Button variant="ghost" size="icon">
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <Button 
+                              variant="ghost" 
+                              size="icon"
+                              onClick={() => setBudgetToDelete(budget)}
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>Delete Budget</AlertDialogTitle>
+                              <AlertDialogDescription>
+                                Are you sure you want to delete the budget "{budgetToDelete?.name}"? This action cannot be undone.
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel onClick={() => setBudgetToDelete(null)}>Cancel</AlertDialogCancel>
+                              <AlertDialogAction
+                                onClick={() => {
+                                  if (budgetToDelete) {
+                                    handleDeleteBudget(budgetToDelete);
+                                  }
+                                }}
+                                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                              >
+                                Delete
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
                       </div>
                     </TableCell>
                   </TableRow>
