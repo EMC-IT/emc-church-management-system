@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -30,7 +31,14 @@ import {
   BarChart3,
   PieChart,
   Eye,
-  Filter
+  Filter,
+  Wallet,
+  Receipt,
+  Package,
+  ArrowRight,
+  Heart,
+  Target,
+  Building
 } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, PieChart as RechartsPieChart, Pie, Cell } from 'recharts';
 
@@ -38,11 +46,17 @@ const financialSummary = {
   totalIncome: 285000,
   totalExpenses: 245000,
   netIncome: 40000,
+  totalGiving: 270000,
+  budgetUtilization: 87.5,
+  assetValue: 1250000,
   growthRate: 12.5,
   previousPeriod: {
     totalIncome: 254000,
     totalExpenses: 220000,
     netIncome: 34000,
+    totalGiving: 245000,
+    budgetUtilization: 82.3,
+    assetValue: 1180000,
   }
 };
 
@@ -109,6 +123,58 @@ const departmentReports = [
   },
 ];
 
+const quickLinks = [
+  {
+    title: 'Income Reports',
+    description: 'Source analysis, trends, and monthly breakdown',
+    icon: TrendingUp,
+    href: '/dashboard/finance/reports/income',
+    color: 'bg-green-500/10 text-green-600',
+  },
+  {
+    title: 'Expense Reports',
+    description: 'Category and department expense analysis',
+    icon: Receipt,
+    href: '/dashboard/finance/reports/expenses',
+    color: 'bg-red-500/10 text-red-600',
+  },
+  {
+    title: 'Giving Reports',
+    description: 'All giving categories and donor analysis',
+    icon: Heart,
+    href: '/dashboard/finance/reports/giving',
+    color: 'bg-pink-500/10 text-pink-600',
+  },
+  {
+    title: 'Tithes & Offerings',
+    description: 'Specific tithes and offerings reports',
+    icon: Wallet,
+    href: '/dashboard/finance/reports/tithes-offerings',
+    color: 'bg-blue-500/10 text-blue-600',
+  },
+  {
+    title: 'Budget Reports',
+    description: 'Planned vs actual budget analysis',
+    icon: Target,
+    href: '/dashboard/finance/reports/budgets',
+    color: 'bg-purple-500/10 text-purple-600',
+  },
+  {
+    title: 'Asset Reports',
+    description: 'Value, depreciation, and maintenance costs',
+    icon: Package,
+    href: '/dashboard/finance/reports/assets',
+    color: 'bg-orange-500/10 text-orange-600',
+  },
+  {
+    title: 'Comparison Reports',
+    description: 'Income vs Expenses and Year-to-Year trends',
+    icon: BarChart3,
+    href: '/dashboard/finance/reports/comparisons',
+    color: 'bg-indigo-500/10 text-indigo-600',
+  },
+];
+
 const availableReports = [
   {
     id: '1',
@@ -153,6 +219,7 @@ const availableReports = [
 ];
 
 export default function ReportsPage() {
+  const router = useRouter();
   const [selectedPeriod, setSelectedPeriod] = useState('current-quarter');
   const [activeTab, setActiveTab] = useState('overview');
 
@@ -213,7 +280,7 @@ export default function ReportsPage() {
 
         <TabsContent value="overview" className="space-y-4">
           {/* Key Metrics */}
-          <div className="grid gap-4 md:grid-cols-4">
+          <div className="grid gap-4 grid-cols-2 md:grid-cols-4">
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">Total Income</CardTitle>
@@ -273,6 +340,51 @@ export default function ReportsPage() {
                 <p className="text-xs text-muted-foreground">Year over year</p>
               </CardContent>
             </Card>
+            
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Total Giving</CardTitle>
+                <Heart className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">₵{financialSummary.totalGiving.toLocaleString()}</div>
+                <p className="text-xs text-muted-foreground">
+                  <span className="text-green-600">
+                    +₵{(financialSummary.totalGiving - financialSummary.previousPeriod.totalGiving).toLocaleString()}
+                  </span> from last period
+                </p>
+              </CardContent>
+            </Card>
+            
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Budget Utilization</CardTitle>
+                <Target className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{financialSummary.budgetUtilization}%</div>
+                <p className="text-xs text-muted-foreground">
+                  <span className="text-green-600">
+                    +{(financialSummary.budgetUtilization - financialSummary.previousPeriod.budgetUtilization).toFixed(1)}%
+                  </span> from last period
+                </p>
+              </CardContent>
+            </Card>
+            
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Asset Value</CardTitle>
+                <Building className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">₵{financialSummary.assetValue.toLocaleString()}</div>
+                <p className="text-xs text-muted-foreground">
+                  <span className="text-green-600">
+                    +₵{(financialSummary.assetValue - financialSummary.previousPeriod.assetValue).toLocaleString()}
+                  </span> from last period
+                </p>
+              </CardContent>
+            </Card>
           </div>
 
           {/* Charts */}
@@ -325,6 +437,47 @@ export default function ReportsPage() {
               </CardContent>
             </Card>
           </div>
+
+          {/* Quick Links */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Quick Links</CardTitle>
+              <CardDescription>Navigate to specialized financial reports</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                {quickLinks.map((link) => {
+                  const IconComponent = link.icon;
+                  return (
+                    <Card 
+                      key={link.href} 
+                      className="hover:shadow-lg transition-all duration-200 cursor-pointer group"
+                      onClick={() => router.push(link.href)}
+                    >
+                      <CardContent className="p-4">
+                        <div className="flex items-start space-x-3">
+                          <div className={`p-2 rounded-lg ${link.color}`}>
+                            <IconComponent className="h-5 w-5" />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center justify-between">
+                              <h3 className="font-semibold text-sm group-hover:text-brand-primary transition-colors">
+                                {link.title}
+                              </h3>
+                              <ArrowRight className="h-4 w-4 text-muted-foreground group-hover:text-brand-primary transition-colors" />
+                            </div>
+                            <p className="text-xs text-muted-foreground mt-1 line-clamp-2">
+                              {link.description}
+                            </p>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  );
+                })}
+              </div>
+            </CardContent>
+          </Card>
         </TabsContent>
 
         <TabsContent value="income" className="space-y-4">
