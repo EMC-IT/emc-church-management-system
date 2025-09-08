@@ -72,6 +72,12 @@ const navigation = [
       },
     ],
   },
+  {
+    name: "Assets",
+    href: "/dashboard/assets",
+    icon: Package,
+    permission: PERMISSIONS.VIEW_FINANCE,
+  },
 
   {
     name: "Finance",
@@ -111,12 +117,7 @@ const navigation = [
       },
     ],
   },
-  {
-    name: "Assets",
-    href: "/dashboard/assets",
-    icon: Package,
-    permission: PERMISSIONS.VIEW_FINANCE,
-  },
+  
   {
     name: "Communications",
     href: "/dashboard/communications",

@@ -67,9 +67,9 @@ const givingTrends = [
 ];
 
 const ageDistribution = [
-  { name: 'Children (0-12)', value: 120, color: '#2E8CB0' },
+  { name: 'Children (0-12)', value: 120, color: '#2E8DB0' },
   { name: 'Youth (13-17)', value: 85, color: '#C49831' },
-  { name: 'Young Adults (18-35)', value: 150, color: '#A2CD5E' },
+  { name: 'Young Adults (18-35)', value: 150, color: '#A5CF5D' },
   { name: 'Adults (36-55)', value: 110, color: '#E74C3C' },
   { name: 'Seniors (55+)', value: 55, color: '#9B59B6' },
 ];
@@ -199,9 +199,9 @@ export default function AnalyticsPage() {
                 <XAxis dataKey="month" />
                 <YAxis />
                 <Tooltip />
-                <Line type="monotone" dataKey="sunday" stroke="#2E8CB0" strokeWidth={2} name="Sunday Service" />
+                <Line type="monotone" dataKey="sunday" stroke="#2E8DB0" strokeWidth={2} name="Sunday Service" />
                 <Line type="monotone" dataKey="midweek" stroke="#C49831" strokeWidth={2} name="Midweek" />
-                <Line type="monotone" dataKey="events" stroke="#A2CD5E" strokeWidth={2} name="Events" />
+                <Line type="monotone" dataKey="events" stroke="#A5CF5D" strokeWidth={2} name="Events" />
               </LineChart>
             </ResponsiveContainer>
           </CardContent>
@@ -219,9 +219,9 @@ export default function AnalyticsPage() {
                 <XAxis dataKey="month" />
                 <YAxis />
                 <Tooltip />
-                <Bar dataKey="tithes" fill="#2E8CB0" name="Tithes" />
+                <Bar dataKey="tithes" fill="#2E8DB0" name="Tithes" />
                 <Bar dataKey="offerings" fill="#C49831" name="Offerings" />
-                <Bar dataKey="special" fill="#A2CD5E" name="Special" />
+                <Bar dataKey="special" fill="#A5CF5D" name="Special" />
               </BarChart>
             </ResponsiveContainer>
           </CardContent>
