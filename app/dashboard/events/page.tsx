@@ -25,7 +25,10 @@ import {
   Filter,
   Eye,
   Edit,
-  Trash2
+  Trash2,
+  Download,
+  FileText,
+  CheckSquare
 } from 'lucide-react';
 import { format } from 'date-fns';
 import Link from 'next/link';
@@ -122,12 +125,26 @@ export default function EventsPage() {
           <h1 className="text-3xl font-bold tracking-tight">Events</h1>
           <p className="text-muted-foreground">Manage church events and activities</p>
         </div>
-        <Button asChild className="bg-brand-primary hover:bg-brand-primary/90">
-          <Link href="/dashboard/events/create">
-            <Plus className="mr-2 h-4 w-4" />
-            Create Event
-          </Link>
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button variant="outline" asChild>
+            <Link href="/dashboard/events/calendar">
+              <CalendarIcon className="mr-2 h-4 w-4" />
+              Calendar View
+            </Link>
+          </Button>
+          <Button variant="outline" asChild>
+            <Link href="/dashboard/events/categories">
+              <Filter className="mr-2 h-4 w-4" />
+              Categories
+            </Link>
+          </Button>
+          <Button asChild className="bg-brand-primary hover:bg-brand-primary/90">
+            <Link href="/dashboard/events/add">
+              <Plus className="mr-2 h-4 w-4" />
+              Create Event
+            </Link>
+          </Button>
+        </div>
       </div>
 
       {/* Stats Cards */}
@@ -174,7 +191,114 @@ export default function EventsPage() {
         </Card>
       </div>
 
-      {/* Filters */}
+      {/* Quick Actions */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Quick Actions</CardTitle>
+          <CardDescription>Streamline your event management workflow</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            <Card className="hover:shadow-md transition-shadow cursor-pointer group">
+              <Link href="/dashboard/events/add" className="block">
+                <CardContent className="p-4">
+                  <div className="flex items-center space-x-3">
+                    <div className="p-2 bg-brand-primary/10 rounded-lg group-hover:bg-brand-primary/20 transition-colors">
+                      <Plus className="h-5 w-5 text-brand-primary" />
+                    </div>
+                    <div>
+                      <h3 className="font-medium">Create New Event</h3>
+                      <p className="text-sm text-muted-foreground">Add a new church event</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Link>
+            </Card>
+
+            <Card className="hover:shadow-md transition-shadow cursor-pointer group">
+              <Link href="/dashboard/events/calendar" className="block">
+                <CardContent className="p-4">
+                  <div className="flex items-center space-x-3">
+                    <div className="p-2 bg-blue-100 rounded-lg group-hover:bg-blue-200 transition-colors">
+                      <CalendarIcon className="h-5 w-5 text-blue-600" />
+                    </div>
+                    <div>
+                      <h3 className="font-medium">Calendar View</h3>
+                      <p className="text-sm text-muted-foreground">View events in calendar</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Link>
+            </Card>
+
+            <Card className="hover:shadow-md transition-shadow cursor-pointer group">
+              <Link href="/dashboard/events/categories" className="block">
+                <CardContent className="p-4">
+                  <div className="flex items-center space-x-3">
+                    <div className="p-2 bg-purple-100 rounded-lg group-hover:bg-purple-200 transition-colors">
+                      <Filter className="h-5 w-5 text-purple-600" />
+                    </div>
+                    <div>
+                      <h3 className="font-medium">Event Categories</h3>
+                      <p className="text-sm text-muted-foreground">Manage event categories</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Link>
+            </Card>
+
+            <Card className="hover:shadow-md transition-shadow cursor-pointer group">
+              <Link href="/dashboard/events/export" className="block">
+                <CardContent className="p-4">
+                  <div className="flex items-center space-x-3">
+                    <div className="p-2 bg-green-100 rounded-lg group-hover:bg-green-200 transition-colors">
+                      <Download className="h-5 w-5 text-green-600" />
+                    </div>
+                    <div>
+                      <h3 className="font-medium">Export Events</h3>
+                      <p className="text-sm text-muted-foreground">Export event data</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Link>
+            </Card>
+
+            <Card className="hover:shadow-md transition-shadow cursor-pointer group">
+              <Link href="/dashboard/events/templates" className="block">
+                <CardContent className="p-4">
+                  <div className="flex items-center space-x-3">
+                    <div className="p-2 bg-orange-100 rounded-lg group-hover:bg-orange-200 transition-colors">
+                      <FileText className="h-5 w-5 text-orange-600" />
+                    </div>
+                    <div>
+                      <h3 className="font-medium">Event Templates</h3>
+                      <p className="text-sm text-muted-foreground">Manage event templates</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Link>
+            </Card>
+
+            <Card className="hover:shadow-md transition-shadow cursor-pointer group">
+              <Link href="/dashboard/events/bulk-actions" className="block">
+                <CardContent className="p-4">
+                  <div className="flex items-center space-x-3">
+                    <div className="p-2 bg-red-100 rounded-lg group-hover:bg-red-200 transition-colors">
+                      <CheckSquare className="h-5 w-5 text-red-600" />
+                    </div>
+                    <div>
+                      <h3 className="font-medium">Bulk Actions</h3>
+                      <p className="text-sm text-muted-foreground">Perform bulk operations</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Link>
+            </Card>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Event Management */}
       <Card>
         <CardHeader>
           <CardTitle>Event Management</CardTitle>
@@ -242,11 +366,15 @@ export default function EventsPage() {
                       </Badge>
                     </div>
                     <div className="flex space-x-1">
-                      <Button variant="ghost" size="icon">
-                        <Eye className="h-4 w-4" />
+                      <Button variant="ghost" size="icon" asChild>
+                        <Link href={`/dashboard/events/${event.id}`}>
+                          <Eye className="h-4 w-4" />
+                        </Link>
                       </Button>
-                      <Button variant="ghost" size="icon">
-                        <Edit className="h-4 w-4" />
+                      <Button variant="ghost" size="icon" asChild>
+                        <Link href={`/dashboard/events/${event.id}/edit`}>
+                          <Edit className="h-4 w-4" />
+                        </Link>
                       </Button>
                       <Button variant="ghost" size="icon">
                         <Trash2 className="h-4 w-4" />
