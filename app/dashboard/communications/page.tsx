@@ -64,7 +64,8 @@ import {
 import { DeleteDialog, useDeleteDialog } from '@/components/ui/delete-dialog';
 import { ScheduleDialog, useScheduleDialog } from '@/components/ui/schedule-dialog';
 import { toast } from 'sonner';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, PieChart as RechartsPieChart, Pie, Cell } from 'recharts';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, BarChart, Bar, PieChart as RechartsPieChart, Pie, Cell } from 'recharts';
+import { ChartContainer, ChartTooltip, ChartTooltipContent, ChartLegend, ChartLegendContent, ChartConfig } from '@/components/ui/chart';
 
 // Mock data for communications
 const communicationStats = {
@@ -224,6 +225,22 @@ const templates = [
   }
 ];
 
+// Chart configurations
+const monthlyStatsConfig = {
+  sent: { label: 'Sent', color: 'hsl(var(--chart-1))' },
+  opened: { label: 'Opened', color: 'hsl(var(--chart-2))' },
+  clicked: { label: 'Clicked', color: 'hsl(var(--chart-3))' },
+} satisfies ChartConfig;
+
+const channelDistributionConfig = {
+  value: { label: 'Messages', color: 'hsl(var(--chart-1))' },
+} satisfies ChartConfig;
+
+const engagementConfig = {
+  sent: { label: 'Sent', color: 'hsl(var(--chart-1))' },
+  opened: { label: 'Opened', color: 'hsl(var(--chart-2))' },
+} satisfies ChartConfig;
+
 export default function CommunicationsPage() {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState('overview');
@@ -239,7 +256,7 @@ export default function CommunicationsPage() {
   const scheduleDialog = useScheduleDialog();
   
   // Newsletter send dialog state
-  const [newsletterSendDialog, setNewsletterSendDialog] = useState({ isOpen: false, newsletter: null });
+  const [newsletterSendDialog, setNewsletterSendDialog] = useState<{ isOpen: boolean; newsletter: any | null }>({ isOpen: false, newsletter: null });
   const [isSendingNewsletter, setIsSendingNewsletter] = useState(false);
   
   const handleSendNewsletter = (newsletter: any) => {
@@ -553,17 +570,50 @@ export default function CommunicationsPage() {
                 <CardDescription>Monthly communication metrics</CardDescription>
               </CardHeader>
               <CardContent>
-                <ResponsiveContainer width="100%" height={300}>
-                  <LineChart data={monthlyData}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="month" />
-                    <YAxis />
-                    <Tooltip />
-                    <Line type="monotone" dataKey="sent" stroke="#2E8DB0" strokeWidth={2} name="Sent" />
-                    <Line type="monotone" dataKey="opened" stroke="#28ACD1" strokeWidth={2} name="Opened" />
-                    <Line type="monotone" dataKey="clicked" stroke="#C49831" strokeWidth={2} name="Clicked" />
+                <ChartContainer config={monthlyStatsConfig} className="h-[300px] w-full">
+                  <LineChart data={monthlyData} margin={{ left: 12, right: 12 }}>
+                    <CartesianGrid vertical={false} strokeDasharray="3 3" className="stroke-muted" />
+                    <XAxis 
+                      dataKey="month" 
+                      tickLine={false} 
+                      axisLine={false} 
+                      tickMargin={8}
+                      className="text-xs"
+                    />
+                    <YAxis 
+                      tickLine={false} 
+                      axisLine={false} 
+                      tickMargin={8}
+                      className="text-xs"
+                    />
+                    <ChartTooltip 
+                      cursor={{ stroke: 'hsl(var(--muted))', strokeWidth: 1 }}
+                      content={<ChartTooltipContent indicator="line" />} 
+                    />
+                    <ChartLegend content={<ChartLegendContent />} />
+                    <Line 
+                      type="monotone" 
+                      dataKey="sent" 
+                      stroke="hsl(var(--chart-1))" 
+                      strokeWidth={2}
+                      dot={{ fill: 'hsl(var(--chart-1))' }}
+                    />
+                    <Line 
+                      type="monotone" 
+                      dataKey="opened" 
+                      stroke="hsl(var(--chart-2))" 
+                      strokeWidth={2}
+                      dot={{ fill: 'hsl(var(--chart-2))' }}
+                    />
+                    <Line 
+                      type="monotone" 
+                      dataKey="clicked" 
+                      stroke="hsl(var(--chart-3))" 
+                      strokeWidth={2}
+                      dot={{ fill: 'hsl(var(--chart-3))' }}
+                    />
                   </LineChart>
-                </ResponsiveContainer>
+                </ChartContainer>
               </CardContent>
             </Card>
 
@@ -1008,8 +1058,9 @@ export default function CommunicationsPage() {
                 <CardDescription>Usage by communication type</CardDescription>
               </CardHeader>
               <CardContent>
-                <ResponsiveContainer width="100%" height={300}>
+                <ChartContainer config={channelDistributionConfig} className="h-[300px] w-full">
                   <RechartsPieChart>
+                    <ChartTooltip cursor={false} content={<ChartTooltipContent hideLabel />} />
                     <Pie
                       data={channelData}
                       cx="50%"
@@ -1018,14 +1069,18 @@ export default function CommunicationsPage() {
                       outerRadius={100}
                       paddingAngle={5}
                       dataKey="value"
+                      strokeWidth={2}
                     >
                       {channelData.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={entry.color} />
+                        <Cell 
+                          key={`cell-${index}`} 
+                          fill={entry.color} 
+                          stroke="hsl(var(--background))"
+                        />
                       ))}
                     </Pie>
-                    <Tooltip />
                   </RechartsPieChart>
-                </ResponsiveContainer>
+                </ChartContainer>
                 <div className="flex justify-center space-x-4 mt-4">
                   {channelData.map((entry) => (
                     <div key={entry.name} className="flex items-center space-x-2">
@@ -1043,17 +1098,39 @@ export default function CommunicationsPage() {
                 <CardDescription>Communication metrics over time</CardDescription>
               </CardHeader>
               <CardContent>
-                <ResponsiveContainer width="100%" height={300}>
-                  <BarChart data={monthlyData}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="month" />
-                    <YAxis />
-                    <Tooltip />
-                    <Bar dataKey="sent" fill="#2E8DB0" name="Sent" />
-                    <Bar dataKey="opened" fill="#28ACD1" name="Opened" />
-                    <Bar dataKey="clicked" fill="#C49831" name="Clicked" />
+                <ChartContainer config={engagementConfig} className="h-[300px] w-full">
+                  <BarChart data={monthlyData} margin={{ left: 12, right: 12 }}>
+                    <CartesianGrid vertical={false} strokeDasharray="3 3" className="stroke-muted" />
+                    <XAxis 
+                      dataKey="month" 
+                      tickLine={false} 
+                      axisLine={false} 
+                      tickMargin={8}
+                      className="text-xs"
+                    />
+                    <YAxis 
+                      tickLine={false} 
+                      axisLine={false} 
+                      tickMargin={8}
+                      className="text-xs"
+                    />
+                    <ChartTooltip 
+                      cursor={{ fill: 'hsl(var(--muted)/0.2)' }}
+                      content={<ChartTooltipContent indicator="dot" />} 
+                    />
+                    <ChartLegend content={<ChartLegendContent />} />
+                    <Bar 
+                      dataKey="sent" 
+                      fill="hsl(var(--chart-1))" 
+                      radius={[8, 8, 0, 0]}
+                    />
+                    <Bar 
+                      dataKey="opened" 
+                      fill="hsl(var(--chart-2))" 
+                      radius={[8, 8, 0, 0]}
+                    />
                   </BarChart>
-                </ResponsiveContainer>
+                </ChartContainer>
               </CardContent>
             </Card>
           </div>

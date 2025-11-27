@@ -55,7 +55,8 @@ import {
   ArrowRight,
   Eye
 } from 'lucide-react';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar } from 'recharts';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, BarChart, Bar } from 'recharts';
+import { ChartContainer, ChartTooltip, ChartTooltipContent, ChartLegend, ChartLegendContent, ChartConfig } from '@/components/ui/chart';
 import { LazySection } from '@/components/ui/lazy-section';
 import { LazyLoader } from '@/components/ui/lazy-loader';
 
@@ -175,6 +176,17 @@ const quickActions = [
     color: 'bg-brand-success'
   }
 ];
+
+// Chart configurations
+const budgetTrendsConfig = {
+  allocated: { label: 'Allocated', color: 'hsl(var(--chart-1))' },
+  spent: { label: 'Spent', color: 'hsl(var(--chart-2))' },
+} satisfies ChartConfig;
+
+const departmentConfig = {
+  budget: { label: 'Budget', color: 'hsl(var(--chart-1))' },
+  spent: { label: 'Spent', color: 'hsl(var(--chart-2))' },
+} satisfies ChartConfig;
 
 export default function BudgetsPage() {
   const router = useRouter();
@@ -331,16 +343,43 @@ export default function BudgetsPage() {
             <CardDescription>Monthly budget allocation vs actual spending</CardDescription>
           </CardHeader>
           <CardContent>
-            <ResponsiveContainer width="100%" height={300}>
-              <LineChart data={budgetTrends}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="month" />
-                <YAxis />
-                <Tooltip />
-                <Line type="monotone" dataKey="allocated" stroke="#2E8CB0" strokeWidth={2} name="Allocated" />
-                <Line type="monotone" dataKey="spent" stroke="#C49831" strokeWidth={2} name="Spent" />
+            <ChartContainer config={budgetTrendsConfig} className="h-[300px] w-full">
+              <LineChart data={budgetTrends} margin={{ left: 12, right: 12 }}>
+                <CartesianGrid vertical={false} strokeDasharray="3 3" className="stroke-muted" />
+                <XAxis 
+                  dataKey="month" 
+                  tickLine={false} 
+                  axisLine={false} 
+                  tickMargin={8}
+                  className="text-xs"
+                />
+                <YAxis 
+                  tickLine={false} 
+                  axisLine={false} 
+                  tickMargin={8}
+                  className="text-xs"
+                />
+                <ChartTooltip 
+                  cursor={{ stroke: 'hsl(var(--muted))', strokeWidth: 1 }}
+                  content={<ChartTooltipContent indicator="line" />} 
+                />
+                <ChartLegend content={<ChartLegendContent />} />
+                <Line 
+                  type="monotone" 
+                  dataKey="allocated" 
+                  stroke="hsl(var(--chart-1))" 
+                  strokeWidth={2} 
+                  dot={{ fill: 'hsl(var(--chart-1))' }}
+                />
+                <Line 
+                  type="monotone" 
+                  dataKey="spent" 
+                  stroke="hsl(var(--chart-2))" 
+                  strokeWidth={2}
+                  dot={{ fill: 'hsl(var(--chart-2))' }}
+                />
               </LineChart>
-            </ResponsiveContainer>
+            </ChartContainer>
           </CardContent>
         </Card>
 
@@ -350,16 +389,39 @@ export default function BudgetsPage() {
             <CardDescription>Budget vs spending by department</CardDescription>
           </CardHeader>
           <CardContent>
-            <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={departmentSpending}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="department" />
-                <YAxis />
-                <Tooltip />
-                <Bar dataKey="budget" fill="#2E8CB0" name="Budget" />
-                <Bar dataKey="spent" fill="#C49831" name="Spent" />
+            <ChartContainer config={departmentConfig} className="h-[300px] w-full">
+              <BarChart data={departmentSpending} margin={{ left: 12, right: 12 }}>
+                <CartesianGrid vertical={false} strokeDasharray="3 3" className="stroke-muted" />
+                <XAxis 
+                  dataKey="department" 
+                  tickLine={false} 
+                  axisLine={false} 
+                  tickMargin={8}
+                  className="text-xs"
+                />
+                <YAxis 
+                  tickLine={false} 
+                  axisLine={false} 
+                  tickMargin={8}
+                  className="text-xs"
+                />
+                <ChartTooltip 
+                  cursor={{ fill: 'hsl(var(--muted)/0.2)' }}
+                  content={<ChartTooltipContent indicator="dot" />} 
+                />
+                <ChartLegend content={<ChartLegendContent />} />
+                <Bar 
+                  dataKey="budget" 
+                  fill="hsl(var(--chart-1))" 
+                  radius={[8, 8, 0, 0]}
+                />
+                <Bar 
+                  dataKey="spent" 
+                  fill="hsl(var(--chart-2))" 
+                  radius={[8, 8, 0, 0]}
+                />
               </BarChart>
-            </ResponsiveContainer>
+            </ChartContainer>
           </CardContent>
         </Card>
       </div>

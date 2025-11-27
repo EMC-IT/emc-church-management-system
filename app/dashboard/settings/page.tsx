@@ -1,6 +1,8 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
+import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -25,6 +27,23 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import { 
   Settings, 
   Users, 
@@ -38,7 +57,9 @@ import {
   Plus,
   Edit,
   Trash2,
-  Key
+  Key,
+  Building2,
+  MoreHorizontal
 } from 'lucide-react';
 import { useAuth } from '@/lib/contexts/auth-context';
 import { useCurrency } from '@/lib/contexts/currency-context';
@@ -85,8 +106,19 @@ export default function SettingsPage() {
   const { user } = useAuth();
   const { currency, setCurrency } = useCurrency();
   const { toast } = useToast();
+  const searchParams = useSearchParams();
   const [activeTab, setActiveTab] = useState('general');
   const [isSaving, setIsSaving] = useState(false);
+  const [roleToDelete, setRoleToDelete] = useState<any>(null);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+
+  // Read tab from URL on mount
+  useEffect(() => {
+    const tab = searchParams.get('tab');
+    if (tab && ['general', 'users', 'roles', 'notifications', 'integrations', 'backup'].includes(tab)) {
+      setActiveTab(tab);
+    }
+  }, [searchParams]);
 
   const handleSavePreferences = async () => {
     setIsSaving(true);
@@ -130,6 +162,33 @@ export default function SettingsPage() {
     }
   };
 
+  const handleDeleteRole = async (role: any) => {
+    setRoleToDelete(role);
+    setIsDeleteDialogOpen(true);
+  };
+
+  const confirmDeleteRole = async () => {
+    try {
+      // TODO: Implement actual delete logic
+      console.log('Deleting role:', roleToDelete);
+      await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate API call
+      
+      toast({
+        title: "Role Deleted",
+        description: `${roleToDelete.name} has been deleted successfully.`,
+      });
+      
+      setIsDeleteDialogOpen(false);
+      setRoleToDelete(null);
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to delete role. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -153,46 +212,96 @@ export default function SettingsPage() {
           <div className="grid gap-4 md:grid-cols-2">
             <Card>
               <CardHeader>
-                <CardTitle className="flex items-center">
-                  <Settings className="mr-2 h-5 w-5" />
-                  Church Information
-                </CardTitle>
-                <CardDescription>Basic church details and contact information</CardDescription>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <CardTitle className="flex items-center">
+                      <Settings className="mr-2 h-5 w-5" />
+                      Church Information
+                    </CardTitle>
+                    <CardDescription>Comprehensive church profile and identity</CardDescription>
+                  </div>
+                  <Button variant="outline" size="sm" asChild>
+                    <Link href="/dashboard/settings/church-profile">
+                      <Edit className="mr-2 h-3 w-3" />
+                      Full Profile
+                    </Link>
+                  </Button>
+                </div>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div>
-                  <Label htmlFor="churchName">Church Name</Label>
-                  <Input id="churchName" defaultValue="Grace Community Church" />
-                </div>
-                
-                <div>
-                  <Label htmlFor="address">Address</Label>
-                  <Textarea 
-                    id="address" 
-                    defaultValue="123 Faith Street, Hope City, HC 12345"
-                    rows={3}
-                  />
-                </div>
-                
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="phone">Phone</Label>
-                    <Input id="phone" defaultValue="+1 (555) 123-4567" />
+                <div className="space-y-3">
+                  <div className="flex justify-between text-sm">
+                    <span className="text-muted-foreground">Church Name:</span>
+                    <span className="font-medium">EMC Church</span>
                   </div>
-                  <div>
-                    <Label htmlFor="email">Email</Label>
-                    <Input id="email" defaultValue="info@gracechurch.com" />
+                  <div className="flex justify-between text-sm">
+                    <span className="text-muted-foreground">Motto:</span>
+                    <span className="font-medium text-right max-w-[200px]">Empowering Lives, Transforming Communities</span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-muted-foreground">Founded:</span>
+                    <span className="font-medium">1995</span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-muted-foreground">Email:</span>
+                    <span className="font-medium">info@emcchurch.org</span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-muted-foreground">Phone:</span>
+                    <span className="font-medium">+1 (555) 123-4567</span>
                   </div>
                 </div>
                 
-                <div>
-                  <Label htmlFor="website">Website</Label>
-                  <Input id="website" defaultValue="https://gracechurch.com" />
+                <Button asChild className="w-full bg-brand-primary hover:bg-brand-primary/90">
+                  <Link href="/dashboard/settings/church-profile">
+                    Edit Complete Profile
+                  </Link>
+                </Button>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <CardTitle className="flex items-center">
+                      <Building2 className="mr-2 h-5 w-5" />
+                      Branch Management
+                    </CardTitle>
+                    <CardDescription>Manage church branches and locations</CardDescription>
+                  </div>
+                  <Button variant="outline" size="sm" asChild>
+                    <Link href="/dashboard/settings/branches">
+                      View All
+                    </Link>
+                  </Button>
+                </div>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-3">
+                  <div className="flex justify-between text-sm">
+                    <span className="text-muted-foreground">Total Branches:</span>
+                    <span className="font-medium">4</span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-muted-foreground">Total Members:</span>
+                    <span className="font-medium">735</span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-muted-foreground">Total Capacity:</span>
+                    <span className="font-medium">1,100</span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-muted-foreground">Active Branches:</span>
+                    <span className="font-medium">4</span>
+                  </div>
                 </div>
                 
-                <Button onClick={handleSaveChurchInfo} disabled={isSaving} className="bg-brand-primary hover:bg-brand-primary/90">
-                  <Save className="mr-2 h-4 w-4" />
-                  {isSaving ? "Saving..." : "Save Changes"}
+                <Button asChild className="w-full">
+                  <Link href="/dashboard/settings/branches">
+                    <Building2 className="mr-2 h-4 w-4" />
+                    Manage Branches
+                  </Link>
                 </Button>
               </CardContent>
             </Card>
@@ -298,9 +407,11 @@ export default function SettingsPage() {
                   </CardTitle>
                   <CardDescription>Manage system users and their access</CardDescription>
                 </div>
-                <Button>
-                  <Plus className="mr-2 h-4 w-4" />
-                  Add User
+                <Button asChild className="bg-brand-primary hover:bg-brand-primary/90">
+                  <Link href="/dashboard/settings/users/add">
+                    <Plus className="mr-2 h-4 w-4" />
+                    Add User
+                  </Link>
                 </Button>
               </div>
             </CardHeader>
@@ -342,8 +453,10 @@ export default function SettingsPage() {
                       <TableCell>{user.lastLogin}</TableCell>
                       <TableCell>
                         <div className="flex space-x-1">
-                          <Button variant="ghost" size="icon">
-                            <Edit className="h-4 w-4" />
+                          <Button variant="ghost" size="icon" asChild>
+                            <Link href={`/dashboard/settings/users/${user.id}/edit`}>
+                              <Edit className="h-4 w-4" />
+                            </Link>
                           </Button>
                           <Button variant="ghost" size="icon">
                             <Key className="h-4 w-4" />
@@ -372,10 +485,20 @@ export default function SettingsPage() {
                   </CardTitle>
                   <CardDescription>Configure roles and permissions</CardDescription>
                 </div>
-                <Button>
-                  <Plus className="mr-2 h-4 w-4" />
-                  Create Role
-                </Button>
+                <div className="flex gap-2">
+                  <Button variant="outline" asChild>
+                    <Link href="/dashboard/settings/permissions">
+                      <Shield className="mr-2 h-4 w-4" />
+                      Manage Permissions
+                    </Link>
+                  </Button>
+                  <Button asChild className="bg-brand-primary hover:bg-brand-primary/90">
+                    <Link href="/dashboard/settings/roles/add">
+                      <Plus className="mr-2 h-4 w-4" />
+                      Create Role
+                    </Link>
+                  </Button>
+                </div>
               </div>
             </CardHeader>
             <CardContent>
@@ -385,14 +508,35 @@ export default function SettingsPage() {
                     <CardHeader className="pb-3">
                       <div className="flex items-center justify-between">
                         <CardTitle className="text-base">{role.name}</CardTitle>
-                        <div className="flex space-x-1">
-                          <Button variant="ghost" size="icon">
-                            <Edit className="h-4 w-4" />
-                          </Button>
-                          <Button variant="ghost" size="icon">
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </div>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="icon">
+                              <MoreHorizontal className="h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem asChild>
+                              <Link href={`/dashboard/settings/roles/${role.name.toLowerCase()}/edit`}>
+                                <Edit className="mr-2 h-4 w-4" />
+                                Edit Role
+                              </Link>
+                            </DropdownMenuItem>
+                            <DropdownMenuItem asChild>
+                              <Link href="/dashboard/settings/permissions">
+                                <Shield className="mr-2 h-4 w-4" />
+                                Manage Permissions
+                              </Link>
+                            </DropdownMenuItem>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem 
+                              onClick={() => handleDeleteRole(role)}
+                              className="text-red-600 focus:text-red-600"
+                            >
+                              <Trash2 className="mr-2 h-4 w-4" />
+                              Delete Role
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
                       </div>
                     </CardHeader>
                     <CardContent>
@@ -406,8 +550,16 @@ export default function SettingsPage() {
                           <span className="font-medium">{role.permissions}</span>
                         </div>
                       </div>
-                      <Button variant="outline" size="sm" className="w-full mt-3">
-                        Manage Permissions
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        className="w-full mt-3"
+                        asChild
+                      >
+                        <Link href="/dashboard/settings/permissions">
+                          <Shield className="mr-2 h-3 w-3" />
+                          Manage Permissions
+                        </Link>
                       </Button>
                     </CardContent>
                   </Card>
@@ -689,6 +841,33 @@ export default function SettingsPage() {
           </Card>
         </TabsContent>
       </Tabs>
+
+      {/* Delete Role Dialog */}
+      <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Role</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete the role "{roleToDelete?.name}"? 
+              This action cannot be undone. All users with this role will need to be reassigned.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => {
+              setIsDeleteDialogOpen(false);
+              setRoleToDelete(null);
+            }}>
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={confirmDeleteRole}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Delete Role
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

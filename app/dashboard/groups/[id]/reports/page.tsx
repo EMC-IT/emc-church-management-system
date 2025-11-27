@@ -43,7 +43,8 @@ import { Group, GroupMember, GroupEvent, GroupAttendance, GroupStats } from '@/l
 import { AttendanceStatus } from '@/lib/types/attendance';
 import { toast } from 'sonner';
 
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, PieChart as RechartsPieChart, Cell } from 'recharts';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, BarChart, Bar, PieChart as RechartsPieChart, Pie, Cell } from 'recharts';
+import { ChartContainer, ChartTooltip, ChartTooltipContent, ChartLegend, ChartLegendContent, ChartConfig } from '@/components/ui/chart';
 
 const reportTypes = [
   { value: 'attendance', label: 'Attendance Report' },
@@ -63,6 +64,19 @@ const timeRanges = [
 ];
 
 const COLORS = ['#2E8DB0', '#28ACD1', '#C49831', '#A5CF5D', '#FF6B6B', '#4ECDC4'];
+
+// Chart configurations
+const attendanceChartConfig = {
+  count: { label: 'Attendance', color: 'hsl(var(--chart-1))' },
+} satisfies ChartConfig;
+
+const growthChartConfig = {
+  members: { label: 'Members', color: 'hsl(var(--chart-2))' },
+} satisfies ChartConfig;
+
+const eventTypeConfig = {
+  value: { label: 'Events', color: 'hsl(var(--chart-1))' },
+} satisfies ChartConfig;
 
 export default function GroupReportsPage() {
   const router = useRouter();
@@ -241,17 +255,35 @@ export default function GroupReportsPage() {
             <CardDescription>Attendance patterns over time</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="h-80">
-              <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={attendanceData}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="date" />
-                  <YAxis />
-                  <Tooltip />
-                  <Line type="monotone" dataKey="rate" stroke="#2E8DB0" strokeWidth={2} name="Attendance Rate (%)" />
-                </LineChart>
-              </ResponsiveContainer>
-            </div>
+            <ChartContainer config={attendanceChartConfig} className="h-80 w-full">
+              <LineChart data={attendanceData} margin={{ left: 12, right: 12 }}>
+                <CartesianGrid vertical={false} strokeDasharray="3 3" className="stroke-muted" />
+                <XAxis 
+                  dataKey="date" 
+                  tickLine={false} 
+                  axisLine={false} 
+                  tickMargin={8}
+                  className="text-xs"
+                />
+                <YAxis 
+                  tickLine={false} 
+                  axisLine={false} 
+                  tickMargin={8}
+                  className="text-xs"
+                />
+                <ChartTooltip 
+                  cursor={{ stroke: 'hsl(var(--muted))', strokeWidth: 1 }}
+                  content={<ChartTooltipContent indicator="line" />} 
+                />
+                <Line 
+                  type="monotone" 
+                  dataKey="rate" 
+                  stroke="hsl(var(--chart-1))" 
+                  strokeWidth={2}
+                  dot={{ fill: 'hsl(var(--chart-1))' }}
+                />
+              </LineChart>
+            </ChartContainer>
           </CardContent>
         </Card>
         
@@ -320,17 +352,33 @@ export default function GroupReportsPage() {
             <CardDescription>New members joining over time</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="h-80">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={growthData}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="month" />
-                  <YAxis />
-                  <Tooltip />
-                  <Bar dataKey="count" fill="#2E8DB0" />
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
+            <ChartContainer config={growthChartConfig} className="h-80 w-full">
+              <BarChart data={growthData} margin={{ left: 12, right: 12 }}>
+                <CartesianGrid vertical={false} strokeDasharray="3 3" className="stroke-muted" />
+                <XAxis 
+                  dataKey="month" 
+                  tickLine={false} 
+                  axisLine={false} 
+                  tickMargin={8}
+                  className="text-xs"
+                />
+                <YAxis 
+                  tickLine={false} 
+                  axisLine={false} 
+                  tickMargin={8}
+                  className="text-xs"
+                />
+                <ChartTooltip 
+                  cursor={{ fill: 'hsl(var(--muted)/0.2)' }}
+                  content={<ChartTooltipContent indicator="dot" />} 
+                />
+                <Bar 
+                  dataKey="count" 
+                  fill="hsl(var(--chart-2))" 
+                  radius={[8, 8, 0, 0]}
+                />
+              </BarChart>
+            </ChartContainer>
           </CardContent>
         </Card>
         
@@ -443,18 +491,27 @@ export default function GroupReportsPage() {
             <CardDescription>Types of events organized</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="h-80">
-              <ResponsiveContainer width="100%" height="100%">
-                <RechartsPieChart>
-                  <Tooltip />
-                  <RechartsPieChart data={eventTypeData} cx="50%" cy="50%" outerRadius={80}>
-                    {eventTypeData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                    ))}
-                  </RechartsPieChart>
-                </RechartsPieChart>
-              </ResponsiveContainer>
-            </div>
+            <ChartContainer config={eventTypeConfig} className="h-80 w-full">
+              <RechartsPieChart>
+                <ChartTooltip cursor={false} content={<ChartTooltipContent hideLabel />} />
+                <Pie 
+                  data={eventTypeData} 
+                  cx="50%" 
+                  cy="50%" 
+                  outerRadius={100}
+                  dataKey="count"
+                  strokeWidth={2}
+                >
+                  {eventTypeData.map((entry, index) => (
+                    <Cell 
+                      key={`cell-${index}`} 
+                      fill={COLORS[index % COLORS.length]} 
+                      stroke="hsl(var(--background))"
+                    />
+                  ))}
+                </Pie>
+              </RechartsPieChart>
+            </ChartContainer>
             <div className="grid grid-cols-2 gap-4 mt-4">
               {eventTypeData.map((entry, index) => (
                 <div key={entry.type} className="flex items-center space-x-2">

@@ -34,7 +34,15 @@ import {
   Gift,
   Users
 } from 'lucide-react';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, PieChart as RechartsPieChart, Pie, Cell, Area, AreaChart } from 'recharts';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, BarChart, Bar, PieChart as RechartsPieChart, Pie, Cell, Area, AreaChart, Label } from 'recharts';
+import { 
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+  ChartLegend,
+  ChartLegendContent,
+  ChartConfig
+} from '@/components/ui/chart';
 
 // Mock data for income reports
 const incomeBySource = [
@@ -82,6 +90,39 @@ const incomeSummary = {
   averageDonation: 904,
   recurringDonors: 245,
 };
+
+// Chart configurations
+const sourceChartConfig = {
+  amount: {
+    label: 'Amount',
+  },
+} satisfies ChartConfig;
+
+const monthlyChartConfig = {
+  tithes: {
+    label: 'Tithes',
+    color: 'hsl(var(--chart-1))',
+  },
+  offerings: {
+    label: 'Offerings',
+    color: 'hsl(var(--chart-2))',
+  },
+  special: {
+    label: 'Special',
+    color: 'hsl(var(--chart-3))',
+  },
+  fundraising: {
+    label: 'Fundraising',
+    color: 'hsl(var(--chart-4))',
+  },
+} satisfies ChartConfig;
+
+const trendChartConfig = {
+  total: {
+    label: 'Total Income',
+    color: 'hsl(var(--chart-1))',
+  },
+} satisfies ChartConfig;
 
 export default function IncomeReportsPage() {
   const router = useRouter();
@@ -226,21 +267,47 @@ export default function IncomeReportsPage() {
 
         <TabsContent value="overview" className="space-y-4">
           <div className="grid gap-4 md:grid-cols-2">
-            <Card>
+            <Card className="hover:shadow-md transition-shadow">
               <CardHeader>
                 <CardTitle>Monthly Income Trend</CardTitle>
                 <CardDescription>Income progression throughout the year</CardDescription>
               </CardHeader>
               <CardContent>
-                <ResponsiveContainer width="100%" height={300}>
-                  <AreaChart data={monthlyIncomeData}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="month" />
-                    <YAxis />
-                    <Tooltip />
-                    <Area type="monotone" dataKey="total" stroke="#2E8DB0" fill="#2E8DB0" fillOpacity={0.3} />
+                <ChartContainer config={trendChartConfig} className="h-[300px] w-full">
+                  <AreaChart data={monthlyIncomeData} margin={{ left: 12, right: 12 }}>
+                    <CartesianGrid vertical={false} strokeDasharray="3 3" className="stroke-muted" />
+                    <XAxis
+                      dataKey="month"
+                      tickLine={false}
+                      axisLine={false}
+                      tickMargin={8}
+                      className="text-xs"
+                    />
+                    <YAxis
+                      tickLine={false}
+                      axisLine={false}
+                      tickMargin={8}
+                      className="text-xs"
+                    />
+                    <ChartTooltip 
+                      cursor={{ stroke: 'hsl(var(--muted))', strokeWidth: 1 }}
+                      content={<ChartTooltipContent indicator="line" />} 
+                    />
+                    <defs>
+                      <linearGradient id="fillTotalIncome" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="hsl(var(--chart-1))" stopOpacity={0.8} />
+                        <stop offset="95%" stopColor="hsl(var(--chart-1))" stopOpacity={0.1} />
+                      </linearGradient>
+                    </defs>
+                    <Area 
+                      type="monotone" 
+                      dataKey="total" 
+                      stroke="hsl(var(--chart-1))" 
+                      fill="url(#fillTotalIncome)" 
+                      strokeWidth={2.5}
+                    />
                   </AreaChart>
-                </ResponsiveContainer>
+                </ChartContainer>
               </CardContent>
             </Card>
 
@@ -271,31 +338,34 @@ export default function IncomeReportsPage() {
 
         <TabsContent value="sources" className="space-y-4">
           <div className="grid gap-4 md:grid-cols-2">
-            <Card>
+            <Card className="hover:shadow-md transition-shadow">
               <CardHeader>
                 <CardTitle>Income by Source</CardTitle>
                 <CardDescription>Distribution of income sources</CardDescription>
               </CardHeader>
               <CardContent>
-                <ResponsiveContainer width="100%" height={300}>
+                <ChartContainer config={sourceChartConfig} className="h-[300px] w-full">
                   <RechartsPieChart>
+                    <ChartTooltip 
+                      cursor={false}
+                      content={<ChartTooltipContent hideLabel />} 
+                    />
                     <Pie
                       data={incomeBySource}
                       cx="50%"
                       cy="50%"
                       labelLine={false}
                       label={({ source, percentage }) => `${source} ${percentage}%`}
-                      outerRadius={80}
-                      fill="#8884d8"
+                      outerRadius={100}
                       dataKey="amount"
+                      strokeWidth={2}
                     >
                       {incomeBySource.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={entry.color} />
+                        <Cell key={`cell-${index}`} fill={entry.color} stroke="hsl(var(--background))" />
                       ))}
                     </Pie>
-                    <Tooltip />
                   </RechartsPieChart>
-                </ResponsiveContainer>
+                </ChartContainer>
               </CardContent>
             </Card>
 
@@ -330,45 +400,108 @@ export default function IncomeReportsPage() {
         </TabsContent>
 
         <TabsContent value="trends" className="space-y-4">
-          <Card>
+          <Card className="hover:shadow-md transition-shadow">
             <CardHeader>
               <CardTitle>Income Trends by Source</CardTitle>
               <CardDescription>Monthly breakdown of all income sources</CardDescription>
             </CardHeader>
             <CardContent>
-              <ResponsiveContainer width="100%" height={400}>
-                <LineChart data={monthlyIncomeData}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="month" />
-                  <YAxis />
-                  <Tooltip />
-                  <Line type="monotone" dataKey="tithes" stroke="#2E8DB0" strokeWidth={2} name="Tithes" />
-                  <Line type="monotone" dataKey="offerings" stroke="#C49831" strokeWidth={2} name="Offerings" />
-                  <Line type="monotone" dataKey="special" stroke="#A5CF5D" strokeWidth={2} name="Special Donations" />
-                  <Line type="monotone" dataKey="fundraising" stroke="#E74C3C" strokeWidth={2} name="Fundraising" />
+              <ChartContainer config={monthlyChartConfig} className="h-[400px] w-full">
+                <LineChart data={monthlyIncomeData} margin={{ left: 12, right: 12 }}>
+                  <CartesianGrid vertical={false} strokeDasharray="3 3" className="stroke-muted" />
+                  <XAxis
+                    dataKey="month"
+                    tickLine={false}
+                    axisLine={false}
+                    tickMargin={8}
+                    className="text-xs"
+                  />
+                  <YAxis
+                    tickLine={false}
+                    axisLine={false}
+                    tickMargin={8}
+                    className="text-xs"
+                  />
+                  <ChartTooltip 
+                    cursor={{ stroke: 'hsl(var(--muted))', strokeWidth: 1 }}
+                    content={<ChartTooltipContent indicator="line" />} 
+                  />
+                  <ChartLegend content={<ChartLegendContent />} />
+                  <Line 
+                    type="monotone" 
+                    dataKey="tithes" 
+                    stroke="hsl(var(--chart-1))" 
+                    strokeWidth={2.5}
+                    dot={{ r: 4 }}
+                    activeDot={{ r: 6 }}
+                  />
+                  <Line 
+                    type="monotone" 
+                    dataKey="offerings" 
+                    stroke="hsl(var(--chart-2))" 
+                    strokeWidth={2.5}
+                    dot={{ r: 4 }}
+                    activeDot={{ r: 6 }}
+                  />
+                  <Line 
+                    type="monotone" 
+                    dataKey="special" 
+                    stroke="hsl(var(--chart-3))" 
+                    strokeWidth={2.5}
+                    dot={{ r: 4 }}
+                    activeDot={{ r: 6 }}
+                  />
+                  <Line 
+                    type="monotone" 
+                    dataKey="fundraising" 
+                    stroke="hsl(var(--chart-4))" 
+                    strokeWidth={2.5}
+                    dot={{ r: 4 }}
+                    activeDot={{ r: 6 }}
+                  />
                 </LineChart>
-              </ResponsiveContainer>
+              </ChartContainer>
             </CardContent>
           </Card>
         </TabsContent>
 
         <TabsContent value="demographics" className="space-y-4">
           <div className="grid gap-4 md:grid-cols-2">
-            <Card>
+            <Card className="hover:shadow-md transition-shadow">
               <CardHeader>
                 <CardTitle>Income by Age Group</CardTitle>
                 <CardDescription>Contribution patterns by demographic</CardDescription>
               </CardHeader>
               <CardContent>
-                <ResponsiveContainer width="100%" height={300}>
-                  <BarChart data={incomeByDemographic}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="demographic" angle={-45} textAnchor="end" height={80} />
-                    <YAxis />
-                    <Tooltip />
-                    <Bar dataKey="amount" fill="#2E8DB0" />
+                <ChartContainer config={sourceChartConfig} className="h-[300px] w-full">
+                  <BarChart data={incomeByDemographic} margin={{ left: 12, right: 12, bottom: 60 }}>
+                    <CartesianGrid vertical={false} strokeDasharray="3 3" className="stroke-muted" />
+                    <XAxis 
+                      dataKey="demographic" 
+                      angle={-45} 
+                      textAnchor="end" 
+                      height={80}
+                      tickLine={false}
+                      axisLine={false}
+                      className="text-xs"
+                    />
+                    <YAxis
+                      tickLine={false}
+                      axisLine={false}
+                      tickMargin={8}
+                      className="text-xs"
+                    />
+                    <ChartTooltip 
+                      cursor={{ fill: 'hsl(var(--muted))', opacity: 0.2 }}
+                      content={<ChartTooltipContent indicator="dot" />} 
+                    />
+                    <Bar 
+                      dataKey="amount" 
+                      fill="hsl(var(--chart-1))" 
+                      radius={[4, 4, 0, 0]}
+                    />
                   </BarChart>
-                </ResponsiveContainer>
+                </ChartContainer>
               </CardContent>
             </Card>
 

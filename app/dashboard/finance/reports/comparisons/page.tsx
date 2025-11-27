@@ -36,7 +36,8 @@ import {
   ArrowUpRight,
   ArrowDownRight
 } from 'lucide-react';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, ComposedChart, Area, AreaChart } from 'recharts';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, BarChart, Bar, ComposedChart, Area, AreaChart, Label } from 'recharts';
+import { ChartContainer, ChartTooltip, ChartTooltipContent, ChartLegend, ChartLegendContent, ChartConfig } from '@/components/ui/chart';
 
 // Mock data for comparison reports
 const incomeVsExpensesData = [
@@ -174,6 +175,25 @@ export default function ComparisonReportsPage() {
     if (value >= target * 0.8) return 'text-orange-600';
     return 'text-red-600';
   };
+
+  // Chart configurations
+  const comparisonChartConfig = {
+    income: { label: 'Income', color: 'hsl(var(--chart-1))' },
+    expenses: { label: 'Expenses', color: 'hsl(var(--chart-2))' },
+    net: { label: 'Net', color: 'hsl(var(--chart-3))' },
+    margin: { label: 'Margin', color: 'hsl(var(--chart-4))' },
+  } satisfies ChartConfig;
+
+  const yearOverYearChartConfig = {
+    year2022: { label: '2022', color: 'hsl(var(--chart-1))' },
+    year2023: { label: '2023', color: 'hsl(var(--chart-2))' },
+    year2024: { label: '2024', color: 'hsl(var(--chart-3))' },
+  } satisfies ChartConfig;
+
+  const monthlyChartConfig = {
+    current: { label: 'Current Year', color: 'hsl(var(--chart-1))' },
+    previous: { label: 'Previous Year', color: 'hsl(var(--chart-2))' },
+  } satisfies ChartConfig;
 
   return (
     <div className="space-y-6">
@@ -313,18 +333,19 @@ export default function ComparisonReportsPage() {
                 <CardDescription>Monthly comparison with profit margin</CardDescription>
               </CardHeader>
               <CardContent>
-                <ResponsiveContainer width="100%" height={300}>
-                  <ComposedChart data={incomeVsExpensesData}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="month" />
-                    <YAxis yAxisId="left" />
-                    <YAxis yAxisId="right" orientation="right" />
-                    <Tooltip />
-                    <Bar yAxisId="left" dataKey="income" fill="#2E8DB0" name="Income" />
-                    <Bar yAxisId="left" dataKey="expenses" fill="#E74C3C" name="Expenses" />
-                    <Line yAxisId="right" type="monotone" dataKey="margin" stroke="#C49831" strokeWidth={3} name="Margin %" />
+                <ChartContainer config={comparisonChartConfig} className="h-[300px] w-full">
+                  <ComposedChart data={incomeVsExpensesData} margin={{ left: 12, right: 12 }}>
+                    <CartesianGrid vertical={false} strokeDasharray="3 3" className="stroke-muted" />
+                    <XAxis dataKey="month" tickLine={false} axisLine={false} tickMargin={8} className="text-xs" />
+                    <YAxis yAxisId="left" tickLine={false} axisLine={false} tickMargin={8} className="text-xs" />
+                    <YAxis yAxisId="right" orientation="right" tickLine={false} axisLine={false} tickMargin={8} className="text-xs" />
+                    <ChartTooltip cursor={{ fill: 'hsl(var(--muted))', opacity: 0.3 }} content={<ChartTooltipContent indicator="dot" />} />
+                    <ChartLegend content={<ChartLegendContent />} />
+                    <Bar yAxisId="left" dataKey="income" fill="hsl(var(--chart-1))" name="Income" radius={[8, 8, 0, 0]} />
+                    <Bar yAxisId="left" dataKey="expenses" fill="hsl(var(--chart-2))" name="Expenses" radius={[8, 8, 0, 0]} />
+                    <Line yAxisId="right" type="monotone" dataKey="margin" stroke="hsl(var(--chart-4))" strokeWidth={3} name="Margin %" dot={{ fill: 'hsl(var(--chart-4))' }} />
                   </ComposedChart>
-                </ResponsiveContainer>
+                </ChartContainer>
               </CardContent>
             </Card>
 
@@ -334,18 +355,19 @@ export default function ComparisonReportsPage() {
                 <CardDescription>2023 vs 2024 quarterly comparison</CardDescription>
               </CardHeader>
               <CardContent>
-                <ResponsiveContainer width="100%" height={300}>
-                  <BarChart data={quarterlyComparison}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="quarter" />
-                    <YAxis />
-                    <Tooltip />
-                    <Bar dataKey="income2023" fill="#E5E7EB" name="Income 2023" />
-                    <Bar dataKey="income2024" fill="#2E8DB0" name="Income 2024" />
-                    <Bar dataKey="expenses2023" fill="#FCA5A5" name="Expenses 2023" />
-                    <Bar dataKey="expenses2024" fill="#E74C3C" name="Expenses 2024" />
+                <ChartContainer config={yearOverYearChartConfig} className="h-[300px] w-full">
+                  <BarChart data={quarterlyComparison} margin={{ left: 12, right: 12 }}>
+                    <CartesianGrid vertical={false} strokeDasharray="3 3" className="stroke-muted" />
+                    <XAxis dataKey="quarter" tickLine={false} axisLine={false} tickMargin={8} className="text-xs" />
+                    <YAxis tickLine={false} axisLine={false} tickMargin={8} className="text-xs" />
+                    <ChartTooltip cursor={{ fill: 'hsl(var(--muted))', opacity: 0.3 }} content={<ChartTooltipContent indicator="dot" />} />
+                    <ChartLegend content={<ChartLegendContent />} />
+                    <Bar dataKey="income2023" fill="hsl(var(--chart-1))" name="Income 2023" radius={[4, 4, 0, 0]} />
+                    <Bar dataKey="income2024" fill="hsl(var(--chart-2))" name="Income 2024" radius={[4, 4, 0, 0]} />
+                    <Bar dataKey="expenses2023" fill="hsl(var(--chart-3))" name="Expenses 2023" radius={[4, 4, 0, 0]} />
+                    <Bar dataKey="expenses2024" fill="hsl(var(--chart-4))" name="Expenses 2024" radius={[4, 4, 0, 0]} />
                   </BarChart>
-                </ResponsiveContainer>
+                </ChartContainer>
               </CardContent>
             </Card>
           </div>
@@ -359,17 +381,28 @@ export default function ComparisonReportsPage() {
                 <CardDescription>Detailed monthly breakdown with net income</CardDescription>
               </CardHeader>
               <CardContent>
-                <ResponsiveContainer width="100%" height={400}>
-                  <ComposedChart data={incomeVsExpensesData}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="month" />
-                    <YAxis />
-                    <Tooltip />
-                    <Area type="monotone" dataKey="income" fill="#2E8DB0" fillOpacity={0.3} stroke="#2E8DB0" strokeWidth={2} name="Income" />
-                    <Area type="monotone" dataKey="expenses" fill="#E74C3C" fillOpacity={0.3} stroke="#E74C3C" strokeWidth={2} name="Expenses" />
-                    <Line type="monotone" dataKey="net" stroke="#A5CF5D" strokeWidth={3} name="Net Income" />
+                <ChartContainer config={comparisonChartConfig} className="h-[400px] w-full">
+                  <ComposedChart data={incomeVsExpensesData} margin={{ left: 12, right: 12 }}>
+                    <defs>
+                      <linearGradient id="fillIncome" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="hsl(var(--chart-1))" stopOpacity={0.8}/>
+                        <stop offset="95%" stopColor="hsl(var(--chart-1))" stopOpacity={0.1}/>
+                      </linearGradient>
+                      <linearGradient id="fillExpenses" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="hsl(var(--chart-2))" stopOpacity={0.8}/>
+                        <stop offset="95%" stopColor="hsl(var(--chart-2))" stopOpacity={0.1}/>
+                      </linearGradient>
+                    </defs>
+                    <CartesianGrid vertical={false} strokeDasharray="3 3" className="stroke-muted" />
+                    <XAxis dataKey="month" tickLine={false} axisLine={false} tickMargin={8} className="text-xs" />
+                    <YAxis tickLine={false} axisLine={false} tickMargin={8} className="text-xs" />
+                    <ChartTooltip cursor={{ stroke: 'hsl(var(--muted))', strokeWidth: 1 }} content={<ChartTooltipContent indicator="line" />} />
+                    <ChartLegend content={<ChartLegendContent />} />
+                    <Area type="monotone" dataKey="income" fill="url(#fillIncome)" stroke="hsl(var(--chart-1))" strokeWidth={2} name="Income" />
+                    <Area type="monotone" dataKey="expenses" fill="url(#fillExpenses)" stroke="hsl(var(--chart-2))" strokeWidth={2} name="Expenses" />
+                    <Line type="monotone" dataKey="net" stroke="hsl(var(--chart-3))" strokeWidth={3} name="Net Income" dot={{ fill: 'hsl(var(--chart-3))' }} />
                   </ComposedChart>
-                </ResponsiveContainer>
+                </ChartContainer>
               </CardContent>
             </Card>
 
@@ -535,21 +568,22 @@ export default function ComparisonReportsPage() {
               <CardDescription>Multi-year growth patterns</CardDescription>
             </CardHeader>
             <CardContent>
-              <ResponsiveContainer width="100%" height={400}>
+              <ChartContainer config={comparisonChartConfig} className="h-[400px] w-full">
                 <LineChart data={[
                   { year: '2022', income: 720000, expenses: 580000, net: 140000 },
                   { year: '2023', income: 810000, expenses: 650000, net: 160000 },
                   { year: '2024', income: 911200, expenses: 466200, net: 445000 },
-                ]}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="year" />
-                  <YAxis />
-                  <Tooltip />
-                  <Line type="monotone" dataKey="income" stroke="#2E8DB0" strokeWidth={3} name="Income" />
-                  <Line type="monotone" dataKey="expenses" stroke="#E74C3C" strokeWidth={3} name="Expenses" />
-                  <Line type="monotone" dataKey="net" stroke="#A5CF5D" strokeWidth={3} name="Net Income" />
+                ]} margin={{ left: 12, right: 12 }}>
+                  <CartesianGrid vertical={false} strokeDasharray="3 3" className="stroke-muted" />
+                  <XAxis dataKey="year" tickLine={false} axisLine={false} tickMargin={8} className="text-xs" />
+                  <YAxis tickLine={false} axisLine={false} tickMargin={8} className="text-xs" />
+                  <ChartTooltip cursor={{ stroke: 'hsl(var(--muted))', strokeWidth: 1 }} content={<ChartTooltipContent indicator="line" />} />
+                  <ChartLegend content={<ChartLegendContent />} />
+                  <Line type="monotone" dataKey="income" stroke="hsl(var(--chart-1))" strokeWidth={3} name="Income" dot={{ fill: 'hsl(var(--chart-1))', r: 5 }} />
+                  <Line type="monotone" dataKey="expenses" stroke="hsl(var(--chart-2))" strokeWidth={3} name="Expenses" dot={{ fill: 'hsl(var(--chart-2))', r: 5 }} />
+                  <Line type="monotone" dataKey="net" stroke="hsl(var(--chart-3))" strokeWidth={3} name="Net Income" dot={{ fill: 'hsl(var(--chart-3))', r: 5 }} />
                 </LineChart>
-              </ResponsiveContainer>
+              </ChartContainer>
             </CardContent>
           </Card>
         </TabsContent>

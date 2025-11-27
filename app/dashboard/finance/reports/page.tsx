@@ -40,7 +40,15 @@ import {
   Target,
   Building
 } from 'lucide-react';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, PieChart as RechartsPieChart, Pie, Cell } from 'recharts';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, BarChart, Bar, PieChart as RechartsPieChart, Pie, Cell, Label } from 'recharts';
+import { 
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+  ChartLegend,
+  ChartLegendContent,
+  ChartConfig
+} from '@/components/ui/chart';
 
 const financialSummary = {
   totalIncome: 285000,
@@ -122,6 +130,34 @@ const departmentReports = [
     status: 'On Track',
   },
 ];
+
+// Chart configurations
+const monthlyChartConfig = {
+  income: {
+    label: 'Income',
+    color: 'hsl(var(--chart-1))',
+  },
+  expenses: {
+    label: 'Expenses',
+    color: 'hsl(var(--chart-2))',
+  },
+  net: {
+    label: 'Net',
+    color: 'hsl(var(--chart-3))',
+  },
+} satisfies ChartConfig;
+
+const incomeChartConfig = {
+  amount: {
+    label: 'Amount',
+  },
+} satisfies ChartConfig;
+
+const expenseChartConfig = {
+  amount: {
+    label: 'Amount',
+  },
+} satisfies ChartConfig;
 
 const quickLinks = [
   {
@@ -389,23 +425,59 @@ export default function ReportsPage() {
 
           {/* Charts */}
           <div className="grid gap-4 md:grid-cols-2">
-            <Card>
+            <Card className="hover:shadow-md transition-shadow">
               <CardHeader>
                 <CardTitle>Monthly Financial Trends</CardTitle>
                 <CardDescription>Income vs expenses over time</CardDescription>
               </CardHeader>
               <CardContent>
-                <ResponsiveContainer width="100%" height={300}>
-                  <LineChart data={monthlyData}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="month" />
-                    <YAxis />
-                    <Tooltip />
-                    <Line type="monotone" dataKey="income" stroke="#2E8CB0" strokeWidth={2} name="Income" />
-                    <Line type="monotone" dataKey="expenses" stroke="#C49831" strokeWidth={2} name="Expenses" />
-                    <Line type="monotone" dataKey="net" stroke="#A2CD5E" strokeWidth={2} name="Net" />
+                <ChartContainer config={monthlyChartConfig} className="h-[300px] w-full">
+                  <LineChart data={monthlyData} margin={{ left: 12, right: 12 }}>
+                    <CartesianGrid vertical={false} strokeDasharray="3 3" className="stroke-muted" />
+                    <XAxis
+                      dataKey="month"
+                      tickLine={false}
+                      axisLine={false}
+                      tickMargin={8}
+                      className="text-xs"
+                    />
+                    <YAxis
+                      tickLine={false}
+                      axisLine={false}
+                      tickMargin={8}
+                      className="text-xs"
+                    />
+                    <ChartTooltip 
+                      cursor={{ stroke: 'hsl(var(--muted))', strokeWidth: 1 }}
+                      content={<ChartTooltipContent indicator="line" />} 
+                    />
+                    <ChartLegend content={<ChartLegendContent />} />
+                    <Line 
+                      type="monotone" 
+                      dataKey="income" 
+                      stroke="hsl(var(--chart-1))" 
+                      strokeWidth={2.5}
+                      dot={{ r: 4 }}
+                      activeDot={{ r: 6 }}
+                    />
+                    <Line 
+                      type="monotone" 
+                      dataKey="expenses" 
+                      stroke="hsl(var(--chart-2))" 
+                      strokeWidth={2.5}
+                      dot={{ r: 4 }}
+                      activeDot={{ r: 6 }}
+                    />
+                    <Line 
+                      type="monotone" 
+                      dataKey="net" 
+                      stroke="hsl(var(--chart-3))" 
+                      strokeWidth={2.5}
+                      dot={{ r: 4 }}
+                      activeDot={{ r: 6 }}
+                    />
                   </LineChart>
-                </ResponsiveContainer>
+                </ChartContainer>
               </CardContent>
             </Card>
 
@@ -482,31 +554,34 @@ export default function ReportsPage() {
 
         <TabsContent value="income" className="space-y-4">
           <div className="grid gap-4 md:grid-cols-2">
-            <Card>
+            <Card className="hover:shadow-md transition-shadow">
               <CardHeader>
                 <CardTitle>Income Distribution</CardTitle>
                 <CardDescription>Breakdown of income sources</CardDescription>
               </CardHeader>
               <CardContent>
-                <ResponsiveContainer width="100%" height={300}>
+                <ChartContainer config={incomeChartConfig} className="h-[300px] w-full">
                   <RechartsPieChart>
+                    <ChartTooltip 
+                      cursor={false}
+                      content={<ChartTooltipContent hideLabel />} 
+                    />
                     <Pie
                       data={incomeBreakdown}
                       cx="50%"
                       cy="50%"
                       labelLine={false}
                       label={({ name, percentage }) => `${name} ${percentage}%`}
-                      outerRadius={80}
-                      fill="#8884d8"
+                      outerRadius={100}
                       dataKey="amount"
+                      strokeWidth={2}
                     >
                       {incomeBreakdown.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={entry.color} />
+                        <Cell key={`cell-${index}`} fill={entry.color} stroke="hsl(var(--background))" />
                       ))}
                     </Pie>
-                    <Tooltip />
                   </RechartsPieChart>
-                </ResponsiveContainer>
+                </ChartContainer>
               </CardContent>
             </Card>
 
@@ -540,31 +615,34 @@ export default function ReportsPage() {
 
         <TabsContent value="expenses" className="space-y-4">
           <div className="grid gap-4 md:grid-cols-2">
-            <Card>
+            <Card className="hover:shadow-md transition-shadow">
               <CardHeader>
                 <CardTitle>Expense Distribution</CardTitle>
                 <CardDescription>Breakdown of expenses by category</CardDescription>
               </CardHeader>
               <CardContent>
-                <ResponsiveContainer width="100%" height={300}>
+                <ChartContainer config={expenseChartConfig} className="h-[300px] w-full">
                   <RechartsPieChart>
+                    <ChartTooltip 
+                      cursor={false}
+                      content={<ChartTooltipContent hideLabel />} 
+                    />
                     <Pie
                       data={expenseBreakdown}
                       cx="50%"
                       cy="50%"
                       labelLine={false}
                       label={({ name, percentage }) => `${name} ${percentage}%`}
-                      outerRadius={80}
-                      fill="#8884d8"
+                      outerRadius={100}
                       dataKey="amount"
+                      strokeWidth={2}
                     >
                       {expenseBreakdown.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={entry.color} />
+                        <Cell key={`cell-${index}`} fill={entry.color} stroke="hsl(var(--background))" />
                       ))}
                     </Pie>
-                    <Tooltip />
                   </RechartsPieChart>
-                </ResponsiveContainer>
+                </ChartContainer>
               </CardContent>
             </Card>
 

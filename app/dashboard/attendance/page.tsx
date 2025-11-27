@@ -31,21 +31,28 @@ import {
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
+import {
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+  ChartLegend,
+  ChartLegendContent,
+  type ChartConfig,
+} from '@/components/ui/chart';
 import { 
   BarChart, 
   Bar, 
   XAxis, 
   YAxis, 
   CartesianGrid, 
-  Tooltip, 
-  ResponsiveContainer,
   PieChart as RechartsPieChart,
   Pie,
   Cell,
   LineChart,
   Line,
   Area,
-  AreaChart
+  AreaChart,
+  Label
 } from 'recharts';
 import { attendanceService, MOCK_ATTENDANCE_RECORDS, MOCK_ATTENDANCE_SESSIONS } from '@/services/attendance-service';
 import { AttendanceStatus, ServiceType } from '@/lib/types';
@@ -85,7 +92,26 @@ const monthlyTrendData = [
   { month: 'Apr', attendance: 387, rate: 86 }
 ];
 
+// Chart Configurations
+const weeklyChartConfig = {
+  attendance: {
+    label: 'Attendance',
+    color: 'hsl(var(--chart-1))',
+  },
+} satisfies ChartConfig;
 
+const serviceTypeChartConfig = {
+  value: {
+    label: 'Members',
+  },
+} satisfies ChartConfig;
+
+const monthlyChartConfig = {
+  attendance: {
+    label: 'Attendance',
+    color: 'hsl(var(--chart-1))',
+  },
+} satisfies ChartConfig;
 
 const attendanceColumns = [
   {
@@ -233,10 +259,12 @@ export default function AttendancePage() {
 
       {/* Stats Cards */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Card>
+        <Card className="hover:shadow-md transition-shadow border-l-4 border-l-brand-primary">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Members</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
+            <div className="p-2 bg-brand-primary/10 rounded-lg">
+              <Users className="h-4 w-4 text-brand-primary" />
+            </div>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{attendanceOverviewStats.totalMembers}</div>
@@ -246,15 +274,17 @@ export default function AttendancePage() {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="hover:shadow-md transition-shadow border-l-4 border-l-brand-success">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Present Today</CardTitle>
-            <UserCheck className="h-4 w-4 text-green-600" />
+            <div className="p-2 bg-brand-success/10 rounded-lg">
+              <UserCheck className="h-4 w-4 text-brand-success" />
+            </div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-green-600">{attendanceOverviewStats.presentToday}</div>
+            <div className="text-2xl font-bold text-brand-success">{attendanceOverviewStats.presentToday}</div>
             <p className="text-xs text-muted-foreground">
-              <span className="text-green-600 flex items-center">
+              <span className="text-brand-success flex items-center font-medium">
                 <TrendingUp className="h-3 w-3 mr-1" />
                 +{attendanceOverviewStats.weeklyTrend}%
               </span>
@@ -263,13 +293,15 @@ export default function AttendancePage() {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="hover:shadow-md transition-shadow border-l-4 border-l-brand-accent">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Attendance Rate</CardTitle>
-            <TrendingUp className="h-4 w-4 text-brand-primary" />
+            <div className="p-2 bg-brand-accent/10 rounded-lg">
+              <TrendingUp className="h-4 w-4 text-brand-accent" />
+            </div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-brand-primary">{attendanceOverviewStats.attendanceRate}%</div>
+            <div className="text-2xl font-bold text-brand-accent">{attendanceOverviewStats.attendanceRate}%</div>
             <Progress value={attendanceOverviewStats.attendanceRate} className="mt-2" />
             <p className="text-xs text-muted-foreground mt-1">
               Monthly average: {attendanceOverviewStats.monthlyAverage}%
@@ -277,13 +309,15 @@ export default function AttendancePage() {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="hover:shadow-md transition-shadow border-l-4 border-l-brand-secondary">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Late Arrivals</CardTitle>
-            <Clock className="h-4 w-4 text-yellow-600" />
+            <div className="p-2 bg-brand-secondary/10 rounded-lg">
+              <Clock className="h-4 w-4 text-brand-secondary" />
+            </div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-yellow-600">{attendanceOverviewStats.lateToday}</div>
+            <div className="text-2xl font-bold text-brand-secondary">{attendanceOverviewStats.lateToday}</div>
             <p className="text-xs text-muted-foreground">
               {Math.round((attendanceOverviewStats.lateToday / attendanceOverviewStats.presentToday) * 100)}% of attendees
             </p>
@@ -294,31 +328,56 @@ export default function AttendancePage() {
       {/* Charts and Analytics */}
       <div className="grid gap-6 lg:grid-cols-2">
         {/* Weekly Attendance Trend */}
-        <Card>
+        <Card className="hover:shadow-md transition-shadow">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <BarChart3 className="h-5 w-5 text-brand-primary" />
-              Weekly Attendance Trend
-            </CardTitle>
-            <CardDescription>
-              Attendance patterns across the week
-            </CardDescription>
+            <div className="flex items-center justify-between">
+              <div>
+                <CardTitle className="flex items-center gap-2">
+                  <BarChart3 className="h-5 w-5 text-brand-primary" />
+                  Weekly Attendance Trend
+                </CardTitle>
+                <CardDescription>
+                  Attendance patterns across the week
+                </CardDescription>
+              </div>
+              <Badge variant="secondary" className="bg-brand-primary/10 text-brand-primary">
+                This Week
+              </Badge>
+            </div>
           </CardHeader>
           <CardContent>
-            <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={weeklyAttendanceData}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="day" />
-                <YAxis />
-                <Tooltip />
-                <Bar dataKey="attendance" fill="#2E8DB0" radius={[4, 4, 0, 0]} />
+            <ChartContainer config={weeklyChartConfig} className="h-[300px] w-full">
+              <BarChart data={weeklyAttendanceData} margin={{ left: 12, right: 12 }}>
+                <CartesianGrid vertical={false} strokeDasharray="3 3" className="stroke-muted" />
+                <XAxis
+                  dataKey="day"
+                  tickLine={false}
+                  tickMargin={10}
+                  axisLine={false}
+                  className="text-xs"
+                />
+                <YAxis
+                  tickLine={false}
+                  axisLine={false}
+                  tickMargin={8}
+                  className="text-xs"
+                />
+                <ChartTooltip
+                  cursor={{ fill: 'hsl(var(--muted))', opacity: 0.2 }}
+                  content={<ChartTooltipContent indicator="dashed" />}
+                />
+                <Bar 
+                  dataKey="attendance" 
+                  fill="hsl(var(--chart-1))" 
+                  radius={[8, 8, 0, 0]} 
+                />
               </BarChart>
-            </ResponsiveContainer>
+            </ChartContainer>
           </CardContent>
         </Card>
 
         {/* Service Type Distribution */}
-        <Card>
+        <Card className="hover:shadow-md transition-shadow">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <PieChart className="h-5 w-5 text-brand-primary" />
@@ -329,24 +388,58 @@ export default function AttendancePage() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <ResponsiveContainer width="100%" height={300}>
+            <ChartContainer config={serviceTypeChartConfig} className="mx-auto aspect-square max-h-[300px]">
               <RechartsPieChart>
+                <ChartTooltip
+                  cursor={false}
+                  content={<ChartTooltipContent hideLabel />}
+                />
                 <Pie
                   data={serviceTypeData}
                   cx="50%"
                   cy="50%"
                   innerRadius={60}
-                  outerRadius={120}
+                  outerRadius={100}
                   paddingAngle={5}
                   dataKey="value"
+                  strokeWidth={5}
                 >
                   {serviceTypeData.map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={entry.color} />
                   ))}
+                  <Label
+                    content={({ viewBox }) => {
+                      if (viewBox && "cx" in viewBox && "cy" in viewBox) {
+                        const total = serviceTypeData.reduce((a, b) => a + b.value, 0);
+                        return (
+                          <text
+                            x={viewBox.cx}
+                            y={viewBox.cy}
+                            textAnchor="middle"
+                            dominantBaseline="middle"
+                          >
+                            <tspan
+                              x={viewBox.cx}
+                              y={viewBox.cy}
+                              className="fill-foreground text-3xl font-bold"
+                            >
+                              {total}
+                            </tspan>
+                            <tspan
+                              x={viewBox.cx}
+                              y={(viewBox.cy || 0) + 24}
+                              className="fill-muted-foreground"
+                            >
+                              Total
+                            </tspan>
+                          </text>
+                        );
+                      }
+                    }}
+                  />
                 </Pie>
-                <Tooltip />
               </RechartsPieChart>
-            </ResponsiveContainer>
+            </ChartContainer>
             <div className="grid grid-cols-2 gap-2 mt-4">
               {serviceTypeData.map((item, index) => (
                 <div key={index} className="flex items-center gap-2">
@@ -364,32 +457,61 @@ export default function AttendancePage() {
       </div>
 
       {/* Monthly Trend */}
-      <Card>
+      <Card className="hover:shadow-md transition-shadow">
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <TrendingUp className="h-5 w-5 text-brand-primary" />
-            Monthly Attendance Trend
-          </CardTitle>
-          <CardDescription>
-            Attendance trends over the past months
-          </CardDescription>
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle className="flex items-center gap-2">
+                <TrendingUp className="h-5 w-5 text-brand-primary" />
+                Monthly Attendance Trend
+              </CardTitle>
+              <CardDescription>
+                Attendance trends over the past months
+              </CardDescription>
+            </div>
+            <Badge variant="secondary" className="bg-brand-success/10 text-brand-success">
+              +3.2% Growth
+            </Badge>
+          </div>
         </CardHeader>
         <CardContent>
-          <ResponsiveContainer width="100%" height={300}>
-            <AreaChart data={monthlyTrendData}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="month" />
-              <YAxis />
-              <Tooltip />
-              <Area 
-                type="monotone" 
-                dataKey="attendance" 
-                stroke="#2E8DB0" 
-                fill="#2E8DB0" 
-                fillOpacity={0.1}
+          <ChartContainer config={monthlyChartConfig} className="h-[300px] w-full">
+            <AreaChart data={monthlyTrendData} margin={{ left: 12, right: 12 }}>
+              <CartesianGrid vertical={false} strokeDasharray="3 3" className="stroke-muted" />
+              <XAxis
+                dataKey="month"
+                tickLine={false}
+                axisLine={false}
+                tickMargin={8}
+                className="text-xs"
+              />
+              <YAxis
+                tickLine={false}
+                axisLine={false}
+                tickMargin={8}
+                className="text-xs"
+              />
+              <ChartTooltip 
+                cursor={{ stroke: 'hsl(var(--muted))', strokeWidth: 1 }}
+                content={<ChartTooltipContent indicator="line" />} 
+              />
+              <defs>
+                <linearGradient id="fillAttendance" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="hsl(var(--chart-1))" stopOpacity={0.8} />
+                  <stop offset="95%" stopColor="hsl(var(--chart-1))" stopOpacity={0.1} />
+                </linearGradient>
+              </defs>
+              <Area
+                dataKey="attendance"
+                type="natural"
+                fill="url(#fillAttendance)"
+                fillOpacity={0.4}
+                stroke="hsl(var(--chart-1))"
+                strokeWidth={2.5}
+                stackId="a"
               />
             </AreaChart>
-          </ResponsiveContainer>
+          </ChartContainer>
         </CardContent>
       </Card>
 

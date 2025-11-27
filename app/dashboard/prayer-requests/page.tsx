@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -35,7 +36,8 @@ import {
   Clock,
   AlertCircle,
   Lock,
-  Users
+  Users,
+  FolderOpen
 } from 'lucide-react';
 
 const prayerRequests = [
@@ -156,6 +158,24 @@ export default function PrayerRequestsPage() {
           <h1 className="text-3xl font-bold tracking-tight">Prayer Requests</h1>
           <p className="text-muted-foreground">Manage and track prayer requests from the congregation</p>
         </div>
+        <div className="flex gap-2">
+          <Button variant="outline" asChild>
+            <Link href="/dashboard/prayer-requests/categories">
+              <FolderOpen className="mr-2 h-4 w-4" />
+              Categories
+            </Link>
+          </Button>
+          <Button className="bg-brand-primary hover:bg-brand-primary/90" asChild>
+            <Link href="/dashboard/prayer-requests/add">
+              <Plus className="mr-2 h-4 w-4" />
+              New Request
+            </Link>
+          </Button>
+        </div>
+      </div>
+
+      {/* Old dialog kept for backward compatibility but hidden */}
+      <div className="hidden">
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogTrigger asChild>
             <Button className="bg-brand-primary hover:bg-brand-primary/90">
@@ -377,11 +397,15 @@ export default function PrayerRequestsPage() {
                   <TableCell>{new Date(request.createdAt).toLocaleDateString()}</TableCell>
                   <TableCell>
                     <div className="flex space-x-1">
-                      <Button variant="ghost" size="icon">
-                        <Eye className="h-4 w-4" />
+                      <Button variant="ghost" size="icon" asChild>
+                        <Link href={`/dashboard/prayer-requests/${request.id}`}>
+                          <Eye className="h-4 w-4" />
+                        </Link>
                       </Button>
-                      <Button variant="ghost" size="icon">
-                        <Edit className="h-4 w-4" />
+                      <Button variant="ghost" size="icon" asChild>
+                        <Link href={`/dashboard/prayer-requests/${request.id}/edit`}>
+                          <Edit className="h-4 w-4" />
+                        </Link>
                       </Button>
                     </div>
                   </TableCell>

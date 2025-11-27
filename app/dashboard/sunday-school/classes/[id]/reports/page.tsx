@@ -32,7 +32,8 @@ import {
   Award,
   Loader2
 } from 'lucide-react';
-import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
+import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, PieChart, Pie, Cell } from 'recharts';
+import { ChartContainer, ChartTooltip, ChartTooltipContent, ChartLegend, ChartLegendContent, ChartConfig } from '@/components/ui/chart';
 import { sundaySchoolService } from '@/services';
 import { SundaySchoolClass, Student, ClassAttendance, AttendanceStatus } from '@/lib/types/sunday-school';
 import { toast } from 'sonner';
@@ -57,6 +58,22 @@ interface StudentPerformance {
   excusedCount: number;
   trend: 'improving' | 'declining' | 'stable';
 }
+
+// Chart configurations
+const attendanceDistributionConfig = {
+  value: { label: 'Students', color: 'hsl(var(--chart-1))' },
+} satisfies ChartConfig;
+
+const attendanceTrendsConfig = {
+  rate: { label: 'Attendance Rate', color: 'hsl(var(--chart-2))' },
+} satisfies ChartConfig;
+
+const attendanceStatsConfig = {
+  present: { label: 'Present', color: 'hsl(var(--chart-1))' },
+  late: { label: 'Late', color: 'hsl(var(--chart-2))' },
+  absent: { label: 'Absent', color: 'hsl(var(--chart-3))' },
+  excused: { label: 'Excused', color: 'hsl(var(--chart-4))' },
+} satisfies ChartConfig;
 
 export default function ClassReportsPage() {
   const router = useRouter();
@@ -396,26 +413,29 @@ export default function ClassReportsPage() {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="h-64">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <PieChart>
-                      <Pie
-                        data={pieData}
-                        cx="50%"
-                        cy="50%"
-                        innerRadius={60}
-                        outerRadius={100}
-                        paddingAngle={5}
-                        dataKey="value"
-                      >
-                        {pieData.map((entry, index) => (
-                          <Cell key={`cell-${index}`} fill={entry.color} />
-                        ))}
-                      </Pie>
-                      <Tooltip />
-                    </PieChart>
-                  </ResponsiveContainer>
-                </div>
+                <ChartContainer config={attendanceDistributionConfig} className="h-64 w-full">
+                  <PieChart>
+                    <ChartTooltip cursor={false} content={<ChartTooltipContent hideLabel />} />
+                    <Pie
+                      data={pieData}
+                      cx="50%"
+                      cy="50%"
+                      innerRadius={60}
+                      outerRadius={100}
+                      paddingAngle={5}
+                      dataKey="value"
+                      strokeWidth={2}
+                    >
+                      {pieData.map((entry, index) => (
+                        <Cell 
+                          key={`cell-${index}`} 
+                          fill={entry.color} 
+                          stroke="hsl(var(--background))"
+                        />
+                      ))}
+                    </Pie>
+                  </PieChart>
+                </ChartContainer>
                 
                 <div className="grid grid-cols-2 gap-4 mt-4">
                   {pieData.map((item) => (
@@ -509,42 +529,68 @@ export default function ClassReportsPage() {
                   {/* Attendance Rate Line Chart */}
                   <div>
                     <h4 className="font-medium mb-4">Attendance Rate Trend</h4>
-                    <div className="h-64">
-                      <ResponsiveContainer width="100%" height="100%">
-                        <LineChart data={attendanceData}>
-                          <CartesianGrid strokeDasharray="3 3" />
-                          <XAxis dataKey="date" />
-                          <YAxis domain={[0, 100]} />
-                          <Tooltip formatter={(value) => [`${value}%`, 'Attendance Rate']} />
-                          <Line 
-                            type="monotone" 
-                            dataKey="rate" 
-                            stroke="#2E8DB0" 
-                            strokeWidth={2}
-                            dot={{ fill: '#2E8DB0' }}
-                          />
-                        </LineChart>
-                      </ResponsiveContainer>
-                    </div>
+                    <ChartContainer config={attendanceTrendsConfig} className="h-64 w-full">
+                      <LineChart data={attendanceData} margin={{ left: 12, right: 12 }}>
+                        <CartesianGrid vertical={false} strokeDasharray="3 3" className="stroke-muted" />
+                        <XAxis 
+                          dataKey="date" 
+                          tickLine={false} 
+                          axisLine={false} 
+                          tickMargin={8}
+                          className="text-xs"
+                        />
+                        <YAxis 
+                          domain={[0, 100]}
+                          tickLine={false} 
+                          axisLine={false} 
+                          tickMargin={8}
+                          className="text-xs"
+                        />
+                        <ChartTooltip 
+                          cursor={{ stroke: 'hsl(var(--muted))', strokeWidth: 1 }}
+                          content={<ChartTooltipContent indicator="line" />} 
+                        />
+                        <Line 
+                          type="monotone" 
+                          dataKey="rate" 
+                          stroke="hsl(var(--chart-2))" 
+                          strokeWidth={2}
+                          dot={{ fill: 'hsl(var(--chart-2))' }}
+                        />
+                      </LineChart>
+                    </ChartContainer>
                   </div>
 
                   {/* Attendance Breakdown Bar Chart */}
                   <div>
                     <h4 className="font-medium mb-4">Attendance Breakdown by Session</h4>
-                    <div className="h-64">
-                      <ResponsiveContainer width="100%" height="100%">
-                        <BarChart data={attendanceData}>
-                          <CartesianGrid strokeDasharray="3 3" />
-                          <XAxis dataKey="date" />
-                          <YAxis />
-                          <Tooltip />
-                          <Bar dataKey="present" stackId="a" fill="#A5CF5D" name="Present" />
-                          <Bar dataKey="late" stackId="a" fill="#C49831" name="Late" />
-                          <Bar dataKey="excused" stackId="a" fill="#28ACD1" name="Excused" />
-                          <Bar dataKey="absent" stackId="a" fill="#ef4444" name="Absent" />
-                        </BarChart>
-                      </ResponsiveContainer>
-                    </div>
+                    <ChartContainer config={attendanceStatsConfig} className="h-64 w-full">
+                      <BarChart data={attendanceData} margin={{ left: 12, right: 12 }}>
+                        <CartesianGrid vertical={false} strokeDasharray="3 3" className="stroke-muted" />
+                        <XAxis 
+                          dataKey="date" 
+                          tickLine={false} 
+                          axisLine={false} 
+                          tickMargin={8}
+                          className="text-xs"
+                        />
+                        <YAxis 
+                          tickLine={false} 
+                          axisLine={false} 
+                          tickMargin={8}
+                          className="text-xs"
+                        />
+                        <ChartTooltip 
+                          cursor={{ fill: 'hsl(var(--muted)/0.2)' }}
+                          content={<ChartTooltipContent indicator="dot" />} 
+                        />
+                        <ChartLegend content={<ChartLegendContent />} />
+                        <Bar dataKey="present" stackId="a" fill="hsl(var(--chart-1))" radius={[0, 0, 0, 0]} />
+                        <Bar dataKey="late" stackId="a" fill="hsl(var(--chart-2))" radius={[0, 0, 0, 0]} />
+                        <Bar dataKey="excused" stackId="a" fill="hsl(var(--chart-4))" radius={[0, 0, 0, 0]} />
+                        <Bar dataKey="absent" stackId="a" fill="hsl(var(--chart-3))" radius={[8, 8, 0, 0]} />
+                      </BarChart>
+                    </ChartContainer>
                   </div>
                 </div>
               )}

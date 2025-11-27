@@ -11,6 +11,22 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import {
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+  ChartLegend,
+  ChartLegendContent,
+  type ChartConfig,
+} from '@/components/ui/chart';
 import { 
   BarChart3, 
   TrendingUp, 
@@ -20,23 +36,30 @@ import {
   Calendar,
   Download,
   Filter,
-  Eye
+  Eye,
+  FileBarChart,
+  FileText,
+  FileSpreadsheet,
+  PlusCircle,
+  Settings
 } from 'lucide-react';
+import Link from 'next/link';
+import { toast } from 'sonner';
 import { 
   LineChart, 
   Line, 
   XAxis, 
   YAxis, 
   CartesianGrid, 
-  Tooltip, 
-  ResponsiveContainer, 
   BarChart, 
   Bar, 
   PieChart, 
   Pie, 
   Cell,
   AreaChart,
-  Area
+  Area,
+  Legend,
+  Label
 } from 'recharts';
 
 const membershipGrowth = [
@@ -83,7 +106,56 @@ const departmentEngagement = [
   { department: 'Prayer Team', members: 28, engagement: 98 },
 ];
 
+// Chart Configurations
+const membershipChartConfig = {
+  members: {
+    label: 'Members',
+    color: 'hsl(var(--chart-1))',
+  },
+} satisfies ChartConfig;
+
+const attendanceChartConfig = {
+  sunday: {
+    label: 'Sunday Service',
+    color: 'hsl(var(--chart-1))',
+  },
+  midweek: {
+    label: 'Midweek',
+    color: 'hsl(var(--chart-2))',
+  },
+  events: {
+    label: 'Events',
+    color: 'hsl(var(--chart-3))',
+  },
+} satisfies ChartConfig;
+
+const givingChartConfig = {
+  tithes: {
+    label: 'Tithes',
+    color: 'hsl(var(--chart-1))',
+  },
+  offerings: {
+    label: 'Offerings',
+    color: 'hsl(var(--chart-2))',
+  },
+  special: {
+    label: 'Special',
+    color: 'hsl(var(--chart-3))',
+  },
+} satisfies ChartConfig;
+
+const ageChartConfig = {
+  value: {
+    label: 'Members',
+  },
+} satisfies ChartConfig;
+
 export default function AnalyticsPage() {
+  const handleExport = (format: string) => {
+    toast.success(`Exporting analytics as ${format.toUpperCase()}...`);
+    // TODO: Implement actual export logic
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -92,22 +164,139 @@ export default function AnalyticsPage() {
           <p className="text-muted-foreground">Comprehensive insights and reports for church growth</p>
         </div>
         <div className="flex space-x-2">
+          <Button variant="outline" asChild>
+            <Link href="/dashboard/analytics/reports">
+              <FileBarChart className="mr-2 h-4 w-4" />
+              Saved Reports
+            </Link>
+          </Button>
           <Select defaultValue="6months">
             <SelectTrigger className="w-48">
               <SelectValue placeholder="Select period" />
             </SelectTrigger>
             <SelectContent>
+              <SelectItem value="today">Today</SelectItem>
+              <SelectItem value="yesterday">Yesterday</SelectItem>
+              <SelectItem value="1week">Last Week</SelectItem>
               <SelectItem value="1month">Last Month</SelectItem>
               <SelectItem value="3months">Last 3 Months</SelectItem>
               <SelectItem value="6months">Last 6 Months</SelectItem>
               <SelectItem value="1year">Last Year</SelectItem>
+              <SelectItem value="this_year">This Year</SelectItem>
+              <SelectItem value="all_time">All Time</SelectItem>
             </SelectContent>
           </Select>
-          <Button variant="outline">
-            <Download className="mr-2 h-4 w-4" />
-            Export Report
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button>
+                <Download className="mr-2 h-4 w-4" />
+                Export
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuLabel>Export Format</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={() => handleExport('pdf')}>
+                <FileText className="mr-2 h-4 w-4" />
+                Export as PDF
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => handleExport('excel')}>
+                <FileSpreadsheet className="mr-2 h-4 w-4" />
+                Export as Excel
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => handleExport('csv')}>
+                <FileText className="mr-2 h-4 w-4" />
+                Export as CSV
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={() => handleExport('json')}>
+                <FileText className="mr-2 h-4 w-4" />
+                Export as JSON
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+          <Button className="bg-brand-primary hover:bg-brand-primary/90" asChild>
+            <Link href="/dashboard/analytics/report-builder">
+              <PlusCircle className="mr-2 h-4 w-4" />
+              Custom Report
+            </Link>
           </Button>
         </div>
+      </div>
+
+      {/* Quick Actions */}
+      <div className="grid gap-4 md:grid-cols-4">
+        <Link href="/dashboard/analytics/report-builder" className="block">
+          <Card className="group hover:shadow-md transition-shadow cursor-pointer">
+            <CardContent className="p-4">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-brand-primary/10 rounded-lg">
+                  <PlusCircle className="h-5 w-5 text-brand-primary" />
+                </div>
+                <div>
+                  <h3 className="font-medium group-hover:text-brand-primary transition-colors">
+                    Report Builder
+                  </h3>
+                  <p className="text-xs text-muted-foreground">Create custom reports</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </Link>
+
+        <Link href="/dashboard/analytics/reports" className="block">
+          <Card className="group hover:shadow-md transition-shadow cursor-pointer">
+            <CardContent className="p-4">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-brand-secondary/10 rounded-lg">
+                  <FileBarChart className="h-5 w-5 text-brand-secondary" />
+                </div>
+                <div>
+                  <h3 className="font-medium group-hover:text-brand-primary transition-colors">
+                    Saved Reports
+                  </h3>
+                  <p className="text-xs text-muted-foreground">View all reports (5)</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </Link>
+
+        <Link href="/dashboard/analytics/filters" className="block">
+          <Card className="group hover:shadow-md transition-shadow cursor-pointer">
+            <CardContent className="p-4">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-brand-accent/10 rounded-lg">
+                  <Filter className="h-5 w-5 text-brand-accent" />
+                </div>
+                <div>
+                  <h3 className="font-medium group-hover:text-brand-primary transition-colors">
+                    Advanced Filters
+                  </h3>
+                  <p className="text-xs text-muted-foreground">Filter your data</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </Link>
+
+        <Link href="/dashboard/analytics/preferences" className="block">
+          <Card className="group hover:shadow-md transition-shadow cursor-pointer">
+            <CardContent className="p-4">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-brand-success/10 rounded-lg">
+                  <Settings className="h-5 w-5 text-brand-success" />
+                </div>
+                <div>
+                  <h3 className="font-medium group-hover:text-brand-primary transition-colors">
+                    Preferences
+                  </h3>
+                  <p className="text-xs text-muted-foreground">Customize analytics</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </Link>
       </div>
 
       {/* Key Metrics */}
@@ -169,21 +358,37 @@ export default function AnalyticsPage() {
             <CardDescription>Track membership growth over time</CardDescription>
           </CardHeader>
           <CardContent>
-            <ResponsiveContainer width="100%" height={300}>
-              <AreaChart data={membershipGrowth}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="month" />
-                <YAxis />
-                <Tooltip />
-                <Area 
-                  type="monotone" 
-                  dataKey="members" 
-                  stroke="#2E8DB0" 
-                  fill="#2E8DB0" 
-                  fillOpacity={0.3}
+            <ChartContainer config={membershipChartConfig} className="h-[300px] w-full">
+              <AreaChart data={membershipGrowth} margin={{ left: 12, right: 12 }}>
+                <CartesianGrid vertical={false} />
+                <XAxis
+                  dataKey="month"
+                  tickLine={false}
+                  axisLine={false}
+                  tickMargin={8}
+                />
+                <YAxis
+                  tickLine={false}
+                  axisLine={false}
+                  tickMargin={8}
+                />
+                <ChartTooltip cursor={false} content={<ChartTooltipContent />} />
+                <defs>
+                  <linearGradient id="fillMembers" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="hsl(var(--chart-1))" stopOpacity={0.8} />
+                    <stop offset="95%" stopColor="hsl(var(--chart-1))" stopOpacity={0.1} />
+                  </linearGradient>
+                </defs>
+                <Area
+                  dataKey="members"
+                  type="natural"
+                  fill="url(#fillMembers)"
+                  fillOpacity={0.4}
+                  stroke="hsl(var(--chart-1))"
+                  stackId="a"
                 />
               </AreaChart>
-            </ResponsiveContainer>
+            </ChartContainer>
           </CardContent>
         </Card>
 
@@ -193,17 +398,45 @@ export default function AnalyticsPage() {
             <CardDescription>Compare attendance across different services</CardDescription>
           </CardHeader>
           <CardContent>
-            <ResponsiveContainer width="100%" height={300}>
-              <LineChart data={attendanceData}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="month" />
-                <YAxis />
-                <Tooltip />
-                <Line type="monotone" dataKey="sunday" stroke="#2E8DB0" strokeWidth={2} name="Sunday Service" />
-                <Line type="monotone" dataKey="midweek" stroke="#C49831" strokeWidth={2} name="Midweek" />
-                <Line type="monotone" dataKey="events" stroke="#A5CF5D" strokeWidth={2} name="Events" />
+            <ChartContainer config={attendanceChartConfig} className="h-[300px] w-full">
+              <LineChart data={attendanceData} margin={{ left: 12, right: 12 }}>
+                <CartesianGrid vertical={false} />
+                <XAxis
+                  dataKey="month"
+                  tickLine={false}
+                  axisLine={false}
+                  tickMargin={8}
+                />
+                <YAxis
+                  tickLine={false}
+                  axisLine={false}
+                  tickMargin={8}
+                />
+                <ChartTooltip cursor={false} content={<ChartTooltipContent />} />
+                <ChartLegend content={<ChartLegendContent />} />
+                <Line
+                  dataKey="sunday"
+                  type="monotone"
+                  stroke="hsl(var(--chart-1))"
+                  strokeWidth={2}
+                  dot={false}
+                />
+                <Line
+                  dataKey="midweek"
+                  type="monotone"
+                  stroke="hsl(var(--chart-2))"
+                  strokeWidth={2}
+                  dot={false}
+                />
+                <Line
+                  dataKey="events"
+                  type="monotone"
+                  stroke="hsl(var(--chart-3))"
+                  strokeWidth={2}
+                  dot={false}
+                />
               </LineChart>
-            </ResponsiveContainer>
+            </ChartContainer>
           </CardContent>
         </Card>
 
@@ -213,17 +446,31 @@ export default function AnalyticsPage() {
             <CardDescription>Monthly giving breakdown by category</CardDescription>
           </CardHeader>
           <CardContent>
-            <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={givingTrends}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="month" />
-                <YAxis />
-                <Tooltip />
-                <Bar dataKey="tithes" fill="#2E8DB0" name="Tithes" />
-                <Bar dataKey="offerings" fill="#C49831" name="Offerings" />
-                <Bar dataKey="special" fill="#A5CF5D" name="Special" />
+            <ChartContainer config={givingChartConfig} className="h-[300px] w-full">
+              <BarChart data={givingTrends} margin={{ left: 12, right: 12 }}>
+                <CartesianGrid vertical={false} />
+                <XAxis
+                  dataKey="month"
+                  tickLine={false}
+                  tickMargin={10}
+                  axisLine={false}
+                />
+                <YAxis
+                  tickLine={false}
+                  axisLine={false}
+                  tickMargin={8}
+                  tickFormatter={(value) => `$${value / 1000}k`}
+                />
+                <ChartTooltip
+                  cursor={false}
+                  content={<ChartTooltipContent indicator="dashed" />}
+                />
+                <ChartLegend content={<ChartLegendContent />} />
+                <Bar dataKey="tithes" fill="hsl(var(--chart-1))" radius={4} />
+                <Bar dataKey="offerings" fill="hsl(var(--chart-2))" radius={4} />
+                <Bar dataKey="special" fill="hsl(var(--chart-3))" radius={4} />
               </BarChart>
-            </ResponsiveContainer>
+            </ChartContainer>
           </CardContent>
         </Card>
 
@@ -233,25 +480,69 @@ export default function AnalyticsPage() {
             <CardDescription>Congregation demographics by age group</CardDescription>
           </CardHeader>
           <CardContent>
-            <ResponsiveContainer width="100%" height={300}>
+            <ChartContainer config={ageChartConfig} className="mx-auto aspect-square max-h-[300px]">
               <PieChart>
+                <ChartTooltip
+                  cursor={false}
+                  content={<ChartTooltipContent hideLabel />}
+                />
                 <Pie
                   data={ageDistribution}
-                  cx="50%"
-                  cy="50%"
-                  labelLine={false}
-                  label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
-                  outerRadius={80}
-                  fill="#8884d8"
                   dataKey="value"
+                  nameKey="name"
+                  innerRadius={60}
+                  strokeWidth={5}
+                  label={({ payload, ...props }) => {
+                    return (
+                      <text
+                        cx={props.cx}
+                        cy={props.cy}
+                        x={props.x}
+                        y={props.y}
+                        textAnchor={props.textAnchor}
+                        dominantBaseline={props.dominantBaseline}
+                        fill="hsl(var(--foreground))"
+                      >
+                        {`${payload.name}: ${payload.value}`}
+                      </text>
+                    );
+                  }}
                 >
                   {ageDistribution.map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={entry.color} />
                   ))}
+                  <Label
+                    content={({ viewBox }) => {
+                      if (viewBox && "cx" in viewBox && "cy" in viewBox) {
+                        return (
+                          <text
+                            x={viewBox.cx}
+                            y={viewBox.cy}
+                            textAnchor="middle"
+                            dominantBaseline="middle"
+                          >
+                            <tspan
+                              x={viewBox.cx}
+                              y={viewBox.cy}
+                              className="fill-foreground text-3xl font-bold"
+                            >
+                              {ageDistribution.reduce((a, b) => a + b.value, 0)}
+                            </tspan>
+                            <tspan
+                              x={viewBox.cx}
+                              y={(viewBox.cy || 0) + 24}
+                              className="fill-muted-foreground"
+                            >
+                              Total Members
+                            </tspan>
+                          </text>
+                        );
+                      }
+                    }}
+                  />
                 </Pie>
-                <Tooltip />
               </PieChart>
-            </ResponsiveContainer>
+            </ChartContainer>
           </CardContent>
         </Card>
       </div>
@@ -285,6 +576,53 @@ export default function AnalyticsPage() {
                 </div>
               </div>
             ))}
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Additional Visualizations */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Multi-Dimensional Analysis</CardTitle>
+          <CardDescription>Explore complex relationships in your data</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="grid gap-4 md:grid-cols-3">
+            <div className="text-center space-y-2">
+              <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-gradient-to-br from-brand-primary/20 to-brand-primary/10 border-4 border-brand-primary">
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-brand-primary">78%</div>
+                </div>
+              </div>
+              <div>
+                <p className="font-medium text-sm">Engagement Score</p>
+                <p className="text-xs text-muted-foreground">Overall member engagement</p>
+              </div>
+            </div>
+
+            <div className="text-center space-y-2">
+              <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-gradient-to-br from-brand-success/20 to-brand-success/10 border-4 border-brand-success">
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-brand-success">92%</div>
+                </div>
+              </div>
+              <div>
+                <p className="font-medium text-sm">Retention Rate</p>
+                <p className="text-xs text-muted-foreground">6-month member retention</p>
+              </div>
+            </div>
+
+            <div className="text-center space-y-2">
+              <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-gradient-to-br from-brand-secondary/20 to-brand-secondary/10 border-4 border-brand-secondary">
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-brand-secondary">85%</div>
+                </div>
+              </div>
+              <div>
+                <p className="font-medium text-sm">Service Satisfaction</p>
+                <p className="text-xs text-muted-foreground">Based on feedback surveys</p>
+              </div>
+            </div>
           </div>
         </CardContent>
       </Card>

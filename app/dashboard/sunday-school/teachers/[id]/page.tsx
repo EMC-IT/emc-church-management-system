@@ -58,7 +58,8 @@ import {
   AlertCircle,
   Loader2
 } from 'lucide-react';
-import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid } from 'recharts';
+import { ChartContainer, ChartTooltip, ChartTooltipContent, ChartConfig } from '@/components/ui/chart';
 import { sundaySchoolService } from '@/services';
 import { Teacher, SundaySchoolClass, Student, ClassAttendance, TeacherStatus, AttendanceStatus } from '@/lib/types/sunday-school';
 import { toast } from 'sonner';
@@ -84,6 +85,11 @@ interface AttendanceData {
   present: number;
   total: number;
 }
+
+// Chart configuration
+const attendanceRateConfig = {
+  rate: { label: 'Attendance Rate', color: 'hsl(var(--chart-1))' },
+} satisfies ChartConfig;
 
 export default function TeacherProfilePage() {
   const router = useRouter();
@@ -696,23 +702,36 @@ export default function TeacherProfilePage() {
                   </p>
                 </div>
               ) : (
-                <div className="h-64">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <LineChart data={attendanceData}>
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis dataKey="date" />
-                      <YAxis domain={[0, 100]} />
-                      <Tooltip formatter={(value) => [`${value}%`, 'Attendance Rate']} />
-                      <Line 
-                        type="monotone" 
-                        dataKey="rate" 
-                        stroke="#2E8DB0" 
-                        strokeWidth={2}
-                        dot={{ fill: '#2E8DB0' }}
-                      />
-                    </LineChart>
-                  </ResponsiveContainer>
-                </div>
+                <ChartContainer config={attendanceRateConfig} className="h-64 w-full">
+                  <LineChart data={attendanceData} margin={{ left: 12, right: 12 }}>
+                    <CartesianGrid vertical={false} strokeDasharray="3 3" className="stroke-muted" />
+                    <XAxis 
+                      dataKey="date" 
+                      tickLine={false} 
+                      axisLine={false} 
+                      tickMargin={8}
+                      className="text-xs"
+                    />
+                    <YAxis 
+                      domain={[0, 100]}
+                      tickLine={false} 
+                      axisLine={false} 
+                      tickMargin={8}
+                      className="text-xs"
+                    />
+                    <ChartTooltip 
+                      cursor={{ stroke: 'hsl(var(--muted))', strokeWidth: 1 }}
+                      content={<ChartTooltipContent indicator="line" />} 
+                    />
+                    <Line 
+                      type="monotone" 
+                      dataKey="rate" 
+                      stroke="hsl(var(--chart-1))" 
+                      strokeWidth={2}
+                      dot={{ fill: 'hsl(var(--chart-1))' }}
+                    />
+                  </LineChart>
+                </ChartContainer>
               )}
             </CardContent>
           </Card>

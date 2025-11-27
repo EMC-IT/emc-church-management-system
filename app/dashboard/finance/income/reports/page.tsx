@@ -19,16 +19,15 @@ import {
   XAxis,
   YAxis,
   CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
   PieChart as RechartsPieChart,
   Pie,
   Cell,
   LineChart,
   Line,
   Area,
-  AreaChart
+  AreaChart,
 } from 'recharts';
+import { ChartContainer, ChartTooltip, ChartTooltipContent, ChartLegend, ChartLegendContent, ChartConfig } from '@/components/ui/chart';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -226,6 +225,15 @@ export default function IncomeReportsPage() {
       pendingCount: pendingIncome.length
     };
   }, [filteredData]);
+
+  // Chart configurations
+  const incomeChartConfig = {
+    amount: { label: 'Amount', color: 'hsl(var(--chart-1))' },
+  } satisfies ChartConfig;
+
+  const monthlyChartConfig = {
+    amount: { label: 'Amount', color: 'hsl(var(--chart-2))' },
+  } satisfies ChartConfig;
 
   // Calculate category breakdown
   const categoryBreakdown = useMemo(() => {
@@ -543,26 +551,27 @@ export default function IncomeReportsPage() {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="h-[400px]">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <AreaChart data={monthlyTrends}>
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis dataKey="month" />
-                      <YAxis tickFormatter={(value) => formatCurrency(value)} />
-                      <Tooltip 
-                        formatter={(value: number) => [formatCurrency(value), 'Income']}
-                        labelFormatter={(label) => `Month: ${label}`}
-                      />
-                      <Area 
-                        type="monotone" 
-                        dataKey="amount" 
-                        stroke="#2E8DB0" 
-                        fill="#2E8DB0" 
-                        fillOpacity={0.3}
-                      />
-                    </AreaChart>
-                  </ResponsiveContainer>
-                </div>
+                <ChartContainer config={monthlyChartConfig} className="h-[400px] w-full">
+                  <AreaChart data={monthlyTrends} margin={{ left: 12, right: 12 }}>
+                    <defs>
+                      <linearGradient id="fillIncome" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="hsl(var(--chart-2))" stopOpacity={0.8}/>
+                        <stop offset="95%" stopColor="hsl(var(--chart-2))" stopOpacity={0.1}/>
+                      </linearGradient>
+                    </defs>
+                    <CartesianGrid vertical={false} strokeDasharray="3 3" className="stroke-muted" />
+                    <XAxis dataKey="month" tickLine={false} axisLine={false} tickMargin={8} className="text-xs" />
+                    <YAxis tickLine={false} axisLine={false} tickMargin={8} className="text-xs" />
+                    <ChartTooltip cursor={{ stroke: 'hsl(var(--muted))', strokeWidth: 1 }} content={<ChartTooltipContent indicator="line" />} />
+                    <Area 
+                      type="monotone" 
+                      dataKey="amount" 
+                      stroke="hsl(var(--chart-2))" 
+                      fill="url(#fillIncome)" 
+                      strokeWidth={2}
+                    />
+                  </AreaChart>
+                </ChartContainer>
               </CardContent>
             </Card>
           </TabsContent>
@@ -577,27 +586,26 @@ export default function IncomeReportsPage() {
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <div className="h-[300px]">
-                    <ResponsiveContainer width="100%" height="100%">
-                      <RechartsPieChart>
-                        <Pie
-                          data={categoryBreakdown}
-                          cx="50%"
-                          cy="50%"
-                          outerRadius={80}
-                          dataKey="totalAmount"
-                          label={({ categoryName, percentage }) => 
-                            `${categoryName}: ${percentage.toFixed(1)}%`
-                          }
-                        >
-                          {categoryBreakdown.map((entry, index) => (
-                            <Cell key={`cell-${index}`} fill={entry.color} />
-                          ))}
-                        </Pie>
-                        <Tooltip formatter={(value: number) => formatCurrency(value)} />
-                      </RechartsPieChart>
-                    </ResponsiveContainer>
-                  </div>
+                  <ChartContainer config={incomeChartConfig} className="h-[300px] w-full">
+                    <RechartsPieChart>
+                      <ChartTooltip cursor={false} content={<ChartTooltipContent hideLabel />} />
+                      <Pie
+                        data={categoryBreakdown}
+                        cx="50%"
+                        cy="50%"
+                        outerRadius={100}
+                        dataKey="totalAmount"
+                        strokeWidth={2}
+                        label={({ categoryName, percentage }) => 
+                          `${categoryName}: ${percentage.toFixed(1)}%`
+                        }
+                      >
+                        {categoryBreakdown.map((entry, index) => (
+                          <Cell key={`cell-${index}`} fill={entry.color} stroke="hsl(var(--background))" />
+                        ))}
+                      </Pie>
+                    </RechartsPieChart>
+                  </ChartContainer>
                 </CardContent>
               </Card>
 

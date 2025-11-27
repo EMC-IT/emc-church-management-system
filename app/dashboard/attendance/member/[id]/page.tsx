@@ -56,16 +56,23 @@ import {
   XAxis,
   YAxis,
   CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
   PieChart as RechartsPieChart,
   Cell,
   Pie,
   LineChart,
   Line,
   Area,
-  AreaChart
+  AreaChart,
+  Label
 } from 'recharts';
+import { 
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+  ChartLegend,
+  ChartLegendContent,
+  ChartConfig
+} from '@/components/ui/chart';
 import { attendanceService } from '@/services/attendance-service';
 import { AttendanceStatus, ServiceType } from '@/lib/types';
 import {
@@ -391,6 +398,62 @@ export default function MemberAttendanceDetailPage() {
     setSelectedStatus('all');
   };
 
+  // Mock chart data
+  const monthlyAttendance = [
+    { month: 'Jan', present: 4, late: 0, absent: 0 },
+    { month: 'Feb', present: 3, late: 1, absent: 0 },
+    { month: 'Mar', present: 4, late: 0, absent: 1 },
+    { month: 'Apr', present: 5, late: 0, absent: 0 },
+    { month: 'May', present: 3, late: 1, absent: 0 },
+    { month: 'Jun', present: 4, late: 0, absent: 0 }
+  ];
+
+  const serviceTypeDistribution = [
+    { name: 'Sunday Service', value: 18, color: '#2E8DB0' },
+    { name: 'Midweek Service', value: 12, color: '#28ACD1' },
+    { name: 'Special Events', value: 6, color: '#C49831' }
+  ];
+
+  const weeklyEngagement = [
+    { week: 'W1', services: 2, duration: 180 },
+    { week: 'W2', services: 2, duration: 190 },
+    { week: 'W3', services: 1, duration: 90 },
+    { week: 'W4', services: 2, duration: 185 }
+  ];
+
+  // Chart configurations
+  const monthlyChartConfig = {
+    present: {
+      label: 'Present',
+      color: 'hsl(var(--chart-1))',
+    },
+    late: {
+      label: 'Late',
+      color: 'hsl(var(--chart-3))',
+    },
+    absent: {
+      label: 'Absent',
+      color: 'hsl(var(--chart-4))',
+    },
+  } satisfies ChartConfig;
+
+  const serviceChartConfig = {
+    value: {
+      label: 'Attendance',
+    },
+  } satisfies ChartConfig;
+
+  const engagementChartConfig = {
+    services: {
+      label: 'Services',
+      color: 'hsl(var(--chart-1))',
+    },
+    duration: {
+      label: 'Duration (min)',
+      color: 'hsl(var(--chart-2))',
+    },
+  } satisfies ChartConfig;
+
   return (
     <div className="space-y-6">
 
@@ -559,7 +622,7 @@ export default function MemberAttendanceDetailPage() {
         <TabsContent value="overview" className="space-y-6">
           <div className="grid gap-6 lg:grid-cols-2">
             {/* Monthly Attendance Trend */}
-            <Card>
+            <Card className="hover:shadow-md transition-shadow">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <BarChart3 className="h-5 w-5 text-brand-primary" />
@@ -570,22 +633,52 @@ export default function MemberAttendanceDetailPage() {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <ResponsiveContainer width="100%" height={300}>
-                  <BarChart data={monthlyAttendance}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="month" />
-                    <YAxis />
-                    <Tooltip />
-                    <Bar dataKey="present" stackId="a" fill="#A5CF5D" name="Present" />
-                    <Bar dataKey="late" stackId="a" fill="#C49831" name="Late" />
-                    <Bar dataKey="absent" stackId="a" fill="#EF4444" name="Absent" />
+                <ChartContainer config={monthlyChartConfig} className="h-[300px] w-full">
+                  <BarChart data={monthlyAttendance} margin={{ left: 12, right: 12 }}>
+                    <CartesianGrid vertical={false} strokeDasharray="3 3" className="stroke-muted" />
+                    <XAxis
+                      dataKey="month"
+                      tickLine={false}
+                      axisLine={false}
+                      tickMargin={8}
+                      className="text-xs"
+                    />
+                    <YAxis
+                      tickLine={false}
+                      axisLine={false}
+                      tickMargin={8}
+                      className="text-xs"
+                    />
+                    <ChartTooltip 
+                      cursor={{ fill: 'hsl(var(--muted))', opacity: 0.2 }}
+                      content={<ChartTooltipContent indicator="dot" />} 
+                    />
+                    <ChartLegend content={<ChartLegendContent />} />
+                    <Bar 
+                      dataKey="present" 
+                      stackId="a" 
+                      fill="hsl(var(--chart-1))" 
+                      radius={[0, 0, 0, 0]}
+                    />
+                    <Bar 
+                      dataKey="late" 
+                      stackId="a" 
+                      fill="hsl(var(--chart-3))" 
+                      radius={[0, 0, 0, 0]}
+                    />
+                    <Bar 
+                      dataKey="absent" 
+                      stackId="a" 
+                      fill="hsl(var(--chart-4))" 
+                      radius={[4, 4, 0, 0]}
+                    />
                   </BarChart>
-                </ResponsiveContainer>
+                </ChartContainer>
               </CardContent>
             </Card>
 
             {/* Service Type Distribution */}
-            <Card>
+            <Card className="hover:shadow-md transition-shadow">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <PieChart className="h-5 w-5 text-brand-primary" />
@@ -596,8 +689,12 @@ export default function MemberAttendanceDetailPage() {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <ResponsiveContainer width="100%" height={300}>
+                <ChartContainer config={serviceChartConfig} className="h-[300px] w-full">
                   <RechartsPieChart>
+                    <ChartTooltip 
+                      cursor={false}
+                      content={<ChartTooltipContent hideLabel />} 
+                    />
                     <Pie
                       data={serviceTypeDistribution}
                       cx="50%"
@@ -606,14 +703,44 @@ export default function MemberAttendanceDetailPage() {
                       outerRadius={120}
                       paddingAngle={5}
                       dataKey="value"
+                      strokeWidth={2}
                     >
                       {serviceTypeDistribution.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={entry.color} />
+                        <Cell key={`cell-${index}`} fill={entry.color} stroke="hsl(var(--background))" />
                       ))}
+                      <Label
+                        content={({ viewBox }) => {
+                          if (viewBox && "cx" in viewBox && "cy" in viewBox) {
+                            const total = serviceTypeDistribution.reduce((acc, curr) => acc + curr.value, 0);
+                            return (
+                              <text
+                                x={viewBox.cx}
+                                y={viewBox.cy}
+                                textAnchor="middle"
+                                dominantBaseline="middle"
+                              >
+                                <tspan
+                                  x={viewBox.cx}
+                                  y={viewBox.cy}
+                                  className="fill-foreground text-3xl font-bold"
+                                >
+                                  {total}
+                                </tspan>
+                                <tspan
+                                  x={viewBox.cx}
+                                  y={(viewBox.cy || 0) + 24}
+                                  className="fill-muted-foreground"
+                                >
+                                  Services
+                                </tspan>
+                              </text>
+                            );
+                          }
+                        }}
+                      />
                     </Pie>
-                    <Tooltip />
                   </RechartsPieChart>
-                </ResponsiveContainer>
+                </ChartContainer>
                 <div className="grid grid-cols-1 gap-2 mt-4">
                   {serviceTypeDistribution.map((item, index) => (
                     <div key={index} className="flex items-center gap-2">
@@ -772,7 +899,7 @@ export default function MemberAttendanceDetailPage() {
         <TabsContent value="analytics" className="space-y-6">
           <div className="grid gap-6 lg:grid-cols-2">
             {/* Attendance Rate Trend */}
-            <Card>
+            <Card className="hover:shadow-md transition-shadow">
               <CardHeader>
                 <CardTitle>Attendance Rate Trend</CardTitle>
                 <CardDescription>
@@ -780,30 +907,36 @@ export default function MemberAttendanceDetailPage() {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <ResponsiveContainer width="100%" height={300}>
-                  <LineChart data={monthlyAttendance}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="month" />
-                    <YAxis domain={[0, 100]} />
-                    <Tooltip 
-                      formatter={(value, name) => {
-                        const monthData = monthlyAttendance.find(m => m.month === name);
-                        const total = monthData?.total || 1;
-                        return [
-                          `${Math.round(((value as number) / total) * 100)}%`,
-                          'Attendance Rate'
-                        ];
-                      }}
+                <ChartContainer config={monthlyChartConfig} className="h-[300px] w-full">
+                  <LineChart data={monthlyAttendance} margin={{ left: 12, right: 12 }}>
+                    <CartesianGrid vertical={false} strokeDasharray="3 3" className="stroke-muted" />
+                    <XAxis
+                      dataKey="month"
+                      tickLine={false}
+                      axisLine={false}
+                      tickMargin={8}
+                      className="text-xs"
+                    />
+                    <YAxis
+                      tickLine={false}
+                      axisLine={false}
+                      tickMargin={8}
+                      className="text-xs"
+                    />
+                    <ChartTooltip 
+                      cursor={{ stroke: 'hsl(var(--muted))', strokeWidth: 1 }}
+                      content={<ChartTooltipContent indicator="line" />} 
                     />
                     <Line 
                       type="monotone" 
                       dataKey="present" 
-                      stroke="#2E8DB0" 
-                      strokeWidth={3}
-                      dot={{ fill: '#2E8DB0', strokeWidth: 2, r: 4 }}
+                      stroke="hsl(var(--chart-1))" 
+                      strokeWidth={2.5}
+                      dot={{ r: 4, fill: 'hsl(var(--chart-1))' }}
+                      activeDot={{ r: 6 }}
                     />
                   </LineChart>
-                </ResponsiveContainer>
+                </ChartContainer>
               </CardContent>
             </Card>
 

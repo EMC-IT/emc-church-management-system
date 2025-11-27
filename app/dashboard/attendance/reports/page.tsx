@@ -32,13 +32,19 @@ import {
 import { format, subDays, startOfMonth, endOfMonth, subMonths } from 'date-fns';
 import { cn } from '@/lib/utils';
 import {
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+  ChartLegend,
+  ChartLegendContent,
+  type ChartConfig,
+} from '@/components/ui/chart';
+import {
   BarChart,
   Bar,
   XAxis,
   YAxis,
   CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
   PieChart as RechartsPieChart,
   Cell,
   Pie,
@@ -46,7 +52,9 @@ import {
   Line,
   Area,
   AreaChart,
-  Legend
+  Legend,
+  Label,
+  ComposedChart
 } from 'recharts';
 import { attendanceService } from '@/services/attendance-service';
 import { AttendanceStatus, ServiceType, AttendanceSearchParams } from '@/lib/types';
@@ -94,13 +102,48 @@ const topAttendersData = [
 ];
 
 const attendanceDistribution = [
-  { name: 'Present', value: 387, color: '#A5CF5D' },
-  { name: 'Late', value: 18, color: '#C49831' },
-  { name: 'Absent', value: 52, color: '#EF4444' },
-  { name: 'Excused', value: 7, color: '#3B82F6' }
+  { name: 'Present', value: 387, color: 'hsl(var(--chart-1))' },
+  { name: 'Late', value: 18, color: 'hsl(var(--chart-2))' },
+  { name: 'Absent', value: 52, color: 'hsl(var(--chart-3))' },
+  { name: 'Excused', value: 7, color: 'hsl(var(--chart-4))' }
 ];
 
+// Chart Configurations
+const monthlyChartConfig = {
+  attendance: {
+    label: 'Attendance',
+    color: 'hsl(var(--chart-1))',
+  },
+  target: {
+    label: 'Target',
+    color: 'hsl(var(--chart-2))',
+  },
+} satisfies ChartConfig;
 
+const distributionChartConfig = {
+  value: {
+    label: 'Count',
+  },
+} satisfies ChartConfig;
+
+const weeklyChartConfig = {
+  present: {
+    label: 'Present',
+    color: 'hsl(var(--chart-1))',
+  },
+  late: {
+    label: 'Late',
+    color: 'hsl(var(--chart-2))',
+  },
+  absent: {
+    label: 'Absent',
+    color: 'hsl(var(--chart-3))',
+  },
+  excused: {
+    label: 'Excused',
+    color: 'hsl(var(--chart-4))',
+  },
+} satisfies ChartConfig;
 
 export default function AttendanceReportsPage() {
   const router = useRouter();
@@ -336,7 +379,7 @@ export default function AttendanceReportsPage() {
         <TabsContent value="overview" className="space-y-6">
           <div className="grid gap-6 lg:grid-cols-2">
             {/* Monthly Attendance Trend */}
-            <Card>
+            <Card className="hover:shadow-md transition-shadow">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <LineChart className="h-5 w-5 text-brand-primary" />
@@ -347,32 +390,57 @@ export default function AttendanceReportsPage() {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <ResponsiveContainer width="100%" height={300}>
-                  <AreaChart data={monthlyAttendanceData}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="month" />
-                    <YAxis />
-                    <Tooltip />
-                    <Area 
-                      type="monotone" 
-                      dataKey="attendance" 
-                      stroke="#2E8DB0" 
-                      fill="#2E8DB0" 
-                      fillOpacity={0.1}
+                <ChartContainer config={monthlyChartConfig} className="h-[300px] w-full">
+                  <ComposedChart data={monthlyAttendanceData} margin={{ left: 12, right: 12 }}>
+                    <CartesianGrid vertical={false} strokeDasharray="3 3" className="stroke-muted" />
+                    <XAxis
+                      dataKey="month"
+                      tickLine={false}
+                      axisLine={false}
+                      tickMargin={8}
+                      className="text-xs"
+                    />
+                    <YAxis
+                      tickLine={false}
+                      axisLine={false}
+                      tickMargin={8}
+                      className="text-xs"
+                    />
+                    <ChartTooltip 
+                      cursor={{ stroke: 'hsl(var(--muted))', strokeWidth: 1 }}
+                      content={<ChartTooltipContent indicator="line" />} 
+                    />
+                    <ChartLegend content={<ChartLegendContent />} />
+                    <defs>
+                      <linearGradient id="fillAttendanceReports" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="hsl(var(--chart-1))" stopOpacity={0.8} />
+                        <stop offset="95%" stopColor="hsl(var(--chart-1))" stopOpacity={0.1} />
+                      </linearGradient>
+                    </defs>
+                    <Area
+                      dataKey="attendance"
+                      type="natural"
+                      fill="url(#fillAttendanceReports)"
+                      fillOpacity={0.4}
+                      stroke="hsl(var(--chart-1))"
+                      strokeWidth={2.5}
+                      stackId="a"
                     />
                     <Line 
                       type="monotone" 
                       dataKey="target" 
-                      stroke="#C49831" 
+                      stroke="hsl(var(--chart-2))" 
                       strokeDasharray="5 5"
+                      strokeWidth={2}
+                      dot={false}
                     />
-                  </AreaChart>
-                </ResponsiveContainer>
+                  </ComposedChart>
+                </ChartContainer>
               </CardContent>
             </Card>
 
             {/* Attendance Distribution */}
-            <Card>
+            <Card className="hover:shadow-md transition-shadow">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <PieChart className="h-5 w-5 text-brand-primary" />
@@ -383,8 +451,12 @@ export default function AttendanceReportsPage() {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <ResponsiveContainer width="100%" height={300}>
+                <ChartContainer config={distributionChartConfig} className="h-[300px] w-full">
                   <RechartsPieChart>
+                    <ChartTooltip 
+                      cursor={false}
+                      content={<ChartTooltipContent hideLabel />} 
+                    />
                     <Pie
                       data={attendanceDistribution}
                       cx="50%"
@@ -393,15 +465,45 @@ export default function AttendanceReportsPage() {
                       outerRadius={120}
                       paddingAngle={5}
                       dataKey="value"
+                      strokeWidth={2}
                     >
                       {attendanceDistribution.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={entry.color} />
+                        <Cell key={`cell-${index}`} fill={entry.color} stroke="hsl(var(--background))" />
                       ))}
+                      <Label
+                        content={({ viewBox }) => {
+                          if (viewBox && "cx" in viewBox && "cy" in viewBox) {
+                            const total = attendanceDistribution.reduce((acc, curr) => acc + curr.value, 0);
+                            return (
+                              <text
+                                x={viewBox.cx}
+                                y={viewBox.cy}
+                                textAnchor="middle"
+                                dominantBaseline="middle"
+                              >
+                                <tspan
+                                  x={viewBox.cx}
+                                  y={viewBox.cy}
+                                  className="fill-foreground text-3xl font-bold"
+                                >
+                                  {total}
+                                </tspan>
+                                <tspan
+                                  x={viewBox.cx}
+                                  y={(viewBox.cy || 0) + 24}
+                                  className="fill-muted-foreground"
+                                >
+                                  Total
+                                </tspan>
+                              </text>
+                            );
+                          }
+                        }}
+                      />
                     </Pie>
-                    <Tooltip />
-                    <Legend />
+                    <ChartLegend content={<ChartLegendContent />} />
                   </RechartsPieChart>
-                </ResponsiveContainer>
+                </ChartContainer>
               </CardContent>
             </Card>
           </div>
@@ -455,7 +557,7 @@ export default function AttendanceReportsPage() {
 
         {/* Trends Tab */}
         <TabsContent value="trends" className="space-y-6">
-          <Card>
+          <Card className="hover:shadow-md transition-shadow">
             <CardHeader>
               <CardTitle>Weekly Attendance Trends</CardTitle>
               <CardDescription>
@@ -463,19 +565,53 @@ export default function AttendanceReportsPage() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <ResponsiveContainer width="100%" height={400}>
-                <BarChart data={weeklyTrendData}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="week" />
-                  <YAxis />
-                  <Tooltip />
-                  <Legend />
-                  <Bar dataKey="present" stackId="a" fill="#A5CF5D" name="Present" />
-                  <Bar dataKey="late" stackId="a" fill="#C49831" name="Late" />
-                  <Bar dataKey="excused" stackId="a" fill="#3B82F6" name="Excused" />
-                  <Bar dataKey="absent" stackId="a" fill="#EF4444" name="Absent" />
+              <ChartContainer config={weeklyChartConfig} className="h-[400px] w-full">
+                <BarChart data={weeklyTrendData} margin={{ left: 12, right: 12 }}>
+                  <CartesianGrid vertical={false} strokeDasharray="3 3" className="stroke-muted" />
+                  <XAxis
+                    dataKey="week"
+                    tickLine={false}
+                    axisLine={false}
+                    tickMargin={8}
+                    className="text-xs"
+                  />
+                  <YAxis
+                    tickLine={false}
+                    axisLine={false}
+                    tickMargin={8}
+                    className="text-xs"
+                  />
+                  <ChartTooltip 
+                    cursor={{ fill: 'hsl(var(--muted))', opacity: 0.2 }}
+                    content={<ChartTooltipContent indicator="dot" />} 
+                  />
+                  <ChartLegend content={<ChartLegendContent />} />
+                  <Bar 
+                    dataKey="present" 
+                    stackId="a" 
+                    fill="hsl(var(--chart-1))" 
+                    radius={[0, 0, 0, 0]}
+                  />
+                  <Bar 
+                    dataKey="late" 
+                    stackId="a" 
+                    fill="hsl(var(--chart-2))" 
+                    radius={[0, 0, 0, 0]}
+                  />
+                  <Bar 
+                    dataKey="excused" 
+                    stackId="a" 
+                    fill="hsl(var(--chart-4))" 
+                    radius={[0, 0, 0, 0]}
+                  />
+                  <Bar 
+                    dataKey="absent" 
+                    stackId="a" 
+                    fill="hsl(var(--chart-3))" 
+                    radius={[4, 4, 0, 0]}
+                  />
                 </BarChart>
-              </ResponsiveContainer>
+              </ChartContainer>
             </CardContent>
           </Card>
         </TabsContent>

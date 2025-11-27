@@ -19,12 +19,11 @@ import {
   XAxis,
   YAxis,
   CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
   PieChart,
   Pie,
   Cell,
 } from 'recharts';
+import { ChartContainer, ChartTooltip, ChartTooltipContent, ChartLegend, ChartLegendContent, ChartConfig } from '@/components/ui/chart';
 
 // Mock data
 const mockBudgetInfo = {
@@ -128,6 +127,22 @@ const pieChartData = [
 ];
 
 const COLORS = ['#2E8DB0', '#28ACD1', '#C49831', '#A5CF5D', '#080A09'];
+
+// Chart configurations
+const budgetVsActualConfig = {
+  budgeted: { label: 'Budgeted', color: 'hsl(var(--chart-1))' },
+  actual: { label: 'Actual', color: 'hsl(var(--chart-2))' },
+} satisfies ChartConfig;
+
+const categoryConfig = {
+  value: { label: 'Amount', color: 'hsl(var(--chart-1))' },
+} satisfies ChartConfig;
+
+const monthlyTrendsConfig = {
+  budgeted: { label: 'Budgeted', color: 'hsl(var(--chart-1))' },
+  actual: { label: 'Actual', color: 'hsl(var(--chart-2))' },
+  variance: { label: 'Variance', color: 'hsl(var(--chart-3))' },
+} satisfies ChartConfig;
 
 export default function BudgetReportsPage() {
   const router = useRouter();
@@ -315,16 +330,39 @@ export default function BudgetReportsPage() {
                 <CardTitle>Budget vs Actual Spending</CardTitle>
               </CardHeader>
               <CardContent>
-                <ResponsiveContainer width="100%" height={300}>
-                  <BarChart data={monthlyData}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="month" />
-                    <YAxis />
-                    <Tooltip formatter={(value) => [`₵${value.toLocaleString()}`, '']} />
-                    <Bar dataKey="budgeted" fill="#2E8DB0" name="Budgeted" />
-                    <Bar dataKey="actual" fill="#28ACD1" name="Actual" />
+                <ChartContainer config={budgetVsActualConfig} className="h-[300px] w-full">
+                  <BarChart data={monthlyData} margin={{ left: 12, right: 12 }}>
+                    <CartesianGrid vertical={false} strokeDasharray="3 3" className="stroke-muted" />
+                    <XAxis 
+                      dataKey="month" 
+                      tickLine={false} 
+                      axisLine={false} 
+                      tickMargin={8}
+                      className="text-xs"
+                    />
+                    <YAxis 
+                      tickLine={false} 
+                      axisLine={false} 
+                      tickMargin={8}
+                      className="text-xs"
+                    />
+                    <ChartTooltip 
+                      cursor={{ fill: 'hsl(var(--muted)/0.2)' }}
+                      content={<ChartTooltipContent indicator="dot" />} 
+                    />
+                    <ChartLegend content={<ChartLegendContent />} />
+                    <Bar 
+                      dataKey="budgeted" 
+                      fill="hsl(var(--chart-1))" 
+                      radius={[8, 8, 0, 0]}
+                    />
+                    <Bar 
+                      dataKey="actual" 
+                      fill="hsl(var(--chart-2))" 
+                      radius={[8, 8, 0, 0]}
+                    />
                   </BarChart>
-                </ResponsiveContainer>
+                </ChartContainer>
               </CardContent>
             </Card>
 
@@ -333,25 +371,29 @@ export default function BudgetReportsPage() {
                 <CardTitle>Spending by Category</CardTitle>
               </CardHeader>
               <CardContent>
-                <ResponsiveContainer width="100%" height={300}>
+                <ChartContainer config={categoryConfig} className="h-[300px] w-full">
                   <PieChart>
+                    <ChartTooltip cursor={false} content={<ChartTooltipContent hideLabel />} />
                     <Pie
                       data={pieChartData}
                       cx="50%"
                       cy="50%"
                       labelLine={false}
                       label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
-                      outerRadius={80}
-                      fill="#8884d8"
+                      outerRadius={100}
                       dataKey="value"
+                      strokeWidth={2}
                     >
                       {pieChartData.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                        <Cell 
+                          key={`cell-${index}`} 
+                          fill={COLORS[index % COLORS.length]} 
+                          stroke="hsl(var(--background))"
+                        />
                       ))}
                     </Pie>
-                    <Tooltip formatter={(value) => [`₵${value.toLocaleString()}`, '']} />
                   </PieChart>
-                </ResponsiveContainer>
+                </ChartContainer>
               </CardContent>
             </Card>
           </div>
@@ -447,29 +489,44 @@ export default function BudgetReportsPage() {
               <CardTitle>Weekly Spending Trends</CardTitle>
             </CardHeader>
             <CardContent>
-              <ResponsiveContainer width="100%" height={400}>
-                <LineChart data={weeklyTrends}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="week" />
-                  <YAxis />
-                  <Tooltip formatter={(value) => [`₵${value.toLocaleString()}`, '']} />
+              <ChartContainer config={monthlyTrendsConfig} className="h-[400px] w-full">
+                <LineChart data={weeklyTrends} margin={{ left: 12, right: 12 }}>
+                  <CartesianGrid vertical={false} strokeDasharray="3 3" className="stroke-muted" />
+                  <XAxis 
+                    dataKey="week" 
+                    tickLine={false} 
+                    axisLine={false} 
+                    tickMargin={8}
+                    className="text-xs"
+                  />
+                  <YAxis 
+                    tickLine={false} 
+                    axisLine={false} 
+                    tickMargin={8}
+                    className="text-xs"
+                  />
+                  <ChartTooltip 
+                    cursor={{ stroke: 'hsl(var(--muted))', strokeWidth: 1 }}
+                    content={<ChartTooltipContent indicator="line" />} 
+                  />
+                  <ChartLegend content={<ChartLegendContent />} />
                   <Line 
                     type="monotone" 
                     dataKey="spending" 
-                    stroke="#2E8DB0" 
+                    stroke="hsl(var(--chart-1))" 
                     strokeWidth={2}
-                    name="Actual Spending"
+                    dot={{ fill: 'hsl(var(--chart-1))' }}
                   />
                   <Line 
                     type="monotone" 
                     dataKey="budget" 
-                    stroke="#C49831" 
+                    stroke="hsl(var(--chart-2))" 
                     strokeWidth={2}
                     strokeDasharray="5 5"
-                    name="Weekly Budget"
+                    dot={{ fill: 'hsl(var(--chart-2))' }}
                   />
                 </LineChart>
-              </ResponsiveContainer>
+              </ChartContainer>
             </CardContent>
           </Card>
         </TabsContent>

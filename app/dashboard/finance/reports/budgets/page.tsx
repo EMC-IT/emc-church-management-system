@@ -36,7 +36,8 @@ import {
   XCircle,
   Building
 } from 'lucide-react';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, PieChart as RechartsPieChart, Pie, Cell, ComposedChart } from 'recharts';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, BarChart, Bar, PieChart as RechartsPieChart, Pie, Cell, ComposedChart, Label } from 'recharts';
+import { ChartContainer, ChartTooltip, ChartTooltipContent, ChartLegend, ChartLegendContent, ChartConfig } from '@/components/ui/chart';
 
 // Mock data for budget reports
 const budgetVsActual = [
@@ -235,6 +236,23 @@ export default function BudgetReportsPage() {
     }
   };
 
+  // Chart configurations
+  const budgetChartConfig = {
+    budgeted: { label: 'Budgeted', color: 'hsl(var(--chart-1))' },
+    actual: { label: 'Actual', color: 'hsl(var(--chart-2))' },
+    variance: { label: 'Variance', color: 'hsl(var(--chart-3))' },
+  } satisfies ChartConfig;
+
+  const utilizationChartConfig = {
+    utilized: { label: 'Utilized', color: 'hsl(var(--chart-1))' },
+    remaining: { label: 'Remaining', color: 'hsl(var(--chart-2))' },
+  } satisfies ChartConfig;
+
+  const monthlyChartConfig = {
+    budgeted: { label: 'Budgeted', color: 'hsl(var(--chart-1))' },
+    spent: { label: 'Spent', color: 'hsl(var(--chart-2))' },
+  } satisfies ChartConfig;
+
   return (
     <div className="space-y-6">
       {/* Header with Back Navigation */}
@@ -377,23 +395,24 @@ export default function BudgetReportsPage() {
 
         <TabsContent value="overview" className="space-y-4">
           <div className="grid gap-4 md:grid-cols-2">
-            <Card>
+            <Card className="hover:shadow-md transition-shadow">
               <CardHeader>
                 <CardTitle>Monthly Budget vs Actual</CardTitle>
                 <CardDescription>Budget performance throughout the year</CardDescription>
               </CardHeader>
               <CardContent>
-                <ResponsiveContainer width="100%" height={300}>
-                  <ComposedChart data={monthlyBudgetData}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="month" />
-                    <YAxis />
-                    <Tooltip />
-                    <Bar dataKey="budgeted" fill="#E5E7EB" name="Budgeted" />
-                    <Bar dataKey="actual" fill="#2E8DB0" name="Actual" />
-                    <Line type="monotone" dataKey="utilization" stroke="#C49831" strokeWidth={2} name="Utilization %" />
+                <ChartContainer config={budgetChartConfig} className="h-[300px] w-full">
+                  <ComposedChart data={monthlyBudgetData} margin={{ left: 12, right: 12 }}>
+                    <CartesianGrid vertical={false} strokeDasharray="3 3" className="stroke-muted" />
+                    <XAxis dataKey="month" tickLine={false} axisLine={false} tickMargin={8} className="text-xs" />
+                    <YAxis tickLine={false} axisLine={false} tickMargin={8} className="text-xs" />
+                    <ChartTooltip cursor={{ fill: 'hsl(var(--muted))', opacity: 0.3 }} content={<ChartTooltipContent indicator="dot" />} />
+                    <ChartLegend content={<ChartLegendContent />} />
+                    <Bar dataKey="budgeted" fill="hsl(var(--chart-1))" name="Budgeted" radius={[4, 4, 0, 0]} />
+                    <Bar dataKey="actual" fill="hsl(var(--chart-2))" name="Actual" radius={[4, 4, 0, 0]} />
+                    <Line type="monotone" dataKey="utilization" stroke="hsl(var(--chart-3))" strokeWidth={2} name="Utilization %" dot={{ fill: 'hsl(var(--chart-3))' }} />
                   </ComposedChart>
-                </ResponsiveContainer>
+                </ChartContainer>
               </CardContent>
             </Card>
 
@@ -403,16 +422,17 @@ export default function BudgetReportsPage() {
                 <CardDescription>Budget vs actual by quarter</CardDescription>
               </CardHeader>
               <CardContent>
-                <ResponsiveContainer width="100%" height={300}>
-                  <BarChart data={quarterlyComparison}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="quarter" />
-                    <YAxis />
-                    <Tooltip />
-                    <Bar dataKey="budgeted" fill="#E5E7EB" name="Budgeted" />
-                    <Bar dataKey="actual" fill="#2E8DB0" name="Actual" />
+                <ChartContainer config={budgetChartConfig} className="h-[300px] w-full">
+                  <BarChart data={quarterlyComparison} margin={{ left: 12, right: 12 }}>
+                    <CartesianGrid vertical={false} strokeDasharray="3 3" className="stroke-muted" />
+                    <XAxis dataKey="quarter" tickLine={false} axisLine={false} tickMargin={8} className="text-xs" />
+                    <YAxis tickLine={false} axisLine={false} tickMargin={8} className="text-xs" />
+                    <ChartTooltip cursor={{ fill: 'hsl(var(--muted))', opacity: 0.3 }} content={<ChartTooltipContent indicator="dot" />} />
+                    <ChartLegend content={<ChartLegendContent />} />
+                    <Bar dataKey="budgeted" fill="hsl(var(--chart-1))" name="Budgeted" radius={[8, 8, 0, 0]} />
+                    <Bar dataKey="actual" fill="hsl(var(--chart-2))" name="Actual" radius={[8, 8, 0, 0]} />
                   </BarChart>
-                </ResponsiveContainer>
+                </ChartContainer>
               </CardContent>
             </Card>
           </div>
@@ -519,29 +539,32 @@ export default function BudgetReportsPage() {
               <CardDescription>Monthly budget utilization percentage</CardDescription>
             </CardHeader>
             <CardContent>
-              <ResponsiveContainer width="100%" height={400}>
-                <LineChart data={monthlyBudgetData}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="month" />
-                  <YAxis domain={[90, 120]} />
-                  <Tooltip />
+              <ChartContainer config={monthlyChartConfig} className="h-[400px] w-full">
+                <LineChart data={monthlyBudgetData} margin={{ left: 12, right: 12 }}>
+                  <CartesianGrid vertical={false} strokeDasharray="3 3" className="stroke-muted" />
+                  <XAxis dataKey="month" tickLine={false} axisLine={false} tickMargin={8} className="text-xs" />
+                  <YAxis domain={[90, 120]} tickLine={false} axisLine={false} tickMargin={8} className="text-xs" />
+                  <ChartTooltip cursor={{ stroke: 'hsl(var(--muted))', strokeWidth: 1 }} content={<ChartTooltipContent indicator="line" />} />
+                  <ChartLegend content={<ChartLegendContent />} />
                   <Line 
                     type="monotone" 
                     dataKey="utilization" 
-                    stroke="#2E8DB0" 
+                    stroke="hsl(var(--chart-1))" 
                     strokeWidth={3} 
                     name="Utilization %" 
+                    dot={{ fill: 'hsl(var(--chart-1))', r: 4 }}
                   />
                   <Line 
                     type="monotone" 
                     dataKey={100} 
-                    stroke="#E74C3C" 
+                    stroke="hsl(var(--chart-2))" 
                     strokeWidth={2} 
                     strokeDasharray="5 5" 
                     name="Target (100%)" 
+                    dot={false}
                   />
                 </LineChart>
-              </ResponsiveContainer>
+              </ChartContainer>
             </CardContent>
           </Card>
         </TabsContent>

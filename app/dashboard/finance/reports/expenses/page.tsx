@@ -36,7 +36,8 @@ import {
   Heart,
   Settings
 } from 'lucide-react';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, PieChart as RechartsPieChart, Pie, Cell, Area, AreaChart } from 'recharts';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, BarChart, Bar, PieChart as RechartsPieChart, Pie, Cell, Area, AreaChart, Label } from 'recharts';
+import { ChartContainer, ChartTooltip, ChartTooltipContent, ChartLegend, ChartLegendContent, ChartConfig } from '@/components/ui/chart';
 
 // Mock data for expense reports
 const expenseByCategory = [
@@ -110,6 +111,25 @@ export default function ExpenseReportsPage() {
   const getVarianceIcon = (variance: number) => {
     return variance >= 0 ? '↗' : '↘';
   };
+
+  // Chart configurations
+  const categoryChartConfig = {
+    amount: { label: 'Amount' },
+  } satisfies ChartConfig;
+
+  const monthlyChartConfig = {
+    salaries: { label: 'Salaries', color: 'hsl(var(--chart-1))' },
+    facilities: { label: 'Facilities', color: 'hsl(var(--chart-2))' },
+    missions: { label: 'Missions', color: 'hsl(var(--chart-3))' },
+    programs: { label: 'Programs', color: 'hsl(var(--chart-4))' },
+    admin: { label: 'Admin', color: 'hsl(var(--chart-5))' },
+    total: { label: 'Total', color: 'hsl(var(--chart-1))' },
+  } satisfies ChartConfig;
+
+  const departmentChartConfig = {
+    spent: { label: 'Spent', color: 'hsl(var(--chart-1))' },
+    budget: { label: 'Budget', color: 'hsl(var(--chart-2))' },
+  } satisfies ChartConfig;
 
   return (
     <div className="space-y-6">
@@ -241,21 +261,27 @@ export default function ExpenseReportsPage() {
 
         <TabsContent value="overview" className="space-y-4">
           <div className="grid gap-4 md:grid-cols-2">
-            <Card>
+            <Card className="hover:shadow-md transition-shadow">
               <CardHeader>
                 <CardTitle>Monthly Expense Trend</CardTitle>
                 <CardDescription>Total expenses throughout the year</CardDescription>
               </CardHeader>
               <CardContent>
-                <ResponsiveContainer width="100%" height={300}>
-                  <AreaChart data={monthlyExpenseData}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="month" />
-                    <YAxis />
-                    <Tooltip />
-                    <Area type="monotone" dataKey="total" stroke="#E74C3C" fill="#E74C3C" fillOpacity={0.3} />
+                <ChartContainer config={monthlyChartConfig} className="h-[300px] w-full">
+                  <AreaChart data={monthlyExpenseData} margin={{ left: 12, right: 12 }}>
+                    <defs>
+                      <linearGradient id="fillTotal" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="hsl(var(--chart-1))" stopOpacity={0.8}/>
+                        <stop offset="95%" stopColor="hsl(var(--chart-1))" stopOpacity={0.1}/>
+                      </linearGradient>
+                    </defs>
+                    <CartesianGrid vertical={false} strokeDasharray="3 3" className="stroke-muted" />
+                    <XAxis dataKey="month" tickLine={false} axisLine={false} tickMargin={8} className="text-xs" />
+                    <YAxis tickLine={false} axisLine={false} tickMargin={8} className="text-xs" />
+                    <ChartTooltip cursor={{ stroke: 'hsl(var(--muted))', strokeWidth: 1 }} content={<ChartTooltipContent indicator="line" />} />
+                    <Area type="monotone" dataKey="total" stroke="hsl(var(--chart-1))" fill="url(#fillTotal)" strokeWidth={2} />
                   </AreaChart>
-                </ResponsiveContainer>
+                </ChartContainer>
               </CardContent>
             </Card>
 
@@ -286,31 +312,31 @@ export default function ExpenseReportsPage() {
 
         <TabsContent value="categories" className="space-y-4">
           <div className="grid gap-4 md:grid-cols-2">
-            <Card>
+            <Card className="hover:shadow-md transition-shadow">
               <CardHeader>
                 <CardTitle>Expenses by Category</CardTitle>
                 <CardDescription>Distribution of expense categories</CardDescription>
               </CardHeader>
               <CardContent>
-                <ResponsiveContainer width="100%" height={300}>
+                <ChartContainer config={categoryChartConfig} className="h-[300px] w-full">
                   <RechartsPieChart>
+                    <ChartTooltip cursor={false} content={<ChartTooltipContent hideLabel />} />
                     <Pie
                       data={expenseByCategory}
                       cx="50%"
                       cy="50%"
                       labelLine={false}
                       label={({ category, percentage }) => `${category} ${percentage}%`}
-                      outerRadius={80}
-                      fill="#8884d8"
+                      outerRadius={100}
                       dataKey="amount"
+                      strokeWidth={2}
                     >
                       {expenseByCategory.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={entry.color} />
+                        <Cell key={`cell-${index}`} fill={entry.color} stroke="hsl(var(--background))" />
                       ))}
                     </Pie>
-                    <Tooltip />
                   </RechartsPieChart>
-                </ResponsiveContainer>
+                </ChartContainer>
               </CardContent>
             </Card>
 
@@ -397,25 +423,26 @@ export default function ExpenseReportsPage() {
         </TabsContent>
 
         <TabsContent value="trends" className="space-y-4">
-          <Card>
+          <Card className="hover:shadow-md transition-shadow">
             <CardHeader>
               <CardTitle>Expense Trends by Category</CardTitle>
               <CardDescription>Monthly breakdown of all expense categories</CardDescription>
             </CardHeader>
             <CardContent>
-              <ResponsiveContainer width="100%" height={400}>
-                <LineChart data={monthlyExpenseData}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="month" />
-                  <YAxis />
-                  <Tooltip />
-                  <Line type="monotone" dataKey="salaries" stroke="#2E8DB0" strokeWidth={2} name="Salaries & Benefits" />
-                  <Line type="monotone" dataKey="facilities" stroke="#C49831" strokeWidth={2} name="Facilities & Utilities" />
-                  <Line type="monotone" dataKey="missions" stroke="#A5CF5D" strokeWidth={2} name="Missions & Outreach" />
-                  <Line type="monotone" dataKey="programs" stroke="#E74C3C" strokeWidth={2} name="Ministry Programs" />
-                  <Line type="monotone" dataKey="admin" stroke="#9B59B6" strokeWidth={2} name="Administration" />
+              <ChartContainer config={monthlyChartConfig} className="h-[400px] w-full">
+                <LineChart data={monthlyExpenseData} margin={{ left: 12, right: 12 }}>
+                  <CartesianGrid vertical={false} strokeDasharray="3 3" className="stroke-muted" />
+                  <XAxis dataKey="month" tickLine={false} axisLine={false} tickMargin={8} className="text-xs" />
+                  <YAxis tickLine={false} axisLine={false} tickMargin={8} className="text-xs" />
+                  <ChartTooltip cursor={{ stroke: 'hsl(var(--muted))', strokeWidth: 1 }} content={<ChartTooltipContent indicator="line" />} />
+                  <ChartLegend content={<ChartLegendContent />} />
+                  <Line type="monotone" dataKey="salaries" stroke="hsl(var(--chart-1))" strokeWidth={2} name="Salaries & Benefits" dot={{ fill: 'hsl(var(--chart-1))' }} />
+                  <Line type="monotone" dataKey="facilities" stroke="hsl(var(--chart-2))" strokeWidth={2} name="Facilities & Utilities" dot={{ fill: 'hsl(var(--chart-2))' }} />
+                  <Line type="monotone" dataKey="missions" stroke="hsl(var(--chart-3))" strokeWidth={2} name="Missions & Outreach" dot={{ fill: 'hsl(var(--chart-3))' }} />
+                  <Line type="monotone" dataKey="programs" stroke="hsl(var(--chart-4))" strokeWidth={2} name="Ministry Programs" dot={{ fill: 'hsl(var(--chart-4))' }} />
+                  <Line type="monotone" dataKey="admin" stroke="hsl(var(--chart-5))" strokeWidth={2} name="Administration" dot={{ fill: 'hsl(var(--chart-5))' }} />
                 </LineChart>
-              </ResponsiveContainer>
+              </ChartContainer>
             </CardContent>
           </Card>
         </TabsContent>

@@ -39,8 +39,6 @@ import {
   XAxis, 
   YAxis,
   CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
   PieChart as RechartsPieChart,
   Cell,
   Pie,
@@ -48,8 +46,17 @@ import {
   LineChart,
   Line,
   Area,
-  AreaChart
+  AreaChart,
+  Label
 } from 'recharts';
+import { 
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+  ChartLegend,
+  ChartLegendContent,
+  ChartConfig
+} from '@/components/ui/chart';
 import { attendanceService } from '@/services/attendance-service';
 import { AttendanceStatus, ServiceType } from '@/lib/types';
 import {
@@ -174,7 +181,31 @@ const groupCategoryData = [
   { name: 'Study Groups', value: 22, color: '#A5CF5D' }
 ];
 
+// Chart configurations
+const trendChartConfig = {
+  'Youth Group': {
+    label: 'Youth Group',
+    color: 'hsl(var(--chart-1))',
+  },
+  'Women Fellowship': {
+    label: 'Women Fellowship',
+    color: 'hsl(var(--chart-2))',
+  },
+  'Men Fellowship': {
+    label: 'Men Fellowship',
+    color: 'hsl(var(--chart-3))',
+  },
+  'Choir': {
+    label: 'Choir',
+    color: 'hsl(var(--chart-4))',
+  },
+} satisfies ChartConfig;
 
+const categoryChartConfig = {
+  value: {
+    label: 'Members',
+  },
+} satisfies ChartConfig;
 
 const groupColumns = [
   {
@@ -558,7 +589,7 @@ export default function GroupsAttendancePage() {
 
         {/* Trends Tab */}
         <TabsContent value="trends" className="space-y-6">
-          <Card>
+          <Card className="hover:shadow-md transition-shadow">
             <CardHeader>
               <CardTitle>Group Attendance Trends</CardTitle>
               <CardDescription>
@@ -566,19 +597,61 @@ export default function GroupsAttendancePage() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <ResponsiveContainer width="100%" height={400}>
-                <LineChart data={groupAttendanceTrends}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="week" />
-                  <YAxis />
-                  <Tooltip />
-                  <Legend />
-                  <Line type="monotone" dataKey="Youth Group" stroke="#2E8DB0" strokeWidth={2} />
-                  <Line type="monotone" dataKey="Women Fellowship" stroke="#28ACD1" strokeWidth={2} />
-                  <Line type="monotone" dataKey="Men Fellowship" stroke="#C49831" strokeWidth={2} />
-                  <Line type="monotone" dataKey="Choir" stroke="#A5CF5D" strokeWidth={2} />
+              <ChartContainer config={trendChartConfig} className="h-[400px] w-full">
+                <LineChart data={groupAttendanceTrends} margin={{ left: 12, right: 12 }}>
+                  <CartesianGrid vertical={false} strokeDasharray="3 3" className="stroke-muted" />
+                  <XAxis
+                    dataKey="week"
+                    tickLine={false}
+                    axisLine={false}
+                    tickMargin={8}
+                    className="text-xs"
+                  />
+                  <YAxis
+                    tickLine={false}
+                    axisLine={false}
+                    tickMargin={8}
+                    className="text-xs"
+                  />
+                  <ChartTooltip 
+                    cursor={{ stroke: 'hsl(var(--muted))', strokeWidth: 1 }}
+                    content={<ChartTooltipContent indicator="line" />} 
+                  />
+                  <ChartLegend content={<ChartLegendContent />} />
+                  <Line 
+                    type="monotone" 
+                    dataKey="Youth Group" 
+                    stroke="hsl(var(--chart-1))" 
+                    strokeWidth={2.5}
+                    dot={{ r: 4 }}
+                    activeDot={{ r: 6 }}
+                  />
+                  <Line 
+                    type="monotone" 
+                    dataKey="Women Fellowship" 
+                    stroke="hsl(var(--chart-2))" 
+                    strokeWidth={2.5}
+                    dot={{ r: 4 }}
+                    activeDot={{ r: 6 }}
+                  />
+                  <Line 
+                    type="monotone" 
+                    dataKey="Men Fellowship" 
+                    stroke="hsl(var(--chart-3))" 
+                    strokeWidth={2.5}
+                    dot={{ r: 4 }}
+                    activeDot={{ r: 6 }}
+                  />
+                  <Line 
+                    type="monotone" 
+                    dataKey="Choir" 
+                    stroke="hsl(var(--chart-4))" 
+                    strokeWidth={2.5}
+                    dot={{ r: 4 }}
+                    activeDot={{ r: 6 }}
+                  />
                 </LineChart>
-              </ResponsiveContainer>
+              </ChartContainer>
             </CardContent>
           </Card>
 
@@ -656,7 +729,7 @@ export default function GroupsAttendancePage() {
         <TabsContent value="categories" className="space-y-6">
           <div className="grid gap-6 lg:grid-cols-2">
             {/* Category Distribution */}
-            <Card>
+            <Card className="hover:shadow-md transition-shadow">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <PieChart className="h-5 w-5 text-brand-primary" />
@@ -667,8 +740,12 @@ export default function GroupsAttendancePage() {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <ResponsiveContainer width="100%" height={300}>
+                <ChartContainer config={categoryChartConfig} className="h-[300px] w-full">
                   <RechartsPieChart>
+                    <ChartTooltip 
+                      cursor={false}
+                      content={<ChartTooltipContent hideLabel />} 
+                    />
                     <Pie
                       data={groupCategoryData}
                       cx="50%"
@@ -677,14 +754,44 @@ export default function GroupsAttendancePage() {
                       outerRadius={120}
                       paddingAngle={5}
                       dataKey="value"
+                      strokeWidth={2}
                     >
                       {groupCategoryData.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={entry.color} />
+                        <Cell key={`cell-${index}`} fill={entry.color} stroke="hsl(var(--background))" />
                       ))}
+                      <Label
+                        content={({ viewBox }) => {
+                          if (viewBox && "cx" in viewBox && "cy" in viewBox) {
+                            const total = groupCategoryData.reduce((acc, curr) => acc + curr.value, 0);
+                            return (
+                              <text
+                                x={viewBox.cx}
+                                y={viewBox.cy}
+                                textAnchor="middle"
+                                dominantBaseline="middle"
+                              >
+                                <tspan
+                                  x={viewBox.cx}
+                                  y={viewBox.cy}
+                                  className="fill-foreground text-3xl font-bold"
+                                >
+                                  {total}
+                                </tspan>
+                                <tspan
+                                  x={viewBox.cx}
+                                  y={(viewBox.cy || 0) + 24}
+                                  className="fill-muted-foreground"
+                                >
+                                  Members
+                                </tspan>
+                              </text>
+                            );
+                          }
+                        }}
+                      />
                     </Pie>
-                    <Tooltip />
                   </RechartsPieChart>
-                </ResponsiveContainer>
+                </ChartContainer>
                 <div className="grid grid-cols-2 gap-2 mt-4">
                   {groupCategoryData.map((item, index) => (
                     <div key={index} className="flex items-center gap-2">

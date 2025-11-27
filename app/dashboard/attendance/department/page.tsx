@@ -42,8 +42,6 @@ import {
   XAxis,
   YAxis,
   CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
   PieChart as RechartsPieChart,
   Cell,
   Pie,
@@ -56,8 +54,17 @@ import {
   PolarAngleAxis,
   PolarRadiusAxis,
   Radar,
-  Legend
+  Legend,
+  Label
 } from 'recharts';
+import { 
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+  ChartLegend,
+  ChartLegendContent,
+  ChartConfig
+} from '@/components/ui/chart';
 import { attendanceService } from '@/services/attendance-service';
 import { AttendanceStatus, ServiceType } from '@/lib/types';
 import {
@@ -228,7 +235,58 @@ const performanceRadarData = [
   { department: 'Engagement', 'Media Ministry': 90, 'Music Ministry': 95, 'Children Ministry': 88, 'Youth Ministry': 92 }
 ];
 
+// Chart configurations
+const trendChartConfig = {
+  'Media Ministry': {
+    label: 'Media Ministry',
+    color: 'hsl(var(--chart-1))',
+  },
+  'Music Ministry': {
+    label: 'Music Ministry',
+    color: 'hsl(var(--chart-2))',
+  },
+  'Children Ministry': {
+    label: 'Children Ministry',
+    color: 'hsl(var(--chart-3))',
+  },
+  'Ushering': {
+    label: 'Ushering',
+    color: 'hsl(var(--chart-4))',
+  },
+  'Security': {
+    label: 'Security',
+    color: 'hsl(var(--chart-5))',
+  },
+  'Youth Ministry': {
+    label: 'Youth Ministry',
+    color: 'hsl(var(--chart-1))',
+  },
+} satisfies ChartConfig;
 
+const typeChartConfig = {
+  value: {
+    label: 'Members',
+  },
+} satisfies ChartConfig;
+
+const radarChartConfig = {
+  'Media Ministry': {
+    label: 'Media Ministry',
+    color: 'hsl(var(--chart-1))',
+  },
+  'Music Ministry': {
+    label: 'Music Ministry',
+    color: 'hsl(var(--chart-2))',
+  },
+  'Children Ministry': {
+    label: 'Children Ministry',
+    color: 'hsl(var(--chart-3))',
+  },
+  'Youth Ministry': {
+    label: 'Youth Ministry',
+    color: 'hsl(var(--chart-4))',
+  },
+} satisfies ChartConfig;
 
 const departmentColumns = [
   {
@@ -636,7 +694,7 @@ export default function DepartmentAttendancePage() {
 
         {/* Trends Tab */}
         <TabsContent value="trends" className="space-y-6">
-          <Card>
+          <Card className="hover:shadow-md transition-shadow">
             <CardHeader>
               <CardTitle>Department Attendance Trends</CardTitle>
               <CardDescription>
@@ -644,21 +702,77 @@ export default function DepartmentAttendancePage() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <ResponsiveContainer width="100%" height={400}>
-                <LineChart data={departmentTrends}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="month" />
-                  <YAxis />
-                  <Tooltip />
-                  <Legend />
-                  <Line type="monotone" dataKey="Media Ministry" stroke="#2E8DB0" strokeWidth={2} />
-                  <Line type="monotone" dataKey="Music Ministry" stroke="#28ACD1" strokeWidth={2} />
-                  <Line type="monotone" dataKey="Children Ministry" stroke="#C49831" strokeWidth={2} />
-                  <Line type="monotone" dataKey="Youth Ministry" stroke="#A5CF5D" strokeWidth={2} />
-                  <Line type="monotone" dataKey="Ushering" stroke="#EF4444" strokeWidth={2} />
-                  <Line type="monotone" dataKey="Security" stroke="#8B5CF6" strokeWidth={2} />
+              <ChartContainer config={trendChartConfig} className="h-[400px] w-full">
+                <LineChart data={departmentTrends} margin={{ left: 12, right: 12 }}>
+                  <CartesianGrid vertical={false} strokeDasharray="3 3" className="stroke-muted" />
+                  <XAxis
+                    dataKey="month"
+                    tickLine={false}
+                    axisLine={false}
+                    tickMargin={8}
+                    className="text-xs"
+                  />
+                  <YAxis
+                    tickLine={false}
+                    axisLine={false}
+                    tickMargin={8}
+                    className="text-xs"
+                  />
+                  <ChartTooltip 
+                    cursor={{ stroke: 'hsl(var(--muted))', strokeWidth: 1 }}
+                    content={<ChartTooltipContent indicator="line" />} 
+                  />
+                  <ChartLegend content={<ChartLegendContent />} />
+                  <Line 
+                    type="monotone" 
+                    dataKey="Media Ministry" 
+                    stroke="hsl(var(--chart-1))" 
+                    strokeWidth={2.5}
+                    dot={{ r: 4 }}
+                    activeDot={{ r: 6 }}
+                  />
+                  <Line 
+                    type="monotone" 
+                    dataKey="Music Ministry" 
+                    stroke="hsl(var(--chart-2))" 
+                    strokeWidth={2.5}
+                    dot={{ r: 4 }}
+                    activeDot={{ r: 6 }}
+                  />
+                  <Line 
+                    type="monotone" 
+                    dataKey="Children Ministry" 
+                    stroke="hsl(var(--chart-3))" 
+                    strokeWidth={2.5}
+                    dot={{ r: 4 }}
+                    activeDot={{ r: 6 }}
+                  />
+                  <Line 
+                    type="monotone" 
+                    dataKey="Youth Ministry" 
+                    stroke="hsl(var(--chart-4))" 
+                    strokeWidth={2.5}
+                    dot={{ r: 4 }}
+                    activeDot={{ r: 6 }}
+                  />
+                  <Line 
+                    type="monotone" 
+                    dataKey="Ushering" 
+                    stroke="hsl(var(--chart-5))" 
+                    strokeWidth={2.5}
+                    dot={{ r: 4 }}
+                    activeDot={{ r: 6 }}
+                  />
+                  <Line 
+                    type="monotone" 
+                    dataKey="Security" 
+                    stroke="hsl(var(--chart-1))" 
+                    strokeWidth={2.5}
+                    dot={{ r: 4 }}
+                    activeDot={{ r: 6 }}
+                  />
                 </LineChart>
-              </ResponsiveContainer>
+              </ChartContainer>
             </CardContent>
           </Card>
 
@@ -734,7 +848,7 @@ export default function DepartmentAttendancePage() {
 
         {/* Performance Tab */}
         <TabsContent value="performance" className="space-y-6">
-          <Card>
+          <Card className="hover:shadow-md transition-shadow">
             <CardHeader>
               <CardTitle>Department Performance Radar</CardTitle>
               <CardDescription>
@@ -742,18 +856,57 @@ export default function DepartmentAttendancePage() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <ResponsiveContainer width="100%" height={400}>
+              <ChartContainer config={radarChartConfig} className="h-[400px] w-full">
                 <RadarChart data={performanceRadarData}>
-                  <PolarGrid />
-                  <PolarAngleAxis dataKey="department" />
-                  <PolarRadiusAxis angle={90} domain={[0, 100]} />
-                  <Radar name="Media Ministry" dataKey="Media Ministry" stroke="#2E8DB0" fill="#2E8DB0" fillOpacity={0.1} />
-                  <Radar name="Music Ministry" dataKey="Music Ministry" stroke="#28ACD1" fill="#28ACD1" fillOpacity={0.1} />
-                  <Radar name="Children Ministry" dataKey="Children Ministry" stroke="#C49831" fill="#C49831" fillOpacity={0.1} />
-                  <Radar name="Youth Ministry" dataKey="Youth Ministry" stroke="#A5CF5D" fill="#A5CF5D" fillOpacity={0.1} />
-                  <Legend />
+                  <PolarGrid className="stroke-muted" />
+                  <PolarAngleAxis 
+                    dataKey="department" 
+                    className="text-xs"
+                  />
+                  <PolarRadiusAxis 
+                    angle={90} 
+                    domain={[0, 100]} 
+                    className="text-xs"
+                  />
+                  <ChartTooltip 
+                    cursor={false}
+                    content={<ChartTooltipContent indicator="line" />} 
+                  />
+                  <Radar 
+                    name="Media Ministry" 
+                    dataKey="Media Ministry" 
+                    stroke="hsl(var(--chart-1))" 
+                    fill="hsl(var(--chart-1))" 
+                    fillOpacity={0.2}
+                    strokeWidth={2}
+                  />
+                  <Radar 
+                    name="Music Ministry" 
+                    dataKey="Music Ministry" 
+                    stroke="hsl(var(--chart-2))" 
+                    fill="hsl(var(--chart-2))" 
+                    fillOpacity={0.2}
+                    strokeWidth={2}
+                  />
+                  <Radar 
+                    name="Children Ministry" 
+                    dataKey="Children Ministry" 
+                    stroke="hsl(var(--chart-3))" 
+                    fill="hsl(var(--chart-3))" 
+                    fillOpacity={0.2}
+                    strokeWidth={2}
+                  />
+                  <Radar 
+                    name="Youth Ministry" 
+                    dataKey="Youth Ministry" 
+                    stroke="hsl(var(--chart-4))" 
+                    fill="hsl(var(--chart-4))" 
+                    fillOpacity={0.2}
+                    strokeWidth={2}
+                  />
+                  <ChartLegend content={<ChartLegendContent />} />
                 </RadarChart>
-              </ResponsiveContainer>
+              </ChartContainer>
             </CardContent>
           </Card>
         </TabsContent>
@@ -762,7 +915,7 @@ export default function DepartmentAttendancePage() {
         <TabsContent value="types" className="space-y-6">
           <div className="grid gap-6 lg:grid-cols-2">
             {/* Type Distribution */}
-            <Card>
+            <Card className="hover:shadow-md transition-shadow">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <PieChart className="h-5 w-5 text-brand-primary" />
@@ -773,8 +926,12 @@ export default function DepartmentAttendancePage() {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <ResponsiveContainer width="100%" height={300}>
+                <ChartContainer config={typeChartConfig} className="h-[300px] w-full">
                   <RechartsPieChart>
+                    <ChartTooltip 
+                      cursor={false}
+                      content={<ChartTooltipContent hideLabel />} 
+                    />
                     <Pie
                       data={departmentTypeData}
                       cx="50%"
@@ -783,14 +940,44 @@ export default function DepartmentAttendancePage() {
                       outerRadius={120}
                       paddingAngle={5}
                       dataKey="value"
+                      strokeWidth={2}
                     >
                       {departmentTypeData.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={entry.color} />
+                        <Cell key={`cell-${index}`} fill={entry.color} stroke="hsl(var(--background))" />
                       ))}
+                      <Label
+                        content={({ viewBox }) => {
+                          if (viewBox && "cx" in viewBox && "cy" in viewBox) {
+                            const total = departmentTypeData.reduce((acc, curr) => acc + curr.value, 0);
+                            return (
+                              <text
+                                x={viewBox.cx}
+                                y={viewBox.cy}
+                                textAnchor="middle"
+                                dominantBaseline="middle"
+                              >
+                                <tspan
+                                  x={viewBox.cx}
+                                  y={viewBox.cy}
+                                  className="fill-foreground text-3xl font-bold"
+                                >
+                                  {total}
+                                </tspan>
+                                <tspan
+                                  x={viewBox.cx}
+                                  y={(viewBox.cy || 0) + 24}
+                                  className="fill-muted-foreground"
+                                >
+                                  Members
+                                </tspan>
+                              </text>
+                            );
+                          }
+                        }}
+                      />
                     </Pie>
-                    <Tooltip />
                   </RechartsPieChart>
-                </ResponsiveContainer>
+                </ChartContainer>
                 <div className="grid grid-cols-2 gap-2 mt-4">
                   {departmentTypeData.map((item, index) => (
                     <div key={index} className="flex items-center gap-2">

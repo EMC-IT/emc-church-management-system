@@ -19,7 +19,8 @@ import {
   Tag,
   ArrowLeft
 } from 'lucide-react';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart as RechartsPieChart, Pie, Cell, LineChart as RechartsLineChart, Line } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, PieChart as RechartsPieChart, Pie, Cell, LineChart as RechartsLineChart, Line, Label } from 'recharts';
+import { ChartContainer, ChartTooltip, ChartTooltipContent, ChartLegend, ChartLegendContent, ChartConfig } from '@/components/ui/chart';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -286,6 +287,15 @@ export default function ExpenseReportsPage() {
   // Get unique categories and payment methods for filters
   const uniqueCategories = Array.from(new Set(expenses.map(e => e.category)));
   const uniquePaymentMethods = Array.from(new Set(expenses.map(e => e.paymentMethod)));
+
+  // Chart configurations
+  const expenseChartConfig = {
+    amount: { label: 'Amount', color: 'hsl(var(--chart-1))' },
+  } satisfies ChartConfig;
+
+  const monthlyChartConfig = {
+    amount: { label: 'Amount', color: 'hsl(var(--chart-2))' },
+  } satisfies ChartConfig;
 
   const handleExport = (format: 'csv' | 'pdf' | 'excel') => {
     // Simulate export functionality
@@ -579,28 +589,24 @@ export default function ExpenseReportsPage() {
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="h-80">
-                    <ResponsiveContainer width="100%" height="100%">
-                      <RechartsPieChart>
-                        <Pie
-                          data={categoryBreakdown}
-                          cx="50%"
-                          cy="50%"
-                          outerRadius={100}
-                          fill="#8884d8"
-                          dataKey="amount"
-                          label={({ category, percentage }: any) => `${category}: ${percentage.toFixed(1)}%`}
-                        >
-                          {categoryBreakdown.map((entry, index) => (
-                            <Cell key={`cell-${index}`} fill={entry.color} />
-                          ))}
-                        </Pie>
-                        <Tooltip 
-                          formatter={(value: any) => [`₵${value.toLocaleString()}`, 'Amount']}
-                        />
-                      </RechartsPieChart>
-                    </ResponsiveContainer>
-                  </div>
+                  <ChartContainer config={expenseChartConfig} className="h-80 w-full">
+                    <RechartsPieChart>
+                      <ChartTooltip cursor={false} content={<ChartTooltipContent hideLabel />} />
+                      <Pie
+                        data={categoryBreakdown}
+                        cx="50%"
+                        cy="50%"
+                        outerRadius={100}
+                        dataKey="amount"
+                        strokeWidth={2}
+                        label={({ category, percentage }: any) => `${category}: ${percentage.toFixed(1)}%`}
+                      >
+                        {categoryBreakdown.map((entry, index) => (
+                          <Cell key={`cell-${index}`} fill={entry.color} stroke="hsl(var(--background))" />
+                        ))}
+                      </Pie>
+                    </RechartsPieChart>
+                  </ChartContainer>
                 </CardContent>
               </Card>
 
@@ -613,24 +619,21 @@ export default function ExpenseReportsPage() {
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="h-80">
-                    <ResponsiveContainer width="100%" height="100%">
-                      <RechartsLineChart data={monthlyTrends}>
-                        <CartesianGrid strokeDasharray="3 3" />
-                        <XAxis dataKey="month" />
-                        <YAxis />
-                        <Tooltip 
-                          formatter={(value: any) => [`₵${value.toLocaleString()}`, 'Amount']}
-                        />
-                        <Line 
-                          type="monotone" 
-                          dataKey="amount" 
-                          stroke="#2E8DB0" 
-                          strokeWidth={2}
-                        />
-                      </RechartsLineChart>
-                    </ResponsiveContainer>
-                  </div>
+                  <ChartContainer config={monthlyChartConfig} className="h-80 w-full">
+                    <RechartsLineChart data={monthlyTrends} margin={{ left: 12, right: 12 }}>
+                      <CartesianGrid vertical={false} strokeDasharray="3 3" className="stroke-muted" />
+                      <XAxis dataKey="month" tickLine={false} axisLine={false} tickMargin={8} className="text-xs" />
+                      <YAxis tickLine={false} axisLine={false} tickMargin={8} className="text-xs" />
+                      <ChartTooltip cursor={{ stroke: 'hsl(var(--muted))', strokeWidth: 1 }} content={<ChartTooltipContent indicator="line" />} />
+                      <Line 
+                        type="monotone" 
+                        dataKey="amount" 
+                        stroke="hsl(var(--chart-2))" 
+                        strokeWidth={2}
+                        dot={{ fill: 'hsl(var(--chart-2))' }}
+                      />
+                    </RechartsLineChart>
+                  </ChartContainer>
                 </CardContent>
               </Card>
             </div>
@@ -685,19 +688,15 @@ export default function ExpenseReportsPage() {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="h-96">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <BarChart data={monthlyTrends}>
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis dataKey="month" />
-                      <YAxis />
-                      <Tooltip 
-                        formatter={(value: any) => [`₵${value.toLocaleString()}`, 'Amount']}
-                      />
-                      <Bar dataKey="amount" fill="#2E8DB0" />
-                    </BarChart>
-                  </ResponsiveContainer>
-                </div>
+                <ChartContainer config={expenseChartConfig} className="h-96 w-full">
+                  <BarChart data={monthlyTrends} margin={{ left: 12, right: 12 }}>
+                    <CartesianGrid vertical={false} strokeDasharray="3 3" className="stroke-muted" />
+                    <XAxis dataKey="month" tickLine={false} axisLine={false} tickMargin={8} className="text-xs" />
+                    <YAxis tickLine={false} axisLine={false} tickMargin={8} className="text-xs" />
+                    <ChartTooltip cursor={{ fill: 'hsl(var(--muted))', opacity: 0.3 }} content={<ChartTooltipContent indicator="dot" />} />
+                    <Bar dataKey="amount" fill="hsl(var(--chart-1))" radius={[8, 8, 0, 0]} />
+                  </BarChart>
+                </ChartContainer>
               </CardContent>
             </Card>
           </TabsContent>

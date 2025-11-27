@@ -37,7 +37,15 @@ import {
   Target,
   Crown
 } from 'lucide-react';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, PieChart as RechartsPieChart, Pie, Cell, Area, AreaChart } from 'recharts';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, BarChart, Bar, PieChart as RechartsPieChart, Pie, Cell, Area, AreaChart, Label } from 'recharts';
+import { 
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+  ChartLegend,
+  ChartLegendContent,
+  ChartConfig
+} from '@/components/ui/chart';
 
 // Mock data for tithes and offerings reports
 const tithesVsOfferings = [
@@ -113,6 +121,25 @@ export default function TithesOfferingsReportsPage() {
       default: return 'destructive';
     }
   };
+
+  // Chart configurations
+  const typeChartConfig = {
+    amount: { label: 'Amount' },
+  } satisfies ChartConfig;
+
+  const monthlyChartConfig = {
+    tithes: { label: 'Tithes', color: 'hsl(var(--chart-1))' },
+    offerings: { label: 'Offerings', color: 'hsl(var(--chart-2))' },
+  } satisfies ChartConfig;
+
+  const totalChartConfig = {
+    total: { label: 'Total', color: 'hsl(var(--chart-1))' },
+  } satisfies ChartConfig;
+
+  const participationChartConfig = {
+    tithers: { label: 'Tithers', color: 'hsl(var(--chart-1))' },
+    offerers: { label: 'Offerers', color: 'hsl(var(--chart-2))' },
+  } satisfies ChartConfig;
 
   return (
     <div className="space-y-6">
@@ -267,50 +294,51 @@ export default function TithesOfferingsReportsPage() {
 
         <TabsContent value="overview" className="space-y-4">
           <div className="grid gap-4 md:grid-cols-2">
-            <Card>
+            <Card className="hover:shadow-md transition-shadow">
               <CardHeader>
                 <CardTitle>Tithes vs Offerings</CardTitle>
                 <CardDescription>Distribution between tithes and offerings</CardDescription>
               </CardHeader>
               <CardContent>
-                <ResponsiveContainer width="100%" height={300}>
+                <ChartContainer config={typeChartConfig} className="h-[300px] w-full">
                   <RechartsPieChart>
+                    <ChartTooltip cursor={false} content={<ChartTooltipContent hideLabel />} />
                     <Pie
                       data={tithesVsOfferings}
                       cx="50%"
                       cy="50%"
                       labelLine={false}
                       label={({ type, percentage }) => `${type} ${percentage}%`}
-                      outerRadius={80}
-                      fill="#8884d8"
+                      outerRadius={100}
                       dataKey="amount"
+                      strokeWidth={2}
                     >
                       {tithesVsOfferings.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={entry.color} />
+                        <Cell key={`cell-${index}`} fill={entry.color} stroke="hsl(var(--background))" />
                       ))}
                     </Pie>
-                    <Tooltip />
                   </RechartsPieChart>
-                </ResponsiveContainer>
+                </ChartContainer>
               </CardContent>
             </Card>
 
-            <Card>
+            <Card className="hover:shadow-md transition-shadow">
               <CardHeader>
                 <CardTitle>Monthly Trend</CardTitle>
                 <CardDescription>Tithes and offerings throughout the year</CardDescription>
               </CardHeader>
               <CardContent>
-                <ResponsiveContainer width="100%" height={300}>
-                  <AreaChart data={monthlyTithesOfferingsData}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="month" />
-                    <YAxis />
-                    <Tooltip />
-                    <Area type="monotone" dataKey="tithes" stackId="1" stroke="#2E8DB0" fill="#2E8DB0" />
-                    <Area type="monotone" dataKey="offerings" stackId="1" stroke="#C49831" fill="#C49831" />
+                <ChartContainer config={monthlyChartConfig} className="h-[300px] w-full">
+                  <AreaChart data={monthlyTithesOfferingsData} margin={{ left: 12, right: 12 }}>
+                    <CartesianGrid vertical={false} strokeDasharray="3 3" className="stroke-muted" />
+                    <XAxis dataKey="month" tickLine={false} axisLine={false} tickMargin={8} className="text-xs" />
+                    <YAxis tickLine={false} axisLine={false} tickMargin={8} className="text-xs" />
+                    <ChartTooltip cursor={{ stroke: 'hsl(var(--muted))', strokeWidth: 1 }} content={<ChartTooltipContent indicator="line" />} />
+                    <ChartLegend content={<ChartLegendContent />} />
+                    <Area type="monotone" dataKey="tithes" stackId="1" stroke="hsl(var(--chart-1))" fill="hsl(var(--chart-1))" fillOpacity={0.6} strokeWidth={2} />
+                    <Area type="monotone" dataKey="offerings" stackId="1" stroke="hsl(var(--chart-2))" fill="hsl(var(--chart-2))" fillOpacity={0.6} strokeWidth={2} />
                   </AreaChart>
-                </ResponsiveContainer>
+                </ChartContainer>
               </CardContent>
             </Card>
           </div>
@@ -318,21 +346,21 @@ export default function TithesOfferingsReportsPage() {
 
         <TabsContent value="tithes" className="space-y-4">
           <div className="grid gap-4 md:grid-cols-2">
-            <Card>
+            <Card className="hover:shadow-md transition-shadow">
               <CardHeader>
                 <CardTitle>Tithing Patterns</CardTitle>
                 <CardDescription>How people tithe</CardDescription>
               </CardHeader>
               <CardContent>
-                <ResponsiveContainer width="100%" height={300}>
-                  <BarChart data={givingPatterns}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="pattern" angle={-45} textAnchor="end" height={80} />
-                    <YAxis />
-                    <Tooltip />
-                    <Bar dataKey="amount" fill="#2E8DB0" />
+                <ChartContainer config={totalChartConfig} className="h-[300px] w-full">
+                  <BarChart data={givingPatterns} margin={{ left: 12, right: 12, bottom: 60 }}>
+                    <CartesianGrid vertical={false} strokeDasharray="3 3" className="stroke-muted" />
+                    <XAxis dataKey="pattern" angle={-45} textAnchor="end" height={80} tickLine={false} axisLine={false} className="text-xs" />
+                    <YAxis tickLine={false} axisLine={false} tickMargin={8} className="text-xs" />
+                    <ChartTooltip cursor={{ fill: 'hsl(var(--muted))', opacity: 0.3 }} content={<ChartTooltipContent indicator="dot" />} />
+                    <Bar dataKey="amount" fill="hsl(var(--chart-1))" radius={[8, 8, 0, 0]} />
                   </BarChart>
-                </ResponsiveContainer>
+                </ChartContainer>
               </CardContent>
             </Card>
 
@@ -363,21 +391,21 @@ export default function TithesOfferingsReportsPage() {
 
         <TabsContent value="offerings" className="space-y-4">
           <div className="grid gap-4 md:grid-cols-2">
-            <Card>
+            <Card className="hover:shadow-md transition-shadow">
               <CardHeader>
                 <CardTitle>Offerings by Service</CardTitle>
                 <CardDescription>Which services generate most offerings</CardDescription>
               </CardHeader>
               <CardContent>
-                <ResponsiveContainer width="100%" height={300}>
-                  <BarChart data={offeringsByService}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="service" angle={-45} textAnchor="end" height={80} />
-                    <YAxis />
-                    <Tooltip />
-                    <Bar dataKey="amount" fill="#C49831" />
+                <ChartContainer config={totalChartConfig} className="h-[300px] w-full">
+                  <BarChart data={offeringsByService} margin={{ left: 12, right: 12, bottom: 60 }}>
+                    <CartesianGrid vertical={false} strokeDasharray="3 3" className="stroke-muted" />
+                    <XAxis dataKey="service" angle={-45} textAnchor="end" height={80} tickLine={false} axisLine={false} className="text-xs" />
+                    <YAxis tickLine={false} axisLine={false} tickMargin={8} className="text-xs" />
+                    <ChartTooltip cursor={{ fill: 'hsl(var(--muted))', opacity: 0.3 }} content={<ChartTooltipContent indicator="dot" />} />
+                    <Bar dataKey="amount" fill="hsl(var(--chart-2))" radius={[8, 8, 0, 0]} />
                   </BarChart>
-                </ResponsiveContainer>
+                </ChartContainer>
               </CardContent>
             </Card>
 
@@ -457,42 +485,44 @@ export default function TithesOfferingsReportsPage() {
 
         <TabsContent value="trends" className="space-y-4">
           <div className="grid gap-4">
-            <Card>
+            <Card className="hover:shadow-md transition-shadow">
               <CardHeader>
                 <CardTitle>Monthly Tithes & Offerings Trend</CardTitle>
                 <CardDescription>Detailed monthly breakdown</CardDescription>
               </CardHeader>
               <CardContent>
-                <ResponsiveContainer width="100%" height={400}>
-                  <LineChart data={monthlyTithesOfferingsData}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="month" />
-                    <YAxis />
-                    <Tooltip />
-                    <Line type="monotone" dataKey="tithes" stroke="#2E8DB0" strokeWidth={3} name="Tithes" />
-                    <Line type="monotone" dataKey="offerings" stroke="#C49831" strokeWidth={3} name="Offerings" />
-                    <Line type="monotone" dataKey="total" stroke="#A5CF5D" strokeWidth={2} name="Total" strokeDasharray="5 5" />
+                <ChartContainer config={monthlyChartConfig} className="h-[400px] w-full">
+                  <LineChart data={monthlyTithesOfferingsData} margin={{ left: 12, right: 12 }}>
+                    <CartesianGrid vertical={false} strokeDasharray="3 3" className="stroke-muted" />
+                    <XAxis dataKey="month" tickLine={false} axisLine={false} tickMargin={8} className="text-xs" />
+                    <YAxis tickLine={false} axisLine={false} tickMargin={8} className="text-xs" />
+                    <ChartTooltip cursor={{ stroke: 'hsl(var(--muted))', strokeWidth: 1 }} content={<ChartTooltipContent indicator="line" />} />
+                    <ChartLegend content={<ChartLegendContent />} />
+                    <Line type="monotone" dataKey="tithes" stroke="hsl(var(--chart-1))" strokeWidth={3} name="Tithes" dot={{ fill: 'hsl(var(--chart-1))' }} />
+                    <Line type="monotone" dataKey="offerings" stroke="hsl(var(--chart-2))" strokeWidth={3} name="Offerings" dot={{ fill: 'hsl(var(--chart-2))' }} />
+                    <Line type="monotone" dataKey="total" stroke="hsl(var(--chart-3))" strokeWidth={2} name="Total" strokeDasharray="5 5" dot={{ fill: 'hsl(var(--chart-3))' }} />
                   </LineChart>
-                </ResponsiveContainer>
+                </ChartContainer>
               </CardContent>
             </Card>
 
-            <Card>
+            <Card className="hover:shadow-md transition-shadow">
               <CardHeader>
                 <CardTitle>Giver Count Trends</CardTitle>
                 <CardDescription>Number of tithers and offerers over time</CardDescription>
               </CardHeader>
               <CardContent>
-                <ResponsiveContainer width="100%" height={300}>
-                  <LineChart data={monthlyTithesOfferingsData}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="month" />
-                    <YAxis />
-                    <Tooltip />
-                    <Line type="monotone" dataKey="tithers" stroke="#2E8DB0" strokeWidth={2} name="Tithers" />
-                    <Line type="monotone" dataKey="offerers" stroke="#C49831" strokeWidth={2} name="Offerers" />
+                <ChartContainer config={participationChartConfig} className="h-[300px] w-full">
+                  <LineChart data={monthlyTithesOfferingsData} margin={{ left: 12, right: 12 }}>
+                    <CartesianGrid vertical={false} strokeDasharray="3 3" className="stroke-muted" />
+                    <XAxis dataKey="month" tickLine={false} axisLine={false} tickMargin={8} className="text-xs" />
+                    <YAxis tickLine={false} axisLine={false} tickMargin={8} className="text-xs" />
+                    <ChartTooltip cursor={{ stroke: 'hsl(var(--muted))', strokeWidth: 1 }} content={<ChartTooltipContent indicator="line" />} />
+                    <ChartLegend content={<ChartLegendContent />} />
+                    <Line type="monotone" dataKey="tithers" stroke="hsl(var(--chart-1))" strokeWidth={2} name="Tithers" dot={{ fill: 'hsl(var(--chart-1))' }} />
+                    <Line type="monotone" dataKey="offerers" stroke="hsl(var(--chart-2))" strokeWidth={2} name="Offerers" dot={{ fill: 'hsl(var(--chart-2))' }} />
                   </LineChart>
-                </ResponsiveContainer>
+                </ChartContainer>
               </CardContent>
             </Card>
           </div>

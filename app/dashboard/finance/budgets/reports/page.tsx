@@ -18,14 +18,14 @@ import {
   XAxis,
   YAxis,
   CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
   PieChart,
   Pie,
   Cell,
   Area,
   AreaChart,
+  Label,
 } from 'recharts';
+import { ChartContainer, ChartTooltip, ChartTooltipContent, ChartLegend, ChartLegendContent, ChartConfig } from '@/components/ui/chart';
 
 // Mock data for reports
 const yearlyComparison = [
@@ -207,6 +207,23 @@ export default function BudgetReportsPage() {
   const totalSpent = departmentPerformance.reduce((sum, dept) => sum + dept.spent, 0);
   const overallUtilization = (totalSpent / totalAllocated) * 100;
 
+  // Chart configurations
+  const budgetChartConfig = {
+    budget: { label: 'Budget', color: 'hsl(var(--chart-1))' },
+    spent: { label: 'Spent', color: 'hsl(var(--chart-2))' },
+    variance: { label: 'Variance', color: 'hsl(var(--chart-3))' },
+  } satisfies ChartConfig;
+
+  const departmentChartConfig = {
+    allocated: { label: 'Allocated', color: 'hsl(var(--chart-1))' },
+    spent: { label: 'Spent', color: 'hsl(var(--chart-2))' },
+  } satisfies ChartConfig;
+
+  const yearlyChartConfig = {
+    totalBudget: { label: 'Total Budget', color: 'hsl(var(--chart-1))' },
+    totalSpent: { label: 'Total Spent', color: 'hsl(var(--chart-2))' },
+  } satisfies ChartConfig;
+
   return (
     <div className="space-y-6">
       {/* Header with Back Navigation */}
@@ -326,64 +343,67 @@ export default function BudgetReportsPage() {
 
         <TabsContent value="overview">
           <div className="grid gap-4 md:grid-cols-2">
-            <Card>
+            <Card className="hover:shadow-md transition-shadow">
               <CardHeader>
                 <CardTitle>Monthly Budget vs Actual</CardTitle>
               </CardHeader>
               <CardContent>
-                <ResponsiveContainer width="100%" height={300}>
-                  <AreaChart data={monthlyTrends}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="month" />
-                    <YAxis />
-                    <Tooltip formatter={(value) => [`₵${value.toLocaleString()}`, '']} />
+                <ChartContainer config={budgetChartConfig} className="h-[300px] w-full">
+                  <AreaChart data={monthlyTrends} margin={{ left: 12, right: 12 }}>
+                    <CartesianGrid vertical={false} strokeDasharray="3 3" className="stroke-muted" />
+                    <XAxis dataKey="month" tickLine={false} axisLine={false} tickMargin={8} className="text-xs" />
+                    <YAxis tickLine={false} axisLine={false} tickMargin={8} className="text-xs" />
+                    <ChartTooltip cursor={{ stroke: 'hsl(var(--muted))', strokeWidth: 1 }} content={<ChartTooltipContent indicator="line" />} />
+                    <ChartLegend content={<ChartLegendContent />} />
                     <Area 
                       type="monotone" 
                       dataKey="budget" 
                       stackId="1" 
-                      stroke="#2E8DB0" 
-                      fill="#2E8DB0" 
+                      stroke="hsl(var(--chart-1))" 
+                      fill="hsl(var(--chart-1))" 
                       fillOpacity={0.6}
+                      strokeWidth={2}
                       name="Budget"
                     />
                     <Area 
                       type="monotone" 
                       dataKey="spent" 
                       stackId="2" 
-                      stroke="#28ACD1" 
-                      fill="#28ACD1" 
+                      stroke="hsl(var(--chart-2))" 
+                      fill="hsl(var(--chart-2))" 
                       fillOpacity={0.6}
+                      strokeWidth={2}
                       name="Actual"
                     />
                   </AreaChart>
-                </ResponsiveContainer>
+                </ChartContainer>
               </CardContent>
             </Card>
 
-            <Card>
+            <Card className="hover:shadow-md transition-shadow">
               <CardHeader>
                 <CardTitle>Budget by Category</CardTitle>
               </CardHeader>
               <CardContent>
-                <ResponsiveContainer width="100%" height={300}>
+                <ChartContainer config={departmentChartConfig} className="h-[300px] w-full">
                   <PieChart>
+                    <ChartTooltip cursor={false} content={<ChartTooltipContent hideLabel />} />
                     <Pie
                       data={categoryBreakdown}
                       cx="50%"
                       cy="50%"
                       labelLine={false}
                       label={({ name, percentage }) => `${name} ${percentage}%`}
-                      outerRadius={80}
-                      fill="#8884d8"
+                      outerRadius={100}
                       dataKey="value"
+                      strokeWidth={2}
                     >
                       {categoryBreakdown.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} stroke="hsl(var(--background))" />
                       ))}
                     </Pie>
-                    <Tooltip formatter={(value) => [`₵${value.toLocaleString()}`, '']} />
                   </PieChart>
-                </ResponsiveContainer>
+                </ChartContainer>
               </CardContent>
             </Card>
           </div>
@@ -391,21 +411,22 @@ export default function BudgetReportsPage() {
 
         <TabsContent value="yearly">
           <div className="grid gap-4">
-            <Card>
+            <Card className="hover:shadow-md transition-shadow">
               <CardHeader>
                 <CardTitle>Year-over-Year Comparison</CardTitle>
               </CardHeader>
               <CardContent>
-                <ResponsiveContainer width="100%" height={400}>
-                  <BarChart data={yearlyComparison}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="year" />
-                    <YAxis />
-                    <Tooltip formatter={(value) => [`₵${value.toLocaleString()}`, '']} />
-                    <Bar dataKey="totalBudget" fill="#2E8DB0" name="Total Budget" />
-                    <Bar dataKey="totalSpent" fill="#28ACD1" name="Total Spent" />
+                <ChartContainer config={yearlyChartConfig} className="h-[400px] w-full">
+                  <BarChart data={yearlyComparison} margin={{ left: 12, right: 12 }}>
+                    <CartesianGrid vertical={false} strokeDasharray="3 3" className="stroke-muted" />
+                    <XAxis dataKey="year" tickLine={false} axisLine={false} tickMargin={8} className="text-xs" />
+                    <YAxis tickLine={false} axisLine={false} tickMargin={8} className="text-xs" />
+                    <ChartTooltip cursor={{ fill: 'hsl(var(--muted))', opacity: 0.3 }} content={<ChartTooltipContent indicator="dot" />} />
+                    <ChartLegend content={<ChartLegendContent />} />
+                    <Bar dataKey="totalBudget" fill="hsl(var(--chart-1))" name="Total Budget" radius={[8, 8, 0, 0]} />
+                    <Bar dataKey="totalSpent" fill="hsl(var(--chart-2))" name="Total Spent" radius={[8, 8, 0, 0]} />
                   </BarChart>
-                </ResponsiveContainer>
+                </ChartContainer>
               </CardContent>
             </Card>
 
