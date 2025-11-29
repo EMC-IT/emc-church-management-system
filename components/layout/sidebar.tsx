@@ -31,6 +31,7 @@ import {
   Building2,
   HandCoins,
   Package,
+  Activity,
 } from "lucide-react";
 
 const navigation = [
@@ -141,6 +142,12 @@ const navigation = [
     href: "/dashboard/analytics",
     icon: BarChart3,
     permission: PERMISSIONS.VIEW_REPORTS,
+  },
+  {
+    name: "Activity Logs",
+    href: "/dashboard/activity-logs",
+    icon: Activity,
+    permission: PERMISSIONS.MANAGE_ROLES,
   },
   {
     name: "Settings",

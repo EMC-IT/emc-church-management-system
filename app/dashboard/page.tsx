@@ -121,7 +121,7 @@ const departmentsData = [
   { name: 'Youth', value: 85, color: 'hsl(var(--chart-2))' },
   { name: "Women's", value: 45, color: 'hsl(var(--chart-3))' },
   { name: "Men's", value: 32, color: 'hsl(var(--chart-4))' },
-  { name: "Children's", value: 65, color: 'hsl(var(--chart-5))' },
+  { name: "Children's", value: 65, color: 'hsl(var(--chart-5))'},
 ];
 
 const departmentsChartConfig = {
@@ -166,7 +166,7 @@ export default function DashboardPage() {
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Members</CardTitle>
             <div className="p-2 bg-brand-primary/10 rounded-lg">
-              <Users className="h-4 w-4 text-brand-primary" />
+              <Users className="h-4 w-4 text-brand-primary"/>
             </div>
           </CardHeader>
           <CardContent>
