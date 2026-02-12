@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useParams } from 'next/navigation';
 import Link from 'next/link';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -30,11 +30,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Skeleton } from '@/components/ui/skeleton';
 import { toast } from 'sonner';
 
-interface EditCategoryPageProps {
-  params: {
-    id: string;
-  };
-}
+
 
 // Validation schema
 const categoryFormSchema = z.object({
@@ -128,8 +124,9 @@ const mockCategory = {
   updatedAt: '2024-01-15T14:30:00Z'
 };
 
-export default function EditCategoryPage({ params }: EditCategoryPageProps) {
+export default function EditCategoryPage() {
   const router = useRouter();
+  const params = useParams();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [category, setCategory] = useState<any>(null);
@@ -159,7 +156,7 @@ export default function EditCategoryPage({ params }: EditCategoryPageProps) {
       try {
         await new Promise(resolve => setTimeout(resolve, 1000));
         setCategory(mockCategory);
-        
+
         // Populate form with existing data
         form.reset({
           name: mockCategory.name,
@@ -191,7 +188,7 @@ export default function EditCategoryPage({ params }: EditCategoryPageProps) {
     try {
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 2000));
-      
+
       console.log('Updated category data:', data);
       toast.success('Category updated successfully!');
       router.push('/dashboard/assets/categories');
@@ -296,7 +293,7 @@ export default function EditCategoryPage({ params }: EditCategoryPageProps) {
             <X className="mr-2 h-4 w-4" />
             Cancel
           </Button>
-          <Button 
+          <Button
             onClick={form.handleSubmit(onSubmit)}
             disabled={saving}
           >
@@ -352,8 +349,8 @@ export default function EditCategoryPage({ params }: EditCategoryPageProps) {
                     <FormItem>
                       <FormLabel>Category Code *</FormLabel>
                       <FormControl>
-                        <Input 
-                          placeholder="e.g., AUDIO" 
+                        <Input
+                          placeholder="e.g., AUDIO"
                           {...field}
                           onChange={(e) => {
                             field.onChange(e.target.value.toUpperCase());
@@ -375,7 +372,7 @@ export default function EditCategoryPage({ params }: EditCategoryPageProps) {
                     <FormItem>
                       <FormLabel>Description *</FormLabel>
                       <FormControl>
-                        <Textarea 
+                        <Textarea
                           placeholder="Describe what assets belong to this category"
                           className="min-h-[100px]"
                           {...field}
@@ -437,9 +434,8 @@ export default function EditCategoryPage({ params }: EditCategoryPageProps) {
                             <button
                               key={color.value}
                               type="button"
-                              className={`w-10 h-10 rounded-md border-2 ${color.class} ${
-                                field.value === color.value ? 'border-foreground' : 'border-transparent'
-                              }`}
+                              className={`w-10 h-10 rounded-md border-2 ${color.class} ${field.value === color.value ? 'border-foreground' : 'border-transparent'
+                                }`}
                               onClick={() => field.onChange(color.value)}
                               title={color.name}
                             />
@@ -538,8 +534,8 @@ export default function EditCategoryPage({ params }: EditCategoryPageProps) {
                       <FormLabel>Default Depreciation Rate (%)</FormLabel>
                       <FormControl>
                         <div className="relative">
-                          <Input 
-                            type="number" 
+                          <Input
+                            type="number"
                             step="0.1"
                             min="0"
                             max="100"
@@ -566,8 +562,8 @@ export default function EditCategoryPage({ params }: EditCategoryPageProps) {
                     <FormItem>
                       <FormLabel>Default Warranty Period (months)</FormLabel>
                       <FormControl>
-                        <Input 
-                          type="number" 
+                        <Input
+                          type="number"
                           min="0"
                           placeholder="12"
                           {...field}
@@ -602,8 +598,8 @@ export default function EditCategoryPage({ params }: EditCategoryPageProps) {
                       value={newCustomField.name}
                       onChange={(e) => setNewCustomField(prev => ({ ...prev, name: e.target.value }))}
                     />
-                    <Select 
-                      value={newCustomField.type} 
+                    <Select
+                      value={newCustomField.type}
                       onValueChange={(value: any) => setNewCustomField(prev => ({ ...prev, type: value }))}
                     >
                       <SelectTrigger>
@@ -618,7 +614,7 @@ export default function EditCategoryPage({ params }: EditCategoryPageProps) {
                       </SelectContent>
                     </Select>
                   </div>
-                  
+
                   {newCustomField.type === 'select' && (
                     <div className="space-y-2">
                       <div className="flex space-x-2">
@@ -644,7 +640,7 @@ export default function EditCategoryPage({ params }: EditCategoryPageProps) {
                       )}
                     </div>
                   )}
-                  
+
                   <div className="flex items-center space-x-2">
                     <input
                       type="checkbox"
@@ -655,7 +651,7 @@ export default function EditCategoryPage({ params }: EditCategoryPageProps) {
                     />
                     <Label htmlFor="fieldRequired">Required field</Label>
                   </div>
-                  
+
                   <Button type="button" variant="outline" onClick={handleAddCustomField}>
                     <Plus className="mr-2 h-4 w-4" />
                     Add Field
@@ -678,9 +674,9 @@ export default function EditCategoryPage({ params }: EditCategoryPageProps) {
                             </div>
                           )}
                         </div>
-                        <Button 
-                          type="button" 
-                          variant="ghost" 
+                        <Button
+                          type="button"
+                          variant="ghost"
                           size="sm"
                           onClick={() => handleRemoveCustomField(index)}
                         >
@@ -704,7 +700,7 @@ export default function EditCategoryPage({ params }: EditCategoryPageProps) {
             </CardHeader>
             <CardContent>
               <div className="flex items-center space-x-4 p-4 border rounded-lg">
-                <div 
+                <div
                   className="w-12 h-12 rounded-lg flex items-center justify-center text-white"
                   style={{ backgroundColor: form.watch('color') }}
                 >

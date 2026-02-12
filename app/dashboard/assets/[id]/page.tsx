@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useParams } from 'next/navigation';
 import Link from 'next/link';
 import {
   Edit,
@@ -30,11 +30,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Asset, AssetStatus, AssetCondition, AssetCategory, AssetMaintenance, AssetAssignment } from '@/lib/types/assets';
 
-interface AssetDetailsPageProps {
-  params: {
-    id: string;
-  };
-}
+
 
 // Mock asset data
 const mockAsset: Asset = {
@@ -166,8 +162,9 @@ const mockAssignmentHistory: AssetAssignment[] = [
   }
 ];
 
-export default function AssetDetailsPage({ params }: AssetDetailsPageProps) {
+export default function AssetDetailsPage() {
   const router = useRouter();
+  const params = useParams();
   const [asset, setAsset] = useState<Asset | null>(null);
   const [maintenanceHistory, setMaintenanceHistory] = useState<AssetMaintenance[]>([]);
   const [assignmentHistory, setAssignmentHistory] = useState<AssetAssignment[]>([]);
@@ -525,7 +522,7 @@ export default function AssetDetailsPage({ params }: AssetDetailsPageProps) {
                 <TabsContent value="documents" className="p-6">
                   <div className="space-y-4">
                     <h3 className="text-lg font-semibold">Documents & Photos</h3>
-                    
+
                     {/* Photos */}
                     {asset.photos && asset.photos.length > 0 && (
                       <div>

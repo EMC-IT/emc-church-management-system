@@ -1,20 +1,20 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useParams } from 'next/navigation';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
 import { format } from 'date-fns';
-import { 
-  CalendarIcon, 
-  Edit, 
-  Trash2, 
-  Save, 
-  X, 
-  Receipt, 
-  Wallet, 
-  Tag, 
+import {
+  CalendarIcon,
+  Edit,
+  Trash2,
+  Save,
+  X,
+  Receipt,
+  Wallet,
+  Tag,
   Calendar,
   User,
   FileText,
@@ -100,8 +100,9 @@ const mockExpense = {
   updatedAt: new Date('2024-01-15'),
 };
 
-export default function ExpenseDetailsPage({ params }: { params: { id: string } }) {
+export default function ExpenseDetailsPage() {
   const router = useRouter();
+  const params = useParams();
   const [expense, setExpense] = useState(mockExpense);
   const [isEditing, setIsEditing] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -132,7 +133,7 @@ export default function ExpenseDetailsPage({ params }: { params: { id: string } 
         await new Promise(resolve => setTimeout(resolve, 1000));
         // In real app, fetch expense by params.id
         setExpense(mockExpense);
-        
+
         // Reset form with loaded data
         form.reset({
           title: mockExpense.title,
@@ -161,14 +162,14 @@ export default function ExpenseDetailsPage({ params }: { params: { id: string } 
     try {
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 1500));
-      
+
       const updatedExpense = {
         ...expense,
         ...data,
         amount: Number(data.amount),
         updatedAt: new Date(),
       };
-      
+
       setExpense(updatedExpense);
       setIsEditing(false);
       toast.success('Expense updated successfully!');
@@ -185,7 +186,7 @@ export default function ExpenseDetailsPage({ params }: { params: { id: string } 
     try {
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 1500));
-      
+
       toast.success('Expense deleted successfully!');
       router.push('/dashboard/finance/expenses');
     } catch (error) {
@@ -231,7 +232,7 @@ export default function ExpenseDetailsPage({ params }: { params: { id: string } 
 
   return (
     <div className="space-y-6">
-      
+
       {/* Page Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div className="flex items-center gap-4">
@@ -251,7 +252,7 @@ export default function ExpenseDetailsPage({ params }: { params: { id: string } 
             <p className="text-gray-600">Expense Details & Management</p>
           </div>
         </div>
-        
+
         {!isEditing && (
           <div className="flex gap-2">
             <Button
@@ -341,12 +342,12 @@ export default function ExpenseDetailsPage({ params }: { params: { id: string } 
                           <FormControl>
                             <div className="relative">
                               <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">₵</span>
-                              <Input 
-                                type="number" 
-                                step="0.01" 
-                                placeholder="0.00" 
-                                className="pl-8" 
-                                {...field} 
+                              <Input
+                                type="number"
+                                step="0.01"
+                                placeholder="0.00"
+                                className="pl-8"
+                                {...field}
                               />
                             </div>
                           </FormControl>
@@ -503,10 +504,10 @@ export default function ExpenseDetailsPage({ params }: { params: { id: string } 
                       <FormItem>
                         <FormLabel>Description</FormLabel>
                         <FormControl>
-                          <Textarea 
+                          <Textarea
                             placeholder="Additional details about this expense..."
                             className="min-h-[100px]"
-                            {...field} 
+                            {...field}
                           />
                         </FormControl>
                         <FormMessage />
@@ -573,7 +574,7 @@ export default function ExpenseDetailsPage({ params }: { params: { id: string } 
                       ₵{expense.amount.toLocaleString('en-GH', { minimumFractionDigits: 2 })}
                     </div>
                   </div>
-                  
+
                   <div className="space-y-2">
                     <div className="flex items-center gap-2 text-sm text-gray-500">
                       <Tag className="h-4 w-4" />
@@ -583,7 +584,7 @@ export default function ExpenseDetailsPage({ params }: { params: { id: string } 
                       {getCategoryName(expense.category)}
                     </Badge>
                   </div>
-                  
+
                   <div className="space-y-2">
                     <div className="flex items-center gap-2 text-sm text-gray-500">
                       <CreditCard className="h-4 w-4" />
@@ -591,7 +592,7 @@ export default function ExpenseDetailsPage({ params }: { params: { id: string } 
                     </div>
                     <div className="font-medium">{getPaymentMethodName(expense.paymentMethod)}</div>
                   </div>
-                  
+
                   <div className="space-y-2">
                     <div className="flex items-center gap-2 text-sm text-gray-500">
                       <Calendar className="h-4 w-4" />
@@ -599,7 +600,7 @@ export default function ExpenseDetailsPage({ params }: { params: { id: string } 
                     </div>
                     <div className="font-medium">{format(expense.date, 'PPP')}</div>
                   </div>
-                  
+
                   <div className="space-y-2">
                     <div className="flex items-center gap-2 text-sm text-gray-500">
                       <User className="h-4 w-4" />
@@ -607,7 +608,7 @@ export default function ExpenseDetailsPage({ params }: { params: { id: string } 
                     </div>
                     <div className="font-medium">{expense.vendor}</div>
                   </div>
-                  
+
                   {expense.receiptNumber && (
                     <div className="space-y-2">
                       <div className="flex items-center gap-2 text-sm text-gray-500">
@@ -618,7 +619,7 @@ export default function ExpenseDetailsPage({ params }: { params: { id: string } 
                     </div>
                   )}
                 </div>
-                
+
                 {expense.approvedBy && (
                   <>
                     <Separator />
@@ -631,7 +632,7 @@ export default function ExpenseDetailsPage({ params }: { params: { id: string } 
                     </div>
                   </>
                 )}
-                
+
                 {expense.description && (
                   <>
                     <Separator />
@@ -646,7 +647,7 @@ export default function ExpenseDetailsPage({ params }: { params: { id: string } 
                 )}
               </CardContent>
             </Card>
-            
+
             {/* Metadata Card */}
             <Card>
               <CardHeader>

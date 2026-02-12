@@ -1,6 +1,7 @@
 'use client';
 
 import { useAuth } from '@/lib/contexts/auth-context';
+import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
@@ -18,6 +19,7 @@ import { ThemeToggle } from '@/components/theme/theme-toggle';
 
 export default function Header() {
   const { user, logout } = useAuth();
+  const router = useRouter();
 
   return (
     <header className="bg-card border-b border-border px-6 py-4">
@@ -62,11 +64,17 @@ export default function Header() {
                 </div>
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
-              <DropdownMenuItem className="text-brand-primary">
+              <DropdownMenuItem 
+                className="text-brand-primary cursor-pointer"
+                onClick={() => router.push('/dashboard/profile')}
+              >
                 <User className="mr-2 h-4 w-4" />
                 <span>Profile</span>
               </DropdownMenuItem>
-              <DropdownMenuItem className="text-brand-primary">
+              <DropdownMenuItem 
+                className="text-brand-primary cursor-pointer"
+                onClick={() => router.push('/dashboard/settings')}
+              >
                 <Settings className="mr-2 h-4 w-4" />
                 <span>Settings</span>
               </DropdownMenuItem>

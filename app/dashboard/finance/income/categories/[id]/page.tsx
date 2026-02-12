@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useMemo } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useParams } from 'next/navigation';
 import Link from 'next/link';
 import {
   ArrowLeft,
@@ -129,8 +129,9 @@ const mockIncomeRecords: IncomeRecord[] = [
   }
 ];
 
-export default function IncomeCategoryDetailsPage({ params }: { params: { id: string } }) {
+export default function IncomeCategoryDetailsPage() {
   const router = useRouter();
+  const params = useParams();
   const [loading, setLoading] = useState(true);
   const [deleting, setDeleting] = useState(false);
   const [category, setCategory] = useState<IncomeCategory>(mockCategory);
@@ -172,11 +173,11 @@ export default function IncomeCategoryDetailsPage({ params }: { params: { id: st
 
   const handleDelete = async () => {
     setDeleting(true);
-    
+
     try {
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 1000));
-      
+
       toast.success('Category deleted successfully!');
       router.push('/dashboard/finance/income/categories');
     } catch (error) {
@@ -243,7 +244,7 @@ export default function IncomeCategoryDetailsPage({ params }: { params: { id: st
       header: 'Actions',
       cell: ({ row }) => {
         const record = row.original;
-        
+
         return (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -292,10 +293,10 @@ export default function IncomeCategoryDetailsPage({ params }: { params: { id: st
 
   // Calculate statistics
   const statistics = useMemo(() => {
-    const totalIncome = incomeRecords.reduce((sum, record) => 
+    const totalIncome = incomeRecords.reduce((sum, record) =>
       record.status === 'received' ? sum + record.amount : sum, 0
     );
-    const pendingIncome = incomeRecords.reduce((sum, record) => 
+    const pendingIncome = incomeRecords.reduce((sum, record) =>
       record.status === 'pending' ? sum + record.amount : sum, 0
     );
     const recordCount = incomeRecords.length;
@@ -356,7 +357,7 @@ export default function IncomeCategoryDetailsPage({ params }: { params: { id: st
             </p>
           </div>
         </div>
-        
+
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="outline">
@@ -439,19 +440,19 @@ export default function IncomeCategoryDetailsPage({ params }: { params: { id: st
                 <label className="text-sm font-medium text-muted-foreground">Description</label>
                 <p className="text-sm">{category.description}</p>
               </div>
-              
+
               {category.code && (
                 <div className="space-y-2">
                   <label className="text-sm font-medium text-muted-foreground">Category Code</label>
                   <p className="text-sm font-mono">{category.code}</p>
                 </div>
               )}
-              
+
               <div className="space-y-2">
                 <label className="text-sm font-medium text-muted-foreground">Created</label>
                 <p className="text-sm">{new Date(category.createdAt).toLocaleDateString()}</p>
               </div>
-              
+
               <div className="space-y-2">
                 <label className="text-sm font-medium text-muted-foreground">Last Updated</label>
                 <p className="text-sm">{new Date(category.updatedAt).toLocaleDateString()}</p>
@@ -520,7 +521,7 @@ export default function IncomeCategoryDetailsPage({ params }: { params: { id: st
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {statistics.lastIncomeDate 
+              {statistics.lastIncomeDate
                 ? new Date(statistics.lastIncomeDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
                 : 'None'
               }
@@ -584,9 +585,9 @@ export default function IncomeCategoryDetailsPage({ params }: { params: { id: st
                           {header.isPlaceholder
                             ? null
                             : flexRender(
-                                header.column.columnDef.header,
-                                header.getContext()
-                              )}
+                              header.column.columnDef.header,
+                              header.getContext()
+                            )}
                         </TableHead>
                       ))}
                     </TableRow>

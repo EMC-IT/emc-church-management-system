@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useParams } from 'next/navigation';
 import Link from 'next/link';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -37,11 +37,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { toast } from 'sonner';
 import { Asset, AssetAssignment, AssetCondition } from '@/lib/types/assets';
 
-interface AssignmentPageProps {
-  params: {
-    id: string;
-  };
-}
+
 
 // Validation schema for assignment form
 const assignmentFormSchema = z.object({
@@ -205,8 +201,9 @@ const locations = [
   'Prayer Garden'
 ];
 
-export default function AssignmentPage({ params }: AssignmentPageProps) {
+export default function AssignmentPage() {
   const router = useRouter();
+  const params = useParams();
   const [loading, setLoading] = useState(true);
   const [asset, setAsset] = useState<Asset | null>(null);
   const [assignmentHistory, setAssignmentHistory] = useState<AssetAssignment[]>([]);
@@ -299,14 +296,14 @@ export default function AssignmentPage({ params }: AssignmentPageProps) {
     try {
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 1000));
-      
+
       console.log('Assignment data:', data);
       toast.success(editingAssignment ? 'Assignment updated successfully!' : 'Asset assigned successfully!');
       setIsDialogOpen(false);
       setEditingAssignment(null);
       form.reset();
       setAssignmentType('');
-      
+
       // Refresh data
       // In a real app, you would refetch the data
     } catch (error) {
@@ -392,7 +389,7 @@ export default function AssignmentPage({ params }: AssignmentPageProps) {
 
   const activeAssignments = assignmentHistory.filter(a => a.status === 'active');
   const returnedAssignments = assignmentHistory.filter(a => a.status === 'returned');
-  const overdueAssignments = assignmentHistory.filter(a => 
+  const overdueAssignments = assignmentHistory.filter(a =>
     a.status === 'active' && a.expectedReturnDate && new Date(a.expectedReturnDate) < new Date()
   );
 
@@ -441,7 +438,7 @@ export default function AssignmentPage({ params }: AssignmentPageProps) {
                   {editingAssignment ? 'Update assignment details' : 'Assign this asset to a department, group, person, or location'}
                 </DialogDescription>
               </DialogHeader>
-              
+
               <Form {...form}>
                 <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
                   <FormField
@@ -450,12 +447,12 @@ export default function AssignmentPage({ params }: AssignmentPageProps) {
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Assignment Type *</FormLabel>
-                        <Select 
+                        <Select
                           onValueChange={(value) => {
                             field.onChange(value);
                             setAssignmentType(value);
                             form.setValue('assignedTo', '');
-                          }} 
+                          }}
                           value={field.value}
                         >
                           <FormControl>
@@ -600,7 +597,7 @@ export default function AssignmentPage({ params }: AssignmentPageProps) {
                       <FormItem>
                         <FormLabel>Assignment Notes</FormLabel>
                         <FormControl>
-                          <Textarea 
+                          <Textarea
                             placeholder="Additional notes about this assignment"
                             className="min-h-[80px]"
                             {...field}
@@ -640,7 +637,7 @@ export default function AssignmentPage({ params }: AssignmentPageProps) {
             </p>
           </CardContent>
         </Card>
-        
+
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Overdue Returns</CardTitle>
@@ -653,7 +650,7 @@ export default function AssignmentPage({ params }: AssignmentPageProps) {
             </p>
           </CardContent>
         </Card>
-        
+
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Returns</CardTitle>
@@ -701,15 +698,15 @@ export default function AssignmentPage({ params }: AssignmentPageProps) {
                     </div>
                   </div>
                   <div className="flex items-center space-x-2">
-                    <Button 
-                      variant="outline" 
+                    <Button
+                      variant="outline"
                       size="sm"
                       onClick={() => handleEdit(assignment)}
                     >
                       <Edit className="h-4 w-4" />
                     </Button>
-                    <Button 
-                      variant="outline" 
+                    <Button
+                      variant="outline"
                       size="sm"
                       onClick={() => handleReturn(assignment.id)}
                     >
@@ -759,8 +756,8 @@ export default function AssignmentPage({ params }: AssignmentPageProps) {
                           {formatDate(assignment.assignedDate)}
                         </span>
                         {assignment.status === 'active' && (
-                          <Button 
-                            variant="ghost" 
+                          <Button
+                            variant="ghost"
                             size="sm"
                             onClick={() => handleEdit(assignment)}
                           >
@@ -769,7 +766,7 @@ export default function AssignmentPage({ params }: AssignmentPageProps) {
                         )}
                       </div>
                     </div>
-                    
+
                     <div className="mt-2 grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
                       <div>
                         <span className="font-medium">Assigned:</span> {formatDate(assignment.assignedDate)}
@@ -788,7 +785,7 @@ export default function AssignmentPage({ params }: AssignmentPageProps) {
                         </div>
                       )}
                     </div>
-                    
+
                     {assignment.assignmentNotes && (
                       <div className="mt-2">
                         <p className="text-sm text-muted-foreground">
@@ -796,7 +793,7 @@ export default function AssignmentPage({ params }: AssignmentPageProps) {
                         </p>
                       </div>
                     )}
-                    
+
                     {assignment.returnNotes && (
                       <div className="mt-1">
                         <p className="text-sm text-muted-foreground">
@@ -804,10 +801,10 @@ export default function AssignmentPage({ params }: AssignmentPageProps) {
                         </p>
                       </div>
                     )}
-                    
+
                     {assignment.expectedReturnDate && assignment.status === 'active' && (
                       <div className="mt-2">
-                        <Badge 
+                        <Badge
                           variant={new Date(assignment.expectedReturnDate) < new Date() ? 'destructive' : 'secondary'}
                           className="text-xs"
                         >
@@ -820,7 +817,7 @@ export default function AssignmentPage({ params }: AssignmentPageProps) {
                 </div>
               </div>
             ))}
-            
+
             {assignmentHistory.length === 0 && (
               <div className="text-center py-8">
                 <Users className="mx-auto h-12 w-12 text-muted-foreground" />

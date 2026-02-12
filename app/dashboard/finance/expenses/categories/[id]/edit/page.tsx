@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useParams } from 'next/navigation';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
@@ -57,8 +57,9 @@ const mockCategory = {
   updatedAt: new Date('2024-01-05'),
 };
 
-export default function EditExpenseCategoryPage({ params }: { params: { id: string } }) {
+export default function EditExpenseCategoryPage() {
   const router = useRouter();
+  const params = useParams();
   const [category, setCategory] = useState(mockCategory);
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -84,7 +85,7 @@ export default function EditExpenseCategoryPage({ params }: { params: { id: stri
         // In real app, fetch category by params.id
         setCategory(mockCategory);
         setSelectedColor(mockCategory.color);
-        
+
         // Reset form with loaded data
         form.reset({
           name: mockCategory.name,
@@ -108,12 +109,12 @@ export default function EditExpenseCategoryPage({ params }: { params: { id: stri
     try {
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 2000));
-      
+
       console.log('Updated category data:', {
         ...data,
         id: params.id,
       });
-      
+
       toast.success('Category updated successfully!');
       router.push(`/dashboard/finance/expenses/categories/${params.id}`);
     } catch (error) {
@@ -203,9 +204,9 @@ export default function EditExpenseCategoryPage({ params }: { params: { id: stri
                         <FormItem>
                           <FormLabel>Category Name *</FormLabel>
                           <FormControl>
-                            <Input 
-                              placeholder="e.g., Office Supplies, Utilities, Missions" 
-                              {...field} 
+                            <Input
+                              placeholder="e.g., Office Supplies, Utilities, Missions"
+                              {...field}
                             />
                           </FormControl>
                           <FormDescription>
@@ -224,10 +225,10 @@ export default function EditExpenseCategoryPage({ params }: { params: { id: stri
                         <FormItem>
                           <FormLabel>Description</FormLabel>
                           <FormControl>
-                            <Textarea 
+                            <Textarea
                               placeholder="Describe what types of expenses belong in this category..."
                               className="min-h-[100px]"
-                              {...field} 
+                              {...field}
                             />
                           </FormControl>
                           <FormDescription>
@@ -265,7 +266,7 @@ export default function EditExpenseCategoryPage({ params }: { params: { id: stri
                                   />
                                 ))}
                               </div>
-                              
+
                               {/* Custom Color Input */}
                               <div className="flex items-center gap-3">
                                 <div className="flex items-center gap-2">
@@ -322,8 +323,8 @@ export default function EditExpenseCategoryPage({ params }: { params: { id: stri
 
                     {/* Form Actions */}
                     <div className="flex flex-col sm:flex-row gap-4 pt-6">
-                      <Button 
-                        type="submit" 
+                      <Button
+                        type="submit"
                         disabled={isSubmitting}
                         className="flex-1 sm:flex-none"
                       >
@@ -336,9 +337,9 @@ export default function EditExpenseCategoryPage({ params }: { params: { id: stri
                           'Update Category'
                         )}
                       </Button>
-                      <Button 
-                        type="button" 
-                        variant="outline" 
+                      <Button
+                        type="button"
+                        variant="outline"
                         onClick={handleCancel}
                         disabled={isSubmitting}
                         className="flex-1 sm:flex-none"
@@ -365,7 +366,7 @@ export default function EditExpenseCategoryPage({ params }: { params: { id: stri
                 <div className="space-y-4">
                   {/* Category Preview */}
                   <div className="flex items-center gap-3 p-4 border rounded-lg">
-                    <div 
+                    <div
                       className="w-4 h-4 rounded-full flex-shrink-0"
                       style={{ backgroundColor: selectedColor }}
                     />
@@ -386,8 +387,8 @@ export default function EditExpenseCategoryPage({ params }: { params: { id: stri
                     <span className="text-gray-600">Status:</span>
                     <span className={cn(
                       'px-2 py-1 rounded-full text-xs font-medium',
-                      form.watch('isActive') 
-                        ? 'bg-green-100 text-green-800' 
+                      form.watch('isActive')
+                        ? 'bg-green-100 text-green-800'
                         : 'bg-gray-100 text-gray-800'
                     )}>
                       {form.watch('isActive') ? 'Active' : 'Inactive'}

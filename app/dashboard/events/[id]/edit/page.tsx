@@ -100,7 +100,7 @@ export default function EditEventPage() {
     linkedGroups: []
   });
 
-  const [errors, setErrors] = useState<Partial<EventFormData>>({});
+  const [errors, setErrors] = useState<Partial<Record<keyof EventFormData, string>>>({});
 
   useEffect(() => {
     // Simulate loading existing event data
@@ -137,17 +137,17 @@ export default function EditEventPage() {
   }, [params.id]);
 
   const validateForm = (): boolean => {
-    const newErrors: Partial<EventFormData> = {};
+    const newErrors: Partial<Record<keyof EventFormData, string>> = {};
 
     if (!formData.title.trim()) newErrors.title = 'Event title is required';
     if (!formData.description.trim()) newErrors.description = 'Description is required';
     if (!formData.category) newErrors.category = 'Category is required';
-    if (!formData.date) newErrors.date = 'Event date is required' as any;
+    if (!formData.date) newErrors.date = 'Event date is required';
     if (!formData.startTime) newErrors.startTime = 'Start time is required';
     if (!formData.location.trim()) newErrors.location = 'Location is required';
     if (!formData.organizer.trim()) newErrors.organizer = 'Organizer is required';
     if (!formData.contactEmail.trim()) newErrors.contactEmail = 'Contact email is required';
-    
+
     if (formData.contactEmail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.contactEmail)) {
       newErrors.contactEmail = 'Please enter a valid email address';
     }
@@ -166,18 +166,18 @@ export default function EditEventPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!validateForm()) {
       toast.error('Please fix the errors in the form');
       return;
     }
 
     setLoading(true);
-    
+
     try {
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 1500));
-      
+
       toast.success('Event updated successfully!');
       router.push(`/dashboard/events/${params.id}`);
     } catch (error) {
@@ -219,7 +219,7 @@ export default function EditEventPage() {
         >
           <ArrowLeft className="h-4 w-4" />
         </Button>
-        
+
         <div className="flex items-center gap-3">
           <div className="p-2 bg-brand-primary/10 rounded-lg">
             <Edit className="h-6 w-6 text-brand-primary" />

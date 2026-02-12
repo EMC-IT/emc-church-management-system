@@ -12,6 +12,7 @@ import { Separator } from "@/components/ui/separator";
 import {
   LayoutDashboard,
   Users,
+  User,
   UserCheck,
   BadgeCent,
   MessageSquare,
@@ -148,6 +149,12 @@ const navigation = [
     href: "/dashboard/activity-logs",
     icon: Activity,
     permission: PERMISSIONS.MANAGE_ROLES,
+  },
+  {
+    name: "Profile",
+    href: "/dashboard/profile",
+    icon: User,
+    permission: null,
   },
   {
     name: "Settings",

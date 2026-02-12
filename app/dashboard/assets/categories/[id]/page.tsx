@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useParams } from 'next/navigation';
 import Link from 'next/link';
 import {
   Plus,
@@ -125,8 +125,9 @@ const categoryAssets: Asset[] = [
   }
 ];
 
-export default function CategoryDetailsPage({ params }: { params: { id: string } }) {
+export default function CategoryDetailsPage() {
   const router = useRouter();
+  const params = useParams();
   const [loading, setLoading] = useState(true);
   const [category, setCategory] = useState(categoryData);
   const [assets, setAssets] = useState(categoryAssets);
@@ -305,14 +306,14 @@ export default function CategoryDetailsPage({ params }: { params: { id: string }
             <p className="text-muted-foreground">{category.description}</p>
           </div>
         </div>
-        
+
         <div className="flex flex-col gap-2 sm:flex-row">
           <Button onClick={() => router.push('/dashboard/assets/add')}>
             <Plus className="mr-2 h-4 w-4" />
             Add Asset
           </Button>
-          <Button 
-            variant="outline" 
+          <Button
+            variant="outline"
             onClick={() => router.push(`/dashboard/assets/categories/${category.id}/edit`)}
           >
             <Edit className="mr-2 h-4 w-4" />
@@ -336,7 +337,7 @@ export default function CategoryDetailsPage({ params }: { params: { id: string }
               </p>
             </CardContent>
           </Card>
-          
+
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Total Value</CardTitle>
@@ -349,7 +350,7 @@ export default function CategoryDetailsPage({ params }: { params: { id: string }
               </p>
             </CardContent>
           </Card>
-          
+
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Average Age</CardTitle>
@@ -362,7 +363,7 @@ export default function CategoryDetailsPage({ params }: { params: { id: string }
               </p>
             </CardContent>
           </Card>
-          
+
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Maintenance</CardTitle>

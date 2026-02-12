@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useParams } from 'next/navigation';
 import Link from 'next/link';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -39,11 +39,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { toast } from 'sonner';
 import { Asset, AssetMaintenance } from '@/lib/types/assets';
 
-interface MaintenancePageProps {
-  params: {
-    id: string;
-  };
-}
+
 
 // Validation schema for maintenance form
 const maintenanceFormSchema = z.object({
@@ -209,8 +205,9 @@ const technicians = [
   'External Technician'
 ];
 
-export default function MaintenancePage({ params }: MaintenancePageProps) {
+export default function MaintenancePage() {
   const router = useRouter();
+  const params = useParams();
   const [loading, setLoading] = useState(true);
   const [asset, setAsset] = useState<Asset | null>(null);
   const [maintenanceHistory, setMaintenanceHistory] = useState<AssetMaintenance[]>([]);
@@ -254,7 +251,7 @@ export default function MaintenancePage({ params }: MaintenancePageProps) {
     let filtered = maintenanceHistory;
 
     if (searchTerm) {
-      filtered = filtered.filter(maintenance => 
+      filtered = filtered.filter(maintenance =>
         maintenance.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
         maintenance.description.toLowerCase().includes(searchTerm.toLowerCase())
       );
@@ -335,13 +332,13 @@ export default function MaintenancePage({ params }: MaintenancePageProps) {
     try {
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 1000));
-      
+
       console.log('Maintenance data:', data);
       toast.success(editingMaintenance ? 'Maintenance updated successfully!' : 'Maintenance scheduled successfully!');
       setIsDialogOpen(false);
       setEditingMaintenance(null);
       form.reset();
-      
+
       // Refresh data
       // In a real app, you would refetch the data
     } catch (error) {
@@ -429,10 +426,10 @@ export default function MaintenancePage({ params }: MaintenancePageProps) {
     );
   }
 
-  const upcomingMaintenance = maintenanceHistory.filter(m => 
+  const upcomingMaintenance = maintenanceHistory.filter(m =>
     m.status === 'scheduled' && new Date(m.scheduledDate) >= new Date()
   );
-  const overdueMaintenance = maintenanceHistory.filter(m => 
+  const overdueMaintenance = maintenanceHistory.filter(m =>
     m.status === 'scheduled' && new Date(m.scheduledDate) < new Date()
   );
   const inProgressMaintenance = maintenanceHistory.filter(m => m.status === 'in_progress');
@@ -488,7 +485,7 @@ export default function MaintenancePage({ params }: MaintenancePageProps) {
                   {editingMaintenance ? 'Update maintenance details' : 'Schedule maintenance for this asset'}
                 </DialogDescription>
               </DialogHeader>
-              
+
               <Form {...form}>
                 <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
                   <div className="grid grid-cols-2 gap-4">
@@ -562,7 +559,7 @@ export default function MaintenancePage({ params }: MaintenancePageProps) {
                       <FormItem>
                         <FormLabel>Description *</FormLabel>
                         <FormControl>
-                          <Textarea 
+                          <Textarea
                             placeholder="Describe the maintenance work to be performed"
                             className="min-h-[80px]"
                             {...field}
@@ -595,8 +592,8 @@ export default function MaintenancePage({ params }: MaintenancePageProps) {
                         <FormItem>
                           <FormLabel>Estimated Duration (hours) *</FormLabel>
                           <FormControl>
-                            <Input 
-                              type="number" 
+                            <Input
+                              type="number"
                               step="0.1"
                               placeholder="2.5"
                               {...field}
@@ -644,8 +641,8 @@ export default function MaintenancePage({ params }: MaintenancePageProps) {
                           <FormControl>
                             <div className="relative">
                               <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground">₵</span>
-                              <Input 
-                                type="number" 
+                              <Input
+                                type="number"
                                 step="0.01"
                                 className="pl-8"
                                 placeholder="0.00"
@@ -691,15 +688,15 @@ export default function MaintenancePage({ params }: MaintenancePageProps) {
                           <Plus className="h-4 w-4" />
                         </Button>
                       </div>
-                      
+
                       {form.watch('partsNeeded') && form.watch('partsNeeded')!.length > 0 && (
                         <div className="space-y-1">
                           {form.watch('partsNeeded')!.map((part, index) => (
                             <div key={index} className="flex items-center justify-between p-2 border rounded text-sm">
                               <span>{part.name} (Qty: {part.quantity}) - {formatCurrency(part.estimatedCost)}</span>
-                              <Button 
-                                type="button" 
-                                variant="ghost" 
+                              <Button
+                                type="button"
+                                variant="ghost"
                                 size="sm"
                                 onClick={() => removePart(index)}
                               >
@@ -719,7 +716,7 @@ export default function MaintenancePage({ params }: MaintenancePageProps) {
                       <FormItem>
                         <FormLabel>Notes</FormLabel>
                         <FormControl>
-                          <Textarea 
+                          <Textarea
                             placeholder="Additional notes or special instructions"
                             className="min-h-[60px]"
                             {...field}
@@ -759,7 +756,7 @@ export default function MaintenancePage({ params }: MaintenancePageProps) {
             </p>
           </CardContent>
         </Card>
-        
+
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Overdue</CardTitle>
@@ -772,7 +769,7 @@ export default function MaintenancePage({ params }: MaintenancePageProps) {
             </p>
           </CardContent>
         </Card>
-        
+
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">In Progress</CardTitle>
@@ -785,7 +782,7 @@ export default function MaintenancePage({ params }: MaintenancePageProps) {
             </p>
           </CardContent>
         </Card>
-        
+
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Completed</CardTitle>
@@ -859,15 +856,15 @@ export default function MaintenancePage({ params }: MaintenancePageProps) {
                     {getPriorityBadge(maintenance.priority)}
                   </div>
                   <div className="flex items-center space-x-2">
-                    <Button 
-                      variant="ghost" 
+                    <Button
+                      variant="ghost"
                       size="sm"
                       onClick={() => handleEdit(maintenance)}
                     >
                       <Edit className="h-4 w-4" />
                     </Button>
-                    <Button 
-                      variant="ghost" 
+                    <Button
+                      variant="ghost"
                       size="sm"
                       onClick={() => handleDelete(maintenance.id)}
                     >
@@ -875,11 +872,11 @@ export default function MaintenancePage({ params }: MaintenancePageProps) {
                     </Button>
                   </div>
                 </div>
-                
+
                 <p className="text-sm text-muted-foreground mb-3">
                   {maintenance.description}
                 </p>
-                
+
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-xs">
                   <div>
                     <span className="font-medium">Scheduled:</span> {formatDate(maintenance.scheduledDate)}
@@ -896,7 +893,7 @@ export default function MaintenancePage({ params }: MaintenancePageProps) {
                     {maintenance.actualCost && ` (${formatCurrency(maintenance.actualCost)} actual)`}
                   </div>
                 </div>
-                
+
                 {maintenance.partsUsed && maintenance.partsUsed.length > 0 && (
                   <div className="mt-3">
                     <p className="text-xs font-medium mb-1">Parts Used:</p>
@@ -909,7 +906,7 @@ export default function MaintenancePage({ params }: MaintenancePageProps) {
                     </div>
                   </div>
                 )}
-                
+
                 {maintenance.notes && (
                   <div className="mt-3">
                     <p className="text-xs font-medium mb-1">Notes:</p>
@@ -918,7 +915,7 @@ export default function MaintenancePage({ params }: MaintenancePageProps) {
                 )}
               </div>
             ))}
-            
+
             {filteredHistory.length === 0 && (
               <div className="text-center py-8">
                 <Wrench className="mx-auto h-12 w-12 text-muted-foreground" />

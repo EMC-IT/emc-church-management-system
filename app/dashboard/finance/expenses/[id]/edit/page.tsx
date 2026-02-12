@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useParams } from 'next/navigation';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
@@ -82,8 +82,9 @@ const mockExpense = {
   updatedAt: new Date('2024-01-15'),
 };
 
-export default function EditExpensePage({ params }: { params: { id: string } }) {
+export default function EditExpensePage() {
   const router = useRouter();
+  const params = useParams();
   const [expense, setExpense] = useState(mockExpense);
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -112,7 +113,7 @@ export default function EditExpensePage({ params }: { params: { id: string } }) 
         await new Promise(resolve => setTimeout(resolve, 1000));
         // In real app, fetch expense by params.id
         setExpense(mockExpense);
-        
+
         // Reset form with loaded data
         form.reset({
           title: mockExpense.title,
@@ -141,13 +142,13 @@ export default function EditExpensePage({ params }: { params: { id: string } }) 
     try {
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 2000));
-      
+
       console.log('Updated expense data:', {
         ...data,
         amount: Number(data.amount),
         id: params.id,
       });
-      
+
       toast.success('Expense updated successfully!');
       router.push(`/dashboard/finance/expenses/${params.id}`);
     } catch (error) {
@@ -246,12 +247,12 @@ export default function EditExpensePage({ params }: { params: { id: string } }) 
                         <FormControl>
                           <div className="relative">
                             <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">₵</span>
-                            <Input 
-                              type="number" 
-                              step="0.01" 
-                              placeholder="0.00" 
-                              className="pl-8" 
-                              {...field} 
+                            <Input
+                              type="number"
+                              step="0.01"
+                              placeholder="0.00"
+                              className="pl-8"
+                              {...field}
                             />
                           </div>
                         </FormControl>
@@ -380,10 +381,10 @@ export default function EditExpensePage({ params }: { params: { id: string } }) 
                       <FormItem>
                         <FormLabel>Description</FormLabel>
                         <FormControl>
-                          <Textarea 
+                          <Textarea
                             placeholder="Provide additional details about this expense..."
                             className="min-h-[100px]"
-                            {...field} 
+                            {...field}
                           />
                         </FormControl>
                         <FormDescription>
@@ -433,8 +434,8 @@ export default function EditExpensePage({ params }: { params: { id: string } }) 
 
                 {/* Form Actions */}
                 <div className="flex flex-col sm:flex-row gap-4 pt-6">
-                  <Button 
-                    type="submit" 
+                  <Button
+                    type="submit"
                     disabled={isSubmitting}
                     className="flex-1 sm:flex-none"
                   >
@@ -447,9 +448,9 @@ export default function EditExpensePage({ params }: { params: { id: string } }) 
                       'Update Expense'
                     )}
                   </Button>
-                  <Button 
-                    type="button" 
-                    variant="outline" 
+                  <Button
+                    type="button"
+                    variant="outline"
                     onClick={handleCancel}
                     disabled={isSubmitting}
                     className="flex-1 sm:flex-none"

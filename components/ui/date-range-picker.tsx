@@ -56,8 +56,8 @@ export function DatePickerWithRange({
         </PopoverTrigger>
         <PopoverContent className="w-auto p-0" align="start">
           <Calendar
-            initialFocus
             mode="range"
+            autoFocus
             defaultMonth={date?.from}
             selected={date}
             onSelect={onDateChange}

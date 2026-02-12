@@ -21,7 +21,7 @@ export interface LazyLoadingOptions {
  */
 export interface LazyLoadingResult {
   /** Ref to attach to the element you want to observe */
-  ref: React.RefObject<HTMLDivElement>;
+  ref: React.RefObject<HTMLDivElement | null>;
   /** Whether the element is currently in view */
   inView: boolean;
   /** Whether the element has been in view at least once */
@@ -98,7 +98,7 @@ export function useLazyLoading(options: LazyLoadingOptions = {}): LazyLoadingRes
           timeoutRef.current = setTimeout(() => {
             setInView(true);
             setHasBeenInView(true);
-            
+
             if (triggerOnce && observerRef.current) {
               observerRef.current.disconnect();
             }
@@ -106,7 +106,7 @@ export function useLazyLoading(options: LazyLoadingOptions = {}): LazyLoadingRes
         } else {
           setInView(true);
           setHasBeenInView(true);
-          
+
           if (triggerOnce && observerRef.current) {
             observerRef.current.disconnect();
           }
@@ -164,18 +164,18 @@ export function useLazyImage(src: string, options: LazyLoadingOptions = {}) {
   useEffect(() => {
     if (inView && src && !imageSrc) {
       const img = new Image();
-      
+
       img.onload = () => {
         setImageSrc(src);
         setLoaded(true);
         setError(false);
       };
-      
+
       img.onerror = () => {
         setError(true);
         setLoaded(false);
       };
-      
+
       img.src = src;
     }
   }, [inView, src, imageSrc]);
@@ -216,7 +216,7 @@ export function useLazyLoadWithRetry<T>(
       setRetryCount(0);
     } catch (err) {
       const error = err instanceof Error ? err : new Error('Unknown error');
-      
+
       if (attempt < maxRetries) {
         setRetryCount(attempt + 1);
         setTimeout(() => executeLoad(attempt + 1), retryDelay);

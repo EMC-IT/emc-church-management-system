@@ -2,16 +2,16 @@
 
 import React, { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, useParams } from 'next/navigation';
 import { format } from 'date-fns';
-import { 
-  Tag, 
-  Edit, 
-  Trash2, 
-  Eye, 
-  Search, 
-  Filter, 
-  Download, 
+import {
+  Tag,
+  Edit,
+  Trash2,
+  Eye,
+  Search,
+  Filter,
+  Download,
   Calendar,
   Wallet,
   Receipt,
@@ -172,8 +172,9 @@ const paymentMethods = {
   'online-payment': 'Online Payment',
 };
 
-export default function ExpenseCategoryDetailsPage({ params }: { params: { id: string } }) {
+export default function ExpenseCategoryDetailsPage() {
   const router = useRouter();
+  const params = useParams();
   const [category, setCategory] = useState<ExpenseCategory | null>(null);
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
@@ -205,24 +206,24 @@ export default function ExpenseCategoryDetailsPage({ params }: { params: { id: s
   const filteredExpenses = useMemo(() => {
     return expenses.filter(expense => {
       const matchesSearch = expense.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                           expense.vendor.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                           (expense.description?.toLowerCase().includes(searchTerm.toLowerCase()) ?? false);
-      
+        expense.vendor.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (expense.description?.toLowerCase().includes(searchTerm.toLowerCase()) ?? false);
+
       let matchesDate = true;
       const now = new Date();
       const expenseDate = expense.date;
-      
+
       if (dateFilter === 'this-month') {
-        matchesDate = expenseDate.getMonth() === now.getMonth() && 
-                     expenseDate.getFullYear() === now.getFullYear();
+        matchesDate = expenseDate.getMonth() === now.getMonth() &&
+          expenseDate.getFullYear() === now.getFullYear();
       } else if (dateFilter === 'last-month') {
         const lastMonth = new Date(now.getFullYear(), now.getMonth() - 1);
-        matchesDate = expenseDate.getMonth() === lastMonth.getMonth() && 
-                     expenseDate.getFullYear() === lastMonth.getFullYear();
+        matchesDate = expenseDate.getMonth() === lastMonth.getMonth() &&
+          expenseDate.getFullYear() === lastMonth.getFullYear();
       } else if (dateFilter === 'this-year') {
         matchesDate = expenseDate.getFullYear() === now.getFullYear();
       }
-      
+
       return matchesSearch && matchesDate;
     });
   }, [expenses, searchTerm, dateFilter]);
@@ -232,7 +233,7 @@ export default function ExpenseCategoryDetailsPage({ params }: { params: { id: s
     try {
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 1500));
-      
+
       toast.success('Category deleted successfully!');
       router.push('/dashboard/finance/expenses/categories');
     } catch (error) {
@@ -276,8 +277,8 @@ export default function ExpenseCategoryDetailsPage({ params }: { params: { id: s
   const avgExpenseAmount = filteredExpenses.length > 0 ? filteredTotal / filteredExpenses.length : 0;
   const thisMonthExpenses = expenses.filter(expense => {
     const now = new Date();
-    return expense.date.getMonth() === now.getMonth() && 
-           expense.date.getFullYear() === now.getFullYear();
+    return expense.date.getMonth() === now.getMonth() &&
+      expense.date.getFullYear() === now.getFullYear();
   });
   const thisMonthTotal = thisMonthExpenses.reduce((sum, expense) => sum + expense.amount, 0);
 
@@ -387,7 +388,7 @@ export default function ExpenseCategoryDetailsPage({ params }: { params: { id: s
             <p className="text-gray-600">{category.description || 'Category details and expenses'}</p>
           </div>
         </div>
-        
+
         <div className="flex gap-2">
           <Button variant="outline" onClick={handleExportExpenses}>
             <Download className="mr-2 h-4 w-4" />
@@ -446,22 +447,22 @@ export default function ExpenseCategoryDetailsPage({ params }: { params: { id: s
                 </div>
                 <div className="font-medium">{category.color}</div>
               </div>
-              
+
               <div className="space-y-2">
                 <div className="text-sm text-gray-500">Status</div>
-                <Badge 
+                <Badge
                   variant={category.isActive ? 'default' : 'secondary'}
                   className={category.isActive ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}
                 >
                   {category.isActive ? 'Active' : 'Inactive'}
                 </Badge>
               </div>
-              
+
               <div className="space-y-2">
                 <div className="text-sm text-gray-500">Created</div>
                 <div className="font-medium">{format(category.createdAt, 'MMM dd, yyyy')}</div>
               </div>
-              
+
               <div className="space-y-2">
                 <div className="text-sm text-gray-500">Last Updated</div>
                 <div className="font-medium">{format(category.updatedAt, 'MMM dd, yyyy')}</div>
@@ -487,7 +488,7 @@ export default function ExpenseCategoryDetailsPage({ params }: { params: { id: s
               </div>
             </CardContent>
           </Card>
-          
+
           <Card>
             <CardContent className="p-6">
               <div className="flex items-center gap-4">
@@ -503,7 +504,7 @@ export default function ExpenseCategoryDetailsPage({ params }: { params: { id: s
               </div>
             </CardContent>
           </Card>
-          
+
           <Card>
             <CardContent className="p-6">
               <div className="flex items-center gap-4">
@@ -519,7 +520,7 @@ export default function ExpenseCategoryDetailsPage({ params }: { params: { id: s
               </div>
             </CardContent>
           </Card>
-          
+
           <Card>
             <CardContent className="p-6">
               <div className="flex items-center gap-4">

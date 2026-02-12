@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useParams } from 'next/navigation';
 import Link from 'next/link';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
@@ -95,8 +95,9 @@ const mockIncomeData: IncomeData = {
   updatedAt: '2024-01-15T10:30:00Z'
 };
 
-export default function IncomeDetailsPage({ params }: { params: { id: string } }) {
+export default function IncomeDetailsPage() {
   const router = useRouter();
+  const params = useParams();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
@@ -159,16 +160,16 @@ export default function IncomeDetailsPage({ params }: { params: { id: string } }
 
   const onSubmit = async (data: IncomeFormValues) => {
     setSaving(true);
-    
+
     try {
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 1000));
-      
+
       console.log('Updated income data:', {
         ...data,
         amount: parseFloat(data.amount)
       });
-      
+
       // Update local state
       setIncomeData(prev => ({
         ...prev,
@@ -177,7 +178,7 @@ export default function IncomeDetailsPage({ params }: { params: { id: string } }
         categoryName: incomeCategories.find(cat => cat.id === data.categoryId)?.name || prev.categoryName,
         updatedAt: new Date().toISOString()
       }));
-      
+
       setIsEditing(false);
       toast.success('Income updated successfully!');
     } catch (error) {
@@ -189,11 +190,11 @@ export default function IncomeDetailsPage({ params }: { params: { id: string } }
 
   const handleDelete = async () => {
     setDeleting(true);
-    
+
     try {
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 1000));
-      
+
       toast.success('Income deleted successfully!');
       router.push('/dashboard/finance/income');
     } catch (error) {
@@ -253,7 +254,7 @@ export default function IncomeDetailsPage({ params }: { params: { id: string } }
             </p>
           </div>
         </div>
-        
+
         {!isEditing && (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -559,31 +560,31 @@ export default function IncomeDetailsPage({ params }: { params: { id: string } }
                     <label className="text-sm font-medium text-muted-foreground">Description</label>
                     <p className="text-sm">{incomeData.description}</p>
                   </div>
-                  
+
                   <div className="space-y-2">
                     <label className="text-sm font-medium text-muted-foreground">Amount</label>
                     <p className="text-2xl font-bold text-brand-primary">
                       {formatCurrency(incomeData.amount)}
                     </p>
                   </div>
-                  
+
                   <div className="space-y-2">
                     <label className="text-sm font-medium text-muted-foreground">Category</label>
                     <p className="text-sm">
                       <Badge variant="outline">{incomeData.categoryName}</Badge>
                     </p>
                   </div>
-                  
+
                   <div className="space-y-2">
                     <label className="text-sm font-medium text-muted-foreground">Source</label>
                     <p className="text-sm">{incomeData.source}</p>
                   </div>
-                  
+
                   <div className="space-y-2">
                     <label className="text-sm font-medium text-muted-foreground">Date</label>
                     <p className="text-sm">{new Date(incomeData.date).toLocaleDateString()}</p>
                   </div>
-                  
+
                   {incomeData.reference && (
                     <div className="space-y-2">
                       <label className="text-sm font-medium text-muted-foreground">Reference</label>
@@ -591,7 +592,7 @@ export default function IncomeDetailsPage({ params }: { params: { id: string } }
                     </div>
                   )}
                 </div>
-                
+
                 {incomeData.notes && (
                   <>
                     <Separator />
@@ -601,9 +602,9 @@ export default function IncomeDetailsPage({ params }: { params: { id: string } }
                     </div>
                   </>
                 )}
-                
+
                 <Separator />
-                
+
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-xs text-muted-foreground">
                   <div>
                     <span className="font-medium">Created:</span> {new Date(incomeData.createdAt).toLocaleString()}

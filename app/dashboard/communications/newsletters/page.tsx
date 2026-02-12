@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { 
+import {
   Select,
   SelectContent,
   SelectItem,
@@ -13,7 +13,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
-import { 
+import {
   Table,
   TableBody,
   TableCell,
@@ -21,7 +21,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { 
+import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
@@ -39,7 +39,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { 
+import {
   ArrowLeft,
   FileText,
   Plus,
@@ -61,6 +61,22 @@ import {
   XCircle,
   AlertCircle
 } from 'lucide-react';
+
+interface Newsletter {
+  id: string;
+  title: string;
+  subject: string;
+  status: string;
+  template: string;
+  subscribers: number;
+  openRate: number;
+  clickRate: number;
+  scheduledDate: string | null;
+  sentDate: string | null;
+  createdAt: string;
+  author: string;
+  preview: string;
+}
 
 // Mock data for newsletters
 const newsletters = [
@@ -141,7 +157,7 @@ export default function NewslettersPage() {
   const [statusFilter, setStatusFilter] = useState('all');
   const [templateFilter, setTemplateFilter] = useState('all');
   const deleteDialog = useDeleteDialog();
-  const [sendDialog, setSendDialog] = useState({ isOpen: false, newsletter: null });
+  const [sendDialog, setSendDialog] = useState<{ isOpen: boolean; newsletter: Newsletter | null }>({ isOpen: false, newsletter: null });
   const [isSending, setIsSending] = useState(false);
 
   const getStatusColor = (status: string) => {
@@ -164,44 +180,45 @@ export default function NewslettersPage() {
 
   const filteredNewsletters = newsletters.filter(newsletter => {
     const matchesSearch = newsletter.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         newsletter.subject.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         newsletter.preview.toLowerCase().includes(searchTerm.toLowerCase());
+      newsletter.subject.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      newsletter.preview.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesStatus = statusFilter === 'all' || newsletter.status === statusFilter;
     const matchesTemplate = templateFilter === 'all' || newsletter.template === templateFilter;
-    
+
     return matchesSearch && matchesStatus && matchesTemplate;
   });
 
   const handleDelete = (newsletter: any) => {
     deleteDialog.openDialog(newsletter);
   };
-  
+
   const handleSendNow = (newsletter: any) => {
     setSendDialog({ isOpen: true, newsletter });
   };
-  
+
   const confirmSendNewsletter = async () => {
     if (!sendDialog.newsletter) return;
-    
+
     setIsSending(true);
     try {
       // Simulate API call to send newsletter
       await new Promise(resolve => setTimeout(resolve, 2000));
-      
+
       // Update newsletter status in the local state
-      const updatedNewsletters = newsletters.map(newsletter => 
-        newsletter.id === sendDialog.newsletter.id 
-          ? { 
-              ...newsletter, 
-              status: 'sent',
-              sentDate: new Date().toISOString()
-            }
+      const targetId = sendDialog.newsletter.id;
+      const updatedNewsletters = newsletters.map(newsletter =>
+        newsletter.id === targetId
+          ? {
+            ...newsletter,
+            status: 'sent',
+            sentDate: new Date().toISOString()
+          }
           : newsletter
       );
-      
+
       toast.success(`Newsletter "${sendDialog.newsletter.title}" sent successfully!`);
       setSendDialog({ isOpen: false, newsletter: null });
-      
+
       // In a real app, you would update the state or refetch data
       // For now, we'll just close the dialog
     } catch (error) {
@@ -247,7 +264,7 @@ export default function NewslettersPage() {
         >
           <ArrowLeft className="h-4 w-4" />
         </Button>
-        
+
         <div className="flex items-center gap-3">
           <div className="p-2 bg-brand-primary/10 rounded-lg">
             <FileText className="h-6 w-6 text-brand-primary" />
@@ -271,7 +288,7 @@ export default function NewslettersPage() {
             <p className="text-xs text-muted-foreground">All newsletters</p>
           </CardContent>
         </Card>
-        
+
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Sent</CardTitle>
@@ -282,7 +299,7 @@ export default function NewslettersPage() {
             <p className="text-xs text-muted-foreground">Successfully delivered</p>
           </CardContent>
         </Card>
-        
+
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Subscribers</CardTitle>
@@ -293,7 +310,7 @@ export default function NewslettersPage() {
             <p className="text-xs text-muted-foreground">Active subscribers</p>
           </CardContent>
         </Card>
-        
+
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Avg Open Rate</CardTitle>
@@ -413,7 +430,7 @@ export default function NewslettersPage() {
                     <div className="flex items-center gap-1">
                       <Calendar className="h-4 w-4 text-muted-foreground" />
                       <div className="text-sm">
-                        {newsletter.status === 'sent' 
+                        {newsletter.status === 'sent'
                           ? formatDate(newsletter.sentDate)
                           : formatDate(newsletter.scheduledDate)
                         }
@@ -447,7 +464,7 @@ export default function NewslettersPage() {
                           <Copy className="mr-2 h-4 w-4" />
                           Duplicate
                         </DropdownMenuItem>
-                        <DropdownMenuItem 
+                        <DropdownMenuItem
                           onClick={() => handleDelete(newsletter)}
                           className="text-red-600"
                         >
@@ -477,7 +494,7 @@ export default function NewslettersPage() {
         itemName={deleteDialog.itemToDelete?.title}
         loading={deleteDialog.loading}
       />
-      
+
       {/* Send Confirmation Dialog */}
       <AlertDialog open={sendDialog.isOpen} onOpenChange={(open) => !open && setSendDialog({ isOpen: false, newsletter: null })}>
         <AlertDialogContent>

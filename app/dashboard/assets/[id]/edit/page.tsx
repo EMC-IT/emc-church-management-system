@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useParams } from 'next/navigation';
 import Link from 'next/link';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -35,11 +35,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { toast } from 'sonner';
 import { Asset, AssetCategory, AssetStatus, AssetCondition, AssetFormData } from '@/lib/types/assets';
 
-interface EditAssetPageProps {
-  params: {
-    id: string;
-  };
-}
+
 
 // Validation schema
 const assetFormSchema = z.object({
@@ -152,8 +148,9 @@ const mockAsset: Asset = {
   updatedAt: '2024-01-15T14:30:00Z'
 };
 
-export default function EditAssetPage({ params }: EditAssetPageProps) {
+export default function EditAssetPage() {
   const router = useRouter();
+  const params = useParams();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [asset, setAsset] = useState<Asset | null>(null);
@@ -174,7 +171,7 @@ export default function EditAssetPage({ params }: EditAssetPageProps) {
       try {
         await new Promise(resolve => setTimeout(resolve, 1000));
         setAsset(mockAsset);
-        
+
         // Populate form with existing data
         form.reset({
           name: mockAsset.name,
@@ -219,7 +216,7 @@ export default function EditAssetPage({ params }: EditAssetPageProps) {
     try {
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 2000));
-      
+
       console.log('Updated asset data:', data);
       toast.success('Asset updated successfully!');
       router.push(`/dashboard/assets/${params.id}`);
@@ -308,7 +305,7 @@ export default function EditAssetPage({ params }: EditAssetPageProps) {
             <X className="mr-2 h-4 w-4" />
             Cancel
           </Button>
-          <Button 
+          <Button
             onClick={form.handleSubmit(onSubmit)}
             disabled={saving}
           >
@@ -354,7 +351,7 @@ export default function EditAssetPage({ params }: EditAssetPageProps) {
                     <FormItem>
                       <FormLabel>Description</FormLabel>
                       <FormControl>
-                        <Textarea 
+                        <Textarea
                           placeholder="Describe the asset and its purpose"
                           className="min-h-[100px]"
                           {...field}
@@ -520,8 +517,8 @@ export default function EditAssetPage({ params }: EditAssetPageProps) {
                         <FormControl>
                           <div className="relative">
                             <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground">₵</span>
-                            <Input 
-                              type="number" 
+                            <Input
+                              type="number"
                               step="0.01"
                               className="pl-8"
                               placeholder="0.00"
@@ -544,8 +541,8 @@ export default function EditAssetPage({ params }: EditAssetPageProps) {
                         <FormControl>
                           <div className="relative">
                             <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground">₵</span>
-                            <Input 
-                              type="number" 
+                            <Input
+                              type="number"
                               step="0.01"
                               className="pl-8"
                               placeholder="0.00"
@@ -568,8 +565,8 @@ export default function EditAssetPage({ params }: EditAssetPageProps) {
                       <FormLabel>Annual Depreciation Rate (%)</FormLabel>
                       <FormControl>
                         <div className="relative">
-                          <Input 
-                            type="number" 
+                          <Input
+                            type="number"
                             step="0.1"
                             min="0"
                             max="100"
@@ -878,7 +875,7 @@ export default function EditAssetPage({ params }: EditAssetPageProps) {
                     <FormItem>
                       <FormLabel>Notes</FormLabel>
                       <FormControl>
-                        <Textarea 
+                        <Textarea
                           placeholder="Additional notes about the asset"
                           className="min-h-[100px]"
                           {...field}
@@ -906,16 +903,16 @@ export default function EditAssetPage({ params }: EditAssetPageProps) {
                         className="hidden"
                         id="file-upload"
                       />
-                      <Button 
-                        type="button" 
-                        variant="outline" 
+                      <Button
+                        type="button"
+                        variant="outline"
                         className="mt-2"
                         onClick={() => document.getElementById('file-upload')?.click()}
                       >
                         Choose Files
                       </Button>
                     </div>
-                    
+
                     {uploadedFiles.length > 0 && (
                       <div className="space-y-2">
                         {uploadedFiles.map((file, index) => (
@@ -927,9 +924,9 @@ export default function EditAssetPage({ params }: EditAssetPageProps) {
                                 ({(file.size / 1024 / 1024).toFixed(2)} MB)
                               </span>
                             </div>
-                            <Button 
-                              type="button" 
-                              variant="ghost" 
+                            <Button
+                              type="button"
+                              variant="ghost"
                               size="sm"
                               onClick={() => handleRemoveFile(index)}
                             >
