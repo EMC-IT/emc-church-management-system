@@ -2,12 +2,14 @@
 
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { DataTable } from '@/components/ui/data-table';
 import { DeleteDialog, useDeleteDialog } from '@/components/ui/delete-dialog';
 import { LazySection } from '@/components/ui/lazy-section';
 import { LazyLoader } from '@/components/ui/lazy-loader';
+import { PageHeader } from '@/components/ui/page-header';
+import { StatCard } from '@/components/ui/stat-card';
 import { CardSkeleton, TableSkeleton, ChartSkeleton } from '@/components/ui/skeleton-loaders';
 import { 
   Plus, 
@@ -406,21 +408,18 @@ export default function PledgesPage() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Pledges</h1>
-          <p className="text-muted-foreground">
-            Manage and track all giving pledges
-          </p>
-        </div>
-        <Button asChild>
-          <Link href="/dashboard/finance/giving/pledges/add">
-            <Plus className="mr-2 h-4 w-4" />
-            Record Pledge
-          </Link>
-        </Button>
-      </div>
+      <PageHeader
+        title="Pledges"
+        description="Manage and track all giving pledges"
+        actions={
+          <Button asChild>
+            <Link href="/dashboard/finance/giving/pledges/add">
+              <Plus className="mr-2 h-4 w-4" />
+              Record Pledge
+            </Link>
+          </Button>
+        }
+      />
 
       {/* Statistics Cards */}
       <LazySection
@@ -431,60 +430,43 @@ export default function PledgesPage() {
         className="grid gap-4 md:grid-cols-2 lg:grid-cols-4"
         threshold={0.1}
       >
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Pledges</CardTitle>
-            <Target className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{totalPledges}</div>
-            <p className="text-xs text-muted-foreground">
-              {activePledges} active, {completedPledges} completed
-            </p>
-          </CardContent>
-        </Card>
+        <StatCard
+          title="Total Pledges"
+          value={totalPledges}
+          icon={Target}
+          accent="primary"
+          description={`${activePledges} active, ${completedPledges} completed`}
+        />
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Pledged</CardTitle>
-            <BadgeCent className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{formatCurrency(totalAmount)}</div>
-            <p className="text-xs text-muted-foreground">
-              All pledges combined
-            </p>
-          </CardContent>
-        </Card>
+        <StatCard
+          title="Total Pledged"
+          value={formatCurrency(totalAmount)}
+          icon={BadgeCent}
+          accent="secondary"
+          description="All pledges combined"
+        />
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Amount Paid</CardTitle>
-            <TrendingUp className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{formatCurrency(totalPaid)}</div>
-            <p className="text-xs text-muted-foreground">
-              {totalAmount > 0 ? ((totalPaid / totalAmount) * 100).toFixed(1) : 0}% of total pledged
-            </p>
-          </CardContent>
-        </Card>
+        <StatCard
+          title="Amount Paid"
+          value={formatCurrency(totalPaid)}
+          icon={TrendingUp}
+          accent="success"
+          description={`${totalAmount > 0 ? ((totalPaid / totalAmount) * 100).toFixed(1) : 0}% of total pledged`}
+        />
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Remaining</CardTitle>
-            <Calendar className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{formatCurrency(totalRemaining)}</div>
-            <p className="text-xs text-muted-foreground">
-              {overduePledges > 0 && (
-                <span className="text-red-600">{overduePledges} overdue</span>
-              )}
-              {overduePledges === 0 && 'All on track'}
-            </p>
-          </CardContent>
-        </Card>
+        <StatCard
+          title="Remaining"
+          value={formatCurrency(totalRemaining)}
+          icon={Calendar}
+          accent="accent"
+          description={
+            overduePledges > 0 ? (
+              <span className="text-red-600">{overduePledges} overdue</span>
+            ) : (
+              'All on track'
+            )
+          }
+        />
       </LazySection>
 
       {/* Pledges Table */}
@@ -492,9 +474,6 @@ export default function PledgesPage() {
         <Card>
           <CardHeader>
             <CardTitle>All Pledges</CardTitle>
-            <CardDescription>
-              View and manage all giving pledges with payment tracking
-            </CardDescription>
           </CardHeader>
           <CardContent>
             {loading ? (

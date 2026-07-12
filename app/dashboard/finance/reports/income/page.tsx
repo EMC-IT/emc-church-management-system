@@ -3,7 +3,9 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { PageHeader } from '@/components/ui/page-header';
+import { StatCard } from '@/components/ui/stat-card';
 import { Badge } from '@/components/ui/badge';
 import { 
   Select,
@@ -140,7 +142,7 @@ export default function IncomeReportsPage() {
   return (
     <div className="space-y-6">
       {/* Header with Back Navigation */}
-      <div className="flex items-center gap-4 mb-6">
+      <div className="flex items-center gap-4">
         <Button
           variant="outline"
           size="icon"
@@ -149,16 +151,7 @@ export default function IncomeReportsPage() {
         >
           <ArrowLeft className="h-4 w-4" />
         </Button>
-        
-        <div className="flex items-center gap-3">
-          <div className="p-2 bg-brand-primary/10 rounded-lg">
-            <TrendingUp className="h-6 w-6 text-brand-primary" />
-          </div>
-          <div>
-            <h1 className="text-2xl font-bold tracking-tight">Income Reports</h1>
-            <p className="text-muted-foreground">Source analysis, trends, and monthly breakdown</p>
-          </div>
-        </div>
+        <PageHeader title="Income Reports" />
       </div>
 
       {/* Controls */}
@@ -189,71 +182,42 @@ export default function IncomeReportsPage() {
 
       {/* Summary Cards */}
       <div className="grid gap-4 grid-cols-2 md:grid-cols-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Income</CardTitle>
-            <Wallet className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">₵{incomeSummary.totalIncome.toLocaleString()}</div>
-            <p className="text-xs text-muted-foreground">This year</p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Monthly Average</CardTitle>
-            <Calendar className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">₵{incomeSummary.monthlyAverage.toLocaleString()}</div>
-            <p className="text-xs text-muted-foreground">Per month</p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">YoY Growth</CardTitle>
-            <TrendingUp className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-green-600">+{incomeSummary.yearOverYearGrowth}%</div>
-            <p className="text-xs text-muted-foreground">Year over year</p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Donors</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{incomeSummary.donorCount}</div>
-            <p className="text-xs text-muted-foreground">Active donors</p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Average Donation</CardTitle>
-            <Gift className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">₵{incomeSummary.averageDonation}</div>
-            <p className="text-xs text-muted-foreground">Per donation</p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Recurring Donors</CardTitle>
-            <Heart className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{incomeSummary.recurringDonors}</div>
-            <p className="text-xs text-muted-foreground">{((incomeSummary.recurringDonors / incomeSummary.donorCount) * 100).toFixed(1)}% of total</p>
-          </CardContent>
-        </Card>
+        <StatCard
+          title="Total Income"
+          value={`₵${incomeSummary.totalIncome.toLocaleString()}`}
+          icon={Wallet}
+          description="This year"
+        />
+        <StatCard
+          title="Monthly Average"
+          value={`₵${incomeSummary.monthlyAverage.toLocaleString()}`}
+          icon={Calendar}
+          description="Per month"
+        />
+        <StatCard
+          title="YoY Growth"
+          value={`+${incomeSummary.yearOverYearGrowth}%`}
+          icon={TrendingUp}
+          description="Year over year"
+        />
+        <StatCard
+          title="Total Donors"
+          value={incomeSummary.donorCount}
+          icon={Users}
+          description="Active donors"
+        />
+        <StatCard
+          title="Average Donation"
+          value={`₵${incomeSummary.averageDonation}`}
+          icon={Gift}
+          description="Per donation"
+        />
+        <StatCard
+          title="Recurring Donors"
+          value={incomeSummary.recurringDonors}
+          icon={Heart}
+          description={`${((incomeSummary.recurringDonors / incomeSummary.donorCount) * 100).toFixed(1)}% of total`}
+        />
       </div>
 
       {/* Tabs */}
@@ -270,7 +234,6 @@ export default function IncomeReportsPage() {
             <Card className="hover:shadow-md transition-shadow">
               <CardHeader>
                 <CardTitle>Monthly Income Trend</CardTitle>
-                <CardDescription>Income progression throughout the year</CardDescription>
               </CardHeader>
               <CardContent>
                 <ChartContainer config={trendChartConfig} className="h-[300px] w-full">
@@ -314,7 +277,6 @@ export default function IncomeReportsPage() {
             <Card>
               <CardHeader>
                 <CardTitle>Top Donors</CardTitle>
-                <CardDescription>Highest contributing donors this period</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
@@ -341,7 +303,6 @@ export default function IncomeReportsPage() {
             <Card className="hover:shadow-md transition-shadow">
               <CardHeader>
                 <CardTitle>Income by Source</CardTitle>
-                <CardDescription>Distribution of income sources</CardDescription>
               </CardHeader>
               <CardContent>
                 <ChartContainer config={sourceChartConfig} className="h-[300px] w-full">
@@ -372,7 +333,6 @@ export default function IncomeReportsPage() {
             <Card>
               <CardHeader>
                 <CardTitle>Source Performance</CardTitle>
-                <CardDescription>Growth rates by income source</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
@@ -403,7 +363,6 @@ export default function IncomeReportsPage() {
           <Card className="hover:shadow-md transition-shadow">
             <CardHeader>
               <CardTitle>Income Trends by Source</CardTitle>
-              <CardDescription>Monthly breakdown of all income sources</CardDescription>
             </CardHeader>
             <CardContent>
               <ChartContainer config={monthlyChartConfig} className="h-[400px] w-full">
@@ -470,7 +429,6 @@ export default function IncomeReportsPage() {
             <Card className="hover:shadow-md transition-shadow">
               <CardHeader>
                 <CardTitle>Income by Age Group</CardTitle>
-                <CardDescription>Contribution patterns by demographic</CardDescription>
               </CardHeader>
               <CardContent>
                 <ChartContainer config={sourceChartConfig} className="h-[300px] w-full">
@@ -508,7 +466,6 @@ export default function IncomeReportsPage() {
             <Card>
               <CardHeader>
                 <CardTitle>Demographic Details</CardTitle>
-                <CardDescription>Detailed breakdown by age group</CardDescription>
               </CardHeader>
               <CardContent>
                 <Table>

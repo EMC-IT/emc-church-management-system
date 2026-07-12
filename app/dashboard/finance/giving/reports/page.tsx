@@ -2,7 +2,9 @@
 
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { PageHeader } from '@/components/ui/page-header';
+import { StatCard } from '@/components/ui/stat-card';
 import { Badge } from '@/components/ui/badge';
 import { DataTable } from '@/components/ui/data-table';
 import { Input } from '@/components/ui/input';
@@ -392,39 +394,36 @@ export default function GivingReportsPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Giving Reports</h1>
-          <p className="text-muted-foreground">
-            Comprehensive giving analytics and insights
-          </p>
-        </div>
-        <div className="flex items-center space-x-2">
-          <Button variant="outline" onClick={() => loadReportData()}>
-            <RefreshCw className="mr-2 h-4 w-4" />
-            Refresh
-          </Button>
-          <Select onValueChange={(value) => handleExport(value as 'pdf' | 'excel' | 'csv')}>
-            <SelectTrigger className="w-32">
-              <SelectValue placeholder="Export" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="pdf">
-                <Download className="mr-2 h-4 w-4" />
-                PDF
-              </SelectItem>
-              <SelectItem value="excel">
-                <Download className="mr-2 h-4 w-4" />
-                Excel
-              </SelectItem>
-              <SelectItem value="csv">
-                <Download className="mr-2 h-4 w-4" />
-                CSV
-              </SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-      </div>
+      <PageHeader
+        title="Giving Reports"
+        actions={
+          <>
+            <Button variant="outline" onClick={() => loadReportData()}>
+              <RefreshCw className="mr-2 h-4 w-4" />
+              Refresh
+            </Button>
+            <Select onValueChange={(value) => handleExport(value as 'pdf' | 'excel' | 'csv')}>
+              <SelectTrigger className="w-32">
+                <SelectValue placeholder="Export" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="pdf">
+                  <Download className="mr-2 h-4 w-4" />
+                  PDF
+                </SelectItem>
+                <SelectItem value="excel">
+                  <Download className="mr-2 h-4 w-4" />
+                  Excel
+                </SelectItem>
+                <SelectItem value="csv">
+                  <Download className="mr-2 h-4 w-4" />
+                  CSV
+                </SelectItem>
+              </SelectContent>
+            </Select>
+          </>
+        }
+      />
 
       {/* Filters */}
       <LazySection
@@ -440,9 +439,6 @@ export default function GivingReportsPage() {
               <Filter className="h-5 w-5" />
               <span>Report Filters</span>
             </CardTitle>
-            <CardDescription>
-              Filter the report data by date range, category, type, and method
-            </CardDescription>
           </CardHeader>
           <CardContent>
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
@@ -561,57 +557,30 @@ export default function GivingReportsPage() {
          threshold={0.1}
        >
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Amount</CardTitle>
-              <BadgeCent className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{formatCurrency(report.totalAmount)}</div>
-              <p className="text-xs text-muted-foreground">
-                {report.period}
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Count</CardTitle>
-              <Users className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{report.totalCount}</div>
-              <p className="text-xs text-muted-foreground">
-                Giving transactions
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Average Amount</CardTitle>
-              <TrendingUp className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{formatCurrency(report.averageAmount)}</div>
-              <p className="text-xs text-muted-foreground">
-                Per transaction
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Growth</CardTitle>
-              <TrendingUp className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-green-600">+12.5%</div>
-              <p className="text-xs text-muted-foreground">
-                vs previous period
-              </p>
-            </CardContent>
-          </Card>
+          <StatCard
+            title="Total Amount"
+            value={formatCurrency(report.totalAmount)}
+            icon={BadgeCent}
+            description={report.period}
+          />
+          <StatCard
+            title="Total Count"
+            value={report.totalCount}
+            icon={Users}
+            description="Giving transactions"
+          />
+          <StatCard
+            title="Average Amount"
+            value={formatCurrency(report.averageAmount)}
+            icon={TrendingUp}
+            description="Per transaction"
+          />
+          <StatCard
+            title="Growth"
+            value="+12.5%"
+            icon={TrendingUp}
+            description="vs previous period"
+          />
         </div>
       </LazySection>
 
@@ -682,9 +651,6 @@ export default function GivingReportsPage() {
             <Card>
               <CardHeader>
                 <CardTitle>Giving by Category</CardTitle>
-                <CardDescription>
-                  Detailed breakdown of giving by category
-                </CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
@@ -714,9 +680,6 @@ export default function GivingReportsPage() {
             <Card>
               <CardHeader>
                 <CardTitle>Giving by Payment Method</CardTitle>
-                <CardDescription>
-                  Analysis of preferred payment methods
-                </CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
@@ -748,9 +711,6 @@ export default function GivingReportsPage() {
             <Card>
               <CardHeader>
                 <CardTitle>Detailed Giving Data</CardTitle>
-                <CardDescription>
-                  Complete list of giving transactions for the selected period
-                </CardDescription>
               </CardHeader>
               <CardContent>
                 <DataTable

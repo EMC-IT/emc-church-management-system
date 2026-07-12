@@ -3,13 +3,15 @@
 import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { DataTable } from '@/components/ui/data-table';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { LazySection } from '@/components/ui/lazy-section';
 import { LazyLoader } from '@/components/ui/lazy-loader';
+import { PageHeader } from '@/components/ui/page-header';
+import { StatCard } from '@/components/ui/stat-card';
 import { CardSkeleton, ProfileSkeleton, TableSkeleton } from '@/components/ui/skeleton-loaders';
 import { 
   ArrowLeft, 
@@ -348,100 +350,98 @@ export default function PledgeDetailsPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center space-x-4">
-          <Button variant="ghost" size="sm" asChild>
-            <Link href="/dashboard/finance/giving/pledges">
-              <ArrowLeft className="mr-2 h-4 w-4" />
-              Back to Pledges
-            </Link>
-          </Button>
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight">
-              Pledge {pledge.receiptNumber}
-            </h1>
-            <p className="text-muted-foreground">
-              {pledge.isAnonymous ? 'Anonymous Pledge' : pledge.memberName}
-            </p>
-          </div>
-        </div>
-        <div className="flex items-center space-x-2">
-          {!isCompleted && (
-            <Dialog open={paymentDialogOpen} onOpenChange={setPaymentDialogOpen}>
-              <DialogTrigger asChild>
-                <Button>
-                  <Plus className="mr-2 h-4 w-4" />
-                  Record Payment
+      <div className="flex items-center gap-4">
+        <Button variant="outline" size="sm" asChild>
+          <Link href="/dashboard/finance/giving/pledges">
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            Back
+          </Link>
+        </Button>
+        <div className="flex-1">
+          <PageHeader
+            title={`Pledge ${pledge.receiptNumber}`}
+            description={pledge.isAnonymous ? 'Anonymous Pledge' : pledge.memberName}
+            actions={
+              <>
+                {!isCompleted && (
+                  <Dialog open={paymentDialogOpen} onOpenChange={setPaymentDialogOpen}>
+                    <DialogTrigger asChild>
+                      <Button>
+                        <Plus className="mr-2 h-4 w-4" />
+                        Record Payment
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent>
+                      <DialogHeader>
+                        <DialogTitle>Record Payment</DialogTitle>
+                        <DialogDescription>
+                          Record a new payment for this pledge
+                        </DialogDescription>
+                      </DialogHeader>
+                      <div className="space-y-4">
+                        <div className="space-y-2">
+                          <Label htmlFor="amount">Payment Amount</Label>
+                          <Input
+                            id="amount"
+                            type="number"
+                            step="0.01"
+                            min="0"
+                            max={pledge.pledgeDetails.remainingAmount}
+                            value={newPayment.amount || ''}
+                            onChange={(e) => setNewPayment({ ...newPayment, amount: parseFloat(e.target.value) || 0 })}
+                            placeholder="0.00"
+                          />
+                          <p className="text-xs text-muted-foreground">
+                            Remaining balance: {formatCurrency(pledge.pledgeDetails.remainingAmount)}
+                          </p>
+                        </div>
+
+                        <div className="space-y-2">
+                          <Label htmlFor="method">Payment Method</Label>
+                          <Select value={newPayment.method} onValueChange={(value) => setNewPayment({ ...newPayment, method: value })}>
+                            <SelectTrigger>
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="cash">Cash</SelectItem>
+                              <SelectItem value="bank_transfer">Bank Transfer</SelectItem>
+                              <SelectItem value="mobile_money">Mobile Money</SelectItem>
+                              <SelectItem value="check">Check</SelectItem>
+                              <SelectItem value="card">Card</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+
+                        <div className="space-y-2">
+                          <Label htmlFor="notes">Notes (Optional)</Label>
+                          <Input
+                            id="notes"
+                            value={newPayment.notes}
+                            onChange={(e) => setNewPayment({ ...newPayment, notes: e.target.value })}
+                            placeholder="Payment notes"
+                          />
+                        </div>
+                      </div>
+                      <DialogFooter>
+                        <Button variant="outline" onClick={() => setPaymentDialogOpen(false)}>
+                          Cancel
+                        </Button>
+                        <Button onClick={handleRecordPayment}>
+                          Record Payment
+                        </Button>
+                      </DialogFooter>
+                    </DialogContent>
+                  </Dialog>
+                )}
+                <Button variant="outline" asChild>
+                  <Link href={`/dashboard/finance/giving/pledges/${pledge.id}/edit`}>
+                    <Edit className="mr-2 h-4 w-4" />
+                    Edit
+                  </Link>
                 </Button>
-              </DialogTrigger>
-              <DialogContent>
-                <DialogHeader>
-                  <DialogTitle>Record Payment</DialogTitle>
-                  <DialogDescription>
-                    Record a new payment for this pledge
-                  </DialogDescription>
-                </DialogHeader>
-                <div className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="amount">Payment Amount</Label>
-                    <Input
-                      id="amount"
-                      type="number"
-                      step="0.01"
-                      min="0"
-                      max={pledge.pledgeDetails.remainingAmount}
-                      value={newPayment.amount || ''}
-                      onChange={(e) => setNewPayment({ ...newPayment, amount: parseFloat(e.target.value) || 0 })}
-                      placeholder="0.00"
-                    />
-                    <p className="text-xs text-muted-foreground">
-                      Remaining balance: {formatCurrency(pledge.pledgeDetails.remainingAmount)}
-                    </p>
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <Label htmlFor="method">Payment Method</Label>
-                    <Select value={newPayment.method} onValueChange={(value) => setNewPayment({ ...newPayment, method: value })}>
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="cash">Cash</SelectItem>
-                        <SelectItem value="bank_transfer">Bank Transfer</SelectItem>
-                        <SelectItem value="mobile_money">Mobile Money</SelectItem>
-                        <SelectItem value="check">Check</SelectItem>
-                        <SelectItem value="card">Card</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <Label htmlFor="notes">Notes (Optional)</Label>
-                    <Input
-                      id="notes"
-                      value={newPayment.notes}
-                      onChange={(e) => setNewPayment({ ...newPayment, notes: e.target.value })}
-                      placeholder="Payment notes"
-                    />
-                  </div>
-                </div>
-                <DialogFooter>
-                  <Button variant="outline" onClick={() => setPaymentDialogOpen(false)}>
-                    Cancel
-                  </Button>
-                  <Button onClick={handleRecordPayment}>
-                    Record Payment
-                  </Button>
-                </DialogFooter>
-              </DialogContent>
-            </Dialog>
-          )}
-          <Button variant="outline" asChild>
-            <Link href={`/dashboard/finance/giving/pledges/${pledge.id}/edit`}>
-              <Edit className="mr-2 h-4 w-4" />
-              Edit
-            </Link>
-          </Button>
+              </>
+            }
+          />
         </div>
       </div>
 
@@ -480,44 +480,29 @@ export default function PledgeDetailsPage() {
         threshold={0.1}
       >
         <div className="grid gap-4 md:grid-cols-4">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Pledged</CardTitle>
-              <Target className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{formatCurrency(pledge.pledgeDetails.totalAmount)}</div>
-              <p className="text-xs text-muted-foreground">
-                {pledge.pledgeDetails.installments} installments
-              </p>
-            </CardContent>
-          </Card>
+          <StatCard
+            title="Total Pledged"
+            value={formatCurrency(pledge.pledgeDetails.totalAmount)}
+            icon={Target}
+            accent="primary"
+            description={`${pledge.pledgeDetails.installments} installments`}
+          />
 
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Amount Paid</CardTitle>
-              <BadgeCent className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{formatCurrency(pledge.pledgeDetails.paidAmount)}</div>
-              <p className="text-xs text-muted-foreground">
-                {payments.length} payments made
-              </p>
-            </CardContent>
-          </Card>
+          <StatCard
+            title="Amount Paid"
+            value={formatCurrency(pledge.pledgeDetails.paidAmount)}
+            icon={BadgeCent}
+            accent="success"
+            description={`${payments.length} payments made`}
+          />
 
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Remaining</CardTitle>
-              <Clock className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{formatCurrency(pledge.pledgeDetails.remainingAmount)}</div>
-              <p className="text-xs text-muted-foreground">
-                {isCompleted ? 'Completed' : `${pledge.pledgeDetails.installments - payments.length} payments left`}
-              </p>
-            </CardContent>
-          </Card>
+          <StatCard
+            title="Remaining"
+            value={formatCurrency(pledge.pledgeDetails.remainingAmount)}
+            icon={Clock}
+            accent="accent"
+            description={isCompleted ? 'Completed' : `${pledge.pledgeDetails.installments - payments.length} payments left`}
+          />
 
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -649,9 +634,6 @@ export default function PledgeDetailsPage() {
             <Card>
             <CardHeader>
               <CardTitle>Payment History</CardTitle>
-              <CardDescription>
-                All payments received for this pledge
-              </CardDescription>
             </CardHeader>
             <CardContent>
               {payments.length > 0 ? (
@@ -679,9 +661,6 @@ export default function PledgeDetailsPage() {
             <Card>
             <CardHeader>
               <CardTitle>Payment Schedule</CardTitle>
-              <CardDescription>
-                Planned payment schedule for this pledge
-              </CardDescription>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">

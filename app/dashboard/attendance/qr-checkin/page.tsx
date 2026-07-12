@@ -3,7 +3,8 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { PageHeader } from '@/components/ui/page-header';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -175,38 +176,33 @@ export default function QRCheckinPage() {
 
 
       {/* Header */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div>
-          <div className="flex items-center gap-3 mb-2">
+      <div>
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => router.back()}
+          className="-ml-2 mb-2"
+        >
+          <ArrowLeft className="h-4 w-4 mr-1" />
+          Back
+        </Button>
+        <PageHeader
+          title="QR Code Check-in"
+          actions={
             <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => router.back()}
-              className="-ml-2"
+              onClick={handleGenerateNewQR}
+              disabled={isGenerating}
+              className="bg-brand-primary hover:bg-brand-primary/90"
             >
-              <ArrowLeft className="h-4 w-4 mr-1" />
-              Back
+              {isGenerating ? (
+                <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+              ) : (
+                <QrCode className="h-4 w-4 mr-2" />
+              )}
+              Generate New QR
             </Button>
-          </div>
-          <h1 className="text-3xl font-bold text-gray-900">QR Code Check-in</h1>
-          <p className="text-muted-foreground mt-1">
-            Generate and manage QR codes for quick attendance check-in
-          </p>
-        </div>
-        <div className="flex gap-2">
-          <Button
-            onClick={handleGenerateNewQR}
-            disabled={isGenerating}
-            className="bg-brand-primary hover:bg-brand-primary/90"
-          >
-            {isGenerating ? (
-              <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
-            ) : (
-              <QrCode className="h-4 w-4 mr-2" />
-            )}
-            Generate New QR
-          </Button>
-        </div>
+          }
+        />
       </div>
 
       {/* Stats Cards */}
@@ -272,9 +268,6 @@ export default function QRCheckinPage() {
               <QrCode className="h-5 w-5 text-brand-primary" />
               QR Code for Check-in
             </CardTitle>
-            <CardDescription>
-              Members can scan this QR code to check in quickly
-            </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
             {/* Service Configuration */}
@@ -363,9 +356,6 @@ export default function QRCheckinPage() {
               <Smartphone className="h-5 w-5 text-brand-primary" />
               Recent Check-ins
             </CardTitle>
-            <CardDescription>
-              Live feed of members checking in via QR code
-            </CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
@@ -415,9 +405,6 @@ export default function QRCheckinPage() {
       <Card>
         <CardHeader>
           <CardTitle>How to Use QR Check-in</CardTitle>
-          <CardDescription>
-            Instructions for members and administrators
-          </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="grid md:grid-cols-2 gap-6">

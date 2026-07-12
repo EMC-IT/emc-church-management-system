@@ -6,15 +6,13 @@ import Link from 'next/link';
 import {
   Plus,
   Wallet,
-  TrendingUp,
   Calendar,
   PieChart,
   FileText,
   ArrowRight,
   Receipt,
   Tag,
-  BarChart3,
-  ShoppingCart
+  BarChart3
 } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
@@ -23,6 +21,8 @@ import { DataTable } from '@/components/ui/data-table';
 import { Badge } from '@/components/ui/badge';
 import { LazySection } from '@/components/ui/lazy-section';
 import { LazyLoader } from '@/components/ui/lazy-loader';
+import { PageHeader } from '@/components/ui/page-header';
+import { StatCard } from '@/components/ui/stat-card';
 import { ColumnDef } from '@tanstack/react-table';
 
 // Expense data interface
@@ -164,14 +164,6 @@ export default function ExpensesOverviewPage() {
     }
   };
 
-  const getGrowthIcon = (growth: number) => {
-    return growth > 0 ? (
-      <TrendingUp className="h-3 w-3 text-red-500" />
-    ) : (
-      <TrendingUp className="h-3 w-3 text-brand-success rotate-180" />
-    );
-  };
-
   const columns: ColumnDef<ExpenseRecord>[] = [
     {
       accessorKey: 'description',
@@ -222,27 +214,26 @@ export default function ExpensesOverviewPage() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Expenses Overview</h1>
-          <p className="text-muted-foreground">Track and manage church expenses</p>
-        </div>
-        <div className="flex items-center space-x-2">
-          <Button variant="outline" asChild>
-            <Link href="/dashboard/finance/expenses/reports">
-              <FileText className="mr-2 h-4 w-4" />
-              View Reports
-            </Link>
-          </Button>
-          <Button asChild>
-            <Link href="/dashboard/finance/expenses/add">
-              <Plus className="mr-2 h-4 w-4" />
-              Record Expense
-            </Link>
-          </Button>
-        </div>
-      </div>
+      <PageHeader
+        title="Expenses Overview"
+        description="Track and manage church expenses"
+        actions={
+          <>
+            <Button variant="outline" asChild>
+              <Link href="/dashboard/finance/expenses/reports">
+                <FileText className="mr-2 h-4 w-4" />
+                View Reports
+              </Link>
+            </Button>
+            <Button asChild>
+              <Link href="/dashboard/finance/expenses/add">
+                <Plus className="mr-2 h-4 w-4" />
+                Record Expense
+              </Link>
+            </Button>
+          </>
+        }
+      />
 
       {/* Statistics Cards */}
       <LazySection
@@ -253,58 +244,40 @@ export default function ExpensesOverviewPage() {
         className="grid gap-4 md:grid-cols-2 lg:grid-cols-4"
         threshold={0.1}
       >
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Expenses</CardTitle>
-            <Wallet className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-red-600">{formatCurrency(expenseStats.totalAmount)}</div>
-            <p className="text-xs text-muted-foreground">
-              {expenseStats.totalCount} transactions
-            </p>
-          </CardContent>
-        </Card>
+        <StatCard
+          title="Total Expenses"
+          value={formatCurrency(expenseStats.totalAmount)}
+          icon={Wallet}
+          accent="accent"
+          description={`${expenseStats.totalCount} transactions`}
+        />
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">This Month</CardTitle>
-            <Calendar className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-red-600">{formatCurrency(expenseStats.thisMonth)}</div>
-            <div className="flex items-center text-xs text-muted-foreground">
-              {getGrowthIcon(expenseStats.growth)}
-              <span className="ml-1">{Math.abs(expenseStats.growth)}% from last month</span>
-            </div>
-          </CardContent>
-        </Card>
+        <StatCard
+          title="This Month"
+          value={formatCurrency(expenseStats.thisMonth)}
+          icon={Calendar}
+          accent="accent"
+          trend={{
+            value: `${expenseStats.growth}% from last month`,
+            direction: expenseStats.growth >= 0 ? 'up' : 'down',
+          }}
+        />
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Average Expense</CardTitle>
-            <Receipt className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{formatCurrency(expenseStats.averageAmount)}</div>
-            <p className="text-xs text-muted-foreground">
-              Per transaction
-            </p>
-          </CardContent>
-        </Card>
+        <StatCard
+          title="Average Expense"
+          value={formatCurrency(expenseStats.averageAmount)}
+          icon={Receipt}
+          accent="primary"
+          description="Per transaction"
+        />
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Categories</CardTitle>
-            <PieChart className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{expenseStats.categoriesCount}</div>
-            <p className="text-xs text-muted-foreground">
-              Active categories
-            </p>
-          </CardContent>
-        </Card>
+        <StatCard
+          title="Categories"
+          value={expenseStats.categoriesCount}
+          icon={PieChart}
+          accent="secondary"
+          description="Active categories"
+        />
       </LazySection>
 
       {/* Quick Actions */}
@@ -347,7 +320,6 @@ export default function ExpensesOverviewPage() {
             <div className="flex items-center justify-between">
               <div>
                 <CardTitle>Recent Expenses</CardTitle>
-                <CardDescription>Latest expense transactions</CardDescription>
               </div>
               <Button variant="outline" size="sm" asChild>
                 <Link href="/dashboard/finance/expenses">

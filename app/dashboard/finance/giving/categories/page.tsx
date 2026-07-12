@@ -2,12 +2,14 @@
 
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { DataTable } from '@/components/ui/data-table';
 import { SearchInput } from '@/components/ui/search-input';
 import { LazySection } from '@/components/ui/lazy-section';
 import { LazyLoader } from '@/components/ui/lazy-loader';
+import { PageHeader } from '@/components/ui/page-header';
+import { StatCard } from '@/components/ui/stat-card';
 import { CardSkeleton, TableSkeleton } from '@/components/ui/skeleton-loaders';
 import {
   DropdownMenu,
@@ -336,19 +338,18 @@ export default function GivingCategoriesPage() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Giving Categories</h1>
-          <p className="text-muted-foreground">Manage and organize giving categories</p>
-        </div>
-        <Button asChild>
-          <Link href="/dashboard/finance/giving/categories/add">
-            <Plus className="mr-2 h-4 w-4" />
-            Add Category
-          </Link>
-        </Button>
-      </div>
+      <PageHeader
+        title="Giving Categories"
+        description="Manage and organize giving categories"
+        actions={
+          <Button asChild>
+            <Link href="/dashboard/finance/giving/categories/add">
+              <Plus className="mr-2 h-4 w-4" />
+              Add Category
+            </Link>
+          </Button>
+        }
+      />
 
       {/* Summary Cards */}
       <LazySection
@@ -359,44 +360,29 @@ export default function GivingCategoriesPage() {
         className="grid gap-4 md:grid-cols-3"
         threshold={0.1}
       >
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Categories</CardTitle>
-            <PieChart className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{categories.length}</div>
-            <p className="text-xs text-muted-foreground">
-              {activeCategories} active
-            </p>
-          </CardContent>
-        </Card>
+        <StatCard
+          title="Total Categories"
+          value={categories.length}
+          icon={PieChart}
+          accent="primary"
+          description={`${activeCategories} active`}
+        />
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Amount</CardTitle>
-            <BadgeCent className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{formatCurrency(totalAmount)}</div>
-            <p className="text-xs text-muted-foreground">
-              Across all categories
-            </p>
-          </CardContent>
-        </Card>
+        <StatCard
+          title="Total Amount"
+          value={formatCurrency(totalAmount)}
+          icon={BadgeCent}
+          accent="success"
+          description="Across all categories"
+        />
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Transactions</CardTitle>
-            <TrendingUp className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{totalTransactions}</div>
-            <p className="text-xs text-muted-foreground">
-              All time
-            </p>
-          </CardContent>
-        </Card>
+        <StatCard
+          title="Total Transactions"
+          value={totalTransactions}
+          icon={TrendingUp}
+          accent="secondary"
+          description="All time"
+        />
       </LazySection>
 
       {/* Categories Table */}
@@ -404,9 +390,6 @@ export default function GivingCategoriesPage() {
         <Card>
           <CardHeader>
             <CardTitle>Categories</CardTitle>
-            <CardDescription>
-              Manage giving categories and view their performance
-            </CardDescription>
           </CardHeader>
           <CardContent>
             {loading ? (

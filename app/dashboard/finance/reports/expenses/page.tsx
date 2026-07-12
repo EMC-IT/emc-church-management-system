@@ -3,7 +3,9 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { PageHeader } from '@/components/ui/page-header';
+import { StatCard } from '@/components/ui/stat-card';
 import { Badge } from '@/components/ui/badge';
 import { 
   Select,
@@ -134,7 +136,7 @@ export default function ExpenseReportsPage() {
   return (
     <div className="space-y-6">
       {/* Header with Back Navigation */}
-      <div className="flex items-center gap-4 mb-6">
+      <div className="flex items-center gap-4">
         <Button
           variant="outline"
           size="icon"
@@ -143,16 +145,7 @@ export default function ExpenseReportsPage() {
         >
           <ArrowLeft className="h-4 w-4" />
         </Button>
-        
-        <div className="flex items-center gap-3">
-          <div className="p-2 bg-brand-primary/10 rounded-lg">
-            <Receipt className="h-6 w-6 text-brand-primary" />
-          </div>
-          <div>
-            <h1 className="text-2xl font-bold tracking-tight">Expense Reports</h1>
-            <p className="text-muted-foreground">Category and department expense analysis</p>
-          </div>
-        </div>
+        <PageHeader title="Expense Reports" />
       </div>
 
       {/* Controls */}
@@ -183,71 +176,42 @@ export default function ExpenseReportsPage() {
 
       {/* Summary Cards */}
       <div className="grid gap-4 grid-cols-2 md:grid-cols-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Expenses</CardTitle>
-            <Receipt className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">₵{expenseSummary.totalExpenses.toLocaleString()}</div>
-            <p className="text-xs text-muted-foreground">This year</p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Monthly Average</CardTitle>
-            <Calendar className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">₵{expenseSummary.monthlyAverage.toLocaleString()}</div>
-            <p className="text-xs text-muted-foreground">Per month</p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">YoY Growth</CardTitle>
-            <TrendingDown className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-red-600">+{expenseSummary.yearOverYearGrowth}%</div>
-            <p className="text-xs text-muted-foreground">Year over year</p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Budget Used</CardTitle>
-            <BarChart3 className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{expenseSummary.budgetUtilization}%</div>
-            <p className="text-xs text-muted-foreground">Of total budget</p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Largest Category</CardTitle>
-            <Settings className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-lg font-bold">{expenseSummary.largestCategory}</div>
-            <p className="text-xs text-muted-foreground">49% of expenses</p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Departments</CardTitle>
-            <Building className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{expenseSummary.departmentCount}</div>
-            <p className="text-xs text-muted-foreground">Active departments</p>
-          </CardContent>
-        </Card>
+        <StatCard
+          title="Total Expenses"
+          value={`₵${expenseSummary.totalExpenses.toLocaleString()}`}
+          icon={Receipt}
+          description="This year"
+        />
+        <StatCard
+          title="Monthly Average"
+          value={`₵${expenseSummary.monthlyAverage.toLocaleString()}`}
+          icon={Calendar}
+          description="Per month"
+        />
+        <StatCard
+          title="YoY Growth"
+          value={`+${expenseSummary.yearOverYearGrowth}%`}
+          icon={TrendingDown}
+          description="Year over year"
+        />
+        <StatCard
+          title="Budget Used"
+          value={`${expenseSummary.budgetUtilization}%`}
+          icon={BarChart3}
+          description="Of total budget"
+        />
+        <StatCard
+          title="Largest Category"
+          value={expenseSummary.largestCategory}
+          icon={Settings}
+          description="49% of expenses"
+        />
+        <StatCard
+          title="Departments"
+          value={expenseSummary.departmentCount}
+          icon={Building}
+          description="Active departments"
+        />
       </div>
 
       {/* Tabs */}
@@ -264,7 +228,6 @@ export default function ExpenseReportsPage() {
             <Card className="hover:shadow-md transition-shadow">
               <CardHeader>
                 <CardTitle>Monthly Expense Trend</CardTitle>
-                <CardDescription>Total expenses throughout the year</CardDescription>
               </CardHeader>
               <CardContent>
                 <ChartContainer config={monthlyChartConfig} className="h-[300px] w-full">
@@ -288,7 +251,6 @@ export default function ExpenseReportsPage() {
             <Card>
               <CardHeader>
                 <CardTitle>Top Expenses</CardTitle>
-                <CardDescription>Largest expenses this period</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
@@ -315,7 +277,6 @@ export default function ExpenseReportsPage() {
             <Card className="hover:shadow-md transition-shadow">
               <CardHeader>
                 <CardTitle>Expenses by Category</CardTitle>
-                <CardDescription>Distribution of expense categories</CardDescription>
               </CardHeader>
               <CardContent>
                 <ChartContainer config={categoryChartConfig} className="h-[300px] w-full">
@@ -343,7 +304,6 @@ export default function ExpenseReportsPage() {
             <Card>
               <CardHeader>
                 <CardTitle>Budget vs Actual</CardTitle>
-                <CardDescription>Category performance against budget</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
@@ -385,7 +345,6 @@ export default function ExpenseReportsPage() {
           <Card>
             <CardHeader>
               <CardTitle>Department Budget Performance</CardTitle>
-              <CardDescription>Budget utilization by department</CardDescription>
             </CardHeader>
             <CardContent>
               <Table>
@@ -426,7 +385,6 @@ export default function ExpenseReportsPage() {
           <Card className="hover:shadow-md transition-shadow">
             <CardHeader>
               <CardTitle>Expense Trends by Category</CardTitle>
-              <CardDescription>Monthly breakdown of all expense categories</CardDescription>
             </CardHeader>
             <CardContent>
               <ChartContainer config={monthlyChartConfig} className="h-[400px] w-full">

@@ -6,7 +6,8 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { PageHeader } from '@/components/ui/page-header';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -303,23 +304,16 @@ export default function TakeAttendancePage() {
 
 
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <Button 
-            variant="outline" 
-            size="sm" 
-            onClick={() => router.back()}
-          >
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Back
-          </Button>
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900">Take Attendance</h1>
-            <p className="text-muted-foreground mt-1">
-              Record attendance for church service
-            </p>
-          </div>
-        </div>
+      <div className="flex items-center gap-4">
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => router.back()}
+        >
+          <ArrowLeft className="h-4 w-4 mr-2" />
+          Back
+        </Button>
+        <PageHeader title="Take Attendance" />
       </div>
 
       {/* Progress Steps */}
@@ -357,9 +351,6 @@ export default function TakeAttendancePage() {
         <Card>
           <CardHeader>
             <CardTitle>Service Details</CardTitle>
-            <CardDescription>
-              Set up the attendance session details
-            </CardDescription>
           </CardHeader>
           <CardContent>
             <Form {...form}>
@@ -665,9 +656,6 @@ export default function TakeAttendancePage() {
               <div className="flex items-center justify-between">
                 <div>
                   <CardTitle>Members ({filteredMembers.length})</CardTitle>
-                  <CardDescription>
-                    Mark attendance for each member
-                  </CardDescription>
                 </div>
                 <Button
                   variant="outline"

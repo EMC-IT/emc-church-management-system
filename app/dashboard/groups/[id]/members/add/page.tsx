@@ -5,8 +5,9 @@ import { useRouter, useParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label as UILabel } from '@/components/ui/label';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { 
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { PageHeader } from '@/components/ui/page-header';
+import {
   Select,
   SelectContent,
   SelectItem,
@@ -191,26 +192,16 @@ export default function AddGroupMemberPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div className="space-y-1">
-          <div className="flex items-center space-x-2">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={handleCancel}
-              className="h-8 w-8"
-            >
-              <ArrowLeft className="h-4 w-4" />
-            </Button>
-            <div>
-              <h1 className="text-3xl font-bold tracking-tight">Add Members to Group</h1>
-              <p className="text-muted-foreground">
-                Select members to add to {group?.name}
-              </p>
-            </div>
-          </div>
-    
-        </div>
+      <div className="flex items-center gap-2">
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={handleCancel}
+          className="h-8 w-8"
+        >
+          <ArrowLeft className="h-4 w-4" />
+        </Button>
+        <PageHeader title="Add Members to Group" description={`Add to ${group?.name}`} />
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
@@ -224,9 +215,6 @@ export default function AddGroupMemberPage() {
                   <Search className="h-5 w-5" />
                   <span>Find Members</span>
                 </CardTitle>
-                <CardDescription>
-                  Search for church members to add to this group
-                </CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="relative">
@@ -253,9 +241,6 @@ export default function AddGroupMemberPage() {
                     {selectedMembers.size} selected
                   </Badge>
                 </CardTitle>
-                <CardDescription>
-                  Select members and assign their roles in the group
-                </CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4 max-h-96 overflow-y-auto">
@@ -345,9 +330,6 @@ export default function AddGroupMemberPage() {
             <Card>
               <CardHeader>
                 <CardTitle>Actions</CardTitle>
-                <CardDescription>
-                  Add selected members to the group
-                </CardDescription>
               </CardHeader>
               <CardContent className="space-y-3">
                 <Button
@@ -412,9 +394,6 @@ export default function AddGroupMemberPage() {
             <Card>
               <CardHeader>
                 <CardTitle>Available Roles</CardTitle>
-                <CardDescription>
-                  Roles that can be assigned to members
-                </CardDescription>
               </CardHeader>
               <CardContent className="space-y-2">
                 {roles.map((role) => (

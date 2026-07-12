@@ -30,7 +30,7 @@ import {
 } from '@tanstack/react-table';
 
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -39,6 +39,8 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { Input } from '@/components/ui/input';
 import { LazySection } from '@/components/ui/lazy-section';
 import { LazyLoader } from '@/components/ui/lazy-loader';
+import { PageHeader } from '@/components/ui/page-header';
+import { StatCard } from '@/components/ui/stat-card';
 import { toast } from 'sonner';
 
 // Types
@@ -342,73 +344,71 @@ export default function IncomeCategoryDetailsPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center space-x-4">
-          <Button variant="outline" size="sm" asChild>
-            <Link href="/dashboard/finance/income/categories">
-              <ArrowLeft className="mr-2 h-4 w-4" />
-              Back to Categories
-            </Link>
-          </Button>
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight">{category.name}</h1>
-            <p className="text-muted-foreground">
-              Category details and income records
-            </p>
-          </div>
+      <div className="flex items-center gap-4">
+        <Button variant="outline" size="sm" asChild>
+          <Link href="/dashboard/finance/income/categories">
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            Back
+          </Link>
+        </Button>
+        <div className="flex-1">
+          <PageHeader
+            title={category.name}
+            actions={
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline">
+                    <MoreHorizontal className="h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                  <DropdownMenuItem asChild>
+                    <Link href={`/dashboard/finance/income/categories/${category.id}/edit`}>
+                      <Edit className="mr-2 h-4 w-4" />
+                      Edit Category
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem>
+                    <Download className="mr-2 h-4 w-4" />
+                    Export Records
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <DropdownMenuItem
+                        className="text-red-600"
+                        onSelect={(e) => e.preventDefault()}
+                      >
+                        <Trash2 className="mr-2 h-4 w-4" />
+                        Delete Category
+                      </DropdownMenuItem>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                          This action cannot be undone. This will permanently delete the category
+                          "{category.name}" and all associated income records.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction
+                          onClick={handleDelete}
+                          className="bg-red-600 hover:bg-red-700"
+                          disabled={deleting}
+                        >
+                          {deleting ? 'Deleting...' : 'Delete'}
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            }
+          />
         </div>
-
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="outline">
-              <MoreHorizontal className="h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuLabel>Actions</DropdownMenuLabel>
-            <DropdownMenuItem asChild>
-              <Link href={`/dashboard/finance/income/categories/${category.id}/edit`}>
-                <Edit className="mr-2 h-4 w-4" />
-                Edit Category
-              </Link>
-            </DropdownMenuItem>
-            <DropdownMenuItem>
-              <Download className="mr-2 h-4 w-4" />
-              Export Records
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <AlertDialog>
-              <AlertDialogTrigger asChild>
-                <DropdownMenuItem
-                  className="text-red-600"
-                  onSelect={(e) => e.preventDefault()}
-                >
-                  <Trash2 className="mr-2 h-4 w-4" />
-                  Delete Category
-                </DropdownMenuItem>
-              </AlertDialogTrigger>
-              <AlertDialogContent>
-                <AlertDialogHeader>
-                  <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-                  <AlertDialogDescription>
-                    This action cannot be undone. This will permanently delete the category
-                    "{category.name}" and all associated income records.
-                  </AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                  <AlertDialogCancel>Cancel</AlertDialogCancel>
-                  <AlertDialogAction
-                    onClick={handleDelete}
-                    className="bg-red-600 hover:bg-red-700"
-                    disabled={deleting}
-                  >
-                    {deleting ? 'Deleting...' : 'Delete'}
-                  </AlertDialogAction>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialog>
-          </DropdownMenuContent>
-        </DropdownMenu>
       </div>
 
       {/* Category Information */}
@@ -430,9 +430,6 @@ export default function IncomeCategoryDetailsPage() {
                 {category.isActive ? 'Active' : 'Inactive'}
               </Badge>
             </CardTitle>
-            <CardDescription>
-              Details about this income category
-            </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -471,66 +468,41 @@ export default function IncomeCategoryDetailsPage() {
         threshold={0.1}
         className="grid gap-4 md:grid-cols-2 lg:grid-cols-4"
       >
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Income</CardTitle>
-            <BadgeCent className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {formatCurrency(statistics.totalIncome)}
-            </div>
-            <p className="text-xs text-muted-foreground">
-              Received income only
-            </p>
-          </CardContent>
-        </Card>
+        <StatCard
+          title="Total Income"
+          value={formatCurrency(statistics.totalIncome)}
+          icon={BadgeCent}
+          accent="success"
+          description="Received income only"
+        />
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Pending Income</CardTitle>
-            <TrendingUp className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {formatCurrency(statistics.pendingIncome)}
-            </div>
-            <p className="text-xs text-muted-foreground">
-              Awaiting receipt
-            </p>
-          </CardContent>
-        </Card>
+        <StatCard
+          title="Pending Income"
+          value={formatCurrency(statistics.pendingIncome)}
+          icon={TrendingUp}
+          accent="accent"
+          description="Awaiting receipt"
+        />
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Income Records</CardTitle>
-            <FileText className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{statistics.recordCount}</div>
-            <p className="text-xs text-muted-foreground">
-              Total entries
-            </p>
-          </CardContent>
-        </Card>
+        <StatCard
+          title="Income Records"
+          value={statistics.recordCount}
+          icon={FileText}
+          accent="primary"
+          description="Total entries"
+        />
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Last Income</CardTitle>
-            <Calendar className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {statistics.lastIncomeDate
-                ? new Date(statistics.lastIncomeDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
-                : 'None'
-              }
-            </div>
-            <p className="text-xs text-muted-foreground">
-              Most recent
-            </p>
-          </CardContent>
-        </Card>
+        <StatCard
+          title="Last Income"
+          value={
+            statistics.lastIncomeDate
+              ? new Date(statistics.lastIncomeDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+              : 'None'
+          }
+          icon={Calendar}
+          accent="secondary"
+          description="Most recent"
+        />
       </LazySection>
 
       {/* Income Records Table */}
@@ -546,9 +518,6 @@ export default function IncomeCategoryDetailsPage() {
             <div className="flex items-center justify-between">
               <div>
                 <CardTitle>Income Records</CardTitle>
-                <CardDescription>
-                  All income records for this category
-                </CardDescription>
               </div>
               <Button asChild>
                 <Link href="/dashboard/finance/income/add">

@@ -398,9 +398,6 @@ export default function FinanceOverviewPage() {
       <Card>
         <CardHeader>
           <CardTitle>Category Breakdown</CardTitle>
-          <CardDescription>
-            Giving by category this month
-          </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">

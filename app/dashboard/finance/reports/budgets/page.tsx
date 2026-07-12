@@ -3,7 +3,9 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { PageHeader } from '@/components/ui/page-header';
+import { StatCard } from '@/components/ui/stat-card';
 import { Badge } from '@/components/ui/badge';
 import { 
   Select,
@@ -256,7 +258,7 @@ export default function BudgetReportsPage() {
   return (
     <div className="space-y-6">
       {/* Header with Back Navigation */}
-      <div className="flex items-center gap-4 mb-6">
+      <div className="flex items-center gap-4">
         <Button
           variant="outline"
           size="icon"
@@ -265,16 +267,7 @@ export default function BudgetReportsPage() {
         >
           <ArrowLeft className="h-4 w-4" />
         </Button>
-        
-        <div className="flex items-center gap-3">
-          <div className="p-2 bg-brand-primary/10 rounded-lg">
-            <Target className="h-6 w-6 text-brand-primary" />
-          </div>
-          <div>
-            <h1 className="text-2xl font-bold tracking-tight">Budget Reports</h1>
-            <p className="text-muted-foreground">Planned vs actual budget analysis</p>
-          </div>
-        </div>
+        <PageHeader title="Budget Reports" />
       </div>
 
       {/* Controls */}
@@ -305,82 +298,48 @@ export default function BudgetReportsPage() {
 
       {/* Summary Cards */}
       <div className="grid gap-4 grid-cols-2 md:grid-cols-4 lg:grid-cols-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Budget</CardTitle>
-            <Target className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">₵{budgetSummary.totalBudget.toLocaleString()}</div>
-            <p className="text-xs text-muted-foreground">Annual budget</p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Spent</CardTitle>
-            <TrendingDown className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">₵{budgetSummary.totalSpent.toLocaleString()}</div>
-            <p className="text-xs text-muted-foreground">Year to date</p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Remaining</CardTitle>
-            <BarChart3 className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-green-600">₵{budgetSummary.totalRemaining.toLocaleString()}</div>
-            <p className="text-xs text-muted-foreground">Available budget</p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Utilization</CardTitle>
-            <PieChart className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{budgetSummary.overallUtilization}%</div>
-            <p className="text-xs text-muted-foreground">Of total budget</p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Over Budget</CardTitle>
-            <XCircle className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-red-600">{budgetSummary.departmentsOverBudget}</div>
-            <p className="text-xs text-muted-foreground">Departments</p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">On Track</CardTitle>
-            <CheckCircle className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-green-600">{budgetSummary.departmentsOnTrack}</div>
-            <p className="text-xs text-muted-foreground">Departments</p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Under Budget</CardTitle>
-            <TrendingUp className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-blue-600">{budgetSummary.departmentsUnderBudget}</div>
-            <p className="text-xs text-muted-foreground">Departments</p>
-          </CardContent>
-        </Card>
+        <StatCard
+          title="Total Budget"
+          value={`₵${budgetSummary.totalBudget.toLocaleString()}`}
+          icon={Target}
+          description="Annual budget"
+        />
+        <StatCard
+          title="Total Spent"
+          value={`₵${budgetSummary.totalSpent.toLocaleString()}`}
+          icon={TrendingDown}
+          description="Year to date"
+        />
+        <StatCard
+          title="Remaining"
+          value={`₵${budgetSummary.totalRemaining.toLocaleString()}`}
+          icon={BarChart3}
+          description="Available budget"
+        />
+        <StatCard
+          title="Utilization"
+          value={`${budgetSummary.overallUtilization}%`}
+          icon={PieChart}
+          description="Of total budget"
+        />
+        <StatCard
+          title="Over Budget"
+          value={budgetSummary.departmentsOverBudget}
+          icon={XCircle}
+          description="Departments"
+        />
+        <StatCard
+          title="On Track"
+          value={budgetSummary.departmentsOnTrack}
+          icon={CheckCircle}
+          description="Departments"
+        />
+        <StatCard
+          title="Under Budget"
+          value={budgetSummary.departmentsUnderBudget}
+          icon={TrendingUp}
+          description="Departments"
+        />
       </div>
 
       {/* Tabs */}
@@ -398,7 +357,6 @@ export default function BudgetReportsPage() {
             <Card className="hover:shadow-md transition-shadow">
               <CardHeader>
                 <CardTitle>Monthly Budget vs Actual</CardTitle>
-                <CardDescription>Budget performance throughout the year</CardDescription>
               </CardHeader>
               <CardContent>
                 <ChartContainer config={budgetChartConfig} className="h-[300px] w-full">
@@ -419,7 +377,6 @@ export default function BudgetReportsPage() {
             <Card>
               <CardHeader>
                 <CardTitle>Quarterly Comparison</CardTitle>
-                <CardDescription>Budget vs actual by quarter</CardDescription>
               </CardHeader>
               <CardContent>
                 <ChartContainer config={budgetChartConfig} className="h-[300px] w-full">
@@ -442,7 +399,6 @@ export default function BudgetReportsPage() {
           <Card>
             <CardHeader>
               <CardTitle>Budget vs Actual by Category</CardTitle>
-              <CardDescription>Performance across expense categories</CardDescription>
             </CardHeader>
             <CardContent>
               <Table>
@@ -491,7 +447,6 @@ export default function BudgetReportsPage() {
           <Card>
             <CardHeader>
               <CardTitle>Department Budget Performance</CardTitle>
-              <CardDescription>Budget utilization by department</CardDescription>
             </CardHeader>
             <CardContent>
               <Table>
@@ -536,7 +491,6 @@ export default function BudgetReportsPage() {
           <Card>
             <CardHeader>
               <CardTitle>Budget Utilization Trend</CardTitle>
-              <CardDescription>Monthly budget utilization percentage</CardDescription>
             </CardHeader>
             <CardContent>
               <ChartContainer config={monthlyChartConfig} className="h-[400px] w-full">
@@ -573,7 +527,6 @@ export default function BudgetReportsPage() {
           <Card>
             <CardHeader>
               <CardTitle>Budget Alerts</CardTitle>
-              <CardDescription>Important budget notifications and warnings</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">

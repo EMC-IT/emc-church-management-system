@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { PageHeader } from '@/components/ui/page-header';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
@@ -502,32 +503,31 @@ export default function MemberAttendancePage() {
 
 
       {/* Header */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div className="flex items-center gap-4">
-          <Button 
-            variant="outline" 
-            size="sm" 
-            onClick={() => router.back()}
-          >
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Back
-          </Button>
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900">Member Attendance</h1>
-            <p className="text-muted-foreground mt-1">
-              Track individual member attendance patterns and performance
-            </p>
-          </div>
-        </div>
-        <div className="flex gap-2">
-          <Button variant="outline" onClick={handleRefresh} disabled={isLoading}>
-            <RefreshCw className={cn("h-4 w-4 mr-2", isLoading && "animate-spin")} />
-            Refresh
-          </Button>
-          <Button variant="outline" onClick={handleExportData} disabled={isLoading}>
-            <Download className="h-4 w-4 mr-2" />
-            Export Data
-          </Button>
+      <div className="flex items-center gap-4">
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => router.back()}
+        >
+          <ArrowLeft className="h-4 w-4 mr-2" />
+          Back
+        </Button>
+        <div className="flex-1">
+          <PageHeader
+            title="Member Attendance"
+            actions={
+              <>
+                <Button variant="outline" onClick={handleRefresh} disabled={isLoading}>
+                  <RefreshCw className={cn("h-4 w-4 mr-2", isLoading && "animate-spin")} />
+                  Refresh
+                </Button>
+                <Button variant="outline" onClick={handleExportData} disabled={isLoading}>
+                  <Download className="h-4 w-4 mr-2" />
+                  Export Data
+                </Button>
+              </>
+            }
+          />
         </div>
       </div>
 
@@ -715,9 +715,6 @@ export default function MemberAttendancePage() {
           <Card>
             <CardHeader>
               <CardTitle>Members ({filteredMembers.length})</CardTitle>
-              <CardDescription>
-                Individual member attendance records and performance
-              </CardDescription>
             </CardHeader>
             <CardContent>
               <DataTable
@@ -743,9 +740,6 @@ export default function MemberAttendancePage() {
                   <PieChart className="h-5 w-5 text-brand-primary" />
                   Attendance Distribution
                 </CardTitle>
-                <CardDescription>
-                  Members grouped by attendance performance
-                </CardDescription>
               </CardHeader>
               <CardContent>
                 <ChartContainer config={distributionChartConfig} className="h-[300px] w-full">
@@ -822,9 +816,6 @@ export default function MemberAttendancePage() {
                   <BarChart3 className="h-5 w-5 text-brand-primary" />
                   Performance Trends
                 </CardTitle>
-                <CardDescription>
-                  Monthly trends in attendance categories
-                </CardDescription>
               </CardHeader>
               <CardContent>
                 <ChartContainer config={trendsChartConfig} className="h-[300px] w-full">
@@ -886,9 +877,6 @@ export default function MemberAttendancePage() {
             <Card>
               <CardHeader>
                 <CardTitle>Top Performers</CardTitle>
-                <CardDescription>
-                  Members with highest attendance rates
-                </CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
@@ -973,9 +961,6 @@ export default function MemberAttendancePage() {
           <Card>
             <CardHeader>
               <CardTitle>Quick Insights</CardTitle>
-              <CardDescription>
-                Key attendance metrics and patterns
-              </CardDescription>
             </CardHeader>
             <CardContent>
               <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">

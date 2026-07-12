@@ -4,7 +4,8 @@ import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { PageHeader } from '@/components/ui/page-header';
 import { Badge } from '@/components/ui/badge';
 import { 
   Select,
@@ -179,31 +180,27 @@ export default function GroupRolesPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="space-y-1">
-          <div className="flex items-center space-x-2">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={handleBack}
-              className="h-8 w-8"
-            >
-              <ArrowLeft className="h-4 w-4" />
-            </Button>
-            <div>
-              <h1 className="text-3xl font-bold tracking-tight">Group Roles</h1>
-              <p className="text-muted-foreground">
-                Manage roles and permissions for {group?.name}
-              </p>
-            </div>
-          </div>
-    
-        </div>
-        
-        <Button onClick={handleAddRole} className="bg-brand-primary hover:bg-brand-primary/90">
-          <Plus className="mr-2 h-4 w-4" />
-          Create Role
+      <div className="flex items-center gap-2">
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={handleBack}
+          className="h-8 w-8"
+        >
+          <ArrowLeft className="h-4 w-4" />
         </Button>
+        <div className="flex-1">
+          <PageHeader
+            title="Group Roles"
+            description={`Roles for ${group?.name}`}
+            actions={
+              <Button onClick={handleAddRole} className="bg-brand-primary hover:bg-brand-primary/90">
+                <Plus className="mr-2 h-4 w-4" />
+                Create Role
+              </Button>
+            }
+          />
+        </div>
       </div>
 
       {/* Stats Cards */}
@@ -269,9 +266,6 @@ export default function GroupRolesPage() {
       <Card>
         <CardHeader>
           <CardTitle>Role Management</CardTitle>
-          <CardDescription>
-            Define and manage roles with specific permissions for group members
-          </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="flex items-center space-x-4 mb-6">

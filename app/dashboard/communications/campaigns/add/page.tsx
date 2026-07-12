@@ -339,7 +339,6 @@ export default function AddCampaignPage() {
           <Card>
             <CardHeader>
               <CardTitle>Choose Campaign Type</CardTitle>
-              <CardDescription>Select the type of campaign you want to create</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="grid gap-6 md:grid-cols-2">
@@ -427,9 +426,6 @@ export default function AddCampaignPage() {
                     {formData.type === 'email' ? <Mail className="h-5 w-5" /> : <MessageSquare className="h-5 w-5" />}
                     Campaign Details
                   </CardTitle>
-                  <CardDescription>
-                    {formData.type === 'email' ? 'Create your email campaign' : 'Create your SMS campaign'}
-                  </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="space-y-2">
@@ -487,7 +483,6 @@ export default function AddCampaignPage() {
               <Card>
                 <CardHeader>
                   <CardTitle>Quick Templates</CardTitle>
-                  <CardDescription>Use a template to get started quickly</CardDescription>
                 </CardHeader>
                 <CardContent>
                   <div className="grid gap-3 md:grid-cols-2">
@@ -572,7 +567,6 @@ export default function AddCampaignPage() {
           <Card>
             <CardHeader>
               <CardTitle>Select Target Audience</CardTitle>
-              <CardDescription>Choose which groups will receive this campaign</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="grid gap-4 md:grid-cols-2">
@@ -630,7 +624,6 @@ export default function AddCampaignPage() {
             <Card>
               <CardHeader>
                 <CardTitle>Delivery Settings</CardTitle>
-                <CardDescription>Configure when to send your campaign</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="flex items-center space-x-2">
@@ -670,7 +663,6 @@ export default function AddCampaignPage() {
             <Card>
               <CardHeader>
                 <CardTitle>Tracking & Analytics</CardTitle>
-                <CardDescription>Configure campaign tracking options</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 {formData.type === 'email' && (
@@ -720,9 +712,6 @@ export default function AddCampaignPage() {
             <Card>
               <CardHeader>
                 <CardTitle>Test Campaign</CardTitle>
-                <CardDescription>
-                  Send a test {formData.type} before launching
-                </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2">

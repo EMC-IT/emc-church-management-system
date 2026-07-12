@@ -3,7 +3,9 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { PageHeader } from '@/components/ui/page-header';
+import { StatCard } from '@/components/ui/stat-card';
 import { Badge } from '@/components/ui/badge';
 import { 
   Select,
@@ -198,7 +200,7 @@ export default function ComparisonReportsPage() {
   return (
     <div className="space-y-6">
       {/* Header with Back Navigation */}
-      <div className="flex items-center gap-4 mb-6">
+      <div className="flex items-center gap-4">
         <Button
           variant="outline"
           size="icon"
@@ -207,16 +209,7 @@ export default function ComparisonReportsPage() {
         >
           <ArrowLeft className="h-4 w-4" />
         </Button>
-        
-        <div className="flex items-center gap-3">
-          <div className="p-2 bg-brand-primary/10 rounded-lg">
-            <BarChart3 className="h-6 w-6 text-brand-primary" />
-          </div>
-          <div>
-            <h1 className="text-2xl font-bold tracking-tight">Comparison Reports</h1>
-            <p className="text-muted-foreground">Income vs Expenses and Year-to-Year trends</p>
-          </div>
-        </div>
+        <PageHeader title="Comparison Reports" />
       </div>
 
       {/* Controls */}
@@ -246,73 +239,42 @@ export default function ComparisonReportsPage() {
 
       {/* Summary Cards */}
       <div className="grid gap-4 grid-cols-2 md:grid-cols-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Income Growth</CardTitle>
-            <TrendingUp className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-green-600">+{comparisonSummary.totalIncomeGrowth}%</div>
-            <p className="text-xs text-muted-foreground">Year over year</p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Expense Growth</CardTitle>
-            <TrendingDown className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-green-600">{comparisonSummary.totalExpenseGrowth}%</div>
-            <p className="text-xs text-muted-foreground">Year over year</p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Net Growth</CardTitle>
-            <Activity className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-green-600">+{comparisonSummary.netIncomeGrowth}%</div>
-            <p className="text-xs text-muted-foreground">Year over year</p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Profit Margin</CardTitle>
-            <Percent className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{comparisonSummary.profitMargin}%</div>
-            <p className="text-xs text-green-600">
-              +{(comparisonSummary.profitMargin - comparisonSummary.previousProfitMargin).toFixed(1)}% vs last year
-            </p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Best Category</CardTitle>
-            <Target className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-lg font-bold">{comparisonSummary.bestPerformingCategory}</div>
-            <p className="text-xs text-muted-foreground">Top performer</p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Overall Health</CardTitle>
-            <Activity className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-lg font-bold text-green-600">Excellent</div>
-            <p className="text-xs text-muted-foreground">Financial health</p>
-          </CardContent>
-        </Card>
+        <StatCard
+          title="Income Growth"
+          value={`+${comparisonSummary.totalIncomeGrowth}%`}
+          icon={TrendingUp}
+          description="Year over year"
+        />
+        <StatCard
+          title="Expense Growth"
+          value={`${comparisonSummary.totalExpenseGrowth}%`}
+          icon={TrendingDown}
+          description="Year over year"
+        />
+        <StatCard
+          title="Net Growth"
+          value={`+${comparisonSummary.netIncomeGrowth}%`}
+          icon={Activity}
+          description="Year over year"
+        />
+        <StatCard
+          title="Profit Margin"
+          value={`${comparisonSummary.profitMargin}%`}
+          icon={Percent}
+          description={`+${(comparisonSummary.profitMargin - comparisonSummary.previousProfitMargin).toFixed(1)}% vs last year`}
+        />
+        <StatCard
+          title="Best Category"
+          value={comparisonSummary.bestPerformingCategory}
+          icon={Target}
+          description="Top performer"
+        />
+        <StatCard
+          title="Overall Health"
+          value="Excellent"
+          icon={Activity}
+          description="Financial health"
+        />
       </div>
 
       {/* Tabs */}
@@ -330,7 +292,6 @@ export default function ComparisonReportsPage() {
             <Card>
               <CardHeader>
                 <CardTitle>Income vs Expenses Trend</CardTitle>
-                <CardDescription>Monthly comparison with profit margin</CardDescription>
               </CardHeader>
               <CardContent>
                 <ChartContainer config={comparisonChartConfig} className="h-[300px] w-full">
@@ -352,7 +313,6 @@ export default function ComparisonReportsPage() {
             <Card>
               <CardHeader>
                 <CardTitle>Quarterly Performance</CardTitle>
-                <CardDescription>2023 vs 2024 quarterly comparison</CardDescription>
               </CardHeader>
               <CardContent>
                 <ChartContainer config={yearOverYearChartConfig} className="h-[300px] w-full">
@@ -378,7 +338,6 @@ export default function ComparisonReportsPage() {
             <Card>
               <CardHeader>
                 <CardTitle>Monthly Income vs Expenses</CardTitle>
-                <CardDescription>Detailed monthly breakdown with net income</CardDescription>
               </CardHeader>
               <CardContent>
                 <ChartContainer config={comparisonChartConfig} className="h-[400px] w-full">
@@ -409,7 +368,6 @@ export default function ComparisonReportsPage() {
             <Card>
               <CardHeader>
                 <CardTitle>Monthly Performance Summary</CardTitle>
-                <CardDescription>Key metrics for each month</CardDescription>
               </CardHeader>
               <CardContent>
                 <Table>
@@ -443,7 +401,6 @@ export default function ComparisonReportsPage() {
           <Card>
             <CardHeader>
               <CardTitle>Year-over-Year Comparison</CardTitle>
-              <CardDescription>Growth trends across key financial categories</CardDescription>
             </CardHeader>
             <CardContent>
               <Table>
@@ -495,7 +452,6 @@ export default function ComparisonReportsPage() {
             <Card>
               <CardHeader>
                 <CardTitle>Profitability Metrics</CardTitle>
-                <CardDescription>Key profitability indicators vs targets</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
@@ -533,7 +489,6 @@ export default function ComparisonReportsPage() {
             <Card>
               <CardHeader>
                 <CardTitle>Growth Metrics</CardTitle>
-                <CardDescription>Growth performance vs benchmarks</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
@@ -565,7 +520,6 @@ export default function ComparisonReportsPage() {
           <Card>
             <CardHeader>
               <CardTitle>Growth Trend Analysis</CardTitle>
-              <CardDescription>Multi-year growth patterns</CardDescription>
             </CardHeader>
             <CardContent>
               <ChartContainer config={comparisonChartConfig} className="h-[400px] w-full">

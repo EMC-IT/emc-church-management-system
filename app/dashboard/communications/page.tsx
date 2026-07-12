@@ -1051,7 +1051,6 @@ export default function CommunicationsPage() {
             <Card>
               <CardHeader>
                 <CardTitle>Monthly Performance</CardTitle>
-                <CardDescription>Communication metrics over time</CardDescription>
               </CardHeader>
               <CardContent>
                 <ChartContainer config={engagementConfig} className="h-[300px] w-full">
@@ -1094,7 +1093,6 @@ export default function CommunicationsPage() {
           <Card>
             <CardHeader>
               <CardTitle>Template Performance</CardTitle>
-              <CardDescription>Most used message templates</CardDescription>
             </CardHeader>
             <CardContent>
               <Table>

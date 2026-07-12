@@ -3,7 +3,8 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { PageHeader } from '@/components/ui/page-header';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
@@ -382,32 +383,31 @@ export default function AttendanceHistoryPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div className="flex items-center gap-4">
-          <Button 
-            variant="outline" 
-            size="sm" 
-            onClick={() => router.back()}
-          >
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Back
-          </Button>
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900">Attendance History</h1>
-            <p className="text-muted-foreground mt-1">
-              View and analyze past attendance records
-            </p>
-          </div>
-        </div>
-        <div className="flex gap-2">
-          <Button variant="outline" onClick={handleRefresh} disabled={isLoading}>
-            <RefreshCw className={cn("h-4 w-4 mr-2", isLoading && "animate-spin")} />
-            Refresh
-          </Button>
-          <Button variant="outline" onClick={handleExportData} disabled={isLoading}>
-            <Download className="h-4 w-4 mr-2" />
-            Export
-          </Button>
+      <div className="flex items-center gap-4">
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => router.back()}
+        >
+          <ArrowLeft className="h-4 w-4 mr-2" />
+          Back
+        </Button>
+        <div className="flex-1">
+          <PageHeader
+            title="Attendance History"
+            actions={
+              <>
+                <Button variant="outline" onClick={handleRefresh} disabled={isLoading}>
+                  <RefreshCw className={cn("h-4 w-4 mr-2", isLoading && "animate-spin")} />
+                  Refresh
+                </Button>
+                <Button variant="outline" onClick={handleExportData} disabled={isLoading}>
+                  <Download className="h-4 w-4 mr-2" />
+                  Export
+                </Button>
+              </>
+            }
+          />
         </div>
       </div>
 
@@ -560,9 +560,6 @@ export default function AttendanceHistoryPage() {
       <Card>
         <CardHeader>
           <CardTitle>Attendance Records ({filteredData.length})</CardTitle>
-          <CardDescription>
-            Historical attendance data with filtering and search
-          </CardDescription>
         </CardHeader>
         <CardContent>
           {/* Status Tabs */}

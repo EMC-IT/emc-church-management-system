@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -11,6 +11,8 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { LazySection } from '@/components/ui/lazy-section';
 import { LazyLoader } from '@/components/ui/lazy-loader';
+import { PageHeader } from '@/components/ui/page-header';
+import { StatCard } from '@/components/ui/stat-card';
 import { ProfileSkeleton, CardSkeleton, TableSkeleton } from '@/components/ui/skeleton-loaders';
 import { 
   ArrowLeft, 
@@ -275,79 +277,77 @@ export default function DonationDetailsPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center space-x-4">
-          <Button variant="ghost" size="sm" asChild>
-            <Link href="/dashboard/finance/giving/donations">
-              <ArrowLeft className="mr-2 h-4 w-4" />
-              Back to Donations
-            </Link>
-          </Button>
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight">
-              Donation {donation.receiptNumber}
-            </h1>
-            <p className="text-muted-foreground">
-              {donation.isAnonymous ? 'Anonymous Donation' : donation.memberName}
-            </p>
-          </div>
-        </div>
-        <div className="flex items-center space-x-2">
-          <Dialog open={receiptDialogOpen} onOpenChange={setReceiptDialogOpen}>
-            <DialogTrigger asChild>
-              <Button variant="outline">
-                <BadgeCent className="mr-2 h-4 w-4" />
-                Receipt
-              </Button>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Receipt Options</DialogTitle>
-                <DialogDescription>
-                  Download or send receipt for this donation
-                </DialogDescription>
-              </DialogHeader>
-              <div className="space-y-4">
-                <div className="text-center p-4 border rounded-lg">
-                  <BadgeCent className="mx-auto h-12 w-12 text-muted-foreground mb-2" />
-                  <h3 className="font-semibold">Receipt #{donation.receiptNumber}</h3>
-                  <p className="text-sm text-muted-foreground">
-                    {formatCurrency(donation.amount)} • {new Date(donation.date).toLocaleDateString()}
-                  </p>
-                </div>
-              </div>
-              <DialogFooter className="flex-col sm:flex-row gap-2">
-                <Button variant="outline" onClick={handleDownloadReceipt} className="w-full sm:w-auto">
-                  <Download className="mr-2 h-4 w-4" />
-                  Download PDF
-                </Button>
-                {!donation.isAnonymous && donation.memberEmail && (
-                  <Button onClick={handleSendReceipt} className="w-full sm:w-auto">
-                    <Mail className="mr-2 h-4 w-4" />
-                    Send via Email
+      <div className="flex items-center gap-4">
+        <Button variant="outline" size="sm" asChild>
+          <Link href="/dashboard/finance/giving/donations">
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            Back
+          </Link>
+        </Button>
+        <div className="flex-1">
+          <PageHeader
+            title={`Donation ${donation.receiptNumber}`}
+            description={donation.isAnonymous ? 'Anonymous Donation' : donation.memberName}
+            actions={
+              <>
+                <Dialog open={receiptDialogOpen} onOpenChange={setReceiptDialogOpen}>
+                  <DialogTrigger asChild>
+                    <Button variant="outline">
+                      <BadgeCent className="mr-2 h-4 w-4" />
+                      Receipt
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent>
+                    <DialogHeader>
+                      <DialogTitle>Receipt Options</DialogTitle>
+                      <DialogDescription>
+                        Download or send receipt for this donation
+                      </DialogDescription>
+                    </DialogHeader>
+                    <div className="space-y-4">
+                      <div className="text-center p-4 border rounded-lg">
+                        <BadgeCent className="mx-auto h-12 w-12 text-muted-foreground mb-2" />
+                        <h3 className="font-semibold">Receipt #{donation.receiptNumber}</h3>
+                        <p className="text-sm text-muted-foreground">
+                          {formatCurrency(donation.amount)} • {new Date(donation.date).toLocaleDateString()}
+                        </p>
+                      </div>
+                    </div>
+                    <DialogFooter className="flex-col sm:flex-row gap-2">
+                      <Button variant="outline" onClick={handleDownloadReceipt} className="w-full sm:w-auto">
+                        <Download className="mr-2 h-4 w-4" />
+                        Download PDF
+                      </Button>
+                      {!donation.isAnonymous && donation.memberEmail && (
+                        <Button onClick={handleSendReceipt} className="w-full sm:w-auto">
+                          <Mail className="mr-2 h-4 w-4" />
+                          Send via Email
+                        </Button>
+                      )}
+                    </DialogFooter>
+                  </DialogContent>
+                </Dialog>
+
+                {editing ? (
+                  <>
+                    <Button variant="outline" onClick={handleCancel}>
+                      <X className="mr-2 h-4 w-4" />
+                      Cancel
+                    </Button>
+                    <Button onClick={handleSave}>
+                      <Save className="mr-2 h-4 w-4" />
+                      Save Changes
+                    </Button>
+                  </>
+                ) : (
+                  <Button onClick={() => setEditing(true)}>
+                    <Edit className="mr-2 h-4 w-4" />
+                    Edit
                   </Button>
                 )}
-              </DialogFooter>
-            </DialogContent>
-          </Dialog>
-          
-          {editing ? (
-            <>
-              <Button variant="outline" onClick={handleCancel}>
-                <X className="mr-2 h-4 w-4" />
-                Cancel
-              </Button>
-              <Button onClick={handleSave}>
-                <Save className="mr-2 h-4 w-4" />
-                Save Changes
-              </Button>
-            </>
-          ) : (
-            <Button onClick={() => setEditing(true)}>
-              <Edit className="mr-2 h-4 w-4" />
-              Edit
-            </Button>
-          )}
+              </>
+            }
+          />
         </div>
       </div>
 
@@ -419,9 +419,6 @@ export default function DonationDetailsPage() {
               <Card>
               <CardHeader>
                 <CardTitle>Donation Information</CardTitle>
-                <CardDescription>
-                  {editing ? 'Edit donation details' : 'View donation information'}
-                </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="grid gap-4">
@@ -617,9 +614,6 @@ export default function DonationDetailsPage() {
             <Card>
             <CardHeader>
               <CardTitle>Activity History</CardTitle>
-              <CardDescription>
-                Track changes and activities for this donation
-              </CardDescription>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">

@@ -194,9 +194,6 @@ export default function AllocationsOverviewPage() {
             <Plus className="h-5 w-5" />
             Quick Allocate Funds
           </CardTitle>
-          <CardDescription>
-            Select a budget to allocate funds quickly
-          </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="flex gap-4">
@@ -235,7 +232,6 @@ export default function AllocationsOverviewPage() {
           <div className="flex items-center justify-between">
             <div>
               <CardTitle>Recent Allocations</CardTitle>
-              <CardDescription>Overview of budget allocations and utilization</CardDescription>
             </div>
           </div>
           

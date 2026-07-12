@@ -22,13 +22,15 @@ import {
 } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { DataTable } from '@/components/ui/data-table';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { LazySection } from '@/components/ui/lazy-section';
 import { LazyLoader } from '@/components/ui/lazy-loader';
+import { PageHeader } from '@/components/ui/page-header';
+import { StatCard } from '@/components/ui/stat-card';
 import { Separator } from '@/components/ui/separator';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { toast } from 'sonner';
@@ -368,62 +370,63 @@ export default function ExpenseCategoryDetailsPage() {
     <div className="space-y-6">
 
       {/* Page Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div className="flex items-center gap-4">
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={() => router.push('/dashboard/finance/expenses/categories')}
-            className="h-12 w-12"
-          >
-            <ArrowLeft className="h-5 w-5" />
-          </Button>
-          <div className="flex h-12 w-12 items-center justify-center rounded-lg" style={{ backgroundColor: `${category.color}20` }}>
-            <Tag className="h-6 w-6" style={{ color: category.color }} />
-          </div>
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900">{category.name}</h1>
-            <p className="text-gray-600">{category.description || 'Category details and expenses'}</p>
-          </div>
+      <div className="flex items-center gap-4">
+        <Button
+          variant="outline"
+          size="icon"
+          onClick={() => router.push('/dashboard/finance/expenses/categories')}
+          className="h-12 w-12"
+        >
+          <ArrowLeft className="h-5 w-5" />
+        </Button>
+        <div className="flex h-12 w-12 items-center justify-center rounded-lg" style={{ backgroundColor: `${category.color}20` }}>
+          <Tag className="h-6 w-6" style={{ color: category.color }} />
         </div>
-
-        <div className="flex gap-2">
-          <Button variant="outline" onClick={handleExportExpenses}>
-            <Download className="mr-2 h-4 w-4" />
-            Export
-          </Button>
-          <Button variant="outline" asChild>
-            <Link href={`/dashboard/finance/expenses/categories/${category.id}/edit`}>
-              <Edit className="mr-2 h-4 w-4" />
-              Edit
-            </Link>
-          </Button>
-          <AlertDialog>
-            <AlertDialogTrigger asChild>
-              <Button variant="destructive">
-                <Trash2 className="mr-2 h-4 w-4" />
-                Delete
-              </Button>
-            </AlertDialogTrigger>
-            <AlertDialogContent>
-              <AlertDialogHeader>
-                <AlertDialogTitle>Delete Category</AlertDialogTitle>
-                <AlertDialogDescription>
-                  Are you sure you want to delete "{category.name}"? This action cannot be undone and will affect {category.expenseCount} expense records.
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogFooter>
-                <AlertDialogCancel>Cancel</AlertDialogCancel>
-                <AlertDialogAction
-                  onClick={handleDeleteCategory}
-                  disabled={isDeleting}
-                  className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                >
-                  {isDeleting ? 'Deleting...' : 'Delete Category'}
-                </AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
+        <div className="flex-1">
+          <PageHeader
+            title={category.name}
+            description={category.description || 'Category details and expenses'}
+            actions={
+              <>
+                <Button variant="outline" onClick={handleExportExpenses}>
+                  <Download className="mr-2 h-4 w-4" />
+                  Export
+                </Button>
+                <Button variant="outline" asChild>
+                  <Link href={`/dashboard/finance/expenses/categories/${category.id}/edit`}>
+                    <Edit className="mr-2 h-4 w-4" />
+                    Edit
+                  </Link>
+                </Button>
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button variant="destructive">
+                      <Trash2 className="mr-2 h-4 w-4" />
+                      Delete
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Delete Category</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        Are you sure you want to delete "{category.name}"? This action cannot be undone and will affect {category.expenseCount} expense records.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                      <AlertDialogAction
+                        onClick={handleDeleteCategory}
+                        disabled={isDeleting}
+                        className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                      >
+                        {isDeleting ? 'Deleting...' : 'Delete Category'}
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+              </>
+            }
+          />
         </div>
       </div>
 
@@ -473,67 +476,33 @@ export default function ExpenseCategoryDetailsPage() {
       {/* Statistics */}
       <LazySection>
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center gap-4">
-                <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-blue-100">
-                  <Receipt className="h-6 w-6 text-blue-600" />
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-gray-600">Total Expenses</p>
-                  <p className="text-2xl font-bold">{category.expenseCount}</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+          <StatCard
+            title="Total Expenses"
+            value={category.expenseCount}
+            icon={Receipt}
+            accent="primary"
+          />
 
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center gap-4">
-                <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-brand-primary/10">
-                  <Wallet className="h-6 w-6 text-brand-primary" />
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-gray-600">Total Amount</p>
-                  <p className="text-2xl font-bold text-brand-primary">
-                    ₵{category.totalAmount.toLocaleString('en-GH', { minimumFractionDigits: 2 })}
-                  </p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+          <StatCard
+            title="Total Amount"
+            value={`₵${category.totalAmount.toLocaleString('en-GH', { minimumFractionDigits: 2 })}`}
+            icon={Wallet}
+            accent="accent"
+          />
 
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center gap-4">
-                <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-green-100">
-                  <TrendingUp className="h-6 w-6 text-green-600" />
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-gray-600">Average Amount</p>
-                  <p className="text-2xl font-bold">
-                    ₵{avgExpenseAmount.toLocaleString('en-GH', { minimumFractionDigits: 2 })}
-                  </p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+          <StatCard
+            title="Average Amount"
+            value={`₵${avgExpenseAmount.toLocaleString('en-GH', { minimumFractionDigits: 2 })}`}
+            icon={TrendingUp}
+            accent="success"
+          />
 
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center gap-4">
-                <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-purple-100">
-                  <Calendar className="h-6 w-6 text-purple-600" />
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-gray-600">This Month</p>
-                  <p className="text-2xl font-bold">
-                    ₵{thisMonthTotal.toLocaleString('en-GH', { minimumFractionDigits: 2 })}
-                  </p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+          <StatCard
+            title="This Month"
+            value={`₵${thisMonthTotal.toLocaleString('en-GH', { minimumFractionDigits: 2 })}`}
+            icon={Calendar}
+            accent="secondary"
+          />
         </div>
       </LazySection>
 
@@ -544,9 +513,6 @@ export default function ExpenseCategoryDetailsPage() {
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
               <div>
                 <CardTitle>Category Expenses</CardTitle>
-                <CardDescription>
-                  All expenses recorded under this category
-                </CardDescription>
               </div>
               <Button asChild>
                 <Link href="/dashboard/finance/expenses/add">

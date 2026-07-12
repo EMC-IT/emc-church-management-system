@@ -399,7 +399,6 @@ export default function AssetsOverviewPage() {
             title="Total Assets"
             value={assetStats.totalAssets}
             icon={Package}
-            accent="primary"
             description={`${assetStats.categoriesCount} categories`}
           />
 
@@ -407,7 +406,6 @@ export default function AssetsOverviewPage() {
             title="Total Value"
             value={formatCurrency(assetStats.totalValue)}
             icon={TrendingUp}
-            accent="secondary"
             description={`Avg: ${formatCurrency(assetStats.averageValue)}`}
           />
 
@@ -415,7 +413,6 @@ export default function AssetsOverviewPage() {
             title="Active Assets"
             value={assetStats.activeAssets}
             icon={Users}
-            accent="success"
             description={`${((assetStats.activeAssets / assetStats.totalAssets) * 100).toFixed(1)}% of total`}
           />
 
@@ -423,7 +420,6 @@ export default function AssetsOverviewPage() {
             title="Needs Attention"
             value={assetStats.maintenanceNeeded + assetStats.warrantyExpiring}
             icon={AlertTriangle}
-            accent="accent"
             description={`${assetStats.maintenanceNeeded} maintenance, ${assetStats.warrantyExpiring} warranty`}
           />
         </div>

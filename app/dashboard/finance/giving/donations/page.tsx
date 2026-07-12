@@ -2,12 +2,15 @@
 
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { DataTable } from '@/components/ui/data-table';
 import { DeleteDialog, useDeleteDialog } from '@/components/ui/delete-dialog';
 import { LazySection } from '@/components/ui/lazy-section';
 import { LazyLoader } from '@/components/ui/lazy-loader';
+import { ChartHeader } from '@/components/ui/chart-header';
+import { PageHeader } from '@/components/ui/page-header';
+import { StatCard } from '@/components/ui/stat-card';
 import { CardSkeleton, TableSkeleton } from '@/components/ui/skeleton-loaders';
 import { 
   Plus, 
@@ -410,27 +413,24 @@ export default function DonationsPage() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Donations</h1>
-          <p className="text-muted-foreground">
-            Manage and track all giving donations
-          </p>
-        </div>
-        <div className="flex items-center space-x-2">
-          <Button variant="outline" onClick={handleExport}>
-            <Download className="mr-2 h-4 w-4" />
-            Export
-          </Button>
-          <Button asChild>
-            <Link href="/dashboard/finance/giving/donations/add">
-              <Plus className="mr-2 h-4 w-4" />
-              Record Donation
-            </Link>
-          </Button>
-        </div>
-      </div>
+      <PageHeader
+        title="Donations"
+        description="Manage and track all giving donations"
+        actions={
+          <>
+            <Button variant="outline" onClick={handleExport}>
+              <Download className="mr-2 h-4 w-4" />
+              Export
+            </Button>
+            <Button asChild>
+              <Link href="/dashboard/finance/giving/donations/add">
+                <Plus className="mr-2 h-4 w-4" />
+                Record Donation
+              </Link>
+            </Button>
+          </>
+        }
+      />
 
       {/* Statistics Cards */}
       <LazySection
@@ -441,57 +441,37 @@ export default function DonationsPage() {
         className="grid gap-4 md:grid-cols-2 lg:grid-cols-4"
         threshold={0.1}
       >
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Donations</CardTitle>
-            <BadgeCent className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{totalDonations}</div>
-            <p className="text-xs text-muted-foreground">
-              {completedDonations} completed, {pendingDonations} pending
-            </p>
-          </CardContent>
-        </Card>
+        <StatCard
+          title="Total Donations"
+          value={totalDonations}
+          icon={BadgeCent}
+          accent="primary"
+          description={`${completedDonations} completed, ${pendingDonations} pending`}
+        />
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Amount</CardTitle>
-            <TrendingUp className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{formatCurrency(totalAmount)}</div>
-            <p className="text-xs text-muted-foreground">
-              All donations combined
-            </p>
-          </CardContent>
-        </Card>
+        <StatCard
+          title="Total Amount"
+          value={formatCurrency(totalAmount)}
+          icon={TrendingUp}
+          accent="success"
+          description="All donations combined"
+        />
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Average Amount</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{formatCurrency(averageAmount)}</div>
-            <p className="text-xs text-muted-foreground">
-              Per donation
-            </p>
-          </CardContent>
-        </Card>
+        <StatCard
+          title="Average Amount"
+          value={formatCurrency(averageAmount)}
+          icon={Users}
+          accent="secondary"
+          description="Per donation"
+        />
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">This Month</CardTitle>
-            <CalendarIcon className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{formatCurrency(thisMonthAmount)}</div>
-            <p className="text-xs text-muted-foreground">
-              {thisMonthDonations.length} donations
-            </p>
-          </CardContent>
-        </Card>
+        <StatCard
+          title="This Month"
+          value={formatCurrency(thisMonthAmount)}
+          icon={CalendarIcon}
+          accent="accent"
+          description={`${thisMonthDonations.length} donations`}
+        />
       </LazySection>
 
       {/* Filters */}
@@ -504,9 +484,6 @@ export default function DonationsPage() {
         <Card>
           <CardHeader>
             <CardTitle>Filters</CardTitle>
-            <CardDescription>
-              Filter donations by category, status, method, and date range
-            </CardDescription>
           </CardHeader>
           <CardContent>
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
@@ -616,10 +593,10 @@ export default function DonationsPage() {
       <LazyLoader threshold={0.3}>
         <Card>
           <CardHeader>
-            <CardTitle>All Donations</CardTitle>
-            <CardDescription>
-              {filteredDonations.length} of {donations.length} donations
-            </CardDescription>
+            <ChartHeader
+              title="All Donations"
+              badge={`${filteredDonations.length} of ${donations.length}`}
+            />
           </CardHeader>
           <CardContent>
             {loading ? (

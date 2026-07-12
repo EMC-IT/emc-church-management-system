@@ -3,7 +3,9 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { PageHeader } from '@/components/ui/page-header';
+import { StatCard } from '@/components/ui/stat-card';
 import { Badge } from '@/components/ui/badge';
 import { 
   Select,
@@ -144,7 +146,7 @@ export default function TithesOfferingsReportsPage() {
   return (
     <div className="space-y-6">
       {/* Header with Back Navigation */}
-      <div className="flex items-center gap-4 mb-6">
+      <div className="flex items-center gap-4">
         <Button
           variant="outline"
           size="icon"
@@ -153,16 +155,7 @@ export default function TithesOfferingsReportsPage() {
         >
           <ArrowLeft className="h-4 w-4" />
         </Button>
-        
-        <div className="flex items-center gap-3">
-          <div className="p-2 bg-brand-primary/10 rounded-lg">
-            <Wallet className="h-6 w-6 text-brand-primary" />
-          </div>
-          <div>
-            <h1 className="text-2xl font-bold tracking-tight">Tithes & Offerings Reports</h1>
-            <p className="text-muted-foreground">Specific tithes and offerings analysis</p>
-          </div>
-        </div>
+        <PageHeader title="Tithes & Offerings Reports" />
       </div>
 
       {/* Controls */}
@@ -192,94 +185,55 @@ export default function TithesOfferingsReportsPage() {
       </div>
 
       {/* Summary Cards */}
-        <div className="grid gap-4 grid-cols-2 md:grid-cols-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Tithes</CardTitle>
-            <Wallet className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">₵{tithesOfferingsSummary.totalTithes.toLocaleString()}</div>
-            <p className="text-xs text-muted-foreground">This year</p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Offerings</CardTitle>
-            <Gift className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">₵{tithesOfferingsSummary.totalOfferings.toLocaleString()}</div>
-            <p className="text-xs text-muted-foreground">This year</p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Combined Total</CardTitle>
-            <Heart className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">₵{tithesOfferingsSummary.combined.toLocaleString()}</div>
-            <p className="text-xs text-muted-foreground">Tithes + Offerings</p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Tithers</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{tithesOfferingsSummary.tithersCount}</div>
-            <p className="text-xs text-muted-foreground">Active tithers</p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Offerers</CardTitle>
-            <Gift className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{tithesOfferingsSummary.offerersCount}</div>
-            <p className="text-xs text-muted-foreground">Active offerers</p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Faithful Tithers</CardTitle>
-            <Crown className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{tithesOfferingsSummary.faithfulTithers}</div>
-            <p className="text-xs text-muted-foreground">100% consistency</p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Avg Tithe</CardTitle>
-            <BarChart3 className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">₵{tithesOfferingsSummary.averageTithe}</div>
-            <p className="text-xs text-muted-foreground">Per tithe</p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Avg Offering</CardTitle>
-            <Target className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">₵{tithesOfferingsSummary.averageOffering}</div>
-            <p className="text-xs text-muted-foreground">Per offering</p>
-          </CardContent>
-        </Card>
+      <div className="grid gap-4 grid-cols-2 md:grid-cols-4">
+        <StatCard
+          title="Total Tithes"
+          value={`₵${tithesOfferingsSummary.totalTithes.toLocaleString()}`}
+          icon={Wallet}
+          description="This year"
+        />
+        <StatCard
+          title="Total Offerings"
+          value={`₵${tithesOfferingsSummary.totalOfferings.toLocaleString()}`}
+          icon={Gift}
+          description="This year"
+        />
+        <StatCard
+          title="Combined Total"
+          value={`₵${tithesOfferingsSummary.combined.toLocaleString()}`}
+          icon={Heart}
+          description="Tithes + Offerings"
+        />
+        <StatCard
+          title="Tithers"
+          value={tithesOfferingsSummary.tithersCount}
+          icon={Users}
+          description="Active tithers"
+        />
+        <StatCard
+          title="Offerers"
+          value={tithesOfferingsSummary.offerersCount}
+          icon={Gift}
+          description="Active offerers"
+        />
+        <StatCard
+          title="Faithful Tithers"
+          value={tithesOfferingsSummary.faithfulTithers}
+          icon={Crown}
+          description="100% consistency"
+        />
+        <StatCard
+          title="Avg Tithe"
+          value={`₵${tithesOfferingsSummary.averageTithe}`}
+          icon={BarChart3}
+          description="Per tithe"
+        />
+        <StatCard
+          title="Avg Offering"
+          value={`₵${tithesOfferingsSummary.averageOffering}`}
+          icon={Target}
+          description="Per offering"
+        />
       </div>
 
       {/* Tabs */}
@@ -297,7 +251,6 @@ export default function TithesOfferingsReportsPage() {
             <Card className="hover:shadow-md transition-shadow">
               <CardHeader>
                 <CardTitle>Tithes vs Offerings</CardTitle>
-                <CardDescription>Distribution between tithes and offerings</CardDescription>
               </CardHeader>
               <CardContent>
                 <ChartContainer config={typeChartConfig} className="h-[300px] w-full">
@@ -325,7 +278,6 @@ export default function TithesOfferingsReportsPage() {
             <Card className="hover:shadow-md transition-shadow">
               <CardHeader>
                 <CardTitle>Monthly Trend</CardTitle>
-                <CardDescription>Tithes and offerings throughout the year</CardDescription>
               </CardHeader>
               <CardContent>
                 <ChartContainer config={monthlyChartConfig} className="h-[300px] w-full">
@@ -349,7 +301,6 @@ export default function TithesOfferingsReportsPage() {
             <Card className="hover:shadow-md transition-shadow">
               <CardHeader>
                 <CardTitle>Tithing Patterns</CardTitle>
-                <CardDescription>How people tithe</CardDescription>
               </CardHeader>
               <CardContent>
                 <ChartContainer config={totalChartConfig} className="h-[300px] w-full">
@@ -367,7 +318,6 @@ export default function TithesOfferingsReportsPage() {
             <Card>
               <CardHeader>
                 <CardTitle>Tithing Frequency</CardTitle>
-                <CardDescription>Breakdown by giving frequency</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
@@ -394,7 +344,6 @@ export default function TithesOfferingsReportsPage() {
             <Card className="hover:shadow-md transition-shadow">
               <CardHeader>
                 <CardTitle>Offerings by Service</CardTitle>
-                <CardDescription>Which services generate most offerings</CardDescription>
               </CardHeader>
               <CardContent>
                 <ChartContainer config={totalChartConfig} className="h-[300px] w-full">
@@ -412,7 +361,6 @@ export default function TithesOfferingsReportsPage() {
             <Card>
               <CardHeader>
                 <CardTitle>Service Performance</CardTitle>
-                <CardDescription>Average offerings per service</CardDescription>
               </CardHeader>
               <CardContent>
                 <Table>
@@ -444,7 +392,6 @@ export default function TithesOfferingsReportsPage() {
           <Card>
             <CardHeader>
               <CardTitle>Faithful Tithers</CardTitle>
-              <CardDescription>Most consistent tithers and their giving patterns</CardDescription>
             </CardHeader>
             <CardContent>
               <Table>
@@ -488,7 +435,6 @@ export default function TithesOfferingsReportsPage() {
             <Card className="hover:shadow-md transition-shadow">
               <CardHeader>
                 <CardTitle>Monthly Tithes & Offerings Trend</CardTitle>
-                <CardDescription>Detailed monthly breakdown</CardDescription>
               </CardHeader>
               <CardContent>
                 <ChartContainer config={monthlyChartConfig} className="h-[400px] w-full">
@@ -509,7 +455,6 @@ export default function TithesOfferingsReportsPage() {
             <Card className="hover:shadow-md transition-shadow">
               <CardHeader>
                 <CardTitle>Giver Count Trends</CardTitle>
-                <CardDescription>Number of tithers and offerers over time</CardDescription>
               </CardHeader>
               <CardContent>
                 <ChartContainer config={participationChartConfig} className="h-[300px] w-full">

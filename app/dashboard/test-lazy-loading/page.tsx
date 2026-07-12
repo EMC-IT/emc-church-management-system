@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { PageHeader } from '@/components/ui/page-header';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
@@ -101,12 +102,10 @@ export default function TestLazyLoadingPage() {
   return (
     <div className="space-y-8 p-6">
       {/* Header */}
-      <div className="space-y-2">
-        <h1 className="text-3xl font-bold tracking-tight">Lazy Loading Components Test</h1>
-        <p className="text-muted-foreground">
-          Comprehensive testing page for all lazy loading components and features.
-        </p>
-      </div>
+      <PageHeader
+        title="Lazy Loading Components Test"
+        description="Comprehensive testing page for all lazy loading components and features."
+      />
 
       <Tabs defaultValue="loaders" className="space-y-6">
         <TabsList className="grid w-full grid-cols-6">

@@ -3,7 +3,8 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { PageHeader } from '@/components/ui/page-header';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -207,32 +208,31 @@ export default function AttendanceReportsPage() {
 
 
       {/* Header */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div className="flex items-center gap-4">
-          <Button 
-            variant="outline" 
-            size="sm" 
-            onClick={() => router.back()}
-          >
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Back
-          </Button>
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900">Attendance Reports</h1>
-            <p className="text-muted-foreground mt-1">
-              Comprehensive attendance analytics and insights
-            </p>
-          </div>
-        </div>
-        <div className="flex gap-2">
-          <Button variant="outline" onClick={() => handleExportReport('summary')} disabled={isLoading}>
-            <Download className="h-4 w-4 mr-2" />
-            Export Summary
-          </Button>
-          <Button variant="outline" onClick={() => handleExportReport('detailed')} disabled={isLoading}>
-            <FileText className="h-4 w-4 mr-2" />
-            Detailed Report
-          </Button>
+      <div className="flex items-center gap-4">
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => router.back()}
+        >
+          <ArrowLeft className="h-4 w-4 mr-2" />
+          Back
+        </Button>
+        <div className="flex-1">
+          <PageHeader
+            title="Attendance Reports"
+            actions={
+              <>
+                <Button variant="outline" onClick={() => handleExportReport('summary')} disabled={isLoading}>
+                  <Download className="h-4 w-4 mr-2" />
+                  Export Summary
+                </Button>
+                <Button variant="outline" onClick={() => handleExportReport('detailed')} disabled={isLoading}>
+                  <FileText className="h-4 w-4 mr-2" />
+                  Detailed Report
+                </Button>
+              </>
+            }
+          />
         </div>
       </div>
 
@@ -385,9 +385,6 @@ export default function AttendanceReportsPage() {
                   <LineChart className="h-5 w-5 text-brand-primary" />
                   Monthly Attendance Trend
                 </CardTitle>
-                <CardDescription>
-                  Attendance patterns over the past 6 months
-                </CardDescription>
               </CardHeader>
               <CardContent>
                 <ChartContainer config={monthlyChartConfig} className="h-[300px] w-full">
@@ -446,9 +443,6 @@ export default function AttendanceReportsPage() {
                   <PieChart className="h-5 w-5 text-brand-primary" />
                   Attendance Distribution
                 </CardTitle>
-                <CardDescription>
-                  Current period attendance breakdown
-                </CardDescription>
               </CardHeader>
               <CardContent>
                 <ChartContainer config={distributionChartConfig} className="h-[300px] w-full">
@@ -512,9 +506,6 @@ export default function AttendanceReportsPage() {
           <Card>
             <CardHeader>
               <CardTitle>Service Type Performance</CardTitle>
-              <CardDescription>
-                Attendance rates and growth by service type
-              </CardDescription>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
@@ -560,9 +551,6 @@ export default function AttendanceReportsPage() {
           <Card className="hover:shadow-md transition-shadow">
             <CardHeader>
               <CardTitle>Weekly Attendance Trends</CardTitle>
-              <CardDescription>
-                Detailed breakdown of attendance patterns by week
-              </CardDescription>
             </CardHeader>
             <CardContent>
               <ChartContainer config={weeklyChartConfig} className="h-[400px] w-full">
@@ -621,9 +609,6 @@ export default function AttendanceReportsPage() {
           <Card>
             <CardHeader>
               <CardTitle>Department Attendance Analysis</CardTitle>
-              <CardDescription>
-                Attendance performance by department
-              </CardDescription>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
@@ -671,9 +656,6 @@ export default function AttendanceReportsPage() {
           <Card>
             <CardHeader>
               <CardTitle>Top Attending Members</CardTitle>
-              <CardDescription>
-                Members with highest attendance rates and streaks
-              </CardDescription>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">

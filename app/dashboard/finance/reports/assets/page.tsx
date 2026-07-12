@@ -3,7 +3,9 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { PageHeader } from '@/components/ui/page-header';
+import { StatCard } from '@/components/ui/stat-card';
 import { Badge } from '@/components/ui/badge';
 import { 
   Select,
@@ -270,7 +272,7 @@ export default function AssetReportsPage() {
   return (
     <div className="space-y-6">
       {/* Header with Back Navigation */}
-      <div className="flex items-center gap-4 mb-6">
+      <div className="flex items-center gap-4">
         <Button
           variant="outline"
           size="icon"
@@ -279,16 +281,7 @@ export default function AssetReportsPage() {
         >
           <ArrowLeft className="h-4 w-4" />
         </Button>
-        
-        <div className="flex items-center gap-3">
-          <div className="p-2 bg-brand-primary/10 rounded-lg">
-            <Package className="h-6 w-6 text-brand-primary" />
-          </div>
-          <div>
-            <h1 className="text-2xl font-bold tracking-tight">Asset Reports</h1>
-            <p className="text-muted-foreground">Value, depreciation, and maintenance costs</p>
-          </div>
-        </div>
+        <PageHeader title="Asset Reports" />
       </div>
 
       {/* Controls */}
@@ -319,82 +312,48 @@ export default function AssetReportsPage() {
 
       {/* Summary Cards */}
       <div className="grid gap-4 grid-cols-2 md:grid-cols-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Value</CardTitle>
-            <Package className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">₵{assetSummary.totalCurrentValue.toLocaleString()}</div>
-            <p className="text-xs text-muted-foreground">Current value</p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Original Value</CardTitle>
-            <BarChart3 className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">₵{assetSummary.totalOriginalValue.toLocaleString()}</div>
-            <p className="text-xs text-muted-foreground">Purchase value</p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Depreciation</CardTitle>
-            <TrendingDown className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-red-600">₵{assetSummary.totalDepreciation.toLocaleString()}</div>
-            <p className="text-xs text-muted-foreground">{assetSummary.depreciationRate}% rate</p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Maintenance</CardTitle>
-            <Settings className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">₵{assetSummary.totalMaintenanceCosts.toLocaleString()}</div>
-            <p className="text-xs text-muted-foreground">This year</p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Assets</CardTitle>
-            <Building className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{assetSummary.totalAssets}</div>
-            <p className="text-xs text-muted-foreground">All categories</p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Average Age</CardTitle>
-            <Calendar className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{assetSummary.averageAge}</div>
-            <p className="text-xs text-muted-foreground">Years</p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Alerts</CardTitle>
-            <AlertTriangle className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-orange-600">{maintenanceAlerts.length}</div>
-            <p className="text-xs text-muted-foreground">Pending</p>
-          </CardContent>
-        </Card>
+        <StatCard
+          title="Total Value"
+          value={`₵${assetSummary.totalCurrentValue.toLocaleString()}`}
+          icon={Package}
+          description="Current value"
+        />
+        <StatCard
+          title="Original Value"
+          value={`₵${assetSummary.totalOriginalValue.toLocaleString()}`}
+          icon={BarChart3}
+          description="Purchase value"
+        />
+        <StatCard
+          title="Depreciation"
+          value={`₵${assetSummary.totalDepreciation.toLocaleString()}`}
+          icon={TrendingDown}
+          description={`${assetSummary.depreciationRate}% rate`}
+        />
+        <StatCard
+          title="Maintenance"
+          value={`₵${assetSummary.totalMaintenanceCosts.toLocaleString()}`}
+          icon={Settings}
+          description="This year"
+        />
+        <StatCard
+          title="Total Assets"
+          value={assetSummary.totalAssets}
+          icon={Building}
+          description="All categories"
+        />
+        <StatCard
+          title="Average Age"
+          value={assetSummary.averageAge}
+          icon={Calendar}
+          description="Years"
+        />
+        <StatCard
+          title="Alerts"
+          value={maintenanceAlerts.length}
+          icon={AlertTriangle}
+          description="Pending"
+        />
       </div>
 
       {/* Tabs */}
@@ -412,7 +371,6 @@ export default function AssetReportsPage() {
             <Card className="hover:shadow-md transition-shadow">
               <CardHeader>
                 <CardTitle>Asset Value Distribution</CardTitle>
-                <CardDescription>Current value by category</CardDescription>
               </CardHeader>
               <CardContent>
                 <ChartContainer config={categoryChartConfig} className="h-[300px] w-full">
@@ -440,7 +398,6 @@ export default function AssetReportsPage() {
             <Card>
               <CardHeader>
                 <CardTitle>High Value Assets</CardTitle>
-                <CardDescription>Most valuable assets and their condition</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
@@ -473,7 +430,6 @@ export default function AssetReportsPage() {
           <Card>
             <CardHeader>
               <CardTitle>Assets by Category</CardTitle>
-              <CardDescription>Detailed breakdown by asset category</CardDescription>
             </CardHeader>
             <CardContent>
               <Table>
@@ -516,7 +472,6 @@ export default function AssetReportsPage() {
           <Card className="hover:shadow-md transition-shadow">
             <CardHeader>
               <CardTitle>Depreciation Trends</CardTitle>
-              <CardDescription>Annual depreciation by category</CardDescription>
             </CardHeader>
             <CardContent>
               <ChartContainer config={depreciationChartConfig} className="h-[400px] w-full">
@@ -541,7 +496,6 @@ export default function AssetReportsPage() {
           <Card className="hover:shadow-md transition-shadow">
             <CardHeader>
               <CardTitle>Monthly Maintenance Costs</CardTitle>
-              <CardDescription>Maintenance expenses by category</CardDescription>
             </CardHeader>
             <CardContent>
               <ChartContainer config={depreciationChartConfig} className="h-[400px] w-full">
@@ -567,7 +521,6 @@ export default function AssetReportsPage() {
           <Card>
             <CardHeader>
               <CardTitle>Maintenance Alerts</CardTitle>
-              <CardDescription>Upcoming maintenance and service requirements</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">

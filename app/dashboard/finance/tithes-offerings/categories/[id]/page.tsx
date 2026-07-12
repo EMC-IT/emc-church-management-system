@@ -247,9 +247,6 @@ export default function CategoryDetailsPage() {
                 />
                 Category Information
               </CardTitle>
-              <CardDescription>
-                Basic details about this category
-              </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="grid gap-4">
@@ -327,9 +324,6 @@ export default function CategoryDetailsPage() {
                 <BarChart3 className="h-5 w-5" />
                 Statistics
               </CardTitle>
-              <CardDescription>
-                Usage statistics for this category
-              </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="grid gap-4">
@@ -391,9 +385,6 @@ export default function CategoryDetailsPage() {
               <Activity className="h-5 w-5" />
               Recent Records
             </CardTitle>
-            <CardDescription>
-              Latest giving records in this category
-            </CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">

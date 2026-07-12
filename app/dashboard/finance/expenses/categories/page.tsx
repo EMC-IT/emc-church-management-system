@@ -14,12 +14,14 @@ import {
 } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { DataTable } from '@/components/ui/data-table';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { LazySection } from '@/components/ui/lazy-section';
 import { LazyLoader } from '@/components/ui/lazy-loader';
+import { PageHeader } from '@/components/ui/page-header';
+import { StatCard } from '@/components/ui/stat-card';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
@@ -373,86 +375,49 @@ export default function ExpenseCategoriesPage() {
   return (
     <div className="space-y-6">
 
-      {/* Page Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div className="flex items-center gap-4">
-          <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-brand-primary/10">
-            <Tag className="h-6 w-6 text-brand-primary" />
-          </div>
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900">Expense Categories</h1>
-            <p className="text-gray-600">Manage and organize expense categories</p>
-          </div>
-        </div>
-        
-        <Button asChild>
-          <Link href="/dashboard/finance/expenses/categories/add">
-            <PlusCircle className="mr-2 h-4 w-4" />
-            Add Category
-          </Link>
-        </Button>
-      </div>
+      <PageHeader
+        title="Expense Categories"
+        description="Manage and organize expense categories"
+        actions={
+          <Button asChild>
+            <Link href="/dashboard/finance/expenses/categories/add">
+              <PlusCircle className="mr-2 h-4 w-4" />
+              Add Category
+            </Link>
+          </Button>
+        }
+      />
 
       {/* Summary Statistics */}
       <LazySection>
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center gap-4">
-                <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-blue-100">
-                  <Tag className="h-6 w-6 text-blue-600" />
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-gray-600">Total Categories</p>
-                  <p className="text-2xl font-bold">{totalCategories}</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-          
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center gap-4">
-                <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-green-100">
-                  <Tag className="h-6 w-6 text-green-600" />
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-gray-600">Active Categories</p>
-                  <p className="text-2xl font-bold">{activeCategories}</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-          
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center gap-4">
-                <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-purple-100">
-                  <Wallet className="h-6 w-6 text-purple-600" />
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-gray-600">Total Expenses</p>
-                  <p className="text-2xl font-bold">{totalExpenses}</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-          
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center gap-4">
-                <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-brand-primary/10">
-                  <Wallet className="h-6 w-6 text-brand-primary" />
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-gray-600">Total Amount</p>
-                  <p className="text-2xl font-bold text-brand-primary">
-                    ₵{totalAmount.toLocaleString('en-GH', { minimumFractionDigits: 2 })}
-                  </p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+          <StatCard
+            title="Total Categories"
+            value={totalCategories}
+            icon={Tag}
+            accent="primary"
+          />
+
+          <StatCard
+            title="Active Categories"
+            value={activeCategories}
+            icon={Tag}
+            accent="success"
+          />
+
+          <StatCard
+            title="Total Expenses"
+            value={totalExpenses}
+            icon={Wallet}
+            accent="secondary"
+          />
+
+          <StatCard
+            title="Total Amount"
+            value={`₵${totalAmount.toLocaleString('en-GH', { minimumFractionDigits: 2 })}`}
+            icon={Wallet}
+            accent="accent"
+          />
         </div>
       </LazySection>
 
@@ -461,9 +426,6 @@ export default function ExpenseCategoriesPage() {
         <Card>
           <CardHeader>
             <CardTitle>Categories List</CardTitle>
-            <CardDescription>
-              Manage your expense categories and track spending patterns
-            </CardDescription>
           </CardHeader>
           <CardContent>
             {/* Search and Filter */}

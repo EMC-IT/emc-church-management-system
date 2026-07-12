@@ -6,7 +6,6 @@ import Link from 'next/link';
 import {
   Plus,
   Wallet,
-  TrendingUp,
   Calendar,
   PieChart,
   FileText,
@@ -24,6 +23,8 @@ import { DataTable } from '@/components/ui/data-table';
 import { Badge } from '@/components/ui/badge';
 import { LazySection } from '@/components/ui/lazy-section';
 import { LazyLoader } from '@/components/ui/lazy-loader';
+import { PageHeader } from '@/components/ui/page-header';
+import { StatCard } from '@/components/ui/stat-card';
 import { ColumnDef } from '@tanstack/react-table';
 
 // Tithe & Offering data interface
@@ -171,14 +172,6 @@ export default function TithesOfferingsOverviewPage() {
     }
   };
 
-  const getGrowthIcon = (growth: number) => {
-    return growth > 0 ? (
-      <TrendingUp className="h-3 w-3 text-brand-success" />
-    ) : (
-      <TrendingUp className="h-3 w-3 text-red-500 rotate-180" />
-    );
-  };
-
   const columns: ColumnDef<TitheOfferingRecord>[] = [
     {
       accessorKey: 'memberName',
@@ -237,27 +230,26 @@ export default function TithesOfferingsOverviewPage() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Tithes & Offerings</h1>
-          <p className="text-muted-foreground">Track and manage church tithes and offerings</p>
-        </div>
-        <div className="flex items-center space-x-2">
-          <Button variant="outline" asChild>
-            <Link href="/dashboard/finance/tithes-offerings/reports">
-              <FileText className="mr-2 h-4 w-4" />
-              View Reports
-            </Link>
-          </Button>
-          <Button asChild>
-            <Link href="/dashboard/finance/tithes-offerings/add">
-              <Plus className="mr-2 h-4 w-4" />
-              Record Giving
-            </Link>
-          </Button>
-        </div>
-      </div>
+      <PageHeader
+        title="Tithes & Offerings"
+        description="Track and manage church tithes and offerings"
+        actions={
+          <>
+            <Button variant="outline" asChild>
+              <Link href="/dashboard/finance/tithes-offerings/reports">
+                <FileText className="mr-2 h-4 w-4" />
+                View Reports
+              </Link>
+            </Button>
+            <Button asChild>
+              <Link href="/dashboard/finance/tithes-offerings/add">
+                <Plus className="mr-2 h-4 w-4" />
+                Record Giving
+              </Link>
+            </Button>
+          </>
+        }
+      />
 
       {/* Statistics Cards */}
       <LazySection
@@ -268,58 +260,40 @@ export default function TithesOfferingsOverviewPage() {
         className="grid gap-4 md:grid-cols-2 lg:grid-cols-4"
         threshold={0.1}
       >
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Received</CardTitle>
-            <Wallet className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-brand-success">{formatCurrency(titheOfferingStats.totalAmount)}</div>
-            <p className="text-xs text-muted-foreground">
-              {titheOfferingStats.totalCount} transactions
-            </p>
-          </CardContent>
-        </Card>
+        <StatCard
+          title="Total Received"
+          value={formatCurrency(titheOfferingStats.totalAmount)}
+          icon={Wallet}
+          accent="success"
+          description={`${titheOfferingStats.totalCount} transactions`}
+        />
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">This Month</CardTitle>
-            <Calendar className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-brand-success">{formatCurrency(titheOfferingStats.thisMonth)}</div>
-            <div className="flex items-center text-xs text-muted-foreground">
-              {getGrowthIcon(titheOfferingStats.growth)}
-              <span className="ml-1">{Math.abs(titheOfferingStats.growth)}% from last month</span>
-            </div>
-          </CardContent>
-        </Card>
+        <StatCard
+          title="This Month"
+          value={formatCurrency(titheOfferingStats.thisMonth)}
+          icon={Calendar}
+          accent="success"
+          trend={{
+            value: `${Math.abs(titheOfferingStats.growth)}% from last month`,
+            direction: titheOfferingStats.growth > 0 ? 'up' : 'down',
+          }}
+        />
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Average Giving</CardTitle>
-            <Heart className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{formatCurrency(titheOfferingStats.averageAmount)}</div>
-            <p className="text-xs text-muted-foreground">
-              Per transaction
-            </p>
-          </CardContent>
-        </Card>
+        <StatCard
+          title="Average Giving"
+          value={formatCurrency(titheOfferingStats.averageAmount)}
+          icon={Heart}
+          accent="primary"
+          description="Per transaction"
+        />
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Categories</CardTitle>
-            <PieChart className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{titheOfferingStats.categoriesCount}</div>
-            <p className="text-xs text-muted-foreground">
-              Active categories
-            </p>
-          </CardContent>
-        </Card>
+        <StatCard
+          title="Categories"
+          value={titheOfferingStats.categoriesCount}
+          icon={PieChart}
+          accent="secondary"
+          description="Active categories"
+        />
       </LazySection>
 
       {/* Quick Actions */}
@@ -362,7 +336,6 @@ export default function TithesOfferingsOverviewPage() {
             <div className="flex items-center justify-between">
               <div>
                 <CardTitle>Recent Tithes & Offerings</CardTitle>
-                <CardDescription>Latest giving transactions</CardDescription>
               </div>
               <Button variant="outline" size="sm" asChild>
                 <Link href="/dashboard/finance/tithes-offerings">

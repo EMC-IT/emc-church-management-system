@@ -224,9 +224,6 @@ export default function TitheOfferingDetailsPage() {
                 <Receipt className="h-5 w-5" />
                 Record Information
               </CardTitle>
-              <CardDescription>
-                Basic details about this giving record
-              </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="grid gap-4">
@@ -296,9 +293,6 @@ export default function TitheOfferingDetailsPage() {
                 <FileText className="h-5 w-5" />
                 Additional Information
               </CardTitle>
-              <CardDescription>
-                Notes and record metadata
-              </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="grid gap-4">

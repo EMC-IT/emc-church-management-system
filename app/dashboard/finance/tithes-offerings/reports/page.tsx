@@ -14,7 +14,9 @@ import {
 } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { PageHeader } from '@/components/ui/page-header';
+import { StatCard } from '@/components/ui/stat-card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { DatePickerWithRange } from '@/components/ui/date-range-picker';
 import { LazySection } from '@/components/ui/lazy-section';
@@ -113,16 +115,7 @@ export default function TitheOfferingReportsPage() {
         >
           <ArrowLeft className="h-4 w-4" />
         </Button>
-        
-        <div className="flex items-center gap-3">
-          <div className="p-2 bg-brand-primary/10 rounded-lg">
-            <BarChart3 className="h-6 w-6 text-brand-primary" />
-          </div>
-          <div>
-            <h1 className="text-2xl font-bold tracking-tight">Giving Reports</h1>
-            <p className="text-muted-foreground">Analytics and insights for tithes and offerings</p>
-          </div>
-        </div>
+        <PageHeader title="Giving Reports" />
       </div>
 
       {/* Filters */}
@@ -133,9 +126,6 @@ export default function TitheOfferingReportsPage() {
               <Filter className="h-5 w-5" />
               Report Filters
             </CardTitle>
-            <CardDescription>
-              Customize your report parameters
-            </CardDescription>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -195,64 +185,31 @@ export default function TitheOfferingReportsPage() {
         className="grid gap-4 md:grid-cols-2 lg:grid-cols-4"
         threshold={0.1}
       >
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Received</CardTitle>
-            <BarChart3 className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-brand-success">
-              {formatCurrency(mockReportData.summary.totalAmount)}
-            </div>
-            <div className="flex items-center text-xs text-muted-foreground">
-              {getGrowthIcon(mockReportData.summary.growth)}
-              <span className="ml-1">{mockReportData.summary.growth}% from last period</span>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Records</CardTitle>
-            <FileText className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{mockReportData.summary.totalRecords}</div>
-            <p className="text-xs text-muted-foreground">
-              Giving transactions
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Average Amount</CardTitle>
-            <TrendingUp className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {formatCurrency(mockReportData.summary.averageAmount)}
-            </div>
-            <p className="text-xs text-muted-foreground">
-              Per transaction
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Growth Rate</CardTitle>
-            <Calendar className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-brand-success">
-              +{mockReportData.summary.growth}%
-            </div>
-            <p className="text-xs text-muted-foreground">
-              Compared to last period
-            </p>
-          </CardContent>
-        </Card>
+        <StatCard
+          title="Total Received"
+          value={formatCurrency(mockReportData.summary.totalAmount)}
+          icon={BarChart3}
+          accent="success"
+          trend={{ value: `${mockReportData.summary.growth}% from last period`, direction: 'up' }}
+        />
+        <StatCard
+          title="Total Records"
+          value={mockReportData.summary.totalRecords}
+          icon={FileText}
+          description="Giving transactions"
+        />
+        <StatCard
+          title="Average Amount"
+          value={formatCurrency(mockReportData.summary.averageAmount)}
+          icon={TrendingUp}
+          description="Per transaction"
+        />
+        <StatCard
+          title="Growth Rate"
+          value={`+${mockReportData.summary.growth}%`}
+          icon={Calendar}
+          description="Compared to last period"
+        />
       </LazySection>
 
       <div className="grid gap-6 md:grid-cols-2">
@@ -264,9 +221,6 @@ export default function TitheOfferingReportsPage() {
                 <TrendingUp className="h-5 w-5" />
                 Monthly Trends
               </CardTitle>
-              <CardDescription>
-                Giving trends over the past 6 months
-              </CardDescription>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
@@ -302,9 +256,6 @@ export default function TitheOfferingReportsPage() {
                 <PieChart className="h-5 w-5" />
                 Category Breakdown
               </CardTitle>
-              <CardDescription>
-                Distribution by giving categories
-              </CardDescription>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
@@ -349,9 +300,6 @@ export default function TitheOfferingReportsPage() {
               <TrendingUp className="h-5 w-5" />
               Top Contributors
             </CardTitle>
-            <CardDescription>
-              Members with highest giving amounts in the selected period
-            </CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">

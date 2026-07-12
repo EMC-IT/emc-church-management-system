@@ -3,7 +3,9 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { PageHeader } from '@/components/ui/page-header';
+import { StatCard } from '@/components/ui/stat-card';
 import { Badge } from '@/components/ui/badge';
 import { 
   Select,
@@ -134,7 +136,7 @@ export default function GivingReportsPage() {
   return (
     <div className="space-y-6">
       {/* Header with Back Navigation */}
-      <div className="flex items-center gap-4 mb-6">
+      <div className="flex items-center gap-4">
         <Button
           variant="outline"
           size="icon"
@@ -143,16 +145,7 @@ export default function GivingReportsPage() {
         >
           <ArrowLeft className="h-4 w-4" />
         </Button>
-        
-        <div className="flex items-center gap-3">
-          <div className="p-2 bg-brand-primary/10 rounded-lg">
-            <Heart className="h-6 w-6 text-brand-primary" />
-          </div>
-          <div>
-            <h1 className="text-2xl font-bold tracking-tight">Giving Reports</h1>
-            <p className="text-muted-foreground">All giving categories and donor analysis</p>
-          </div>
-        </div>
+        <PageHeader title="Giving Reports" />
       </div>
 
       {/* Controls */}
@@ -183,71 +176,42 @@ export default function GivingReportsPage() {
 
       {/* Summary Cards */}
       <div className="grid gap-4 grid-cols-2 md:grid-cols-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Giving</CardTitle>
-            <Heart className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">₵{givingSummary.totalGiving.toLocaleString()}</div>
-            <p className="text-xs text-muted-foreground">This year</p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Monthly Average</CardTitle>
-            <Calendar className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">₵{givingSummary.monthlyAverage.toLocaleString()}</div>
-            <p className="text-xs text-muted-foreground">Per month</p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">YoY Growth</CardTitle>
-            <TrendingUp className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-green-600">+{givingSummary.yearOverYearGrowth}%</div>
-            <p className="text-xs text-muted-foreground">Year over year</p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Givers</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{givingSummary.totalDonors}</div>
-            <p className="text-xs text-muted-foreground">Active givers</p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Average Gift</CardTitle>
-            <Gift className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">₵{givingSummary.averageGift}</div>
-            <p className="text-xs text-muted-foreground">Per gift</p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Recurring Givers</CardTitle>
-            <Target className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{givingSummary.recurringGivers}</div>
-            <p className="text-xs text-muted-foreground">{((givingSummary.recurringGivers / givingSummary.totalDonors) * 100).toFixed(1)}% of total</p>
-          </CardContent>
-        </Card>
+        <StatCard
+          title="Total Giving"
+          value={`₵${givingSummary.totalGiving.toLocaleString()}`}
+          icon={Heart}
+          description="This year"
+        />
+        <StatCard
+          title="Monthly Average"
+          value={`₵${givingSummary.monthlyAverage.toLocaleString()}`}
+          icon={Calendar}
+          description="Per month"
+        />
+        <StatCard
+          title="YoY Growth"
+          value={`+${givingSummary.yearOverYearGrowth}%`}
+          icon={TrendingUp}
+          description="Year over year"
+        />
+        <StatCard
+          title="Total Givers"
+          value={givingSummary.totalDonors}
+          icon={Users}
+          description="Active givers"
+        />
+        <StatCard
+          title="Average Gift"
+          value={`₵${givingSummary.averageGift}`}
+          icon={Gift}
+          description="Per gift"
+        />
+        <StatCard
+          title="Recurring Givers"
+          value={givingSummary.recurringGivers}
+          icon={Target}
+          description={`${((givingSummary.recurringGivers / givingSummary.totalDonors) * 100).toFixed(1)}% of total`}
+        />
       </div>
 
       {/* Tabs */}
@@ -265,7 +229,6 @@ export default function GivingReportsPage() {
             <Card className="hover:shadow-md transition-shadow">
               <CardHeader>
                 <CardTitle>Monthly Giving Trend</CardTitle>
-                <CardDescription>Total giving throughout the year</CardDescription>
               </CardHeader>
               <CardContent>
                 <ChartContainer config={monthlyChartConfig} className="h-[300px] w-full">
@@ -289,7 +252,6 @@ export default function GivingReportsPage() {
             <Card>
               <CardHeader>
                 <CardTitle>Top Givers</CardTitle>
-                <CardDescription>Highest contributing givers this period</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
@@ -323,7 +285,6 @@ export default function GivingReportsPage() {
             <Card className="hover:shadow-md transition-shadow">
               <CardHeader>
                 <CardTitle>Giving by Category</CardTitle>
-                <CardDescription>Distribution across giving categories</CardDescription>
               </CardHeader>
               <CardContent>
                 <ChartContainer config={categoryChartConfig} className="h-[300px] w-full">
@@ -351,7 +312,6 @@ export default function GivingReportsPage() {
             <Card>
               <CardHeader>
                 <CardTitle>Category Details</CardTitle>
-                <CardDescription>Detailed breakdown by category</CardDescription>
               </CardHeader>
               <CardContent>
                 <Table>
@@ -392,7 +352,6 @@ export default function GivingReportsPage() {
             <Card className="hover:shadow-md transition-shadow">
               <CardHeader>
                 <CardTitle>Giving by Frequency</CardTitle>
-                <CardDescription>How often people give</CardDescription>
               </CardHeader>
               <CardContent>
                 <ChartContainer config={frequencyChartConfig} className="h-[300px] w-full">
@@ -410,7 +369,6 @@ export default function GivingReportsPage() {
             <Card>
               <CardHeader>
                 <CardTitle>Frequency Analysis</CardTitle>
-                <CardDescription>Detailed frequency breakdown</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
@@ -437,7 +395,6 @@ export default function GivingReportsPage() {
             <Card className="hover:shadow-md transition-shadow">
               <CardHeader>
                 <CardTitle>Giving Methods</CardTitle>
-                <CardDescription>How people prefer to give</CardDescription>
               </CardHeader>
               <CardContent>
                 <ChartContainer config={categoryChartConfig} className="h-[300px] w-full">
@@ -465,7 +422,6 @@ export default function GivingReportsPage() {
             <Card>
               <CardHeader>
                 <CardTitle>Method Performance</CardTitle>
-                <CardDescription>Transaction volume by method</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
@@ -491,7 +447,6 @@ export default function GivingReportsPage() {
           <Card className="hover:shadow-md transition-shadow">
             <CardHeader>
               <CardTitle>Giving Trends by Category</CardTitle>
-              <CardDescription>Monthly breakdown of all giving categories</CardDescription>
             </CardHeader>
             <CardContent>
               <ChartContainer config={monthlyChartConfig} className="h-[400px] w-full">

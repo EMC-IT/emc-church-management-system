@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { PageHeader } from '@/components/ui/page-header';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -201,29 +202,30 @@ export default function AdvancedFiltersPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => router.push('/dashboard/analytics')}
-          >
-            <ArrowLeft className="h-4 w-4" />
-          </Button>
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight">Advanced Filters</h1>
-            <p className="text-muted-foreground">Create and manage complex data filters</p>
-          </div>
-        </div>
-        <div className="flex gap-2">
-          <Button variant="outline" onClick={handleResetFilters}>
-            <RotateCcw className="mr-2 h-4 w-4" />
-            Reset
-          </Button>
-          <Button onClick={handleApplyFilters} className="bg-brand-primary hover:bg-brand-primary/90">
-            <Filter className="mr-2 h-4 w-4" />
-            Apply Filters
-          </Button>
+      <div className="flex items-center gap-4">
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => router.push('/dashboard/analytics')}
+        >
+          <ArrowLeft className="h-4 w-4" />
+        </Button>
+        <div className="flex-1">
+          <PageHeader
+            title="Advanced Filters"
+            actions={
+              <>
+                <Button variant="outline" onClick={handleResetFilters}>
+                  <RotateCcw className="mr-2 h-4 w-4" />
+                  Reset
+                </Button>
+                <Button onClick={handleApplyFilters} className="bg-brand-primary hover:bg-brand-primary/90">
+                  <Filter className="mr-2 h-4 w-4" />
+                  Apply Filters
+                </Button>
+              </>
+            }
+          />
         </div>
       </div>
 
@@ -234,7 +236,6 @@ export default function AdvancedFiltersPage() {
           <Card>
             <CardHeader>
               <CardTitle>Date Range</CardTitle>
-              <CardDescription>Filter data by date range</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid gap-4 md:grid-cols-2">
@@ -328,7 +329,6 @@ export default function AdvancedFiltersPage() {
           <Card>
             <CardHeader>
               <CardTitle>Data Sources</CardTitle>
-              <CardDescription>Select which data sources to include</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="flex flex-wrap gap-2">
@@ -354,7 +354,6 @@ export default function AdvancedFiltersPage() {
           <Card>
             <CardHeader>
               <CardTitle>Filter Rules</CardTitle>
-              <CardDescription>Define custom filter conditions</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               {filterRules.map((rule, index) => (
@@ -453,7 +452,6 @@ export default function AdvancedFiltersPage() {
           <Card>
             <CardHeader>
               <CardTitle>Save Filter</CardTitle>
-              <CardDescription>Save this filter configuration for future use</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">

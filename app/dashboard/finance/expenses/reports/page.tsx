@@ -22,7 +22,9 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, PieChart as RechartsPieChar
 import { ChartContainer, ChartTooltip, ChartTooltipContent, ChartLegend, ChartLegendContent, ChartConfig } from '@/components/ui/chart';
 
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { PageHeader } from '@/components/ui/page-header';
+import { StatCard } from '@/components/ui/stat-card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 // import { DatePickerWithRange } from '@/components/ui/date-range-picker';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -373,39 +375,34 @@ export default function ExpenseReportsPage() {
 
 
       {/* Page Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div className="flex items-center gap-4">
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={() => router.push('/dashboard/finance/expenses')}
-            className="h-12 w-12"
-          >
-            <ArrowLeft className="h-5 w-5" />
-          </Button>
-          <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-brand-primary/10">
-            <BarChart3 className="h-6 w-6 text-brand-primary" />
-          </div>
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900">Expense Reports</h1>
-            <p className="text-gray-600">Analyze spending patterns and generate reports</p>
-          </div>
-        </div>
-        
-        <div className="flex gap-2">
-          <Button variant="outline" onClick={() => handleExport('csv')}>
-            <Download className="mr-2 h-4 w-4" />
-            CSV
-          </Button>
-          <Button variant="outline" onClick={() => handleExport('excel')}>
-            <Download className="mr-2 h-4 w-4" />
-            Excel
-          </Button>
-          <Button onClick={() => handleExport('pdf')}>
-            <FileText className="mr-2 h-4 w-4" />
-            PDF Report
-          </Button>
-        </div>
+      <div className="flex items-center gap-4">
+        <Button
+          variant="outline"
+          size="icon"
+          onClick={() => router.push('/dashboard/finance/expenses')}
+          className="h-12 w-12"
+        >
+          <ArrowLeft className="h-5 w-5" />
+        </Button>
+        <PageHeader
+          title="Expense Reports"
+          actions={
+            <>
+              <Button variant="outline" onClick={() => handleExport('csv')}>
+                <Download className="mr-2 h-4 w-4" />
+                CSV
+              </Button>
+              <Button variant="outline" onClick={() => handleExport('excel')}>
+                <Download className="mr-2 h-4 w-4" />
+                Excel
+              </Button>
+              <Button onClick={() => handleExport('pdf')}>
+                <FileText className="mr-2 h-4 w-4" />
+                PDF Report
+              </Button>
+            </>
+          }
+        />
       </div>
 
       {/* Filters */}
@@ -416,9 +413,6 @@ export default function ExpenseReportsPage() {
               <Filter className="h-5 w-5" />
               Report Filters
             </CardTitle>
-            <CardDescription>
-              Customize your expense report by applying filters
-            </CardDescription>
           </CardHeader>
           <CardContent>
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
@@ -491,65 +485,26 @@ export default function ExpenseReportsPage() {
       {/* Summary Statistics */}
       <LazySection>
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center gap-4">
-                <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-brand-primary/10">
-                  <Wallet className="h-6 w-6 text-brand-primary" />
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-gray-600">Total Amount</p>
-                  <p className="text-2xl font-bold text-brand-primary">
-                    ₵{totalAmount.toLocaleString('en-GH', { minimumFractionDigits: 2 })}
-                  </p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-          
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center gap-4">
-                <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-blue-100">
-                  <Receipt className="h-6 w-6 text-blue-600" />
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-gray-600">Total Expenses</p>
-                  <p className="text-2xl font-bold">{totalCount}</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-          
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center gap-4">
-                <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-green-100">
-                  <TrendingUp className="h-6 w-6 text-green-600" />
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-gray-600">Average Amount</p>
-                  <p className="text-2xl font-bold">
-                    ₵{averageAmount.toLocaleString('en-GH', { minimumFractionDigits: 2 })}
-                  </p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-          
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center gap-4">
-                <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-purple-100">
-                  <Tag className="h-6 w-6 text-purple-600" />
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-gray-600">Categories</p>
-                  <p className="text-2xl font-bold">{categoryBreakdown.length}</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+          <StatCard
+            title="Total Amount"
+            value={`₵${totalAmount.toLocaleString('en-GH', { minimumFractionDigits: 2 })}`}
+            icon={Wallet}
+          />
+          <StatCard
+            title="Total Expenses"
+            value={totalCount}
+            icon={Receipt}
+          />
+          <StatCard
+            title="Average Amount"
+            value={`₵${averageAmount.toLocaleString('en-GH', { minimumFractionDigits: 2 })}`}
+            icon={TrendingUp}
+          />
+          <StatCard
+            title="Categories"
+            value={categoryBreakdown.length}
+            icon={Tag}
+          />
         </div>
       </LazySection>
 
@@ -628,9 +583,6 @@ export default function ExpenseReportsPage() {
             <Card>
               <CardHeader>
                 <CardTitle>Category Breakdown</CardTitle>
-                <CardDescription>
-                  Detailed analysis of expenses by category
-                </CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
@@ -668,9 +620,6 @@ export default function ExpenseReportsPage() {
                   <BarChart3 className="h-5 w-5" />
                   Expense Trends
                 </CardTitle>
-                <CardDescription>
-                  Monthly expense patterns and trends
-                </CardDescription>
               </CardHeader>
               <CardContent>
                 <ChartContainer config={expenseChartConfig} className="h-96 w-full">
@@ -690,9 +639,6 @@ export default function ExpenseReportsPage() {
             <Card>
               <CardHeader>
                 <CardTitle>Expense Details</CardTitle>
-                <CardDescription>
-                  Complete list of filtered expenses
-                </CardDescription>
               </CardHeader>
               <CardContent>
                 <DataTable

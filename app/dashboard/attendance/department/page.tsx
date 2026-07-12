@@ -3,7 +3,8 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { PageHeader } from '@/components/ui/page-header';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
@@ -495,32 +496,31 @@ export default function DepartmentAttendancePage() {
 
 
       {/* Header */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div className="flex items-center gap-4">
-          <Button 
-            variant="outline" 
-            size="sm" 
-            onClick={() => router.back()}
-          >
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Back
-          </Button>
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900">Department Attendance</h1>
-            <p className="text-muted-foreground mt-1">
-              Track attendance across all church departments and ministries
-            </p>
-          </div>
-        </div>
-        <div className="flex gap-2">
-          <Button variant="outline" onClick={handleRefresh} disabled={isLoading}>
-            <RefreshCw className={cn("h-4 w-4 mr-2", isLoading && "animate-spin")} />
-            Refresh
-          </Button>
-          <Button variant="outline" onClick={handleExportData} disabled={isLoading}>
-            <Download className="h-4 w-4 mr-2" />
-            Export Data
-          </Button>
+      <div className="flex items-center gap-4">
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => router.back()}
+        >
+          <ArrowLeft className="h-4 w-4 mr-2" />
+          Back
+        </Button>
+        <div className="flex-1">
+          <PageHeader
+            title="Department Attendance"
+            actions={
+              <>
+                <Button variant="outline" onClick={handleRefresh} disabled={isLoading}>
+                  <RefreshCw className={cn("h-4 w-4 mr-2", isLoading && "animate-spin")} />
+                  Refresh
+                </Button>
+                <Button variant="outline" onClick={handleExportData} disabled={isLoading}>
+                  <Download className="h-4 w-4 mr-2" />
+                  Export Data
+                </Button>
+              </>
+            }
+          />
         </div>
       </div>
 
@@ -665,9 +665,6 @@ export default function DepartmentAttendancePage() {
           <Card>
             <CardHeader>
               <CardTitle>Departments Overview ({filteredDepartments.length})</CardTitle>
-              <CardDescription>
-                Attendance performance across all church departments
-              </CardDescription>
             </CardHeader>
             <CardContent>
               <DataTable
@@ -688,9 +685,6 @@ export default function DepartmentAttendancePage() {
           <Card className="hover:shadow-md transition-shadow">
             <CardHeader>
               <CardTitle>Department Attendance Trends</CardTitle>
-              <CardDescription>
-                Monthly attendance patterns for all departments
-              </CardDescription>
             </CardHeader>
             <CardContent>
               <ChartContainer config={trendChartConfig} className="h-[400px] w-full">
@@ -772,9 +766,6 @@ export default function DepartmentAttendancePage() {
             <Card>
               <CardHeader>
                 <CardTitle>Top Performing Departments</CardTitle>
-                <CardDescription>
-                  Departments with highest attendance rates
-                </CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
@@ -805,9 +796,6 @@ export default function DepartmentAttendancePage() {
             <Card>
               <CardHeader>
                 <CardTitle>Growth Leaders</CardTitle>
-                <CardDescription>
-                  Departments with highest growth rates
-                </CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
@@ -842,9 +830,6 @@ export default function DepartmentAttendancePage() {
           <Card className="hover:shadow-md transition-shadow">
             <CardHeader>
               <CardTitle>Department Performance Radar</CardTitle>
-              <CardDescription>
-                Multi-dimensional performance analysis of top departments
-              </CardDescription>
             </CardHeader>
             <CardContent>
               <ChartContainer config={radarChartConfig} className="h-[400px] w-full">
@@ -912,9 +897,6 @@ export default function DepartmentAttendancePage() {
                   <PieChart className="h-5 w-5 text-brand-primary" />
                   Members by Department Type
                 </CardTitle>
-                <CardDescription>
-                  Distribution of members across department types
-                </CardDescription>
               </CardHeader>
               <CardContent>
                 <ChartContainer config={typeChartConfig} className="h-[300px] w-full">
@@ -988,9 +970,6 @@ export default function DepartmentAttendancePage() {
             <Card>
               <CardHeader>
                 <CardTitle>Type Performance</CardTitle>
-                <CardDescription>
-                  Average attendance rates by department type
-                </CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">

@@ -3,13 +3,15 @@
 import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { DataTable } from '@/components/ui/data-table';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
+import { PageHeader } from '@/components/ui/page-header';
+import { StatCard } from '@/components/ui/stat-card';
 import { 
   ArrowLeft, 
   Edit, 
@@ -285,95 +287,73 @@ export default function CategoryDetailsPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center space-x-4">
-          <Button variant="ghost" size="sm" asChild>
-            <Link href="/dashboard/finance/giving/categories">
-              <ArrowLeft className="mr-2 h-4 w-4" />
-              Back to Categories
-            </Link>
-          </Button>
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight">{category.name}</h1>
-            <p className="text-muted-foreground">{category.description}</p>
-          </div>
-        </div>
-        <div className="flex items-center space-x-2">
-          {editing ? (
-            <>
-              <Button variant="outline" onClick={handleCancel}>
-                <X className="mr-2 h-4 w-4" />
-                Cancel
-              </Button>
-              <Button onClick={handleSave}>
-                <Save className="mr-2 h-4 w-4" />
-                Save Changes
-              </Button>
-            </>
-          ) : (
-            <Button onClick={() => setEditing(true)}>
-              <Edit className="mr-2 h-4 w-4" />
-              Edit Category
-            </Button>
-          )}
+      <div className="flex items-center gap-4">
+        <Button variant="outline" size="sm" asChild>
+          <Link href="/dashboard/finance/giving/categories">
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            Back
+          </Link>
+        </Button>
+        <div className="flex-1">
+          <PageHeader
+            title={category.name}
+            description={category.description}
+            actions={
+              editing ? (
+                <>
+                  <Button variant="outline" onClick={handleCancel}>
+                    <X className="mr-2 h-4 w-4" />
+                    Cancel
+                  </Button>
+                  <Button onClick={handleSave}>
+                    <Save className="mr-2 h-4 w-4" />
+                    Save Changes
+                  </Button>
+                </>
+              ) : (
+                <Button onClick={() => setEditing(true)}>
+                  <Edit className="mr-2 h-4 w-4" />
+                  Edit Category
+                </Button>
+              )
+            }
+          />
         </div>
       </div>
 
       {/* Statistics Cards */}
       <div className="grid gap-4 md:grid-cols-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Amount</CardTitle>
-            <BadgeCent className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{formatCurrency(category.totalAmount)}</div>
-            <p className="text-xs text-muted-foreground">
-              All time
-            </p>
-          </CardContent>
-        </Card>
+        <StatCard
+          title="Total Amount"
+          value={formatCurrency(category.totalAmount)}
+          icon={BadgeCent}
+          accent="success"
+          description="All time"
+        />
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Transactions</CardTitle>
-            <TrendingUp className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{category.transactionCount}</div>
-            <p className="text-xs text-muted-foreground">
-              Total count
-            </p>
-          </CardContent>
-        </Card>
+        <StatCard
+          title="Transactions"
+          value={category.transactionCount}
+          icon={TrendingUp}
+          accent="primary"
+          description="Total count"
+        />
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Average Amount</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {formatCurrency(category.totalAmount / category.transactionCount)}
-            </div>
-            <p className="text-xs text-muted-foreground">
-              Per transaction
-            </p>
-          </CardContent>
-        </Card>
+        <StatCard
+          title="Average Amount"
+          value={formatCurrency(category.totalAmount / category.transactionCount)}
+          icon={Users}
+          accent="secondary"
+          description="Per transaction"
+        />
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Progress</CardTitle>
-            <Target className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{progress.toFixed(1)}%</div>
-            <p className="text-xs text-muted-foreground">
-              {category.targetAmount ? `of ${formatCurrency(category.targetAmount)}` : 'No target set'}
-            </p>
-          </CardContent>
-        </Card>
+        <StatCard
+          title="Progress"
+          value={`${progress.toFixed(1)}%`}
+          icon={Target}
+          accent="accent"
+          description={category.targetAmount ? `of ${formatCurrency(category.targetAmount)}` : 'No target set'}
+        />
       </div>
 
       <Tabs defaultValue="details" className="space-y-4">
@@ -386,9 +366,6 @@ export default function CategoryDetailsPage() {
           <Card>
             <CardHeader>
               <CardTitle>Category Information</CardTitle>
-              <CardDescription>
-                {editing ? 'Edit category details' : 'View category information'}
-              </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid gap-4 md:grid-cols-2">
@@ -487,9 +464,6 @@ export default function CategoryDetailsPage() {
           <Card>
             <CardHeader>
               <CardTitle>Category Transactions</CardTitle>
-              <CardDescription>
-                All giving transactions for this category
-              </CardDescription>
             </CardHeader>
             <CardContent>
               <DataTable

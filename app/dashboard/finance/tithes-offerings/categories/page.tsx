@@ -370,7 +370,6 @@ export default function TitheOfferingCategoriesPage() {
             <div className="flex items-center justify-between">
               <div>
                 <CardTitle>Categories</CardTitle>
-                <CardDescription>Manage your tithe and offering categories</CardDescription>
               </div>
               <Button variant="outline" size="sm" asChild>
                 <Link href="/dashboard/finance/tithes-offerings/categories/add">

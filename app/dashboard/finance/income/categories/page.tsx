@@ -29,7 +29,7 @@ import {
 } from '@tanstack/react-table';
 
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -37,6 +37,8 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel,
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { LazySection } from '@/components/ui/lazy-section';
 import { LazyLoader } from '@/components/ui/lazy-loader';
+import { PageHeader } from '@/components/ui/page-header';
+import { StatCard } from '@/components/ui/stat-card';
 import { toast } from 'sonner';
 
 // Types
@@ -356,21 +358,18 @@ export default function IncomeCategoriesPage() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Income Categories</h1>
-          <p className="text-muted-foreground">
-            Manage income categories and track revenue sources
-          </p>
-        </div>
-        <Button asChild>
-          <Link href="/dashboard/finance/income/categories/add">
-            <Plus className="mr-2 h-4 w-4" />
-            Add Category
-          </Link>
-        </Button>
-      </div>
+      <PageHeader
+        title="Income Categories"
+        description="Manage income categories and track revenue sources"
+        actions={
+          <Button asChild>
+            <Link href="/dashboard/finance/income/categories/add">
+              <Plus className="mr-2 h-4 w-4" />
+              Add Category
+            </Link>
+          </Button>
+        }
+      />
 
       {/* Summary Cards */}
       <LazySection
@@ -381,61 +380,37 @@ export default function IncomeCategoriesPage() {
         threshold={0.1}
         className="grid gap-4 md:grid-cols-2 lg:grid-cols-4"
       >
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Categories</CardTitle>
-            <FileText className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{summaryStats.totalCategories}</div>
-            <p className="text-xs text-muted-foreground">
-              {summaryStats.activeCategories} active
-            </p>
-          </CardContent>
-        </Card>
+        <StatCard
+          title="Total Categories"
+          value={summaryStats.totalCategories}
+          icon={FileText}
+          accent="primary"
+          description={`${summaryStats.activeCategories} active`}
+        />
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Income</CardTitle>
-            <BadgeCent className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {formatCurrency(summaryStats.totalIncome)}
-            </div>
-            <p className="text-xs text-muted-foreground">
-              Across all categories
-            </p>
-          </CardContent>
-        </Card>
+        <StatCard
+          title="Total Income"
+          value={formatCurrency(summaryStats.totalIncome)}
+          icon={BadgeCent}
+          accent="success"
+          description="Across all categories"
+        />
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Income Records</CardTitle>
-            <TrendingUp className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{summaryStats.totalRecords}</div>
-            <p className="text-xs text-muted-foreground">
-              Total income entries
-            </p>
-          </CardContent>
-        </Card>
+        <StatCard
+          title="Income Records"
+          value={summaryStats.totalRecords}
+          icon={TrendingUp}
+          accent="secondary"
+          description="Total income entries"
+        />
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Average per Category</CardTitle>
-            <Calendar className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {formatCurrency(summaryStats.avgIncomePerCategory)}
-            </div>
-            <p className="text-xs text-muted-foreground">
-              Active categories only
-            </p>
-          </CardContent>
-        </Card>
+        <StatCard
+          title="Average per Category"
+          value={formatCurrency(summaryStats.avgIncomePerCategory)}
+          icon={Calendar}
+          accent="accent"
+          description="Active categories only"
+        />
       </LazySection>
 
       {/* Categories Table */}
@@ -449,9 +424,6 @@ export default function IncomeCategoriesPage() {
         <Card>
           <CardHeader>
             <CardTitle>Categories List</CardTitle>
-            <CardDescription>
-              Manage your income categories and track their performance
-            </CardDescription>
           </CardHeader>
           <CardContent>
             {/* Search and Filters */}

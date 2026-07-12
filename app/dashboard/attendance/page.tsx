@@ -3,7 +3,10 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { PageHeader } from '@/components/ui/page-header';
+import { ChartHeader } from '@/components/ui/chart-header';
+import { StatCard } from '@/components/ui/stat-card';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
@@ -227,100 +230,65 @@ export default function AttendancePage() {
     <div className="space-y-6">
 
 
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">Attendance Overview</h1>
-          <p className="text-muted-foreground mt-1">
-            Track and manage church attendance across all services
-          </p>
-        </div>
-        <div className="flex flex-col sm:flex-row gap-2">
-          <Button onClick={handleTakeAttendance} className="bg-brand-primary hover:bg-brand-primary/90">
-            <Plus className="h-4 w-4 mr-2" />
-            Take Attendance
-          </Button>
-          <Button variant="outline" onClick={handleQRCheckin} className="border-brand-primary text-brand-primary hover:bg-brand-primary hover:text-white">
-            <QrCode className="h-4 w-4 mr-2" />
-            QR Check-in
-          </Button>
-          <Button variant="outline" onClick={handleViewReports}>
-            <BarChart3 className="h-4 w-4 mr-2" />
-            View Reports
-          </Button>
-          <Button variant="outline" onClick={handleExportData} disabled={isLoading}>
-            <Download className="h-4 w-4 mr-2" />
-            Export Data
-          </Button>
-        </div>
-      </div>
+      <PageHeader
+        title="Attendance Overview"
+        actions={
+          <div className="flex flex-col sm:flex-row gap-2">
+            <Button onClick={handleTakeAttendance} className="bg-brand-primary hover:bg-brand-primary/90">
+              <Plus className="h-4 w-4 mr-2" />
+              Take Attendance
+            </Button>
+            <Button variant="outline" onClick={handleQRCheckin} className="border-brand-primary text-brand-primary hover:bg-brand-primary hover:text-white">
+              <QrCode className="h-4 w-4 mr-2" />
+              QR Check-in
+            </Button>
+            <Button variant="outline" onClick={handleViewReports}>
+              <BarChart3 className="h-4 w-4 mr-2" />
+              View Reports
+            </Button>
+            <Button variant="outline" onClick={handleExportData} disabled={isLoading}>
+              <Download className="h-4 w-4 mr-2" />
+              Export Data
+            </Button>
+          </div>
+        }
+      />
 
       {/* Stats Cards */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Card className="hover:shadow-md transition-shadow border-l-4 border-l-brand-primary">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Members</CardTitle>
-            <div className="p-2 bg-brand-primary/10 rounded-lg">
-              <Users className="h-4 w-4 text-brand-primary" />
-            </div>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{attendanceOverviewStats.totalMembers}</div>
-            <p className="text-xs text-muted-foreground">
-              Active church members
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card className="hover:shadow-md transition-shadow border-l-4 border-l-brand-success">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Present Today</CardTitle>
-            <div className="p-2 bg-brand-success/10 rounded-lg">
-              <UserCheck className="h-4 w-4 text-brand-success" />
-            </div>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-brand-success">{attendanceOverviewStats.presentToday}</div>
-            <p className="text-xs text-muted-foreground">
-              <span className="text-brand-success flex items-center font-medium">
-                <TrendingUp className="h-3 w-3 mr-1" />
-                +{attendanceOverviewStats.weeklyTrend}%
-              </span>
-              from last week
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card className="hover:shadow-md transition-shadow border-l-4 border-l-brand-accent">
+        <StatCard
+          title="Total Members"
+          value={attendanceOverviewStats.totalMembers}
+          icon={Users}
+          description="Active church members"
+        />
+        <StatCard
+          title="Present Today"
+          value={attendanceOverviewStats.presentToday}
+          icon={UserCheck}
+          trend={{ value: `+${attendanceOverviewStats.weeklyTrend}% from last week`, direction: 'up' }}
+        />
+        <Card className="hover:shadow-md transition-shadow">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Attendance Rate</CardTitle>
-            <div className="p-2 bg-brand-accent/10 rounded-lg">
-              <TrendingUp className="h-4 w-4 text-brand-accent" />
+            <div className="p-2 bg-muted rounded-lg">
+              <TrendingUp className="h-4 w-4 text-muted-foreground" />
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-brand-accent">{attendanceOverviewStats.attendanceRate}%</div>
+            <div className="text-2xl font-bold">{attendanceOverviewStats.attendanceRate}%</div>
             <Progress value={attendanceOverviewStats.attendanceRate} className="mt-2" />
             <p className="text-xs text-muted-foreground mt-1">
               Monthly average: {attendanceOverviewStats.monthlyAverage}%
             </p>
           </CardContent>
         </Card>
-
-        <Card className="hover:shadow-md transition-shadow border-l-4 border-l-brand-secondary">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Late Arrivals</CardTitle>
-            <div className="p-2 bg-brand-secondary/10 rounded-lg">
-              <Clock className="h-4 w-4 text-brand-secondary" />
-            </div>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-brand-secondary">{attendanceOverviewStats.lateToday}</div>
-            <p className="text-xs text-muted-foreground">
-              {Math.round((attendanceOverviewStats.lateToday / attendanceOverviewStats.presentToday) * 100)}% of attendees
-            </p>
-          </CardContent>
-        </Card>
+        <StatCard
+          title="Late Arrivals"
+          value={attendanceOverviewStats.lateToday}
+          icon={Clock}
+          description={`${Math.round((attendanceOverviewStats.lateToday / attendanceOverviewStats.presentToday) * 100)}% of attendees`}
+        />
       </div>
 
       {/* Charts and Analytics */}
@@ -328,20 +296,16 @@ export default function AttendancePage() {
         {/* Weekly Attendance Trend */}
         <Card className="hover:shadow-md transition-shadow">
           <CardHeader>
-            <div className="flex items-center justify-between">
-              <div>
-                <CardTitle className="flex items-center gap-2">
+            <ChartHeader
+              title={
+                <span className="flex items-center gap-2">
                   <BarChart3 className="h-5 w-5 text-brand-primary" />
                   Weekly Attendance Trend
-                </CardTitle>
-                <CardDescription>
-                  Attendance patterns across the week
-                </CardDescription>
-              </div>
-              <Badge variant="neutral" className="bg-brand-primary/10 text-brand-primary">
-                This Week
-              </Badge>
-            </div>
+                </span>
+              }
+              badge="This Week"
+              tone="primary"
+            />
           </CardHeader>
           <CardContent>
             <ChartContainer config={weeklyChartConfig} className="h-[300px] w-full">
@@ -381,9 +345,6 @@ export default function AttendancePage() {
               <PieChart className="h-5 w-5 text-brand-primary" />
               Service Type Distribution
             </CardTitle>
-            <CardDescription>
-              Attendance by service type
-            </CardDescription>
           </CardHeader>
           <CardContent>
             <ChartContainer config={serviceTypeChartConfig} className="mx-auto aspect-square max-h-[300px]">
@@ -457,20 +418,16 @@ export default function AttendancePage() {
       {/* Monthly Trend */}
       <Card className="hover:shadow-md transition-shadow">
         <CardHeader>
-          <div className="flex items-center justify-between">
-            <div>
-              <CardTitle className="flex items-center gap-2">
+          <ChartHeader
+            title={
+              <span className="flex items-center gap-2">
                 <TrendingUp className="h-5 w-5 text-brand-primary" />
                 Monthly Attendance Trend
-              </CardTitle>
-              <CardDescription>
-                Attendance trends over the past months
-              </CardDescription>
-            </div>
-            <Badge variant="neutral" className="bg-brand-success/10 text-brand-success">
-              +3.2% Growth
-            </Badge>
-          </div>
+              </span>
+            }
+            badge="+3.2% Growth"
+            tone="success"
+          />
         </CardHeader>
         <CardContent>
           <ChartContainer config={monthlyChartConfig} className="h-[300px] w-full">
@@ -517,9 +474,6 @@ export default function AttendancePage() {
       <Card>
         <CardHeader>
           <CardTitle>Recent Attendance Records</CardTitle>
-          <CardDescription>
-            Latest attendance entries across all services
-          </CardDescription>
         </CardHeader>
         <CardContent>
           {/* Filters */}
@@ -574,9 +528,6 @@ export default function AttendancePage() {
               <Plus className="h-6 w-6 text-brand-primary" />
             </div>
             <CardTitle className="text-lg">Take Attendance</CardTitle>
-            <CardDescription>
-              Record attendance for today's service
-            </CardDescription>
           </CardHeader>
         </Card>
 
@@ -586,9 +537,6 @@ export default function AttendancePage() {
               <Clock className="h-6 w-6 text-brand-secondary" />
             </div>
             <CardTitle className="text-lg">View History</CardTitle>
-            <CardDescription>
-              Browse past attendance records
-            </CardDescription>
           </CardHeader>
         </Card>
 
@@ -598,9 +546,6 @@ export default function AttendancePage() {
               <BarChart3 className="h-6 w-6 text-brand-accent" />
             </div>
             <CardTitle className="text-lg">Generate Reports</CardTitle>
-            <CardDescription>
-              Create detailed attendance reports
-            </CardDescription>
           </CardHeader>
         </Card>
       </div>

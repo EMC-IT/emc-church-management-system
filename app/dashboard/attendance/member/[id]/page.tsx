@@ -3,7 +3,8 @@
 import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { PageHeader } from '@/components/ui/page-header';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
@@ -457,44 +458,42 @@ export default function MemberAttendanceDetailPage() {
 
 
       {/* Header */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div className="flex items-center gap-4">
-          <Button 
-            variant="outline" 
-            size="sm" 
-            onClick={() => router.back()}
-          >
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Back
-          </Button>
-          <div className="flex items-center gap-4">
-            <Avatar className="h-12 w-12">
-              <AvatarImage src={memberData.avatar} alt={memberData.name} />
-              <AvatarFallback>
-                {memberData.name.split(' ').map(n => n[0]).join('')}
-              </AvatarFallback>
-            </Avatar>
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900">{memberData.name}</h1>
-              <p className="text-muted-foreground">
-                {memberData.department} • {memberData.role}
-              </p>
-            </div>
-          </div>
-        </div>
-        <div className="flex gap-2">
-          <Button variant="outline" onClick={handleRefresh} disabled={isLoading}>
-            <RefreshCw className={cn("h-4 w-4 mr-2", isLoading && "animate-spin")} />
-            Refresh
-          </Button>
-          <Button variant="outline" onClick={handleExportData} disabled={isLoading}>
-            <Download className="h-4 w-4 mr-2" />
-            Export
-          </Button>
-          <Button onClick={() => window.open(`/dashboard/members/${memberId}`, '_blank')}>
-            <Users className="h-4 w-4 mr-2" />
-            View Profile
-          </Button>
+      <div className="flex items-center gap-4">
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => router.back()}
+        >
+          <ArrowLeft className="h-4 w-4 mr-2" />
+          Back
+        </Button>
+        <Avatar className="h-12 w-12">
+          <AvatarImage src={memberData.avatar} alt={memberData.name} />
+          <AvatarFallback>
+            {memberData.name.split(' ').map(n => n[0]).join('')}
+          </AvatarFallback>
+        </Avatar>
+        <div className="flex-1">
+          <PageHeader
+            title={memberData.name}
+            description={`${memberData.department} • ${memberData.role}`}
+            actions={
+              <>
+                <Button variant="outline" onClick={handleRefresh} disabled={isLoading}>
+                  <RefreshCw className={cn("h-4 w-4 mr-2", isLoading && "animate-spin")} />
+                  Refresh
+                </Button>
+                <Button variant="outline" onClick={handleExportData} disabled={isLoading}>
+                  <Download className="h-4 w-4 mr-2" />
+                  Export
+                </Button>
+                <Button onClick={() => window.open(`/dashboard/members/${memberId}`, '_blank')}>
+                  <Users className="h-4 w-4 mr-2" />
+                  View Profile
+                </Button>
+              </>
+            }
+          />
         </div>
       </div>
 
@@ -626,9 +625,6 @@ export default function MemberAttendanceDetailPage() {
                   <BarChart3 className="h-5 w-5 text-brand-primary" />
                   Monthly Attendance
                 </CardTitle>
-                <CardDescription>
-                  Attendance pattern over the last 6 months
-                </CardDescription>
               </CardHeader>
               <CardContent>
                 <ChartContainer config={monthlyChartConfig} className="h-[300px] w-full">
@@ -682,9 +678,6 @@ export default function MemberAttendanceDetailPage() {
                   <PieChart className="h-5 w-5 text-brand-primary" />
                   Service Attendance
                 </CardTitle>
-                <CardDescription>
-                  Attendance by service type
-                </CardDescription>
               </CardHeader>
               <CardContent>
                 <ChartContainer config={serviceChartConfig} className="h-[300px] w-full">
@@ -762,9 +755,6 @@ export default function MemberAttendanceDetailPage() {
                 <Zap className="h-5 w-5 text-brand-accent" />
                 Attendance Streaks
               </CardTitle>
-              <CardDescription>
-                Consecutive attendance records and achievements
-              </CardDescription>
             </CardHeader>
             <CardContent>
               <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
@@ -868,9 +858,6 @@ export default function MemberAttendanceDetailPage() {
                 <History className="h-5 w-5" />
                 Attendance History
               </CardTitle>
-              <CardDescription>
-                Complete attendance record for {memberData.name}
-              </CardDescription>
             </CardHeader>
             <CardContent>
               <DataTable
@@ -893,9 +880,6 @@ export default function MemberAttendanceDetailPage() {
             <Card className="hover:shadow-md transition-shadow">
               <CardHeader>
                 <CardTitle>Attendance Rate Trend</CardTitle>
-                <CardDescription>
-                  Monthly attendance rate percentage
-                </CardDescription>
               </CardHeader>
               <CardContent>
                 <ChartContainer config={monthlyChartConfig} className="h-[300px] w-full">
@@ -935,9 +919,6 @@ export default function MemberAttendanceDetailPage() {
             <Card>
               <CardHeader>
                 <CardTitle>Performance Metrics</CardTitle>
-                <CardDescription>
-                  Key attendance performance indicators
-                </CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
@@ -1017,9 +998,6 @@ export default function MemberAttendanceDetailPage() {
             <Card>
               <CardHeader>
                 <CardTitle>Attendance Patterns</CardTitle>
-                <CardDescription>
-                  Insights based on attendance behavior
-                </CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
@@ -1070,9 +1048,6 @@ export default function MemberAttendanceDetailPage() {
             <Card>
               <CardHeader>
                 <CardTitle>Recommendations</CardTitle>
-                <CardDescription>
-                  Suggested actions to improve engagement
-                </CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">

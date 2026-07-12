@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { PageHeader } from '@/components/ui/page-header';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
@@ -213,33 +214,33 @@ export default function ReportBuilderPage() {
           <ArrowLeft className="h-4 w-4" />
         </Button>
         
-        <div className="flex items-center gap-3 flex-1">
-          <div className="p-2 bg-brand-primary/10 rounded-lg">
-            <FileBarChart className="h-6 w-6 text-brand-primary" />
-          </div>
-          <div>
-            <h1 className="text-2xl font-bold tracking-tight">Custom Report Builder</h1>
-            <p className="text-muted-foreground">Create custom reports with advanced analytics</p>
-          </div>
+        <div className="p-2 bg-brand-primary/10 rounded-lg">
+          <FileBarChart className="h-6 w-6 text-brand-primary" />
         </div>
-
-        <div className="flex gap-2">
-          <Button
-            variant="outline"
-            onClick={handleRunReport}
-            disabled={isRunning || !selectedDataSource || selectedFields.length === 0}
-          >
-            <Play className="mr-2 h-4 w-4" />
-            {isRunning ? 'Running...' : 'Run Report'}
-          </Button>
-          <Button
-            onClick={handleSaveReport}
-            disabled={isSaving}
-            className="bg-brand-primary hover:bg-brand-primary/90"
-          >
-            <Save className="mr-2 h-4 w-4" />
-            {isSaving ? 'Saving...' : 'Save Report'}
-          </Button>
+        <div className="flex-1">
+          <PageHeader
+            title="Custom Report Builder"
+            actions={
+              <>
+                <Button
+                  variant="outline"
+                  onClick={handleRunReport}
+                  disabled={isRunning || !selectedDataSource || selectedFields.length === 0}
+                >
+                  <Play className="mr-2 h-4 w-4" />
+                  {isRunning ? 'Running...' : 'Run Report'}
+                </Button>
+                <Button
+                  onClick={handleSaveReport}
+                  disabled={isSaving}
+                  className="bg-brand-primary hover:bg-brand-primary/90"
+                >
+                  <Save className="mr-2 h-4 w-4" />
+                  {isSaving ? 'Saving...' : 'Save Report'}
+                </Button>
+              </>
+            }
+          />
         </div>
       </div>
 
@@ -250,7 +251,6 @@ export default function ReportBuilderPage() {
           <Card>
             <CardHeader>
               <CardTitle>Report Information</CardTitle>
-              <CardDescription>Basic details about your custom report</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
@@ -280,7 +280,6 @@ export default function ReportBuilderPage() {
           <Card>
             <CardHeader>
               <CardTitle>Data Source</CardTitle>
-              <CardDescription>Select the primary data to analyze</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="grid gap-3 md:grid-cols-2">
@@ -372,7 +371,6 @@ export default function ReportBuilderPage() {
           <Card>
             <CardHeader>
               <CardTitle>Visualization</CardTitle>
-              <CardDescription>Choose how to display your data</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="grid gap-3 md:grid-cols-2">
@@ -489,7 +487,6 @@ export default function ReportBuilderPage() {
           <Card>
             <CardHeader>
               <CardTitle className="text-base">Saved Reports</CardTitle>
-              <CardDescription>Quick access to your reports</CardDescription>
             </CardHeader>
             <CardContent className="space-y-2">
               <Button

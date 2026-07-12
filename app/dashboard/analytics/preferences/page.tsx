@@ -2,7 +2,8 @@
 
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { PageHeader } from '@/components/ui/page-header';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -122,29 +123,30 @@ export default function PreferencesPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => router.push('/dashboard/analytics')}
-          >
-            <ArrowLeft className="h-4 w-4" />
-          </Button>
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight">Analytics Preferences</h1>
-            <p className="text-muted-foreground">Customize your analytics experience</p>
-          </div>
-        </div>
-        <div className="flex gap-2">
-          <Button variant="outline" onClick={handleReset}>
-            <RotateCcw className="mr-2 h-4 w-4" />
-            Reset to Defaults
-          </Button>
-          <Button onClick={handleSave} className="bg-brand-primary hover:bg-brand-primary/90">
-            <Save className="mr-2 h-4 w-4" />
-            Save Preferences
-          </Button>
+      <div className="flex items-center gap-4">
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => router.push('/dashboard/analytics')}
+        >
+          <ArrowLeft className="h-4 w-4" />
+        </Button>
+        <div className="flex-1">
+          <PageHeader
+            title="Analytics Preferences"
+            actions={
+              <>
+                <Button variant="outline" onClick={handleReset}>
+                  <RotateCcw className="mr-2 h-4 w-4" />
+                  Reset to Defaults
+                </Button>
+                <Button onClick={handleSave} className="bg-brand-primary hover:bg-brand-primary/90">
+                  <Save className="mr-2 h-4 w-4" />
+                  Save Preferences
+                </Button>
+              </>
+            }
+          />
         </div>
       </div>
 
@@ -177,7 +179,6 @@ export default function PreferencesPage() {
           <Card>
             <CardHeader>
               <CardTitle>Default View Settings</CardTitle>
-              <CardDescription>Set your default analytics view preferences</CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="grid gap-6 md:grid-cols-2">
@@ -290,7 +291,6 @@ export default function PreferencesPage() {
           <Card>
             <CardHeader>
               <CardTitle>Data Handling</CardTitle>
-              <CardDescription>Configure how data is loaded and processed</CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="flex items-center justify-between">
@@ -375,7 +375,6 @@ export default function PreferencesPage() {
           <Card>
             <CardHeader>
               <CardTitle>Export Settings</CardTitle>
-              <CardDescription>Customize default export options</CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="grid gap-6 md:grid-cols-2">
@@ -450,7 +449,6 @@ export default function PreferencesPage() {
           <Card>
             <CardHeader>
               <CardTitle>Email Notifications</CardTitle>
-              <CardDescription>Manage analytics-related email alerts</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="flex items-center justify-between">
@@ -523,7 +521,6 @@ export default function PreferencesPage() {
           <Card>
             <CardHeader>
               <CardTitle>Dashboard Layout</CardTitle>
-              <CardDescription>Customize your analytics dashboard</CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="space-y-4">
