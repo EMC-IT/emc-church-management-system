@@ -3,8 +3,9 @@
 import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { PageHeader } from '@/components/ui/page-header';
 import { useToast } from '@/hooks/use-toast';
 import { givingService } from '@/services';
 import { Giving, GivingType, GivingCategory, GivingStatus, Member } from '@/lib/types';
@@ -290,19 +291,17 @@ export default function GivingDetailPage() {
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <div className="flex items-center space-x-4">
+        <div className="flex items-center gap-4">
           <Button variant="ghost" size="sm" asChild>
             <Link href={`/dashboard/members/${member.id}/giving`}>
               <ArrowLeft className="mr-2 h-4 w-4" />
               Back to Giving History
             </Link>
           </Button>
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight">Giving Record Details</h1>
-            <p className="text-muted-foreground">
-              View details for {member.firstName} {member.lastName}'s giving record
-            </p>
-          </div>
+          <PageHeader
+            title="Giving Record Details"
+            description={`View details for ${member.firstName} ${member.lastName}'s giving record`}
+          />
         </div>
         <div className="flex items-center space-x-2">
           <Button variant="outline" onClick={handleGenerateReceipt}>
@@ -336,9 +335,6 @@ export default function GivingDetailPage() {
                 {getTypeIcon(giving.type)}
                 <span>{getTypeLabel(giving.type)}</span>
               </CardTitle>
-              <CardDescription>
-                Giving record for {member.firstName} {member.lastName}
-              </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="grid gap-4 md:grid-cols-2">
@@ -417,9 +413,6 @@ export default function GivingDetailPage() {
             <Card>
               <CardHeader>
                 <CardTitle>Additional Information</CardTitle>
-                <CardDescription>
-                  Additional details about this giving record
-                </CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="grid gap-4 md:grid-cols-2">

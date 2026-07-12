@@ -3,7 +3,8 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { PageHeader } from '@/components/ui/page-header';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
@@ -171,21 +172,17 @@ export default function AddPledgePage() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center space-x-4">
-        <Button variant="ghost" size="sm" asChild>
-          <Link href="/dashboard/finance/giving/pledges">
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Back to Pledges
-          </Link>
-        </Button>
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Record New Pledge</h1>
-          <p className="text-muted-foreground">
-            Create a new giving pledge with payment schedule
-          </p>
-        </div>
-      </div>
+      <PageHeader
+        title="Record New Pledge"
+        actions={
+          <Button variant="ghost" size="sm" asChild>
+            <Link href="/dashboard/finance/giving/pledges">
+              <ArrowLeft className="mr-2 h-4 w-4" />
+              Back to Pledges
+            </Link>
+          </Button>
+        }
+      />
 
       <form onSubmit={handleSubmit} className="space-y-6">
         <div className="grid gap-6 lg:grid-cols-3">
@@ -198,9 +195,6 @@ export default function AddPledgePage() {
                   <BadgeCent className="h-5 w-5" />
                   <span>Pledge Information</span>
                 </CardTitle>
-                <CardDescription>
-                  Enter the basic pledge details
-                </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="grid gap-4 md:grid-cols-2">
@@ -330,9 +324,6 @@ export default function AddPledgePage() {
                   <Clock className="h-5 w-5" />
                   <span>Payment Schedule</span>
                 </CardTitle>
-                <CardDescription>
-                  Configure the pledge payment schedule
-                </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="grid gap-4 md:grid-cols-3">

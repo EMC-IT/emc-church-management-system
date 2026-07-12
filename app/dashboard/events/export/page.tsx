@@ -3,7 +3,8 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { PageHeader } from '@/components/ui/page-header';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
@@ -125,10 +126,7 @@ export default function ExportEventsPage() {
           <div className="p-2 bg-brand-primary/10 rounded-lg">
             <Download className="h-6 w-6 text-brand-primary" />
           </div>
-          <div>
-            <h1 className="text-2xl font-bold tracking-tight">Export Events</h1>
-            <p className="text-muted-foreground">Export event data in various formats</p>
-          </div>
+          <PageHeader title="Export Events" />
         </div>
       </div>
 
@@ -139,7 +137,6 @@ export default function ExportEventsPage() {
           <Card>
             <CardHeader>
               <CardTitle>Export Format</CardTitle>
-              <CardDescription>Choose the format for your export</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="grid gap-4 md:grid-cols-3">
@@ -176,7 +173,6 @@ export default function ExportEventsPage() {
                 <Filter className="h-5 w-5" />
                 Filters
               </CardTitle>
-              <CardDescription>Filter events to export</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               {/* Category Filter */}
@@ -245,7 +241,6 @@ export default function ExportEventsPage() {
           <Card>
             <CardHeader>
               <CardTitle>Fields to Export</CardTitle>
-              <CardDescription>Select which fields to include in the export</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="grid gap-3 md:grid-cols-2">
@@ -316,7 +311,6 @@ export default function ExportEventsPage() {
             <Card>
               <CardHeader>
                 <CardTitle>Preview</CardTitle>
-                <CardDescription>First 3 events that will be exported</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">

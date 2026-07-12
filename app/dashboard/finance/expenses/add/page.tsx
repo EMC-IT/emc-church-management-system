@@ -9,8 +9,9 @@ import { format } from 'date-fns';
 import { CalendarIcon, Loader2, PlusCircle, Receipt, Wallet, ArrowLeft } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { PageHeader } from '@/components/ui/page-header';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -124,10 +125,7 @@ export default function AddExpensePage() {
         <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-brand-primary/10">
           <PlusCircle className="h-6 w-6 text-brand-primary" />
         </div>
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">Record New Expense</h1>
-          <p className="text-gray-600">Add a new expense record to track church spending</p>
-        </div>
+        <PageHeader title="Record New Expense" />
       </div>
 
       {/* Expense Form */}
@@ -138,9 +136,6 @@ export default function AddExpensePage() {
               <Receipt className="h-5 w-5" />
               Expense Details
             </CardTitle>
-            <CardDescription>
-              Fill in the details below to record a new expense
-            </CardDescription>
           </CardHeader>
           <CardContent>
             <Form {...form}>
@@ -306,9 +301,6 @@ export default function AddExpensePage() {
                         <FormControl>
                           <Input placeholder="e.g., REC-2024-001" {...field} />
                         </FormControl>
-                        <FormDescription>
-                          Optional receipt or invoice number
-                        </FormDescription>
                         <FormMessage />
                       </FormItem>
                     )}
@@ -323,9 +315,6 @@ export default function AddExpensePage() {
                         <FormControl>
                           <Input placeholder="e.g., Pastor John, Finance Committee" {...field} />
                         </FormControl>
-                        <FormDescription>
-                          Person or committee who approved this expense
-                        </FormDescription>
                         <FormMessage />
                       </FormItem>
                     )}
@@ -345,9 +334,6 @@ export default function AddExpensePage() {
                           {...field} 
                         />
                       </FormControl>
-                      <FormDescription>
-                        Optional additional details about the expense
-                      </FormDescription>
                       <FormMessage />
                     </FormItem>
                   )}

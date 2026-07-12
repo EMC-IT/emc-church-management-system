@@ -3,7 +3,8 @@
 import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { PageHeader } from '@/components/ui/page-header';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
@@ -212,16 +213,17 @@ export default function EditAnnouncementPage() {
           <div className="p-2 bg-brand-primary/10 rounded-lg">
             <Megaphone className="h-6 w-6 text-brand-primary" />
           </div>
-          <div>
-            <h1 className="text-2xl font-bold tracking-tight">Edit Announcement</h1>
-            <p className="text-muted-foreground">Update announcement details and settings</p>
+          <div className="flex-1">
+            <PageHeader
+              title="Edit Announcement"
+              actions={
+                <Badge variant={getStatusColor(formData.status)} className="text-sm">
+                  Current: {formData.status.charAt(0).toUpperCase() + formData.status.slice(1)}
+                </Badge>
+              }
+            />
           </div>
         </div>
-
-        {/* Current Status */}
-        <Badge variant={getStatusColor(formData.status)} className="text-sm">
-          Current: {formData.status.charAt(0).toUpperCase() + formData.status.slice(1)}
-        </Badge>
       </div>
 
       <div className="grid gap-6 lg:grid-cols-3">
@@ -230,7 +232,6 @@ export default function EditAnnouncementPage() {
           <Card>
             <CardHeader>
               <CardTitle>Announcement Details</CardTitle>
-              <CardDescription>Update the main content for your announcement</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
@@ -263,7 +264,6 @@ export default function EditAnnouncementPage() {
           <Card>
             <CardHeader>
               <CardTitle>Targeting & Priority</CardTitle>
-              <CardDescription>Update who should see this announcement and its priority level</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -321,7 +321,6 @@ export default function EditAnnouncementPage() {
           <Card>
             <CardHeader>
               <CardTitle>Scheduling Options</CardTitle>
-              <CardDescription>Update when to publish this announcement</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="flex items-center space-x-2">
@@ -377,7 +376,6 @@ export default function EditAnnouncementPage() {
           <Card>
             <CardHeader>
               <CardTitle>Preview</CardTitle>
-              <CardDescription>How your updated announcement will appear</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="p-4 border rounded-lg bg-muted/50">

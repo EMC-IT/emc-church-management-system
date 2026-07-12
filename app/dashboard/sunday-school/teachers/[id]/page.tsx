@@ -4,7 +4,9 @@ import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { PageHeader } from '@/components/ui/page-header';
+import { StatCard } from '@/components/ui/stat-card';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Progress } from '@/components/ui/progress';
@@ -316,7 +318,7 @@ export default function TeacherProfilePage() {
   const getStatusBadge = (status: TeacherStatus) => {
     switch (status) {
       case TeacherStatus.ACTIVE:
-        return <Badge className="bg-brand-success/10 text-brand-success border-brand-success/20">Active</Badge>;
+        return <Badge variant="success">Active</Badge>;
       case TeacherStatus.INACTIVE:
         return <Badge variant="neutral">Inactive</Badge>;
       default:
@@ -352,139 +354,95 @@ export default function TeacherProfilePage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center space-x-4">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={handleBack}
-            className="h-8 w-8"
-          >
-            <ArrowLeft className="h-4 w-4" />
-          </Button>
-          
-          <div className="flex items-center space-x-4">
-            <Avatar className="h-16 w-16">
-              <AvatarImage src={teacher.avatar} alt={teacher.name} />
-              <AvatarFallback className="text-lg">
-                {teacher.name.split(' ').map(n => n[0]).join('')}
-              </AvatarFallback>
-            </Avatar>
-            
-            <div>
-              <h1 className="text-3xl font-bold tracking-tight">{teacher.name}</h1>
-              <div className="flex items-center space-x-4 text-muted-foreground">
-                <div className="flex items-center space-x-1">
+      <div className="flex items-center gap-4">
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={handleBack}
+          className="h-8 w-8"
+        >
+          <ArrowLeft className="h-4 w-4" />
+        </Button>
+
+        <Avatar className="h-16 w-16">
+          <AvatarImage src={teacher.avatar} alt={teacher.name} />
+          <AvatarFallback className="text-lg">
+            {teacher.name.split(' ').map(n => n[0]).join('')}
+          </AvatarFallback>
+        </Avatar>
+
+        <div className="flex-1">
+          <PageHeader
+            title={teacher.name}
+            description={
+              <span className="flex flex-wrap items-center gap-4">
+                <span className="flex items-center gap-1">
                   <Mail className="h-4 w-4" />
-                  <span>{teacher.email}</span>
-                </div>
-                <div className="flex items-center space-x-1">
+                  {teacher.email}
+                </span>
+                <span className="flex items-center gap-1">
                   <Phone className="h-4 w-4" />
-                  <span>{teacher.phone}</span>
-                </div>
+                  {teacher.phone}
+                </span>
                 {getStatusBadge(teacher.status)}
-              </div>
-            </div>
-          </div>
-        </div>
-        
-        <div className="flex space-x-2">
-          <Button variant="outline">
-            <Download className="mr-2 h-4 w-4" />
-            Export Report
-          </Button>
-          
-          <Button onClick={handleEditTeacher}>
-            <Edit className="mr-2 h-4 w-4" />
-            Edit Teacher
-          </Button>
+              </span>
+            }
+            actions={
+              <>
+                <Button variant="outline">
+                  <Download className="mr-2 h-4 w-4" />
+                  Export Report
+                </Button>
+
+                <Button onClick={handleEditTeacher}>
+                  <Edit className="mr-2 h-4 w-4" />
+                  Edit Teacher
+                </Button>
+              </>
+            }
+          />
         </div>
       </div>
 
       {/* Stats Cards */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-6">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Classes</CardTitle>
-            <BookOpen className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.totalClasses}</div>
-            <p className="text-xs text-muted-foreground">
-              {stats.activeClasses} active
-            </p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Students</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.totalStudents}</div>
-            <p className="text-xs text-muted-foreground">
-              across all classes
-            </p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Avg Attendance</CardTitle>
-            <CheckCircle className="h-4 w-4 text-brand-success" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-brand-success">{stats.averageAttendance}%</div>
-            <p className="text-xs text-muted-foreground">
-              across all classes
-            </p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Experience</CardTitle>
-            <Award className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.yearsOfService}</div>
-            <p className="text-xs text-muted-foreground">
-              years of service
-            </p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Sessions</CardTitle>
-            <Calendar className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.totalSessions}</div>
-            <p className="text-xs text-muted-foreground">
-              taught
-            </p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Specialization</CardTitle>
-            <Target className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-lg font-bold">
-              {teacher.specializations && teacher.specializations.length > 0 ? 
-                teacher.specializations[0] : 
-                'General'
-              }
-            </div>
-            <p className="text-xs text-muted-foreground">
-              area of focus
-            </p>
-          </CardContent>
-        </Card>
+        <StatCard
+          title="Total Classes"
+          value={stats.totalClasses}
+          icon={BookOpen}
+          description={`${stats.activeClasses} active`}
+        />
+        <StatCard
+          title="Total Students"
+          value={stats.totalStudents}
+          icon={Users}
+          description="across all classes"
+        />
+        <StatCard
+          title="Avg Attendance"
+          value={`${stats.averageAttendance}%`}
+          icon={CheckCircle}
+          accent="success"
+          description="across all classes"
+        />
+        <StatCard
+          title="Experience"
+          value={stats.yearsOfService}
+          icon={Award}
+          description="years of service"
+        />
+        <StatCard
+          title="Total Sessions"
+          value={stats.totalSessions}
+          icon={Calendar}
+          description="taught"
+        />
+        <StatCard
+          title="Specialization"
+          value={teacher.specializations && teacher.specializations.length > 0 ? teacher.specializations[0] : 'General'}
+          icon={Target}
+          description="area of focus"
+        />
       </div>
 
       {/* Main Content */}
@@ -502,9 +460,6 @@ export default function TeacherProfilePage() {
             <Card>
               <CardHeader>
                 <CardTitle>Recent Classes</CardTitle>
-                <CardDescription>
-                  Classes taught by this teacher
-                </CardDescription>
               </CardHeader>
               <CardContent>
                 {classes.length === 0 ? (
@@ -550,9 +505,6 @@ export default function TeacherProfilePage() {
             <Card>
               <CardHeader>
                 <CardTitle>Teacher Information</CardTitle>
-                <CardDescription>
-                  Personal and contact details
-                </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-3">
@@ -594,9 +546,6 @@ export default function TeacherProfilePage() {
           <Card>
             <CardHeader>
               <CardTitle>Assigned Classes</CardTitle>
-              <CardDescription>
-                All classes currently assigned to this teacher
-              </CardDescription>
             </CardHeader>
             <CardContent>
               {classes.length === 0 ? (
@@ -688,9 +637,6 @@ export default function TeacherProfilePage() {
           <Card>
             <CardHeader>
               <CardTitle>Attendance Trends</CardTitle>
-              <CardDescription>
-                Student attendance rates across all classes
-              </CardDescription>
             </CardHeader>
             <CardContent>
               {attendanceData.length === 0 ? (
@@ -743,9 +689,6 @@ export default function TeacherProfilePage() {
             <Card>
               <CardHeader>
                 <CardTitle>Qualifications & Experience</CardTitle>
-                <CardDescription>
-                  Educational background and certifications
-                </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 {teacher.qualifications && teacher.qualifications.length > 0 ? (
@@ -786,9 +729,6 @@ export default function TeacherProfilePage() {
             <Card>
               <CardHeader>
                 <CardTitle>Additional Information</CardTitle>
-                <CardDescription>
-                  Notes and other details
-                </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div>

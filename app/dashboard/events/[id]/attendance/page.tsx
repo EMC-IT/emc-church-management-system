@@ -4,7 +4,9 @@ import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { PageHeader } from '@/components/ui/page-header';
+import { StatCard } from '@/components/ui/stat-card';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -432,76 +434,43 @@ export default function AttendancePage() {
           <div className="p-2 bg-brand-primary/10 rounded-lg">
             <UserCheck className="h-6 w-6 text-brand-primary" />
           </div>
-          <div>
-            <h1 className="text-2xl font-bold tracking-tight">Attendance Tracking</h1>
-            <p className="text-muted-foreground">{mockEvent.title} - {format(new Date(mockEvent.date), 'PPP')}</p>
-          </div>
+          <PageHeader
+            title="Attendance Tracking"
+            description={`${mockEvent.title} - ${format(new Date(mockEvent.date), 'PPP')}`}
+          />
         </div>
       </div>
 
       {/* Stats Cards */}
       <div className="grid gap-4 md:grid-cols-5">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.total}</div>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Present</CardTitle>
-            <CheckCircle2 className="h-4 w-4 text-green-500" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-green-600">{stats.present}</div>
-            <p className="text-xs text-muted-foreground">
-              {((stats.present / stats.total) * 100).toFixed(1)}%
-            </p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Absent</CardTitle>
-            <XCircle className="h-4 w-4 text-red-500" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-red-600">{stats.absent}</div>
-            <p className="text-xs text-muted-foreground">
-              {((stats.absent / stats.total) * 100).toFixed(1)}%
-            </p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Late</CardTitle>
-            <Clock className="h-4 w-4 text-yellow-500" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-yellow-600">{stats.late}</div>
-            <p className="text-xs text-muted-foreground">
-              {((stats.late / stats.total) * 100).toFixed(1)}%
-            </p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Excused</CardTitle>
-            <Info className="h-4 w-4 text-blue-500" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-blue-600">{stats.excused}</div>
-            <p className="text-xs text-muted-foreground">
-              {((stats.excused / stats.total) * 100).toFixed(1)}%
-            </p>
-          </CardContent>
-        </Card>
+        <StatCard title="Total" value={stats.total} icon={Users} />
+        <StatCard
+          title="Present"
+          value={stats.present}
+          icon={CheckCircle2}
+          accent="success"
+          description={`${((stats.present / stats.total) * 100).toFixed(1)}%`}
+        />
+        <StatCard
+          title="Absent"
+          value={stats.absent}
+          icon={XCircle}
+          description={`${((stats.absent / stats.total) * 100).toFixed(1)}%`}
+        />
+        <StatCard
+          title="Late"
+          value={stats.late}
+          icon={Clock}
+          accent="accent"
+          description={`${((stats.late / stats.total) * 100).toFixed(1)}%`}
+        />
+        <StatCard
+          title="Excused"
+          value={stats.excused}
+          icon={Info}
+          accent="secondary"
+          description={`${((stats.excused / stats.total) * 100).toFixed(1)}%`}
+        />
       </div>
 
       {/* Main Content */}
@@ -510,7 +479,6 @@ export default function AttendancePage() {
           <div className="flex items-center justify-between">
             <div>
               <CardTitle>Attendance Management</CardTitle>
-              <CardDescription>Track and manage event attendance</CardDescription>
             </div>
             <div className="flex items-center gap-2">
               <Button variant="outline" onClick={exportAttendance}>

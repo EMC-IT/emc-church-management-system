@@ -4,7 +4,9 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { PageHeader } from '@/components/ui/page-header';
+import { StatCard } from '@/components/ui/stat-card';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { 
@@ -136,10 +138,7 @@ export default function BranchesPage() {
               <ArrowLeft className="h-4 w-4" />
             </Link>
           </Button>
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight">Branch Management</h1>
-            <p className="text-muted-foreground">Manage church branches and locations</p>
-          </div>
+          <PageHeader title="Branch Management" />
         </div>
         <Button asChild className="bg-brand-primary hover:bg-brand-primary/90">
           <Link href="/dashboard/settings/branches/add">
@@ -151,59 +150,30 @@ export default function BranchesPage() {
 
       {/* Stats Cards */}
       <div className="grid gap-4 md:grid-cols-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Branches</CardTitle>
-            <Building2 className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{mockBranches.length}</div>
-            <p className="text-xs text-muted-foreground">
-              {activeBranches} active
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Members</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{totalMembers}</div>
-            <p className="text-xs text-muted-foreground">
-              Across all branches
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Capacity</CardTitle>
-            <MapPin className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{totalCapacity}</div>
-            <p className="text-xs text-muted-foreground">
-              Combined seating
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Average Occupancy</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {Math.round((totalMembers / totalCapacity) * 100)}%
-            </div>
-            <p className="text-xs text-muted-foreground">
-              Utilization rate
-            </p>
-          </CardContent>
-        </Card>
+        <StatCard
+          title="Total Branches"
+          value={mockBranches.length}
+          icon={Building2}
+          description={`${activeBranches} active`}
+        />
+        <StatCard
+          title="Total Members"
+          value={totalMembers}
+          icon={Users}
+          description="Across all branches"
+        />
+        <StatCard
+          title="Total Capacity"
+          value={totalCapacity}
+          icon={MapPin}
+          description="Combined seating"
+        />
+        <StatCard
+          title="Average Occupancy"
+          value={`${Math.round((totalMembers / totalCapacity) * 100)}%`}
+          icon={Users}
+          description="Utilization rate"
+        />
       </div>
 
       {/* Branches Grid View */}
@@ -302,7 +272,6 @@ export default function BranchesPage() {
           <div className="flex items-center justify-between">
             <div>
               <CardTitle>All Branches</CardTitle>
-              <CardDescription>Complete list of church branches</CardDescription>
             </div>
             <div className="flex items-center gap-4">
               <div className="relative">

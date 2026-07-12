@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Label as UILabel } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { PageHeader } from '@/components/ui/page-header';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Switch } from '@/components/ui/switch';
 import { 
@@ -199,26 +200,16 @@ export default function AddGroupRolePage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div className="space-y-1">
-          <div className="flex items-center space-x-2">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={handleCancel}
-              className="h-8 w-8"
-            >
-              <ArrowLeft className="h-4 w-4" />
-            </Button>
-            <div>
-              <h1 className="text-3xl font-bold tracking-tight">Create Group Role</h1>
-              <p className="text-muted-foreground">
-                Define a new role with specific permissions for {group?.name}
-              </p>
-            </div>
-          </div>
-    
-        </div>
+      <div className="flex items-center gap-2">
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={handleCancel}
+          className="h-8 w-8"
+        >
+          <ArrowLeft className="h-4 w-4" />
+        </Button>
+        <PageHeader title="Create Group Role" description={`For ${group?.name}`} />
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
@@ -232,9 +223,6 @@ export default function AddGroupRolePage() {
                   <Shield className="h-5 w-5" />
                   <span>Role Information</span>
                 </CardTitle>
-                <CardDescription>
-                  Define the basic details for this role
-                </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
@@ -280,9 +268,6 @@ export default function AddGroupRolePage() {
                   <Eye className="h-5 w-5" />
                   <span>Permissions</span>
                 </CardTitle>
-                <CardDescription>
-                  Select the permissions this role should have
-                </CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
                 {availablePermissions.map((category) => {
@@ -357,9 +342,6 @@ export default function AddGroupRolePage() {
             <Card>
               <CardHeader>
                 <CardTitle>Actions</CardTitle>
-                <CardDescription>
-                  Save or cancel role creation
-                </CardDescription>
               </CardHeader>
               <CardContent className="space-y-3">
                 <Button

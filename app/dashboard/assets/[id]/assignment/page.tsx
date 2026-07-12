@@ -24,16 +24,18 @@ import {
 } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Skeleton } from '@/components/ui/skeleton';
+import { PageHeader } from '@/components/ui/page-header';
+import { StatCard } from '@/components/ui/stat-card';
 import { toast } from 'sonner';
 import { Asset, AssetAssignment, AssetCondition } from '@/lib/types/assets';
 
@@ -396,81 +398,74 @@ export default function AssignmentPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={() => router.push(`/dashboard/assets/${params.id}`)}
-            className="h-12 w-12"
-          >
-            <ArrowLeft className="h-5 w-5" />
-          </Button>
-          <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-brand-primary/10">
-            <Users className="h-6 w-6 text-brand-primary" />
-          </div>
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900">Asset Assignment</h1>
-            <p className="text-gray-600">Manage assignments for {asset.name}</p>
-          </div>
-        </div>
-        <div className="flex items-center space-x-2">
-          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-            <DialogTrigger asChild>
-              <Button onClick={() => {
-                setEditingAssignment(null);
-                setAssignmentType('');
-                form.reset({
-                  isTemporary: false,
-                  conditionAtAssignment: AssetCondition.EXCELLENT
-                });
-              }}>
-                <Plus className="mr-2 h-4 w-4" />
-                New Assignment
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="max-w-lg">
-              <DialogHeader>
-                <DialogTitle>
-                  {editingAssignment ? 'Edit Assignment' : 'Create New Assignment'}
-                </DialogTitle>
-                <DialogDescription>
-                  {editingAssignment ? 'Update assignment details' : 'Assign this asset to a department, group, person, or location'}
-                </DialogDescription>
-              </DialogHeader>
+      <PageHeader
+        title="Asset Assignment"
+        description={`Manage assignments for ${asset.name}`}
+        actions={
+          <div className="flex items-center space-x-2">
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={() => router.push(`/dashboard/assets/${params.id}`)}
+            >
+              <ArrowLeft className="h-4 w-4" />
+            </Button>
+            <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+              <DialogTrigger asChild>
+                <Button onClick={() => {
+                  setEditingAssignment(null);
+                  setAssignmentType('');
+                  form.reset({
+                    isTemporary: false,
+                    conditionAtAssignment: AssetCondition.EXCELLENT
+                  });
+                }}>
+                  <Plus className="mr-2 h-4 w-4" />
+                  New Assignment
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="max-w-lg">
+                <DialogHeader>
+                  <DialogTitle>
+                    {editingAssignment ? 'Edit Assignment' : 'Create New Assignment'}
+                  </DialogTitle>
+                  <DialogDescription>
+                    {editingAssignment ? 'Update assignment details' : 'Assign this asset to a department, group, person, or location'}
+                  </DialogDescription>
+                </DialogHeader>
 
-              <Form {...form}>
-                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-                  <FormField
-                    control={form.control}
-                    name="type"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Assignment Type *</FormLabel>
-                        <Select
-                          onValueChange={(value) => {
-                            field.onChange(value);
-                            setAssignmentType(value);
-                            form.setValue('assignedTo', '');
-                          }}
-                          value={field.value}
-                        >
-                          <FormControl>
-                            <SelectTrigger>
-                              <SelectValue placeholder="Select assignment type" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            <SelectItem value="department">Department</SelectItem>
-                            <SelectItem value="group">Group</SelectItem>
-                            <SelectItem value="person">Person</SelectItem>
-                            <SelectItem value="location">Location</SelectItem>
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+                <Form {...form}>
+                  <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+                    <FormField
+                      control={form.control}
+                      name="type"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Assignment Type *</FormLabel>
+                          <Select
+                            onValueChange={(value) => {
+                              field.onChange(value);
+                              setAssignmentType(value);
+                              form.setValue('assignedTo', '');
+                            }}
+                            value={field.value}
+                          >
+                            <FormControl>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select assignment type" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              <SelectItem value="department">Department</SelectItem>
+                              <SelectItem value="group">Group</SelectItem>
+                              <SelectItem value="person">Person</SelectItem>
+                              <SelectItem value="location">Location</SelectItem>
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
 
                   {assignmentType && (
                     <FormField
@@ -551,9 +546,6 @@ export default function AssignmentPage() {
                           <FormControl>
                             <Input type="date" {...field} />
                           </FormControl>
-                          <FormDescription>
-                            The date when this asset was actually returned
-                          </FormDescription>
                           <FormMessage />
                         </FormItem>
                       )}
@@ -581,9 +573,6 @@ export default function AssignmentPage() {
                           <FormControl>
                             <Input type="date" {...field} />
                           </FormControl>
-                          <FormDescription>
-                            When should this asset be returned?
-                          </FormDescription>
                           <FormMessage />
                         </FormItem>
                       )}
@@ -620,49 +609,34 @@ export default function AssignmentPage() {
               </Form>
             </DialogContent>
           </Dialog>
-        </div>
-      </div>
+          </div>
+        }
+      />
 
       {/* Current Assignment Status */}
       <div className="grid gap-4 md:grid-cols-3">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Active Assignments</CardTitle>
-            <CheckCircle className="h-4 w-4 text-brand-success" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{activeAssignments.length}</div>
-            <p className="text-xs text-muted-foreground">
-              Currently assigned
-            </p>
-          </CardContent>
-        </Card>
+        <StatCard
+          title="Active Assignments"
+          value={activeAssignments.length}
+          icon={CheckCircle}
+          accent="success"
+          description="Currently assigned"
+        />
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Overdue Returns</CardTitle>
-            <AlertTriangle className="h-4 w-4 text-red-500" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-red-600">{overdueAssignments.length}</div>
-            <p className="text-xs text-muted-foreground">
-              Past return date
-            </p>
-          </CardContent>
-        </Card>
+        <StatCard
+          title="Overdue Returns"
+          value={overdueAssignments.length}
+          icon={AlertTriangle}
+          description="Past return date"
+        />
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Returns</CardTitle>
-            <History className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{returnedAssignments.length}</div>
-            <p className="text-xs text-muted-foreground">
-              Completed assignments
-            </p>
-          </CardContent>
-        </Card>
+        <StatCard
+          title="Total Returns"
+          value={returnedAssignments.length}
+          icon={History}
+          accent="secondary"
+          description="Completed assignments"
+        />
       </div>
 
       {/* Current Assignment Details */}
@@ -670,9 +644,6 @@ export default function AssignmentPage() {
         <Card>
           <CardHeader>
             <CardTitle>Current Assignments</CardTitle>
-            <CardDescription>
-              Active assignments for this asset
-            </CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
@@ -724,9 +695,6 @@ export default function AssignmentPage() {
       <Card>
         <CardHeader>
           <CardTitle>Assignment History</CardTitle>
-          <CardDescription>
-            Complete history of all assignments for this asset
-          </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">

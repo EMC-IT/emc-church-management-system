@@ -17,17 +17,18 @@ import {
 } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Switch } from '@/components/ui/switch';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Skeleton } from '@/components/ui/skeleton';
+import { PageHeader } from '@/components/ui/page-header';
 import { toast } from 'sonner';
 
 
@@ -281,27 +282,25 @@ export default function EditCategoryPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Edit Category</h1>
-          <p className="text-muted-foreground">
-            Update information for {category.name}
-          </p>
-        </div>
-        <div className="flex items-center space-x-2">
-          <Button variant="outline" onClick={() => router.back()}>
-            <X className="mr-2 h-4 w-4" />
-            Cancel
-          </Button>
-          <Button
-            onClick={form.handleSubmit(onSubmit)}
-            disabled={saving}
-          >
-            <Save className="mr-2 h-4 w-4" />
-            {saving ? 'Saving...' : 'Save Changes'}
-          </Button>
-        </div>
-      </div>
+      <PageHeader
+        title="Edit Category"
+        description={`Update information for ${category.name}`}
+        actions={
+          <div className="flex items-center space-x-2">
+            <Button variant="outline" onClick={() => router.back()}>
+              <X className="mr-2 h-4 w-4" />
+              Cancel
+            </Button>
+            <Button
+              onClick={form.handleSubmit(onSubmit)}
+              disabled={saving}
+            >
+              <Save className="mr-2 h-4 w-4" />
+              {saving ? 'Saving...' : 'Save Changes'}
+            </Button>
+          </div>
+        }
+      />
 
       {/* Warning for categories with assets */}
       {category.assetCount > 0 && (
@@ -323,9 +322,6 @@ export default function EditCategoryPage() {
                   <Package className="h-5 w-5" />
                   <span>Basic Information</span>
                 </CardTitle>
-                <CardDescription>
-                  Essential details about the category
-                </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <FormField
@@ -357,9 +353,6 @@ export default function EditCategoryPage() {
                           }}
                         />
                       </FormControl>
-                      <FormDescription>
-                        Short code for identification (2-10 characters)
-                      </FormDescription>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -417,9 +410,6 @@ export default function EditCategoryPage() {
             <Card>
               <CardHeader>
                 <CardTitle>Appearance & Settings</CardTitle>
-                <CardDescription>
-                  Visual appearance and category behavior
-                </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <FormField
@@ -521,9 +511,6 @@ export default function EditCategoryPage() {
             <Card>
               <CardHeader>
                 <CardTitle>Default Values</CardTitle>
-                <CardDescription>
-                  Default settings for assets in this category
-                </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <FormField
@@ -547,9 +534,6 @@ export default function EditCategoryPage() {
                           <span className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground">%</span>
                         </div>
                       </FormControl>
-                      <FormDescription>
-                        Annual depreciation rate for assets in this category
-                      </FormDescription>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -570,9 +554,6 @@ export default function EditCategoryPage() {
                           onChange={(e) => field.onChange(parseInt(e.target.value) || undefined)}
                         />
                       </FormControl>
-                      <FormDescription>
-                        Default warranty period in months
-                      </FormDescription>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -584,9 +565,6 @@ export default function EditCategoryPage() {
             <Card>
               <CardHeader>
                 <CardTitle>Custom Fields</CardTitle>
-                <CardDescription>
-                  Additional fields specific to this category
-                </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 {/* Add Custom Field Form */}
@@ -694,9 +672,6 @@ export default function EditCategoryPage() {
           <Card>
             <CardHeader>
               <CardTitle>Preview</CardTitle>
-              <CardDescription>
-                How this category will appear in the system
-              </CardDescription>
             </CardHeader>
             <CardContent>
               <div className="flex items-center space-x-4 p-4 border rounded-lg">

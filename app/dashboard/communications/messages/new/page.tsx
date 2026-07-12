@@ -3,7 +3,8 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { PageHeader } from '@/components/ui/page-header';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
@@ -259,10 +260,7 @@ export default function NewMessagePage() {
           <div className="p-2 bg-brand-primary/10 rounded-lg">
             <MessageCircle className="h-6 w-6 text-brand-primary" />
           </div>
-          <div>
-            <h1 className="text-2xl font-bold tracking-tight">Compose Message</h1>
-            <p className="text-muted-foreground">Send a message to church members</p>
-          </div>
+          <PageHeader title="Compose Message" />
         </div>
       </div>
 
@@ -273,7 +271,6 @@ export default function NewMessagePage() {
           <Card>
             <CardHeader>
               <CardTitle>Message Type</CardTitle>
-              <CardDescription>Choose how you want to send this message</CardDescription>
             </CardHeader>
             <CardContent>
               <Tabs value={formData.type} onValueChange={(value) => handleInputChange('type', value as 'individual' | 'group')}>
@@ -295,12 +292,6 @@ export default function NewMessagePage() {
           <Card>
             <CardHeader>
               <CardTitle>Recipients</CardTitle>
-              <CardDescription>
-                {formData.type === 'individual' 
-                  ? 'Select church members to message individually'
-                  : 'Select members for a group conversation'
-                }
-              </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               {/* Selected Recipients */}
@@ -398,7 +389,6 @@ export default function NewMessagePage() {
           <Card>
             <CardHeader>
               <CardTitle>Message Content</CardTitle>
-              <CardDescription>Write your message</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
@@ -476,7 +466,6 @@ export default function NewMessagePage() {
           <Card>
             <CardHeader>
               <CardTitle>Preview</CardTitle>
-              <CardDescription>How your message will appear</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="border rounded-lg p-4 bg-muted/50">

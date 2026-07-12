@@ -23,15 +23,16 @@ import {
 } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
+import { PageHeader } from '@/components/ui/page-header';
 import { toast } from 'sonner';
 import { Asset, AssetCategory, AssetStatus, AssetCondition, AssetFormData } from '@/lib/types/assets';
 
@@ -280,40 +281,32 @@ export default function EditAssetPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={() => router.push(`/dashboard/assets/${params.id}`)}
-            className="h-12 w-12"
-          >
-            <ArrowLeft className="h-5 w-5" />
-          </Button>
-          <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-brand-primary/10">
-            <Edit className="h-6 w-6 text-brand-primary" />
+      <PageHeader
+        title="Edit Asset"
+        description={`Update information for ${asset.name}`}
+        actions={
+          <div className="flex items-center space-x-2">
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={() => router.push(`/dashboard/assets/${params.id}`)}
+            >
+              <ArrowLeft className="h-4 w-4" />
+            </Button>
+            <Button variant="outline" onClick={() => router.back()}>
+              <X className="mr-2 h-4 w-4" />
+              Cancel
+            </Button>
+            <Button
+              onClick={form.handleSubmit(onSubmit)}
+              disabled={saving}
+            >
+              <Save className="mr-2 h-4 w-4" />
+              {saving ? 'Saving...' : 'Save Changes'}
+            </Button>
           </div>
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900">Edit Asset</h1>
-            <p className="text-gray-600">
-              Update information for {asset.name}
-            </p>
-          </div>
-        </div>
-        <div className="flex items-center space-x-2">
-          <Button variant="outline" onClick={() => router.back()}>
-            <X className="mr-2 h-4 w-4" />
-            Cancel
-          </Button>
-          <Button
-            onClick={form.handleSubmit(onSubmit)}
-            disabled={saving}
-          >
-            <Save className="mr-2 h-4 w-4" />
-            {saving ? 'Saving...' : 'Save Changes'}
-          </Button>
-        </div>
-      </div>
+        }
+      />
 
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
@@ -325,9 +318,6 @@ export default function EditAssetPage() {
                   <Package className="h-5 w-5" />
                   <span>Basic Information</span>
                 </CardTitle>
-                <CardDescription>
-                  Essential details about the asset
-                </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <FormField
@@ -502,9 +492,6 @@ export default function EditAssetPage() {
                   <DollarSign className="h-5 w-5" />
                   <span>Financial Information</span>
                 </CardTitle>
-                <CardDescription>
-                  Purchase price, current value, and depreciation
-                </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="grid grid-cols-2 gap-4">
@@ -578,9 +565,6 @@ export default function EditAssetPage() {
                           <span className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground">%</span>
                         </div>
                       </FormControl>
-                      <FormDescription>
-                        Annual depreciation rate for calculating current value
-                      </FormDescription>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -595,9 +579,6 @@ export default function EditAssetPage() {
                   <MapPin className="h-5 w-5" />
                   <span>Location & Assignment</span>
                 </CardTitle>
-                <CardDescription>
-                  Where the asset is located and who it's assigned to
-                </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <FormField
@@ -709,9 +690,6 @@ export default function EditAssetPage() {
                   <Calendar className="h-5 w-5" />
                   <span>Important Dates</span>
                 </CardTitle>
-                <CardDescription>
-                  Purchase date, warranty, and maintenance schedules
-                </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <FormField
@@ -778,9 +756,6 @@ export default function EditAssetPage() {
             <Card>
               <CardHeader>
                 <CardTitle>Technical Details</CardTitle>
-                <CardDescription>
-                  Manufacturer information and identification numbers
-                </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="grid grid-cols-2 gap-4">
@@ -863,9 +838,6 @@ export default function EditAssetPage() {
             <Card>
               <CardHeader>
                 <CardTitle>Additional Information</CardTitle>
-                <CardDescription>
-                  Notes and file attachments
-                </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <FormField

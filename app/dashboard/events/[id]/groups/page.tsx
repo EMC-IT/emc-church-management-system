@@ -4,7 +4,9 @@ import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { PageHeader } from '@/components/ui/page-header';
+import { StatCard } from '@/components/ui/stat-card';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -355,10 +357,10 @@ export default function EventGroupsPage() {
           <div className="p-2 bg-brand-primary/10 rounded-lg">
             <Users className="h-6 w-6 text-brand-primary" />
           </div>
-          <div>
-            <h1 className="text-2xl font-bold tracking-tight">Event Groups & Departments</h1>
-            <p className="text-muted-foreground">{mockEvent.title} - {format(new Date(mockEvent.date), 'PPP')}</p>
-          </div>
+          <PageHeader
+            title="Event Groups & Departments"
+            description={`${mockEvent.title} - ${format(new Date(mockEvent.date), 'PPP')}`}
+          />
         </div>
       </div>
 
@@ -397,54 +399,27 @@ export default function EventGroupsPage() {
 
       {/* Stats Cards */}
       <div className="grid gap-4 md:grid-cols-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Assigned Groups</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{linkedGroups.length}</div>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Confirmed</CardTitle>
-            <CheckCircle2 className="h-4 w-4 text-green-500" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-green-600">
-              {linkedGroups.filter(g => g.status === 'Confirmed').length}
-            </div>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Pending</CardTitle>
-            <AlertCircle className="h-4 w-4 text-yellow-500" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-yellow-600">
-              {linkedGroups.filter(g => g.status === 'Pending').length}
-            </div>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Members</CardTitle>
-            <UserCheck className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {linkedGroups.reduce((total, group) => {
-                const groupData = availableGroups.find(g => g.id === group.id);
-                return total + (groupData?.memberCount || 0);
-              }, 0)}
-            </div>
-          </CardContent>
-        </Card>
+        <StatCard title="Assigned Groups" value={linkedGroups.length} icon={Users} />
+        <StatCard
+          title="Confirmed"
+          value={linkedGroups.filter(g => g.status === 'Confirmed').length}
+          icon={CheckCircle2}
+          accent="success"
+        />
+        <StatCard
+          title="Pending"
+          value={linkedGroups.filter(g => g.status === 'Pending').length}
+          icon={AlertCircle}
+          accent="accent"
+        />
+        <StatCard
+          title="Total Members"
+          value={linkedGroups.reduce((total, group) => {
+            const groupData = availableGroups.find(g => g.id === group.id);
+            return total + (groupData?.memberCount || 0);
+          }, 0)}
+          icon={UserCheck}
+        />
       </div>
 
       {/* Assigned Groups */}
@@ -453,7 +428,6 @@ export default function EventGroupsPage() {
           <div className="flex items-center justify-between">
             <div>
               <CardTitle>Assigned Groups</CardTitle>
-              <CardDescription>Groups and departments involved in this event</CardDescription>
             </div>
             <div className="flex items-center gap-2">
               <Button variant="outline" onClick={sendNotificationToGroups} disabled={loading}>

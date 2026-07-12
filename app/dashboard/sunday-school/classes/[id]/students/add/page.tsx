@@ -4,7 +4,9 @@ import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { PageHeader } from '@/components/ui/page-header';
+import { StatCard } from '@/components/ui/stat-card';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -224,109 +226,74 @@ export default function AddStudentsToClassPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="space-y-1">
-          <div className="flex items-center space-x-2">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={handleBack}
-              className="h-8 w-8"
-            >
-              <ArrowLeft className="h-4 w-4" />
-            </Button>
-            <div>
-              <h1 className="text-3xl font-bold tracking-tight">Add Students</h1>
-              <p className="text-muted-foreground">
-                Add students to {classData?.name}
-              </p>
-            </div>
-          </div>
-        </div>
-        
-        <div className="flex space-x-2">
-          <Button 
-            onClick={handleAddStudents}
-            disabled={selectedStudents.size === 0 || adding}
-            className="bg-brand-primary hover:bg-brand-primary/90"
-          >
-            {adding ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Adding...
-              </>
-            ) : (
-              <>
-                <UserPlus className="mr-2 h-4 w-4" />
-                Add {selectedStudents.size} Student{selectedStudents.size !== 1 ? 's' : ''}
-              </>
-            )}
-          </Button>
+      <div className="flex items-center gap-2">
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={handleBack}
+          className="h-8 w-8"
+        >
+          <ArrowLeft className="h-4 w-4" />
+        </Button>
+        <div className="flex-1">
+          <PageHeader
+            title="Add Students"
+            description={classData ? `Add students to ${classData.name}` : undefined}
+            actions={
+              <Button
+                onClick={handleAddStudents}
+                disabled={selectedStudents.size === 0 || adding}
+                className="bg-brand-primary hover:bg-brand-primary/90"
+              >
+                {adding ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Adding...
+                  </>
+                ) : (
+                  <>
+                    <UserPlus className="mr-2 h-4 w-4" />
+                    Add {selectedStudents.size} Student{selectedStudents.size !== 1 ? 's' : ''}
+                  </>
+                )}
+              </Button>
+            }
+          />
         </div>
       </div>
 
       {/* Class Info & Capacity */}
       <div className="grid gap-4 md:grid-cols-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Current Enrollment</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{enrolledStudents.length}</div>
-            <p className="text-xs text-muted-foreground">
-              students enrolled
-            </p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Remaining Capacity</CardTitle>
-            <UserPlus className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{getRemainingCapacity()}</div>
-            <p className="text-xs text-muted-foreground">
-              spots available
-            </p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Available Students</CardTitle>
-            <Filter className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{filteredStudents.length}</div>
-            <p className="text-xs text-muted-foreground">
-              matching criteria
-            </p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Selected</CardTitle>
-            <CheckCircle className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{selectedStudents.size}</div>
-            <p className="text-xs text-muted-foreground">
-              to be added
-            </p>
-          </CardContent>
-        </Card>
+        <StatCard
+          title="Current Enrollment"
+          value={enrolledStudents.length}
+          icon={Users}
+          description="students enrolled"
+        />
+        <StatCard
+          title="Remaining Capacity"
+          value={getRemainingCapacity()}
+          icon={UserPlus}
+          description="spots available"
+        />
+        <StatCard
+          title="Available Students"
+          value={filteredStudents.length}
+          icon={Filter}
+          description="matching criteria"
+        />
+        <StatCard
+          title="Selected"
+          value={selectedStudents.size}
+          icon={CheckCircle}
+          description="to be added"
+        />
       </div>
 
       {/* Filters and Search */}
       <Card>
         <CardHeader>
           <CardTitle>Find Students</CardTitle>
-          <CardDescription>
-            Search and filter available students to add to the class
-          </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="flex items-center space-x-4 mb-6">

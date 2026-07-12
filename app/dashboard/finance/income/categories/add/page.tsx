@@ -17,8 +17,9 @@ import {
 } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { PageHeader } from '@/components/ui/page-header';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
@@ -153,23 +154,17 @@ export default function AddIncomeCategoryPage() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center space-x-4">
+      <PageHeader
+        title="Add Income Category"
+        actions={
           <Button variant="outline" size="sm" asChild>
             <Link href="/dashboard/finance/income/categories">
               <ArrowLeft className="mr-2 h-4 w-4" />
               Back to Categories
             </Link>
           </Button>
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight">Add Income Category</h1>
-            <p className="text-muted-foreground">
-              Create a new category to organize your income sources
-            </p>
-          </div>
-        </div>
-      </div>
+        }
+      />
 
       <div className="grid gap-6 lg:grid-cols-3">
         {/* Main Form */}
@@ -187,9 +182,6 @@ export default function AddIncomeCategoryPage() {
                   <Tag className="mr-2 h-5 w-5" />
                   Category Information
                 </CardTitle>
-                <CardDescription>
-                  Enter the details for the new income category
-                </CardDescription>
               </CardHeader>
               <CardContent>
                 <Form {...form}>
@@ -214,9 +206,6 @@ export default function AddIncomeCategoryPage() {
                               }}
                             />
                           </FormControl>
-                          <FormDescription>
-                            A clear, descriptive name for this income category
-                          </FormDescription>
                           <FormMessage />
                         </FormItem>
                       )}
@@ -236,9 +225,6 @@ export default function AddIncomeCategoryPage() {
                               className="font-mono"
                             />
                           </FormControl>
-                          <FormDescription>
-                            Optional unique identifier for reporting and integration
-                          </FormDescription>
                           <FormMessage />
                         </FormItem>
                       )}
@@ -258,9 +244,6 @@ export default function AddIncomeCategoryPage() {
                               {...field}
                             />
                           </FormControl>
-                          <FormDescription>
-                            Detailed description to help users understand this category
-                          </FormDescription>
                           <FormMessage />
                         </FormItem>
                       )}
@@ -281,12 +264,6 @@ export default function AddIncomeCategoryPage() {
                               )}
                               Active Category
                             </FormLabel>
-                            <FormDescription>
-                              {field.value 
-                                ? 'This category is active and can be used for new income records'
-                                : 'This category is inactive and will not appear in income forms'
-                              }
-                            </FormDescription>
                           </div>
                           <FormControl>
                             <Switch
@@ -341,9 +318,6 @@ export default function AddIncomeCategoryPage() {
             <Card>
               <CardHeader>
                 <CardTitle className="text-lg">Quick Start</CardTitle>
-                <CardDescription>
-                  Choose from common income categories
-                </CardDescription>
               </CardHeader>
               <CardContent className="space-y-3">
                 {categorySuggestions.map((suggestion, index) => (

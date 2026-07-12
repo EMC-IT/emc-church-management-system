@@ -3,9 +3,11 @@
 import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { DataTable } from '@/components/ui/data-table';
+import { PageHeader } from '@/components/ui/page-header';
+import { StatCard } from '@/components/ui/stat-card';
 import { useToast } from '@/hooks/use-toast';
 import { givingService } from '@/services';
 import { Giving, GivingType, GivingCategory, GivingStatus, Member } from '@/lib/types';
@@ -567,19 +569,17 @@ export default function GivingPage() {
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <div className="flex items-center space-x-4">
+        <div className="flex items-center gap-4">
           <Button variant="ghost" size="sm" asChild>
             <Link href={`/dashboard/members/${member.id}`}>
               <ArrowLeft className="mr-2 h-4 w-4" />
               Back to Profile
             </Link>
           </Button>
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight">Giving History</h1>
-            <p className="text-muted-foreground">
-              Track giving and donations for {member.firstName} {member.lastName}
-            </p>
-          </div>
+          <PageHeader
+            title="Giving History"
+            description={`Track giving and donations for ${member.firstName} ${member.lastName}`}
+          />
         </div>
         <div className="flex items-center space-x-2">
           <Button variant="outline" onClick={handleBulkDelete} disabled={selectedGiving.length === 0}>
@@ -597,68 +597,39 @@ export default function GivingPage() {
 
       {/* Analytics Overview */}
       <div className="grid gap-4 md:grid-cols-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Given</CardTitle>
-            <Heart className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{formatCurrency(analytics.totalAmount)}</div>
-            <p className="text-xs text-muted-foreground">
-              {analytics.totalCount} giving records
-            </p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Average Amount</CardTitle>
-            <BarChart3 className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{formatCurrency(analytics.averageAmount)}</div>
-            <p className="text-xs text-muted-foreground">
-              Per giving record
-            </p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">This Month</CardTitle>
-            <TrendingUp className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{formatCurrency(analytics.givingTrend[0]?.amount || 0)}</div>
-            <p className="text-xs text-muted-foreground">
-              +{analytics.givingTrend[0]?.change || 0}% from last month
-            </p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Top Category</CardTitle>
-            <PieChart className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {analytics.topCategories[0]?.category ? getCategoryLabel(analytics.topCategories[0].category) : 'N/A'}
-            </div>
-            <p className="text-xs text-muted-foreground">
-              {analytics.topCategories[0]?.percentage || 0}% of total
-            </p>
-          </CardContent>
-        </Card>
+        <StatCard
+          title="Total Given"
+          value={formatCurrency(analytics.totalAmount)}
+          icon={Heart}
+          description={`${analytics.totalCount} giving records`}
+        />
+        <StatCard
+          title="Average Amount"
+          value={formatCurrency(analytics.averageAmount)}
+          icon={BarChart3}
+          description="Per giving record"
+        />
+        <StatCard
+          title="This Month"
+          value={formatCurrency(analytics.givingTrend[0]?.amount || 0)}
+          icon={TrendingUp}
+          trend={{
+            value: `+${analytics.givingTrend[0]?.change || 0}% from last month`,
+            direction: 'up',
+          }}
+        />
+        <StatCard
+          title="Top Category"
+          value={analytics.topCategories[0]?.category ? getCategoryLabel(analytics.topCategories[0].category) : 'N/A'}
+          icon={PieChart}
+          description={`${analytics.topCategories[0]?.percentage || 0}% of total`}
+        />
       </div>
 
       {/* Giving Records Table */}
       <Card>
         <CardHeader>
           <CardTitle>Giving Records</CardTitle>
-          <CardDescription>
-            View and manage all giving records for {member.firstName} {member.lastName}
-          </CardDescription>
         </CardHeader>
         <CardContent>
           {giving.length > 0 ? (

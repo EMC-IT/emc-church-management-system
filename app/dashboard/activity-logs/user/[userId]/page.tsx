@@ -2,7 +2,9 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { PageHeader } from '@/components/ui/page-header';
+import { ChartHeader } from '@/components/ui/chart-header';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
@@ -453,32 +455,32 @@ export default function UserActivityHistoryPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => router.push('/dashboard/activity-logs')}
-          >
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Back to Activity Logs
-          </Button>
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight">User Activity History</h1>
-            <p className="text-muted-foreground mt-1">
-              Complete activity timeline for {userProfile.name}
-            </p>
-          </div>
-        </div>
-        <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm" onClick={handleRefresh} disabled={loading}>
-            <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
-            Refresh
-          </Button>
-          <Button variant="outline" size="sm" onClick={handleExport}>
-            <Download className="h-4 w-4 mr-2" />
-            Export
-          </Button>
+      <div className="flex items-center gap-4">
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => router.push('/dashboard/activity-logs')}
+        >
+          <ArrowLeft className="h-4 w-4 mr-2" />
+          Back to Activity Logs
+        </Button>
+        <div className="flex-1">
+          <PageHeader
+            title="User Activity History"
+            description={`Complete activity timeline for ${userProfile.name}`}
+            actions={
+              <>
+                <Button variant="outline" size="sm" onClick={handleRefresh} disabled={loading}>
+                  <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
+                  Refresh
+                </Button>
+                <Button variant="outline" size="sm" onClick={handleExport}>
+                  <Download className="h-4 w-4 mr-2" />
+                  Export
+                </Button>
+              </>
+            }
+          />
         </div>
       </div>
 
@@ -582,7 +584,6 @@ export default function UserActivityHistoryPage() {
         <Card>
           <CardHeader>
             <CardTitle>Activity by Module</CardTitle>
-            <CardDescription>Distribution across modules</CardDescription>
           </CardHeader>
           <CardContent>
             <ChartContainer config={moduleChartConfig} className="h-[250px] w-full">
@@ -609,7 +610,6 @@ export default function UserActivityHistoryPage() {
         <Card>
           <CardHeader>
             <CardTitle>Activity by Action Type</CardTitle>
-            <CardDescription>Actions performed</CardDescription>
           </CardHeader>
           <CardContent>
             <ChartContainer config={actionChartConfig} className="h-[250px] w-full">
@@ -640,8 +640,7 @@ export default function UserActivityHistoryPage() {
 
         <Card>
           <CardHeader>
-            <CardTitle>Weekly Activity Trend</CardTitle>
-            <CardDescription>Last 7 days</CardDescription>
+            <ChartHeader title="Weekly Activity Trend" badge="Last 7 Days" />
           </CardHeader>
           <CardContent>
             <ChartContainer config={timelineChartConfig} className="h-[250px] w-full">
@@ -681,7 +680,6 @@ export default function UserActivityHistoryPage() {
       <Card>
         <CardHeader>
           <CardTitle>Activity Timeline</CardTitle>
-          <CardDescription>Detailed activity history</CardDescription>
         </CardHeader>
         <CardContent>
           {/* Filters */}

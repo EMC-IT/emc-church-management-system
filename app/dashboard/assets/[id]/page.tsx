@@ -22,12 +22,13 @@ import {
 } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Skeleton } from '@/components/ui/skeleton';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { PageHeader } from '@/components/ui/page-header';
 import { Asset, AssetStatus, AssetCondition, AssetCategory, AssetMaintenance, AssetAssignment } from '@/lib/types/assets';
 
 
@@ -287,68 +288,59 @@ export default function AssetDetailsPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={() => router.push('/dashboard/assets')}
-            className="h-12 w-12"
-          >
-            <ArrowLeft className="h-5 w-5" />
-          </Button>
-          <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-brand-primary/10">
-            <Package className="h-6 w-6 text-brand-primary" />
+      <PageHeader
+        title={asset.name}
+        actions={
+          <div className="flex items-center space-x-2">
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={() => router.push('/dashboard/assets')}
+            >
+              <ArrowLeft className="h-4 w-4" />
+            </Button>
+            <Button variant="outline" asChild>
+              <Link href={`/dashboard/assets/${asset.id}/maintenance`}>
+                <Wrench className="mr-2 h-4 w-4" />
+                Maintenance
+              </Link>
+            </Button>
+            <Button variant="outline" asChild>
+              <Link href={`/dashboard/assets/${asset.id}/assignment`}>
+                <Users className="mr-2 h-4 w-4" />
+                Assignment
+              </Link>
+            </Button>
+            <Button asChild>
+              <Link href={`/dashboard/assets/${asset.id}/edit`}>
+                <Edit className="mr-2 h-4 w-4" />
+                Edit
+              </Link>
+            </Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" size="icon">
+                  <MoreHorizontal className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem>
+                  <Download className="mr-2 h-4 w-4" />
+                  Export Details
+                </DropdownMenuItem>
+                <DropdownMenuItem>
+                  <Camera className="mr-2 h-4 w-4" />
+                  Add Photos
+                </DropdownMenuItem>
+                <DropdownMenuItem>
+                  <FileText className="mr-2 h-4 w-4" />
+                  Add Documents
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900">{asset.name}</h1>
-            <p className="text-gray-600">
-              {asset.manufacturer} {asset.model} • {asset.serialNumber}
-            </p>
-          </div>
-        </div>
-        <div className="flex items-center space-x-2">
-          <Button variant="outline" asChild>
-            <Link href={`/dashboard/assets/${asset.id}/maintenance`}>
-              <Wrench className="mr-2 h-4 w-4" />
-              Maintenance
-            </Link>
-          </Button>
-          <Button variant="outline" asChild>
-            <Link href={`/dashboard/assets/${asset.id}/assignment`}>
-              <Users className="mr-2 h-4 w-4" />
-              Assignment
-            </Link>
-          </Button>
-          <Button asChild>
-            <Link href={`/dashboard/assets/${asset.id}/edit`}>
-              <Edit className="mr-2 h-4 w-4" />
-              Edit
-            </Link>
-          </Button>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="icon">
-                <MoreHorizontal className="h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem>
-                <Download className="mr-2 h-4 w-4" />
-                Export Details
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                <Camera className="mr-2 h-4 w-4" />
-                Add Photos
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                <FileText className="mr-2 h-4 w-4" />
-                Add Documents
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
-      </div>
+        }
+      />
 
       <div className="grid gap-6 md:grid-cols-3">
         {/* Main Content */}

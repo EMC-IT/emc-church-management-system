@@ -3,7 +3,9 @@
 import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { PageHeader } from '@/components/ui/page-header';
+import { StatCard } from '@/components/ui/stat-card';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Progress } from '@/components/ui/progress';
@@ -136,91 +138,60 @@ export default function StudentProfilePage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="space-y-1">
-          <div className="flex items-center space-x-2">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={handleBack}
-              className="h-8 w-8"
-            >
-              <ArrowLeft className="h-4 w-4" />
-            </Button>
-            <div>
-              <h1 className="text-3xl font-bold tracking-tight">{student.name}</h1>
-              <p className="text-muted-foreground">Student Profile</p>
-            </div>
-          </div>
-        </div>
-        
-        <div className="flex space-x-2">
-          <Button variant="outline" onClick={handleContactParent}>
-            <Mail className="mr-2 h-4 w-4" />
-            Email Parent
-          </Button>
-          <Button variant="outline" onClick={handleCallParent}>
-            <Phone className="mr-2 h-4 w-4" />
-            Call Parent
-          </Button>
+      <div className="flex items-center gap-2">
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={handleBack}
+          className="h-8 w-8"
+        >
+          <ArrowLeft className="h-4 w-4" />
+        </Button>
+        <div className="flex-1">
+          <PageHeader
+            title={student.name}
+            actions={
+              <>
+                <Button variant="outline" onClick={handleContactParent}>
+                  <Mail className="mr-2 h-4 w-4" />
+                  Email Parent
+                </Button>
+                <Button variant="outline" onClick={handleCallParent}>
+                  <Phone className="mr-2 h-4 w-4" />
+                  Call Parent
+                </Button>
+              </>
+            }
+          />
         </div>
       </div>
 
       {/* Student Overview Cards */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Age</CardTitle>
-            <Calendar className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{student.age}</div>
-            <p className="text-xs text-muted-foreground">
-              Born {new Date(student.dateOfBirth).toLocaleDateString()}
-            </p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Attendance Rate</CardTitle>
-            <TrendingUp className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{attendanceStats.attendanceRate.toFixed(1)}%</div>
-            <p className="text-xs text-muted-foreground">
-              {attendanceStats.attendedClasses} of {attendanceStats.totalClasses} classes
-            </p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Current Class</CardTitle>
-            <GraduationCap className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-lg font-bold">{student.currentClassId || 'Not Assigned'}</div>
-            <p className="text-xs text-muted-foreground">
-              Age: {student.age} years old
-            </p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Enrollment</CardTitle>
-            <Clock className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-lg font-bold">
-              {new Date(student.enrollmentDate).toLocaleDateString()}
-            </div>
-            <p className="text-xs text-muted-foreground">
-              {Math.floor((Date.now() - new Date(student.enrollmentDate).getTime()) / (1000 * 60 * 60 * 24 * 30))} months ago
-            </p>
-          </CardContent>
-        </Card>
+        <StatCard
+          title="Age"
+          value={student.age}
+          icon={Calendar}
+          description={`Born ${new Date(student.dateOfBirth).toLocaleDateString()}`}
+        />
+        <StatCard
+          title="Attendance Rate"
+          value={`${attendanceStats.attendanceRate.toFixed(1)}%`}
+          icon={TrendingUp}
+          description={`${attendanceStats.attendedClasses} of ${attendanceStats.totalClasses} classes`}
+        />
+        <StatCard
+          title="Current Class"
+          value={student.currentClassId || 'Not Assigned'}
+          icon={GraduationCap}
+          description={`Age: ${student.age} years old`}
+        />
+        <StatCard
+          title="Enrollment"
+          value={new Date(student.enrollmentDate).toLocaleDateString()}
+          icon={Clock}
+          description={`${Math.floor((Date.now() - new Date(student.enrollmentDate).getTime()) / (1000 * 60 * 60 * 24 * 30))} months ago`}
+        />
       </div>
 
       {/* Main Content Tabs */}
@@ -351,9 +322,6 @@ export default function StudentProfilePage() {
           <Card>
             <CardHeader>
               <CardTitle>Attendance History</CardTitle>
-              <CardDescription>
-                Recent attendance records for {student.name}
-              </CardDescription>
             </CardHeader>
             <CardContent>
               <div className="space-y-3">

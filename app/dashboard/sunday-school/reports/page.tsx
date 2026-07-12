@@ -2,7 +2,9 @@
 
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { PageHeader } from '@/components/ui/page-header';
+import { StatCard } from '@/components/ui/stat-card';
 import { Badge } from '@/components/ui/badge';
 import {
   Select,
@@ -247,95 +249,55 @@ export default function ReportsPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Reports & Analytics</h1>
-          <p className="text-muted-foreground">Sunday School performance insights</p>
-        </div>
-        <div className="flex items-center space-x-2">
-          <Select value={dateRange} onValueChange={setDateRange}>
-            <SelectTrigger className="w-48">
-              <SelectValue placeholder="Select date range" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="last_7_days">Last 7 days</SelectItem>
-              <SelectItem value="last_30_days">Last 30 days</SelectItem>
-              <SelectItem value="last_3_months">Last 3 months</SelectItem>
-              <SelectItem value="last_year">Last year</SelectItem>
-            </SelectContent>
-          </Select>
-          <Button variant="outline">
-            <Download className="mr-2 h-4 w-4" />
-            Export All
-          </Button>
-        </div>
-      </div>
+      <PageHeader
+        title="Reports & Analytics"
+        actions={
+          <>
+            <Select value={dateRange} onValueChange={setDateRange}>
+              <SelectTrigger className="w-48">
+                <SelectValue placeholder="Select date range" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="last_7_days">Last 7 days</SelectItem>
+                <SelectItem value="last_30_days">Last 30 days</SelectItem>
+                <SelectItem value="last_3_months">Last 3 months</SelectItem>
+                <SelectItem value="last_year">Last year</SelectItem>
+              </SelectContent>
+            </Select>
+            <Button variant="outline">
+              <Download className="mr-2 h-4 w-4" />
+              Export All
+            </Button>
+          </>
+        }
+      />
 
       {/* Overview Stats */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-6">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Students</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.totalStudents}</div>
-            <p className="text-xs text-muted-foreground">
-              +{stats.newEnrollments} new this month
-            </p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Classes</CardTitle>
-            <GraduationCap className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.totalClasses}</div>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Teachers</CardTitle>
-            <BookOpen className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.totalTeachers}</div>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Avg Attendance</CardTitle>
-            <Calendar className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.averageAttendance.toFixed(1)}%</div>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Retention Rate</CardTitle>
-            <Award className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.overallRetention.toFixed(1)}%</div>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">New Enrollments</CardTitle>
-            <TrendingUp className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.newEnrollments}</div>
-            <p className="text-xs text-muted-foreground">this month</p>
-          </CardContent>
-        </Card>
+        <StatCard
+          title="Total Students"
+          value={stats.totalStudents}
+          icon={Users}
+          description={`+${stats.newEnrollments} new this month`}
+        />
+        <StatCard title="Classes" value={stats.totalClasses} icon={GraduationCap} />
+        <StatCard title="Teachers" value={stats.totalTeachers} icon={BookOpen} />
+        <StatCard
+          title="Avg Attendance"
+          value={`${stats.averageAttendance.toFixed(1)}%`}
+          icon={Calendar}
+        />
+        <StatCard
+          title="Retention Rate"
+          value={`${stats.overallRetention.toFixed(1)}%`}
+          icon={Award}
+        />
+        <StatCard
+          title="New Enrollments"
+          value={stats.newEnrollments}
+          icon={TrendingUp}
+          description="this month"
+        />
       </div>
 
       {/* Main Reports */}
@@ -357,7 +319,6 @@ export default function ReportsPage() {
                   <BarChart3 className="h-5 w-5" />
                   <span>Attendance Overview</span>
                 </CardTitle>
-                <CardDescription>Weekly attendance trends</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
@@ -388,7 +349,6 @@ export default function ReportsPage() {
                   <Award className="h-5 w-5" />
                   <span>Top Performing Classes</span>
                 </CardTitle>
-                <CardDescription>Based on attendance and engagement</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">

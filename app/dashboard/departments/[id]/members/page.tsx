@@ -5,7 +5,8 @@ import { useParams } from 'next/navigation';
 import { Plus, Search, Filter, MoreHorizontal, UserPlus, UserMinus, Mail, Phone } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { PageHeader } from '@/components/ui/page-header';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
@@ -174,19 +175,14 @@ export default function DepartmentMembersPage() {
   return (
     <div className="space-y-6">
       
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div>
-          <h1 className="text-3xl font-bold">{department?.name} Members</h1>
-          <p className="text-muted-foreground">
-            Manage members and their roles in this department
-          </p>
-        </div>
-        
-        <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
-          <DialogTrigger asChild>
-            <Button>
-              <UserPlus className="mr-2 h-4 w-4" />
-              Add Members
+      <PageHeader
+        title={`${department?.name} Members`}
+        actions={
+          <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
+            <DialogTrigger asChild>
+              <Button>
+                <UserPlus className="mr-2 h-4 w-4" />
+                Add Members
             </Button>
           </DialogTrigger>
           <DialogContent className="max-w-2xl">
@@ -258,8 +254,9 @@ export default function DepartmentMembersPage() {
               </Button>
             </DialogFooter>
           </DialogContent>
-        </Dialog>
-      </div>
+          </Dialog>
+        }
+      />
 
       {/* Filters */}
       <Card>

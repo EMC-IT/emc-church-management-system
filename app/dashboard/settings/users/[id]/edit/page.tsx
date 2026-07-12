@@ -10,7 +10,8 @@ import { ArrowLeft, Save, Loader2, Trash2, Key, UserX } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { PageHeader } from '@/components/ui/page-header';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
@@ -22,7 +23,6 @@ import { useToast } from '@/hooks/use-toast';
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -205,10 +205,7 @@ export default function EditUserPage() {
               <ArrowLeft className="h-4 w-4" />
             </Link>
           </Button>
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight">Edit User</h1>
-            <p className="text-muted-foreground">Update user account details</p>
-          </div>
+          <PageHeader title="Edit User" />
         </div>
         <Badge variant={watchStatus === 'active' ? 'primary' : 'neutral'}>
           {watchStatus}
@@ -224,7 +221,6 @@ export default function EditUserPage() {
               <Card>
                 <CardHeader>
                   <CardTitle>Personal Information</CardTitle>
-                  <CardDescription>Basic user details and contact information</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="grid gap-4 md:grid-cols-2">
@@ -267,9 +263,6 @@ export default function EditUserPage() {
                           <FormControl>
                             <Input type="email" placeholder="john.doe@church.com" {...field} />
                           </FormControl>
-                          <FormDescription>
-                            Used for login and notifications
-                          </FormDescription>
                           <FormMessage />
                         </FormItem>
                       )}
@@ -296,7 +289,6 @@ export default function EditUserPage() {
               <Card>
                 <CardHeader>
                   <CardTitle>Account Information</CardTitle>
-                  <CardDescription>Login credentials and access details</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <FormField
@@ -308,9 +300,6 @@ export default function EditUserPage() {
                         <FormControl>
                           <Input placeholder="johndoe" {...field} />
                         </FormControl>
-                        <FormDescription>
-                          Used for logging into the system
-                        </FormDescription>
                         <FormMessage />
                       </FormItem>
                     )}
@@ -337,9 +326,6 @@ export default function EditUserPage() {
                               ))}
                             </SelectContent>
                           </Select>
-                          <FormDescription>
-                            Determines user permissions
-                          </FormDescription>
                           <FormMessage />
                         </FormItem>
                       )}
@@ -395,7 +381,6 @@ export default function EditUserPage() {
               <Card>
                 <CardHeader>
                   <CardTitle>Recent Activity</CardTitle>
-                  <CardDescription>User login and activity history</CardDescription>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-3 text-sm">

@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { PageHeader } from '@/components/ui/page-header';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
@@ -271,17 +272,18 @@ export default function EditNewsletterPage() {
           <div className="p-2 bg-brand-primary/10 rounded-lg">
             <FileText className="h-6 w-6 text-brand-primary" />
           </div>
-          <div>
-            <h1 className="text-2xl font-bold tracking-tight">Edit Newsletter</h1>
-            <p className="text-muted-foreground">Update newsletter content and settings</p>
+          <div className="flex-1">
+            <PageHeader
+              title="Edit Newsletter"
+              actions={
+                <Badge variant={getStatusColor(formData.status)} className="flex items-center gap-1">
+                  {getStatusIcon(formData.status)}
+                  Current: {formData.status.charAt(0).toUpperCase() + formData.status.slice(1)}
+                </Badge>
+              }
+            />
           </div>
         </div>
-
-        {/* Current Status */}
-        <Badge variant={getStatusColor(formData.status)} className="flex items-center gap-1">
-          {getStatusIcon(formData.status)}
-          Current: {formData.status.charAt(0).toUpperCase() + formData.status.slice(1)}
-        </Badge>
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
@@ -311,7 +313,6 @@ export default function EditNewsletterPage() {
               <Card>
                 <CardHeader>
                   <CardTitle>Newsletter Details</CardTitle>
-                  <CardDescription>Update the basic information about your newsletter</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="space-y-2">
@@ -352,9 +353,6 @@ export default function EditNewsletterPage() {
               <Card>
                 <CardHeader>
                   <CardTitle>Content Editor</CardTitle>
-                  <CardDescription>
-                    {selectedTemplate ? `Editing with ${selectedTemplate.name} template` : 'Update your newsletter content'}
-                  </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   {/* Simple Toolbar */}
@@ -482,7 +480,6 @@ export default function EditNewsletterPage() {
           <Card>
             <CardHeader>
               <CardTitle>Change Template</CardTitle>
-              <CardDescription>Select a different template for your newsletter</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
@@ -535,7 +532,6 @@ export default function EditNewsletterPage() {
             <Card>
               <CardHeader>
                 <CardTitle>Delivery Settings</CardTitle>
-                <CardDescription>Update when and how to send your newsletter</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="flex items-center space-x-2">
@@ -575,7 +571,6 @@ export default function EditNewsletterPage() {
             <Card>
               <CardHeader>
                 <CardTitle>Subscriber Groups</CardTitle>
-                <CardDescription>Update who will receive this newsletter</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
@@ -604,7 +599,6 @@ export default function EditNewsletterPage() {
             <Card>
               <CardHeader>
                 <CardTitle>Test Email</CardTitle>
-                <CardDescription>Send a test email before updating</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
@@ -631,7 +625,6 @@ export default function EditNewsletterPage() {
           <Card>
             <CardHeader>
               <CardTitle>Updated Newsletter Preview</CardTitle>
-              <CardDescription>How your updated newsletter will appear to subscribers</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="border rounded-lg p-6 bg-white max-w-2xl mx-auto">

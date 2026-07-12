@@ -3,7 +3,8 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { PageHeader } from '@/components/ui/page-header';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
@@ -143,21 +144,17 @@ export default function AddDonationPage() {
   return (
     <div className="space-y-6">
 
-      {/* Header */}
-      <div className="flex items-center space-x-4">
-        <Button variant="ghost" size="sm" asChild>
-          <Link href="/dashboard/finance/giving/donations">
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Back to Donations
-          </Link>
-        </Button>
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Record New Donation</h1>
-          <p className="text-muted-foreground">
-            Create a new donation record
-          </p>
-        </div>
-      </div>
+      <PageHeader
+        title="Record New Donation"
+        actions={
+          <Button variant="ghost" size="sm" asChild>
+            <Link href="/dashboard/finance/giving/donations">
+              <ArrowLeft className="mr-2 h-4 w-4" />
+              Back to Donations
+            </Link>
+          </Button>
+        }
+      />
 
       <form onSubmit={handleSubmit} className="space-y-6">
         <div className="grid gap-6 lg:grid-cols-3">
@@ -176,9 +173,6 @@ export default function AddDonationPage() {
                   <User className="h-5 w-5" />
                   <span>Donor Information</span>
                 </CardTitle>
-                <CardDescription>
-                  Select the donor or mark as anonymous
-                </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="grid gap-4 md:grid-cols-2">
@@ -233,9 +227,6 @@ export default function AddDonationPage() {
                   <BadgeCent className="h-5 w-5" />
                   <span>Donation Details</span>
                 </CardTitle>
-                <CardDescription>
-                  Enter the donation amount and details
-                </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="grid gap-4 md:grid-cols-2">
@@ -425,9 +416,6 @@ export default function AddDonationPage() {
             <Card>
               <CardHeader>
                 <CardTitle>Quick Categories</CardTitle>
-                <CardDescription>
-                  Common donation categories
-                </CardDescription>
               </CardHeader>
               <CardContent className="space-y-2">
                 <Button

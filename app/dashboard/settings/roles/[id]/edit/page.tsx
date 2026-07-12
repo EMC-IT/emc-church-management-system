@@ -6,7 +6,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { PageHeader } from '@/components/ui/page-header';
 import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -347,15 +348,12 @@ export default function EditRolePage() {
         >
           <ArrowLeft className="h-4 w-4" />
         </Button>
-        
+
         <div className="flex items-center gap-3 flex-1">
           <div className="p-2 bg-brand-primary/10 rounded-lg">
             <Shield className="h-6 w-6 text-brand-primary" />
           </div>
-          <div>
-            <h1 className="text-2xl font-bold tracking-tight">Edit Role</h1>
-            <p className="text-muted-foreground">Update role details and permissions</p>
-          </div>
+          <PageHeader title="Edit Role" />
         </div>
 
         <div className="flex gap-2">
@@ -404,7 +402,6 @@ export default function EditRolePage() {
           <Card>
             <CardHeader>
               <CardTitle>Role Details</CardTitle>
-              <CardDescription>Basic role information</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
@@ -433,7 +430,6 @@ export default function EditRolePage() {
           <Card>
             <CardHeader>
               <CardTitle>Role Statistics</CardTitle>
-              <CardDescription>Current role metrics</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="flex items-center justify-between">
@@ -537,9 +533,6 @@ export default function EditRolePage() {
         <Card className="lg:col-span-2">
           <CardHeader>
             <CardTitle>Role Permissions</CardTitle>
-            <CardDescription>
-              Configure permissions for this role ({selectedPermissions.size} selected)
-            </CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-6">

@@ -8,8 +8,9 @@ import * as z from 'zod';
 import { PlusCircle, Tag, Loader2, Palette, ArrowLeft } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { PageHeader } from '@/components/ui/page-header';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
@@ -97,10 +98,7 @@ export default function AddExpenseCategoryPage() {
         <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-brand-primary/10">
           <PlusCircle className="h-6 w-6 text-brand-primary" />
         </div>
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">Add Expense Category</h1>
-          <p className="text-gray-600">Create a new category to organize expenses</p>
-        </div>
+        <PageHeader title="Add Expense Category" />
       </div>
 
       {/* Category Form */}
@@ -114,9 +112,6 @@ export default function AddExpenseCategoryPage() {
                   <Tag className="h-5 w-5" />
                   Category Details
                 </CardTitle>
-                <CardDescription>
-                  Fill in the details below to create a new expense category
-                </CardDescription>
               </CardHeader>
               <CardContent>
                 <Form {...form}>
@@ -131,12 +126,9 @@ export default function AddExpenseCategoryPage() {
                           <FormControl>
                             <Input 
                               placeholder="e.g., Office Supplies, Utilities, Missions" 
-                              {...field} 
+                              {...field}
                             />
                           </FormControl>
-                          <FormDescription>
-                            Choose a clear, descriptive name for this expense category
-                          </FormDescription>
                           <FormMessage />
                         </FormItem>
                       )}
@@ -153,12 +145,9 @@ export default function AddExpenseCategoryPage() {
                             <Textarea 
                               placeholder="Describe what types of expenses belong in this category..."
                               className="min-h-[100px]"
-                              {...field} 
+                              {...field}
                             />
                           </FormControl>
-                          <FormDescription>
-                            Optional description to help users understand when to use this category
-                          </FormDescription>
                           <FormMessage />
                         </FormItem>
                       )}
@@ -222,9 +211,6 @@ export default function AddExpenseCategoryPage() {
                               </div>
                             </div>
                           </FormControl>
-                          <FormDescription>
-                            Choose a color to help visually identify this category in reports and charts
-                          </FormDescription>
                           <FormMessage />
                         </FormItem>
                       )}
@@ -240,9 +226,6 @@ export default function AddExpenseCategoryPage() {
                             <FormLabel className="text-base">
                               Active Category
                             </FormLabel>
-                            <FormDescription>
-                              Active categories can be used when recording new expenses
-                            </FormDescription>
                           </div>
                           <FormControl>
                             <Switch
@@ -294,9 +277,6 @@ export default function AddExpenseCategoryPage() {
             <Card>
               <CardHeader>
                 <CardTitle className="text-lg">Preview</CardTitle>
-                <CardDescription>
-                  See how your category will appear
-                </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 {/* Category Preview */}

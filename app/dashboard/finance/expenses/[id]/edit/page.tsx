@@ -9,8 +9,9 @@ import { format } from 'date-fns';
 import { CalendarIcon, Loader2, Edit, Receipt, ArrowLeft } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { PageHeader } from '@/components/ui/page-header';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -201,10 +202,7 @@ export default function EditExpensePage() {
         <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-brand-primary/10">
           <Edit className="h-6 w-6 text-brand-primary" />
         </div>
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">Edit Expense</h1>
-          <p className="text-gray-600">Update expense details and information</p>
-        </div>
+        <PageHeader title="Edit Expense" />
       </div>
 
       {/* Expense Form */}
@@ -215,9 +213,6 @@ export default function EditExpensePage() {
               <Receipt className="h-5 w-5" />
               Expense Details
             </CardTitle>
-            <CardDescription>
-              Update the expense information below
-            </CardDescription>
           </CardHeader>
           <CardContent>
             <Form {...form}>
@@ -387,9 +382,6 @@ export default function EditExpensePage() {
                             {...field}
                           />
                         </FormControl>
-                        <FormDescription>
-                          Optional: Add any additional notes or details about this expense
-                        </FormDescription>
                         <FormMessage />
                       </FormItem>
                     )}
@@ -405,9 +397,6 @@ export default function EditExpensePage() {
                           <FormControl>
                             <Input placeholder="e.g., REC-2024-001" {...field} />
                           </FormControl>
-                          <FormDescription>
-                            Optional: Reference number from receipt or invoice
-                          </FormDescription>
                           <FormMessage />
                         </FormItem>
                       )}
@@ -422,9 +411,6 @@ export default function EditExpensePage() {
                           <FormControl>
                             <Input placeholder="e.g., Finance Committee, Pastor" {...field} />
                           </FormControl>
-                          <FormDescription>
-                            Optional: Who approved this expense
-                          </FormDescription>
                           <FormMessage />
                         </FormItem>
                       )}

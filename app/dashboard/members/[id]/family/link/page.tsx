@@ -12,6 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { DataTable } from '@/components/ui/data-table';
+import { PageHeader } from '@/components/ui/page-header';
 import { useToast } from '@/hooks/use-toast';
 import { membersService } from '@/services';
 import { Member } from '@/lib/types';
@@ -347,19 +348,17 @@ export default function LinkFamilyMemberPage() {
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <div className="flex items-center space-x-4">
+        <div className="flex items-center gap-4">
           <Button variant="ghost" size="sm" asChild>
             <Link href={`/dashboard/members/${member.id}/family`}>
               <ArrowLeft className="mr-2 h-4 w-4" />
               Back to Family
             </Link>
           </Button>
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight">Link Existing Member</h1>
-            <p className="text-muted-foreground">
-              Link an existing member to {member.firstName} {member.lastName}'s family
-            </p>
-          </div>
+          <PageHeader
+            title="Link Existing Member"
+            description={`Link an existing member to ${member.firstName} ${member.lastName}'s family`}
+          />
         </div>
       </div>
 
@@ -368,9 +367,6 @@ export default function LinkFamilyMemberPage() {
         <Card>
           <CardHeader>
             <CardTitle>Family Relationship</CardTitle>
-            <CardDescription>
-              Choose how the selected member is related to this family
-            </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <Form {...form}>
@@ -408,9 +404,6 @@ export default function LinkFamilyMemberPage() {
         <Card>
           <CardHeader>
             <CardTitle>Quick Actions</CardTitle>
-            <CardDescription>
-              Alternative ways to add family members
-            </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <Button asChild className="w-full">

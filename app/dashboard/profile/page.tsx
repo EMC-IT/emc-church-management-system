@@ -2,7 +2,8 @@
 
 import { useState } from 'react';
 import { useAuth } from '@/lib/contexts/auth-context';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { PageHeader } from '@/components/ui/page-header';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -228,17 +229,14 @@ export default function ProfilePage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">My Profile</h1>
-          <p className="text-muted-foreground mt-1">
-            Manage your account settings and preferences
-          </p>
-        </div>
-        <Badge variant="neutral" className="text-brand-primary border-brand-primary">
-          {typeof user?.role === 'object' ? user?.role.name : (user?.role || 'Admin')}
-        </Badge>
-      </div>
+      <PageHeader
+        title="My Profile"
+        actions={
+          <Badge variant="neutral" className="text-brand-primary border-brand-primary">
+            {typeof user?.role === 'object' ? user?.role.name : (user?.role || 'Admin')}
+          </Badge>
+        }
+      />
 
       {/* Profile Header Card */}
       <Card>
@@ -317,7 +315,6 @@ export default function ProfilePage() {
           <Card>
             <CardHeader>
               <CardTitle>Personal Information</CardTitle>
-              <CardDescription>Update your personal details and contact information</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="grid gap-6 md:grid-cols-2">
@@ -457,7 +454,6 @@ export default function ProfilePage() {
           <Card>
             <CardHeader>
               <CardTitle>Change Password</CardTitle>
-              <CardDescription>Ensure your account is secure with a strong password</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="space-y-4 max-w-md">
@@ -558,7 +554,6 @@ export default function ProfilePage() {
           <Card>
             <CardHeader>
               <CardTitle>Two-Factor Authentication</CardTitle>
-              <CardDescription>Add an extra layer of security to your account</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="flex items-center justify-between">
@@ -578,7 +573,6 @@ export default function ProfilePage() {
           <Card>
             <CardHeader>
               <CardTitle>Active Sessions</CardTitle>
-              <CardDescription>Manage your active login sessions</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
@@ -609,16 +603,12 @@ export default function ProfilePage() {
           <Card>
             <CardHeader>
               <CardTitle>Notification Preferences</CardTitle>
-              <CardDescription>Manage how you receive notifications</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="space-y-6">
                 <div className="flex items-center justify-between">
                   <div className="space-y-0.5">
                     <Label>Email Notifications</Label>
-                    <p className="text-sm text-muted-foreground">
-                      Receive notifications via email
-                    </p>
                   </div>
                   <Button
                     variant={notificationSettings.emailNotifications ? 'default' : 'outline'}
@@ -634,9 +624,6 @@ export default function ProfilePage() {
                 <div className="flex items-center justify-between">
                   <div className="space-y-0.5">
                     <Label>SMS Notifications</Label>
-                    <p className="text-sm text-muted-foreground">
-                      Receive important alerts via SMS
-                    </p>
                   </div>
                   <Button
                     variant={notificationSettings.smsNotifications ? 'default' : 'outline'}
@@ -652,9 +639,6 @@ export default function ProfilePage() {
                 <div className="flex items-center justify-between">
                   <div className="space-y-0.5">
                     <Label>Push Notifications</Label>
-                    <p className="text-sm text-muted-foreground">
-                      Receive push notifications in browser
-                    </p>
                   </div>
                   <Button
                     variant={notificationSettings.pushNotifications ? 'default' : 'outline'}
@@ -670,9 +654,6 @@ export default function ProfilePage() {
                 <div className="flex items-center justify-between">
                   <div className="space-y-0.5">
                     <Label>Activity Alerts</Label>
-                    <p className="text-sm text-muted-foreground">
-                      Get notified about important activities
-                    </p>
                   </div>
                   <Button
                     variant={notificationSettings.activityAlerts ? 'default' : 'outline'}
@@ -688,9 +669,6 @@ export default function ProfilePage() {
                 <div className="flex items-center justify-between">
                   <div className="space-y-0.5">
                     <Label>Weekly Reports</Label>
-                    <p className="text-sm text-muted-foreground">
-                      Receive weekly activity summaries
-                    </p>
                   </div>
                   <Button
                     variant={notificationSettings.weeklyReports ? 'default' : 'outline'}
@@ -706,9 +684,6 @@ export default function ProfilePage() {
                 <div className="flex items-center justify-between">
                   <div className="space-y-0.5">
                     <Label>System Updates</Label>
-                    <p className="text-sm text-muted-foreground">
-                      Get notified about system updates
-                    </p>
                   </div>
                   <Button
                     variant={notificationSettings.systemUpdates ? 'default' : 'outline'}
@@ -741,7 +716,6 @@ export default function ProfilePage() {
           <Card>
             <CardHeader>
               <CardTitle>Recent Activity</CardTitle>
-              <CardDescription>Your recent actions and login history</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">

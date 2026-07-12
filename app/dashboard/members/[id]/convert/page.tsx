@@ -1,9 +1,10 @@
 "use client";
 import { useRouter } from 'next/navigation';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
+import { PageHeader } from '@/components/ui/page-header';
 import { Calendar, Phone, User, MapPin, Edit, ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 
@@ -30,16 +31,15 @@ export default function ConvertProfilePage() {
   const router = useRouter();
   return (
     <div className="max-w-6xl mx-auto py-8 space-y-6">
-      <div className="flex items-center space-x-4 mb-4">
+      <div className="flex items-center gap-4 mb-4">
         <Button variant="ghost" size="sm" asChild>
           <Link href="/dashboard/members">
             <ArrowLeft className="mr-2 h-4 w-4" />
             Back to Members
           </Link>
         </Button>
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Convert Profile</h1>
-          <p className="text-muted-foreground">View convert details and information</p>
+        <div className="flex-1">
+          <PageHeader title="Convert Profile" />
         </div>
       </div>
       <div className="flex flex-col md:flex-row gap-8">
@@ -84,7 +84,6 @@ export default function ConvertProfilePage() {
           <Card>
             <CardHeader>
               <CardTitle>About Convert</CardTitle>
-              <CardDescription>Short description or notes about this convert.</CardDescription>
             </CardHeader>
             <CardContent>
               <p className="text-muted-foreground">This is a placeholder for the convert's bio, background, or any important notes. You can update this section to include more details as needed.</p>
@@ -93,7 +92,6 @@ export default function ConvertProfilePage() {
           <Card>
             <CardHeader>
               <CardTitle>Recent Activity</CardTitle>
-              <CardDescription>Latest actions and participation</CardDescription>
             </CardHeader>
             <CardContent>
               <ul className="space-y-2">

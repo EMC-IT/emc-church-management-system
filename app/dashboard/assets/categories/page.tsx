@@ -14,8 +14,7 @@ import {
   Eye,
   Download,
   Upload,
-  ArrowLeft,
-  Folder
+  ArrowLeft
 } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
@@ -25,6 +24,7 @@ import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Skeleton } from '@/components/ui/skeleton';
+import { PageHeader } from '@/components/ui/page-header';
 import { StatCard } from '@/components/ui/stat-card';
 import { toast } from 'sonner';
 import { AssetCategory } from '@/lib/types/assets';
@@ -272,38 +272,34 @@ export default function CategoriesPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={() => router.push('/dashboard/assets')}
-            className="h-12 w-12"
-          >
-            <ArrowLeft className="h-5 w-5" />
-          </Button>
-          <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-brand-primary/10">
-            <Folder className="h-6 w-6 text-brand-primary" />
+      <PageHeader
+        title="Asset Categories"
+        actions={
+          <div className="flex items-center space-x-2">
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={() => router.push('/dashboard/assets')}
+            >
+              <ArrowLeft className="h-4 w-4" />
+            </Button>
+            <Button variant="outline">
+              <Upload className="mr-2 h-4 w-4" />
+              Import
+            </Button>
+            <Button variant="outline">
+              <Download className="mr-2 h-4 w-4" />
+              Export
+            </Button>
+            <Button asChild>
+              <Link href="/dashboard/assets/categories/add">
+                <Plus className="mr-2 h-4 w-4" />
+                Add Category
+              </Link>
+            </Button>
           </div>
-          <h1 className="text-3xl font-bold text-gray-900">Asset Categories</h1>
-        </div>
-        <div className="flex items-center space-x-2">
-          <Button variant="outline">
-            <Upload className="mr-2 h-4 w-4" />
-            Import
-          </Button>
-          <Button variant="outline">
-            <Download className="mr-2 h-4 w-4" />
-            Export
-          </Button>
-          <Button asChild>
-            <Link href="/dashboard/assets/categories/add">
-              <Plus className="mr-2 h-4 w-4" />
-              Add Category
-            </Link>
-          </Button>
-        </div>
-      </div>
+        }
+      />
 
       {/* Stats Cards */}
       <div className="grid gap-4 md:grid-cols-4">

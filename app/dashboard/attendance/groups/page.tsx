@@ -3,7 +3,9 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { PageHeader } from '@/components/ui/page-header';
+import { ChartHeader } from '@/components/ui/chart-header';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
@@ -413,22 +415,21 @@ export default function GroupsAttendancePage() {
             <ArrowLeft className="h-4 w-4 mr-2" />
             Back
           </Button>
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900">Group Attendance</h1>
-            <p className="text-muted-foreground mt-1">
-              Track attendance across all church groups and ministries
-            </p>
-          </div>
-        </div>
-        <div className="flex gap-2">
-          <Button variant="outline" onClick={handleRefresh} disabled={isLoading}>
-            <RefreshCw className={cn("h-4 w-4 mr-2", isLoading && "animate-spin")} />
-            Refresh
-          </Button>
-          <Button variant="outline" onClick={handleExportData} disabled={isLoading}>
-            <Download className="h-4 w-4 mr-2" />
-            Export Data
-          </Button>
+          <PageHeader
+            title="Group Attendance"
+            actions={
+              <>
+                <Button variant="outline" onClick={handleRefresh} disabled={isLoading}>
+                  <RefreshCw className={cn("h-4 w-4 mr-2", isLoading && "animate-spin")} />
+                  Refresh
+                </Button>
+                <Button variant="outline" onClick={handleExportData} disabled={isLoading}>
+                  <Download className="h-4 w-4 mr-2" />
+                  Export Data
+                </Button>
+              </>
+            }
+          />
         </div>
       </div>
 
@@ -560,9 +561,6 @@ export default function GroupsAttendancePage() {
           <Card>
             <CardHeader>
               <CardTitle>Groups Overview ({filteredGroups.length})</CardTitle>
-              <CardDescription>
-                Attendance performance across all church groups
-              </CardDescription>
             </CardHeader>
             <CardContent>
               <DataTable
@@ -582,10 +580,7 @@ export default function GroupsAttendancePage() {
         <TabsContent value="trends" className="space-y-6">
           <Card className="hover:shadow-md transition-shadow">
             <CardHeader>
-              <CardTitle>Group Attendance Trends</CardTitle>
-              <CardDescription>
-                Weekly attendance patterns for major groups
-              </CardDescription>
+              <ChartHeader title="Group Attendance Trends" badge="Weekly" />
             </CardHeader>
             <CardContent>
               <ChartContainer config={trendChartConfig} className="h-[400px] w-full">
@@ -651,9 +646,6 @@ export default function GroupsAttendancePage() {
             <Card>
               <CardHeader>
                 <CardTitle>Top Performing Groups</CardTitle>
-                <CardDescription>
-                  Groups with highest attendance rates
-                </CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
@@ -684,9 +676,6 @@ export default function GroupsAttendancePage() {
             <Card>
               <CardHeader>
                 <CardTitle>Growth Leaders</CardTitle>
-                <CardDescription>
-                  Groups with highest growth rates
-                </CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
@@ -726,9 +715,6 @@ export default function GroupsAttendancePage() {
                   <PieChart className="h-5 w-5 text-brand-primary" />
                   Members by Category
                 </CardTitle>
-                <CardDescription>
-                  Distribution of members across group categories
-                </CardDescription>
               </CardHeader>
               <CardContent>
                 <ChartContainer config={categoryChartConfig} className="h-[300px] w-full">
@@ -802,9 +788,6 @@ export default function GroupsAttendancePage() {
             <Card>
               <CardHeader>
                 <CardTitle>Category Performance</CardTitle>
-                <CardDescription>
-                  Average attendance rates by category
-                </CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">

@@ -3,10 +3,12 @@
 import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { PageHeader } from '@/components/ui/page-header';
+import { StatCard } from '@/components/ui/stat-card';
 import { useToast } from '@/hooks/use-toast';
 import { membersService } from '@/services';
 import { Member } from '@/lib/types';
@@ -231,19 +233,17 @@ export default function MemberHistoryPage() {
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <div className="flex items-center space-x-4">
+        <div className="flex items-center gap-4">
           <Button variant="ghost" size="sm" asChild>
             <Link href={`/dashboard/members/${member.id}`}>
               <ArrowLeft className="mr-2 h-4 w-4" />
               Back to Profile
             </Link>
           </Button>
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight">Member History</h1>
-            <p className="text-muted-foreground">
-              Activity history and attendance records for {member.firstName} {member.lastName}
-            </p>
-          </div>
+          <PageHeader
+            title="Member History"
+            description={`Activity history and attendance records for ${member.firstName} ${member.lastName}`}
+          />
         </div>
         <div className="flex items-center space-x-2">
           <Button variant="outline" size="sm">
@@ -259,60 +259,36 @@ export default function MemberHistoryPage() {
 
       {/* Attendance Statistics */}
       <div className="grid gap-4 md:grid-cols-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Attendance Rate</CardTitle>
-            <TrendingUp className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{attendanceStats.attendanceRate}%</div>
-            <p className="text-xs text-muted-foreground">
-              {attendanceStats.attendedServices} of {attendanceStats.totalServices} services
-            </p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Current Streak</CardTitle>
-            <CalendarDays className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{attendanceStats.currentStreak}</div>
-            <p className="text-xs text-muted-foreground">consecutive services</p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Volunteer Hours</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{attendanceStats.volunteerHours}</div>
-            <p className="text-xs text-muted-foreground">hours this year</p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Events Participated</CardTitle>
-            <Award className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{attendanceStats.eventsParticipated}</div>
-            <p className="text-xs text-muted-foreground">events this year</p>
-          </CardContent>
-        </Card>
+        <StatCard
+          title="Attendance Rate"
+          value={`${attendanceStats.attendanceRate}%`}
+          icon={TrendingUp}
+          description={`${attendanceStats.attendedServices} of ${attendanceStats.totalServices} services`}
+        />
+        <StatCard
+          title="Current Streak"
+          value={attendanceStats.currentStreak}
+          icon={CalendarDays}
+          description="consecutive services"
+        />
+        <StatCard
+          title="Volunteer Hours"
+          value={attendanceStats.volunteerHours}
+          icon={Users}
+          description="hours this year"
+        />
+        <StatCard
+          title="Events Participated"
+          value={attendanceStats.eventsParticipated}
+          icon={Award}
+          description="events this year"
+        />
       </div>
 
       {/* Activity Timeline */}
       <Card>
         <CardHeader>
           <CardTitle>Activity Timeline</CardTitle>
-          <CardDescription>
-            Recent activities and attendance records for {member.firstName} {member.lastName}
-          </CardDescription>
         </CardHeader>
         <CardContent>
           <Tabs defaultValue="all" className="w-full">

@@ -9,6 +9,7 @@ import { ArrowLeft, Wallet, Calendar, DollarSign, Users, FileText, Save } from '
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { PageHeader } from '@/components/ui/page-header';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
@@ -183,10 +184,7 @@ export default function EditBudgetPage() {
           <div className="p-2 bg-brand-primary/10 rounded-lg">
             <Wallet className="h-6 w-6 text-brand-primary" />
           </div>
-          <div>
-            <h1 className="text-2xl font-bold tracking-tight">Edit Budget</h1>
-            <p className="text-muted-foreground">Update budget information and settings</p>
-          </div>
+          <PageHeader title="Edit Budget" />
         </div>
       </div>
 

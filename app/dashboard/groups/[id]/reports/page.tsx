@@ -3,7 +3,8 @@
 import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { PageHeader } from '@/components/ui/page-header';
 import { Badge } from '@/components/ui/badge';
 import { 
   Select,
@@ -252,7 +253,6 @@ export default function GroupReportsPage() {
         <Card>
           <CardHeader>
             <CardTitle>Attendance Trends</CardTitle>
-            <CardDescription>Attendance patterns over time</CardDescription>
           </CardHeader>
           <CardContent>
             <ChartContainer config={attendanceChartConfig} className="h-80 w-full">
@@ -290,7 +290,6 @@ export default function GroupReportsPage() {
         <Card>
           <CardHeader>
             <CardTitle>Top Attendees</CardTitle>
-            <CardDescription>Members with highest attendance rates</CardDescription>
           </CardHeader>
           <CardContent>
             <Table>
@@ -349,7 +348,6 @@ export default function GroupReportsPage() {
         <Card>
           <CardHeader>
             <CardTitle>Membership Growth</CardTitle>
-            <CardDescription>New members joining over time</CardDescription>
           </CardHeader>
           <CardContent>
             <ChartContainer config={growthChartConfig} className="h-80 w-full">
@@ -386,7 +384,6 @@ export default function GroupReportsPage() {
           <Card>
             <CardHeader>
               <CardTitle>Role Distribution</CardTitle>
-              <CardDescription>Members by role</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
@@ -411,7 +408,6 @@ export default function GroupReportsPage() {
           <Card>
             <CardHeader>
               <CardTitle>Member Statistics</CardTitle>
-              <CardDescription>Key membership metrics</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
@@ -488,7 +484,6 @@ export default function GroupReportsPage() {
         <Card>
           <CardHeader>
             <CardTitle>Event Type Distribution</CardTitle>
-            <CardDescription>Types of events organized</CardDescription>
           </CardHeader>
           <CardContent>
             <ChartContainer config={eventTypeConfig} className="h-80 w-full">
@@ -559,44 +554,40 @@ export default function GroupReportsPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="space-y-1">
-          <div className="flex items-center space-x-2">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={handleBack}
-              className="h-8 w-8"
-            >
-              <ArrowLeft className="h-4 w-4" />
-            </Button>
-            <div>
-              <h1 className="text-3xl font-bold tracking-tight">Group Reports</h1>
-              <p className="text-muted-foreground">
-                Analytics and insights for {group?.name}
-              </p>
-            </div>
-          </div>
-    
-        </div>
-        
-        <Button 
-          onClick={handleExportReport} 
-          disabled={exporting}
-          className="bg-brand-primary hover:bg-brand-primary/90"
+      <div className="flex items-center gap-2">
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={handleBack}
+          className="h-8 w-8"
         >
-          {exporting ? (
-            <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Exporting...
-            </>
-          ) : (
-            <>
-              <Download className="mr-2 h-4 w-4" />
-              Export Report
-            </>
-          )}
+          <ArrowLeft className="h-4 w-4" />
         </Button>
+        <div className="flex-1">
+          <PageHeader
+            title="Group Reports"
+            description={`Analytics and insights for ${group?.name}`}
+            actions={
+              <Button
+                onClick={handleExportReport}
+                disabled={exporting}
+                className="bg-brand-primary hover:bg-brand-primary/90"
+              >
+                {exporting ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Exporting...
+                  </>
+                ) : (
+                  <>
+                    <Download className="mr-2 h-4 w-4" />
+                    Export Report
+                  </>
+                )}
+              </Button>
+            }
+          />
+        </div>
       </div>
 
       {/* Report Controls */}
@@ -606,9 +597,6 @@ export default function GroupReportsPage() {
             <BarChart3 className="h-5 w-5" />
             <span>Report Configuration</span>
           </CardTitle>
-          <CardDescription>
-            Select the type of report and time range to analyze
-          </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="flex items-center space-x-4">

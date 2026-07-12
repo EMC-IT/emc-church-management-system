@@ -6,6 +6,7 @@ import { Plus, Search, Calendar, Clock, MapPin, Users, Edit, Trash2, CheckCircle
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { PageHeader } from '@/components/ui/page-header';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
@@ -225,21 +226,16 @@ export default function DepartmentMeetingsPage() {
   return (
     <div className="space-y-6">
       
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div>
-          <h1 className="text-3xl font-bold">{department?.name} Meetings</h1>
-          <p className="text-muted-foreground">
-            Schedule and manage department meetings and activities
-          </p>
-        </div>
-        
-        <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
-          <DialogTrigger asChild>
-            <Button>
-              <Plus className="mr-2 h-4 w-4" />
-              Schedule Meeting
-            </Button>
-          </DialogTrigger>
+      <PageHeader
+        title={`${department?.name} Meetings`}
+        actions={
+          <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
+            <DialogTrigger asChild>
+              <Button>
+                <Plus className="mr-2 h-4 w-4" />
+                Schedule Meeting
+              </Button>
+            </DialogTrigger>
           <DialogContent className="max-w-2xl">
             <DialogHeader>
               <DialogTitle>Schedule New Meeting</DialogTitle>
@@ -345,8 +341,9 @@ export default function DepartmentMeetingsPage() {
               </DialogFooter>
             </form>
           </DialogContent>
-        </Dialog>
-      </div>
+          </Dialog>
+        }
+      />
 
       {/* Filters */}
       <Card>

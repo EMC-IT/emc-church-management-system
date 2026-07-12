@@ -9,6 +9,7 @@ import { ArrowLeft, FolderOpen, Palette, FileText } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { PageHeader } from '@/components/ui/page-header';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
@@ -100,10 +101,7 @@ export default function AddCategoryPage() {
           <div className="p-2 bg-brand-primary/10 rounded-lg">
             <FolderOpen className="h-6 w-6 text-brand-primary" />
           </div>
-          <div>
-            <h1 className="text-2xl font-bold tracking-tight">Add New Category</h1>
-            <p className="text-muted-foreground">Create a new budget category for organizing budgets</p>
-          </div>
+          <PageHeader title="Add New Category" />
         </div>
       </div>
 

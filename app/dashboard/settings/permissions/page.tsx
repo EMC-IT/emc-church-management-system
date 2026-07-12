@@ -3,7 +3,9 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { PageHeader } from '@/components/ui/page-header';
+import { StatCard } from '@/components/ui/stat-card';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -465,7 +467,7 @@ export default function PermissionsPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center gap-4 mb-6">
+      <div className="flex items-center gap-4">
         <Button
           variant="outline"
           size="icon"
@@ -474,65 +476,41 @@ export default function PermissionsPage() {
         >
           <ArrowLeft className="h-4 w-4" />
         </Button>
-        
-        <div className="flex items-center gap-3">
-          <div className="p-2 bg-brand-primary/10 rounded-lg">
-            <Shield className="h-6 w-6 text-brand-primary" />
-          </div>
-          <div>
-            <h1 className="text-2xl font-bold tracking-tight">Permissions Management</h1>
-            <p className="text-muted-foreground">Configure comprehensive permissions for roles and users</p>
-          </div>
+
+        <div className="p-2 bg-brand-primary/10 rounded-lg">
+          <Shield className="h-6 w-6 text-brand-primary" />
         </div>
+        <PageHeader title="Permissions Management" />
       </div>
 
       {/* Stats Cards */}
       <div className="grid gap-4 md:grid-cols-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Permissions</CardTitle>
-            <Shield className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{totalCount}</div>
-            <p className="text-xs text-muted-foreground">Across {permissionCategories.length} categories</p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Selected</CardTitle>
-            <CheckSquare className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-brand-primary">{selectedCount}</div>
-            <p className="text-xs text-muted-foreground">{Math.round((selectedCount / totalCount) * 100)}% of total</p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Categories</CardTitle>
-            <Folder className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{permissionCategories.length}</div>
-            <p className="text-xs text-muted-foreground">Feature categories</p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Coverage</CardTitle>
-            <TrendingUp className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-green-600">
-              {permissionCategories.filter(c => isCategoryFullySelected(c.id)).length}
-            </div>
-            <p className="text-xs text-muted-foreground">Fully enabled categories</p>
-          </CardContent>
-        </Card>
+        <StatCard
+          title="Total Permissions"
+          value={totalCount}
+          icon={Shield}
+          description={`Across ${permissionCategories.length} categories`}
+        />
+        <StatCard
+          title="Selected"
+          value={selectedCount}
+          icon={CheckSquare}
+          accent="primary"
+          description={`${Math.round((selectedCount / totalCount) * 100)}% of total`}
+        />
+        <StatCard
+          title="Categories"
+          value={permissionCategories.length}
+          icon={Folder}
+          description="Feature categories"
+        />
+        <StatCard
+          title="Coverage"
+          value={permissionCategories.filter(c => isCategoryFullySelected(c.id)).length}
+          icon={TrendingUp}
+          accent="success"
+          description="Fully enabled categories"
+        />
       </div>
 
       <div className="grid gap-6 lg:grid-cols-3">
@@ -540,7 +518,6 @@ export default function PermissionsPage() {
         <Card className="lg:col-span-1">
           <CardHeader>
             <CardTitle>Quick Templates</CardTitle>
-            <CardDescription>Apply pre-configured permission sets</CardDescription>
           </CardHeader>
           <CardContent className="space-y-3">
             {roleTemplates.map((template) => (
@@ -585,12 +562,7 @@ export default function PermissionsPage() {
         <Card className="lg:col-span-2">
           <CardHeader>
             <div className="flex items-center justify-between">
-              <div>
-                <CardTitle>Configure Permissions</CardTitle>
-                <CardDescription>
-                  Select permissions for this role ({selectedCount} selected)
-                </CardDescription>
-              </div>
+              <CardTitle>Configure Permissions</CardTitle>
               <Button onClick={handleSave} className="bg-brand-primary hover:bg-brand-primary/90">
                 <Save className="mr-2 h-4 w-4" />
                 Save Changes

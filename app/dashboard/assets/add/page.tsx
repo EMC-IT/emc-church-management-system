@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { CalendarIcon, Upload, X, ArrowLeft, Plus } from 'lucide-react';
+import { CalendarIcon, Upload, X, ArrowLeft } from 'lucide-react';
 import { format } from 'date-fns';
 
 import { Button } from '@/components/ui/button';
@@ -19,6 +19,7 @@ import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
+import { PageHeader } from '@/components/ui/page-header';
 import { cn } from '@/lib/utils';
 import { AssetCategory, AssetStatus, AssetCondition, AssetPriority, AssetFormData } from '@/lib/types/assets';
 
@@ -192,20 +193,18 @@ export default function AddAssetPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center gap-4">
-        <Button
-          variant="outline"
-          size="icon"
-          onClick={() => router.push('/dashboard/assets')}
-          className="h-12 w-12"
-        >
-          <ArrowLeft className="h-5 w-5" />
-        </Button>
-        <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-brand-primary/10">
-          <Plus className="h-6 w-6 text-brand-primary" />
-        </div>
-        <h1 className="text-3xl font-bold text-gray-900">Add New Asset</h1>
-      </div>
+      <PageHeader
+        title="Add New Asset"
+        actions={
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={() => router.push('/dashboard/assets')}
+          >
+            <ArrowLeft className="h-4 w-4" />
+          </Button>
+        }
+      />
 
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">

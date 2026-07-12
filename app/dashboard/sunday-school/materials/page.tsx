@@ -4,7 +4,9 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { PageHeader } from '@/components/ui/page-header';
+import { StatCard } from '@/components/ui/stat-card';
 import { Badge } from '@/components/ui/badge';
 import {
   Select,
@@ -172,72 +174,41 @@ export default function MaterialsPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Teaching Materials</h1>
-          <p className="text-muted-foreground">Manage Sunday School teaching resources</p>
-        </div>
-        <div className="flex space-x-2">
-          <Button 
+      <PageHeader
+        title="Teaching Materials"
+        actions={
+          <Button
             onClick={handleUploadMaterial}
             className="bg-brand-primary hover:bg-brand-primary/90"
           >
             <Upload className="mr-2 h-4 w-4" />
             Upload Material
           </Button>
-        </div>
-      </div>
+        }
+      />
 
       {/* Stats Cards */}
       <div className="grid gap-4 md:grid-cols-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Materials</CardTitle>
-            <BookOpen className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.totalMaterials}</div>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Recent Uploads</CardTitle>
-            <Calendar className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.recentUploads}</div>
-            <p className="text-xs text-muted-foreground">last 7 days</p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Downloads</CardTitle>
-            <Download className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.totalDownloads}</div>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Popular Materials</CardTitle>
-            <TrendingUp className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.popularMaterials}</div>
-            <p className="text-xs text-muted-foreground">10+ downloads</p>
-          </CardContent>
-        </Card>
+        <StatCard title="Total Materials" value={stats.totalMaterials} icon={BookOpen} />
+        <StatCard
+          title="Recent Uploads"
+          value={stats.recentUploads}
+          icon={Calendar}
+          description="last 7 days"
+        />
+        <StatCard title="Total Downloads" value={stats.totalDownloads} icon={Download} />
+        <StatCard
+          title="Popular Materials"
+          value={stats.popularMaterials}
+          icon={TrendingUp}
+          description="10+ downloads"
+        />
       </div>
 
       {/* Materials Library */}
       <Card>
         <CardHeader>
           <CardTitle>Materials Library</CardTitle>
-          <CardDescription>Browse and manage teaching materials</CardDescription>
         </CardHeader>
         <CardContent>
           {/* Filters */}

@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { PageHeader } from '@/components/ui/page-header';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
@@ -279,10 +280,7 @@ export default function AddNewsletterPage() {
           <div className="p-2 bg-brand-primary/10 rounded-lg">
             <FileText className="h-6 w-6 text-brand-primary" />
           </div>
-          <div>
-            <h1 className="text-2xl font-bold tracking-tight">Create New Newsletter</h1>
-            <p className="text-muted-foreground">Design and send newsletters to your congregation</p>
-          </div>
+          <PageHeader title="Create New Newsletter" />
         </div>
       </div>
 
@@ -311,7 +309,6 @@ export default function AddNewsletterPage() {
           <Card>
             <CardHeader>
               <CardTitle>Choose a Template</CardTitle>
-              <CardDescription>Select a template to get started with your newsletter</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
@@ -356,7 +353,6 @@ export default function AddNewsletterPage() {
               <Card>
                 <CardHeader>
                   <CardTitle>Newsletter Details</CardTitle>
-                  <CardDescription>Basic information about your newsletter</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="space-y-2">
@@ -397,9 +393,6 @@ export default function AddNewsletterPage() {
               <Card>
                 <CardHeader>
                   <CardTitle>Content Editor</CardTitle>
-                  <CardDescription>
-                    {selectedTemplate ? `Editing with ${selectedTemplate.name} template` : 'Create your newsletter content'}
-                  </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   {/* Simple Toolbar */}
@@ -500,7 +493,6 @@ export default function AddNewsletterPage() {
             <Card>
               <CardHeader>
                 <CardTitle>Delivery Settings</CardTitle>
-                <CardDescription>Configure when and how to send your newsletter</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="flex items-center space-x-2">
@@ -540,7 +532,6 @@ export default function AddNewsletterPage() {
             <Card>
               <CardHeader>
                 <CardTitle>Subscriber Groups</CardTitle>
-                <CardDescription>Choose who will receive this newsletter</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
@@ -569,7 +560,6 @@ export default function AddNewsletterPage() {
             <Card>
               <CardHeader>
                 <CardTitle>Test Email</CardTitle>
-                <CardDescription>Send a test email before publishing</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
@@ -596,7 +586,6 @@ export default function AddNewsletterPage() {
           <Card>
             <CardHeader>
               <CardTitle>Newsletter Preview</CardTitle>
-              <CardDescription>How your newsletter will appear to subscribers</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="border rounded-lg p-6 bg-white max-w-2xl mx-auto">

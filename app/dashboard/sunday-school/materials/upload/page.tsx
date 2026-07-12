@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { PageHeader } from '@/components/ui/page-header';
 import {
   Select,
   SelectContent,
@@ -201,22 +202,17 @@ export default function UploadMaterialPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="space-y-1">
-          <div className="flex items-center space-x-2">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={handleBack}
-              className="h-8 w-8"
-            >
-              <ArrowLeft className="h-4 w-4" />
-            </Button>
-            <div>
-              <h1 className="text-3xl font-bold tracking-tight">Upload Material</h1>
-              <p className="text-muted-foreground">Add new teaching resources</p>
-            </div>
-          </div>
+      <div className="flex items-center gap-2">
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={handleBack}
+          className="h-8 w-8"
+        >
+          <ArrowLeft className="h-4 w-4" />
+        </Button>
+        <div className="flex-1">
+          <PageHeader title="Upload Material" />
         </div>
       </div>
 
@@ -228,9 +224,6 @@ export default function UploadMaterialPage() {
             <Card>
               <CardHeader>
                 <CardTitle>Material Information</CardTitle>
-                <CardDescription>
-                  Provide details about the teaching material
-                </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
@@ -310,9 +303,6 @@ export default function UploadMaterialPage() {
                     onChange={(e) => setTags(e.target.value)}
                     placeholder="Enter tags separated by commas (e.g., bible, story, activity)"
                   />
-                  <p className="text-sm text-muted-foreground">
-                    Tags help others find your material more easily
-                  </p>
                 </div>
               </CardContent>
             </Card>
@@ -322,7 +312,7 @@ export default function UploadMaterialPage() {
               <CardHeader>
                 <CardTitle>Upload Files</CardTitle>
                 <CardDescription>
-                  Upload teaching materials, worksheets, images, or other resources
+                  Accepted formats: PDF, Word, PowerPoint, images, MP4, MP3, WAV — max 50MB per file
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">

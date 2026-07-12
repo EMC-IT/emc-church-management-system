@@ -9,7 +9,8 @@ import { format } from 'date-fns';
 import { CalendarIcon, Loader2, Save, ArrowLeft, Edit } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { PageHeader } from '@/components/ui/page-header';
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -191,10 +192,7 @@ export default function EditTitheOfferingPage() {
           <div className="p-2 bg-brand-primary/10 rounded-lg">
             <Edit className="h-6 w-6 text-brand-primary" />
           </div>
-          <div>
-            <h1 className="text-2xl font-bold tracking-tight">Edit Giving Record</h1>
-            <p className="text-muted-foreground">Update tithe or offering information</p>
-          </div>
+          <PageHeader title="Edit Giving Record" />
         </div>
       </div>
 
@@ -206,9 +204,6 @@ export default function EditTitheOfferingPage() {
               <Edit className="h-5 w-5" />
               Update Record
             </CardTitle>
-            <CardDescription>
-              Modify the details below to update this giving record
-            </CardDescription>
           </CardHeader>
           <CardContent>
             <Form {...form}>
@@ -224,9 +219,6 @@ export default function EditTitheOfferingPage() {
                         <FormControl>
                           <Input placeholder="e.g., John Smith" {...field} />
                         </FormControl>
-                        <FormDescription>
-                          Enter the name of the person giving
-                        </FormDescription>
                         <FormMessage />
                       </FormItem>
                     )}
@@ -373,9 +365,6 @@ export default function EditTitheOfferingPage() {
                             />
                           </PopoverContent>
                         </Popover>
-                        <FormDescription>
-                          When was this tithe/offering given
-                        </FormDescription>
                         <FormMessage />
                       </FormItem>
                     )}
@@ -393,9 +382,6 @@ export default function EditTitheOfferingPage() {
                         <FormControl>
                           <Input placeholder="e.g., TO-2024-001" {...field} />
                         </FormControl>
-                        <FormDescription>
-                          Optional receipt reference number
-                        </FormDescription>
                         <FormMessage />
                       </FormItem>
                     )}
@@ -414,9 +400,6 @@ export default function EditTitheOfferingPage() {
                             {...field} 
                           />
                         </FormControl>
-                        <FormDescription>
-                          Optional additional information
-                        </FormDescription>
                         <FormMessage />
                       </FormItem>
                     )}

@@ -4,7 +4,9 @@ import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { PageHeader } from '@/components/ui/page-header';
+import { StatCard } from '@/components/ui/stat-card';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -267,89 +269,56 @@ export default function ClassAttendancePage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="space-y-1">
-          <div className="flex items-center space-x-2">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={handleBack}
-              className="h-8 w-8"
-            >
-              <ArrowLeft className="h-4 w-4" />
-            </Button>
-            <div>
-              <h1 className="text-3xl font-bold tracking-tight">Class Attendance</h1>
-              <p className="text-muted-foreground">
-                {classData?.name} - Track and manage attendance
-              </p>
-            </div>
-          </div>
-        </div>
-        
-        <div className="flex space-x-2">
-          <Button variant="outline">
-            <Download className="mr-2 h-4 w-4" />
-            Export Records
-          </Button>
+      <div className="flex items-center gap-2">
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={handleBack}
+          className="h-8 w-8"
+        >
+          <ArrowLeft className="h-4 w-4" />
+        </Button>
+        <div className="flex-1">
+          <PageHeader
+            title="Class Attendance"
+            description={classData?.name}
+            actions={
+              <Button variant="outline">
+                <Download className="mr-2 h-4 w-4" />
+                Export Records
+              </Button>
+            }
+          />
         </div>
       </div>
 
       {/* Stats Cards */}
       <div className="grid gap-4 md:grid-cols-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Records</CardTitle>
-            <ClipboardList className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.total}</div>
-            <p className="text-xs text-muted-foreground">
-              attendance entries
-            </p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Present</CardTitle>
-            <CheckCircle className="h-4 w-4 text-brand-success" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-brand-success">{stats.present}</div>
-            <p className="text-xs text-muted-foreground">
-              {stats.total > 0 ? Math.round((stats.present / stats.total) * 100) : 0}% of total
-            </p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Absent</CardTitle>
-            <XCircle className="h-4 w-4 text-destructive" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-destructive">{stats.absent}</div>
-            <p className="text-xs text-muted-foreground">
-              {stats.total > 0 ? Math.round((stats.absent / stats.total) * 100) : 0}% of total
-            </p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Attendance Rate</CardTitle>
-            <TrendingUp className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {stats.total > 0 ? Math.round(((stats.present + stats.late) / stats.total) * 100) : 0}%
-            </div>
-            <p className="text-xs text-muted-foreground">
-              including late arrivals
-            </p>
-          </CardContent>
-        </Card>
+        <StatCard
+          title="Total Records"
+          value={stats.total}
+          icon={ClipboardList}
+          description="attendance entries"
+        />
+        <StatCard
+          title="Present"
+          value={stats.present}
+          icon={CheckCircle}
+          accent="success"
+          description={`${stats.total > 0 ? Math.round((stats.present / stats.total) * 100) : 0}% of total`}
+        />
+        <StatCard
+          title="Absent"
+          value={stats.absent}
+          icon={XCircle}
+          description={`${stats.total > 0 ? Math.round((stats.absent / stats.total) * 100) : 0}% of total`}
+        />
+        <StatCard
+          title="Attendance Rate"
+          value={`${stats.total > 0 ? Math.round(((stats.present + stats.late) / stats.total) * 100) : 0}%`}
+          icon={TrendingUp}
+          description="including late arrivals"
+        />
       </div>
 
       {/* Main Content */}
@@ -366,9 +335,6 @@ export default function ClassAttendancePage() {
                 <ClipboardList className="h-5 w-5" />
                 <span>Record Attendance</span>
               </CardTitle>
-              <CardDescription>
-                Mark attendance for students in this class
-              </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
               {/* Date Selection */}
@@ -493,9 +459,6 @@ export default function ClassAttendancePage() {
           <Card>
             <CardHeader>
               <CardTitle>Attendance History</CardTitle>
-              <CardDescription>
-                View and filter past attendance records
-              </CardDescription>
             </CardHeader>
             <CardContent>
               {/* Filters */}

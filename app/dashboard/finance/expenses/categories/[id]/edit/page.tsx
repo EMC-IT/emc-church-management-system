@@ -8,8 +8,9 @@ import * as z from 'zod';
 import { Edit, Tag, Loader2, Palette, ArrowLeft } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { PageHeader } from '@/components/ui/page-header';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
@@ -172,10 +173,7 @@ export default function EditExpenseCategoryPage() {
         <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-brand-primary/10">
           <Edit className="h-6 w-6 text-brand-primary" />
         </div>
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">Edit Category</h1>
-          <p className="text-gray-600">Update expense category details and settings</p>
-        </div>
+        <PageHeader title="Edit Category" />
       </div>
 
       {/* Category Form */}
@@ -189,9 +187,6 @@ export default function EditExpenseCategoryPage() {
                   <Tag className="h-5 w-5" />
                   Category Details
                 </CardTitle>
-                <CardDescription>
-                  Update the category information below
-                </CardDescription>
               </CardHeader>
               <CardContent>
                 <Form {...form}>
@@ -209,9 +204,6 @@ export default function EditExpenseCategoryPage() {
                               {...field}
                             />
                           </FormControl>
-                          <FormDescription>
-                            Choose a clear, descriptive name for this expense category
-                          </FormDescription>
                           <FormMessage />
                         </FormItem>
                       )}
@@ -231,9 +223,6 @@ export default function EditExpenseCategoryPage() {
                               {...field}
                             />
                           </FormControl>
-                          <FormDescription>
-                            Optional description to help users understand when to use this category
-                          </FormDescription>
                           <FormMessage />
                         </FormItem>
                       )}
@@ -289,9 +278,6 @@ export default function EditExpenseCategoryPage() {
                               </div>
                             </div>
                           </FormControl>
-                          <FormDescription>
-                            Choose a color to help identify this category in reports and charts
-                          </FormDescription>
                           <FormMessage />
                         </FormItem>
                       )}
@@ -307,9 +293,6 @@ export default function EditExpenseCategoryPage() {
                             <FormLabel className="text-base">
                               Active Category
                             </FormLabel>
-                            <FormDescription>
-                              When enabled, this category will be available for new expenses
-                            </FormDescription>
                           </div>
                           <FormControl>
                             <Switch
@@ -358,9 +341,6 @@ export default function EditExpenseCategoryPage() {
             <Card>
               <CardHeader>
                 <CardTitle>Preview</CardTitle>
-                <CardDescription>
-                  See how your category will appear
-                </CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">

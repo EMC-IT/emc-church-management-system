@@ -25,17 +25,19 @@ import {
 } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Skeleton } from '@/components/ui/skeleton';
+import { PageHeader } from '@/components/ui/page-header';
+import { StatCard } from '@/components/ui/stat-card';
 import { toast } from 'sonner';
 import { Asset, AssetMaintenance } from '@/lib/types/assets';
 
@@ -438,45 +440,36 @@ export default function MaintenancePage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={() => router.push(`/dashboard/assets/${params.id}`)}
-            className="h-12 w-12"
-          >
-            <ArrowLeft className="h-5 w-5" />
-          </Button>
-          <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-brand-primary/10">
-            <Wrench className="h-6 w-6 text-brand-primary" />
-          </div>
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900">Asset Maintenance</h1>
-            <p className="text-gray-600">
-              Maintenance tracking for {asset.name}
-            </p>
-          </div>
-        </div>
-        <div className="flex items-center space-x-2">
-          <Button variant="outline">
-            <Download className="mr-2 h-4 w-4" />
-            Export Report
-          </Button>
-          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-            <DialogTrigger asChild>
-              <Button onClick={() => {
-                setEditingMaintenance(null);
-                form.reset({
-                  currency: 'GHS',
-                  partsNeeded: []
-                });
-              }}>
-                <Plus className="mr-2 h-4 w-4" />
-                Schedule Maintenance
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+      <PageHeader
+        title="Asset Maintenance"
+        description={`Maintenance tracking for ${asset.name}`}
+        actions={
+          <div className="flex items-center space-x-2">
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={() => router.push(`/dashboard/assets/${params.id}`)}
+            >
+              <ArrowLeft className="h-4 w-4" />
+            </Button>
+            <Button variant="outline">
+              <Download className="mr-2 h-4 w-4" />
+              Export Report
+            </Button>
+            <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+              <DialogTrigger asChild>
+                <Button onClick={() => {
+                  setEditingMaintenance(null);
+                  form.reset({
+                    currency: 'GHS',
+                    partsNeeded: []
+                  });
+                }}>
+                  <Plus className="mr-2 h-4 w-4" />
+                  Schedule Maintenance
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
               <DialogHeader>
                 <DialogTitle>
                   {editingMaintenance ? 'Edit Maintenance' : 'Schedule New Maintenance'}
@@ -738,63 +731,42 @@ export default function MaintenancePage() {
                 </form>
               </Form>
             </DialogContent>
-          </Dialog>
-        </div>
-      </div>
+            </Dialog>
+          </div>
+        }
+      />
 
       {/* Stats Cards */}
       <div className="grid gap-4 md:grid-cols-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Upcoming</CardTitle>
-            <Calendar className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{upcomingMaintenance.length}</div>
-            <p className="text-xs text-muted-foreground">
-              Scheduled maintenance tasks
-            </p>
-          </CardContent>
-        </Card>
+        <StatCard
+          title="Upcoming"
+          value={upcomingMaintenance.length}
+          icon={Calendar}
+          description="Scheduled maintenance tasks"
+        />
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Overdue</CardTitle>
-            <AlertTriangle className="h-4 w-4 text-red-500" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-red-600">{overdueMaintenance.length}</div>
-            <p className="text-xs text-muted-foreground">
-              Past due maintenance
-            </p>
-          </CardContent>
-        </Card>
+        <StatCard
+          title="Overdue"
+          value={overdueMaintenance.length}
+          icon={AlertTriangle}
+          description="Past due maintenance"
+        />
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">In Progress</CardTitle>
-            <Clock className="h-4 w-4 text-brand-secondary" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{inProgressMaintenance.length}</div>
-            <p className="text-xs text-muted-foreground">
-              Currently being worked on
-            </p>
-          </CardContent>
-        </Card>
+        <StatCard
+          title="In Progress"
+          value={inProgressMaintenance.length}
+          icon={Clock}
+          accent="secondary"
+          description="Currently being worked on"
+        />
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Completed</CardTitle>
-            <CheckCircle className="h-4 w-4 text-brand-success" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{completedMaintenance.length}</div>
-            <p className="text-xs text-muted-foreground">
-              Finished this year
-            </p>
-          </CardContent>
-        </Card>
+        <StatCard
+          title="Completed"
+          value={completedMaintenance.length}
+          icon={CheckCircle}
+          accent="success"
+          description="Finished this year"
+        />
       </div>
 
       {/* Maintenance History */}
@@ -803,9 +775,6 @@ export default function MaintenancePage() {
           <div className="flex items-center justify-between">
             <div>
               <CardTitle>Maintenance History</CardTitle>
-              <CardDescription>
-                All maintenance records for this asset
-              </CardDescription>
             </div>
             <div className="flex items-center space-x-2">
               <div className="relative">

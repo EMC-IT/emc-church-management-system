@@ -30,7 +30,9 @@ import {
 import { ChartContainer, ChartTooltip, ChartTooltipContent, ChartLegend, ChartLegendContent, ChartConfig } from '@/components/ui/chart';
 
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { PageHeader } from '@/components/ui/page-header';
+import { StatCard } from '@/components/ui/stat-card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -316,37 +318,33 @@ export default function IncomeReportsPage() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Income Reports</h1>
-          <p className="text-muted-foreground">
-            Analyze income trends and generate detailed reports
-          </p>
-        </div>
-        <div className="flex items-center space-x-2">
-          <Button variant="outline" onClick={resetFilters}>
-            <RefreshCw className="mr-2 h-4 w-4" />
-            Reset Filters
-          </Button>
-          <Button
-            onClick={() => handleExport('pdf')}
-            disabled={isExporting}
-          >
-            {isExporting ? (
-              <>
-                <div className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-background border-t-transparent" />
-                Exporting...
-              </>
-            ) : (
-              <>
-                <Download className="mr-2 h-4 w-4" />
-                Export Report
-              </>
-            )}
-          </Button>
-        </div>
-      </div>
+      <PageHeader
+        title="Income Reports"
+        actions={
+          <>
+            <Button variant="outline" onClick={resetFilters}>
+              <RefreshCw className="mr-2 h-4 w-4" />
+              Reset Filters
+            </Button>
+            <Button
+              onClick={() => handleExport('pdf')}
+              disabled={isExporting}
+            >
+              {isExporting ? (
+                <>
+                  <div className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-background border-t-transparent" />
+                  Exporting...
+                </>
+              ) : (
+                <>
+                  <Download className="mr-2 h-4 w-4" />
+                  Export Report
+                </>
+              )}
+            </Button>
+          </>
+        }
+      />
 
       {/* Filters */}
       <LazySection
@@ -362,9 +360,6 @@ export default function IncomeReportsPage() {
               <Filter className="mr-2 h-5 w-5" />
               Report Filters
             </CardTitle>
-            <CardDescription>
-              Customize your report by selecting date range, categories, and status
-            </CardDescription>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -468,63 +463,37 @@ export default function IncomeReportsPage() {
         threshold={0.1}
         className="grid gap-4 md:grid-cols-2 lg:grid-cols-4"
       >
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Received</CardTitle>
-            <BadgeCent className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-brand-success">
-              {formatCurrency(summaryStats.totalReceived)}
-            </div>
-            <p className="text-xs text-muted-foreground">
-              {summaryStats.receivedCount} transactions
-            </p>
-          </CardContent>
-        </Card>
+        <StatCard
+          title="Total Received"
+          value={formatCurrency(summaryStats.totalReceived)}
+          icon={BadgeCent}
+          accent="success"
+          description={`${summaryStats.receivedCount} transactions`}
+        />
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Pending Income</CardTitle>
-            <TrendingUp className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-brand-accent">
-              {formatCurrency(summaryStats.totalPending)}
-            </div>
-            <p className="text-xs text-muted-foreground">
-              {summaryStats.pendingCount} pending
-            </p>
-          </CardContent>
-        </Card>
+        <StatCard
+          title="Pending Income"
+          value={formatCurrency(summaryStats.totalPending)}
+          icon={TrendingUp}
+          accent="accent"
+          description={`${summaryStats.pendingCount} pending`}
+        />
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Records</CardTitle>
-            <FileText className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{summaryStats.totalRecords}</div>
-            <p className="text-xs text-muted-foreground">
-              Income entries
-            </p>
-          </CardContent>
-        </Card>
+        <StatCard
+          title="Total Records"
+          value={summaryStats.totalRecords}
+          icon={FileText}
+          accent="primary"
+          description="Income entries"
+        />
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Average Income</CardTitle>
-            <BarChart3 className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {formatCurrency(summaryStats.avgIncome)}
-            </div>
-            <p className="text-xs text-muted-foreground">
-              Per transaction
-            </p>
-          </CardContent>
-        </Card>
+        <StatCard
+          title="Average Income"
+          value={formatCurrency(summaryStats.avgIncome)}
+          icon={BarChart3}
+          accent="secondary"
+          description="Per transaction"
+        />
       </LazySection>
 
       {/* Charts and Analysis */}
@@ -546,9 +515,6 @@ export default function IncomeReportsPage() {
             <Card>
               <CardHeader>
                 <CardTitle>Monthly Income Trends</CardTitle>
-                <CardDescription>
-                  Track income patterns over time
-                </CardDescription>
               </CardHeader>
               <CardContent>
                 <ChartContainer config={monthlyChartConfig} className="h-[400px] w-full">
@@ -581,9 +547,6 @@ export default function IncomeReportsPage() {
               <Card>
                 <CardHeader>
                   <CardTitle>Income by Category</CardTitle>
-                  <CardDescription>
-                    Distribution of income across categories
-                  </CardDescription>
                 </CardHeader>
                 <CardContent>
                   <ChartContainer config={incomeChartConfig} className="h-[300px] w-full">
@@ -612,9 +575,6 @@ export default function IncomeReportsPage() {
               <Card>
                 <CardHeader>
                   <CardTitle>Category Performance</CardTitle>
-                  <CardDescription>
-                    Detailed breakdown by category
-                  </CardDescription>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
@@ -652,9 +612,6 @@ export default function IncomeReportsPage() {
             <Card>
               <CardHeader>
                 <CardTitle>Detailed Income Analysis</CardTitle>
-                <CardDescription>
-                  Comprehensive breakdown of filtered income data
-                </CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="space-y-6">

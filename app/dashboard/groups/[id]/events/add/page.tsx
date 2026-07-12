@@ -6,7 +6,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label as UILabel } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { PageHeader } from '@/components/ui/page-header';
 import { 
   Select,
   SelectContent,
@@ -237,27 +238,20 @@ export default function AddGroupEventPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="space-y-1">
-          <div className="flex items-center space-x-2">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={handleBack}
-              className="h-8 w-8"
-            >
-              <ArrowLeft className="h-4 w-4" />
-            </Button>
-            <div>
-              <h1 className="text-3xl font-bold tracking-tight">
-                {isEditing ? 'Edit Event' : 'Create New Event'}
-              </h1>
-              <p className="text-muted-foreground">
-                {isEditing ? 'Update event details' : 'Create a new event for'} {group?.name}
-              </p>
-            </div>
-          </div>
-
+      <div className="flex items-center gap-2">
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={handleBack}
+          className="h-8 w-8"
+        >
+          <ArrowLeft className="h-4 w-4" />
+        </Button>
+        <div className="flex-1">
+          <PageHeader
+            title={isEditing ? 'Edit Event' : 'Create New Event'}
+            description={`${isEditing ? 'Update event details' : 'Create a new event for'} ${group?.name}`}
+          />
         </div>
       </div>
 
@@ -272,9 +266,6 @@ export default function AddGroupEventPage() {
                   <Calendar className="h-5 w-5" />
                   <span>Event Details</span>
                 </CardTitle>
-                <CardDescription>
-                  Basic information about the event
-                </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="grid gap-4 md:grid-cols-2">
@@ -361,9 +352,6 @@ export default function AddGroupEventPage() {
                   <Clock className="h-5 w-5" />
                   <span>Date & Time</span>
                 </CardTitle>
-                <CardDescription>
-                  When will this event take place?
-                </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="grid gap-4 md:grid-cols-2">
@@ -411,9 +399,6 @@ export default function AddGroupEventPage() {
                   <MapPin className="h-5 w-5" />
                   <span>Location</span>
                 </CardTitle>
-                <CardDescription>
-                  Where will this event be held?
-                </CardDescription>
               </CardHeader>
               <CardContent>
                 <div>
@@ -444,9 +429,6 @@ export default function AddGroupEventPage() {
                   <Users className="h-5 w-5" />
                   <span>Registration</span>
                 </CardTitle>
-                <CardDescription>
-                  Configure event registration settings
-                </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div>
@@ -504,9 +486,6 @@ export default function AddGroupEventPage() {
             <Card>
               <CardHeader>
                 <CardTitle>Additional Notes</CardTitle>
-                <CardDescription>
-                  Any additional information about the event
-                </CardDescription>
               </CardHeader>
               <CardContent>
                 <div>

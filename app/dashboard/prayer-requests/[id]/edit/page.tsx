@@ -7,6 +7,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { PageHeader } from '@/components/ui/page-header';
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -194,10 +195,7 @@ export default function EditPrayerRequestPage() {
           <div className="p-2 bg-brand-primary/10 rounded-lg">
             <Heart className="h-6 w-6 text-brand-primary" />
           </div>
-          <div>
-            <h1 className="text-2xl font-bold tracking-tight">Edit Prayer Request</h1>
-            <p className="text-muted-foreground">Update prayer request details</p>
-          </div>
+          <PageHeader title="Edit Prayer Request" />
         </div>
       </div>
 
@@ -209,7 +207,6 @@ export default function EditPrayerRequestPage() {
               <Card>
                 <CardHeader>
                   <CardTitle>Request Details</CardTitle>
-                  <CardDescription>Update the details of the prayer request</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <FormField
@@ -219,14 +216,11 @@ export default function EditPrayerRequestPage() {
                       <FormItem>
                         <FormLabel>Request Title *</FormLabel>
                         <FormControl>
-                          <Input 
-                            placeholder="Brief title for the prayer request" 
-                            {...field} 
+                          <Input
+                            placeholder="Brief title for the prayer request"
+                            {...field}
                           />
                         </FormControl>
-                        <FormDescription>
-                          A short, clear title that summarizes the request
-                        </FormDescription>
                         <FormMessage />
                       </FormItem>
                     )}
@@ -529,9 +523,6 @@ export default function EditPrayerRequestPage() {
                         </FormControl>
                         <div className="space-y-1 leading-none">
                           <FormLabel>Notify Prayer Team</FormLabel>
-                          <FormDescription>
-                            Send notification to assigned prayer team
-                          </FormDescription>
                         </div>
                       </FormItem>
                     )}

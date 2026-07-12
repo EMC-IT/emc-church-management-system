@@ -8,8 +8,9 @@ import * as z from 'zod';
 import { Loader2, Save, ArrowLeft, Edit } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { PageHeader } from '@/components/ui/page-header';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -147,10 +148,7 @@ export default function EditCategoryPage() {
           <div className="p-2 bg-brand-primary/10 rounded-lg">
             <Edit className="h-6 w-6 text-brand-primary" />
           </div>
-          <div>
-            <h1 className="text-2xl font-bold tracking-tight">Edit Category</h1>
-            <p className="text-muted-foreground">Update category information</p>
-          </div>
+          <PageHeader title="Edit Category" />
         </div>
       </div>
 
@@ -162,9 +160,6 @@ export default function EditCategoryPage() {
               <Edit className="h-5 w-5" />
               Update Category
             </CardTitle>
-            <CardDescription>
-              Modify the details below to update this category
-            </CardDescription>
           </CardHeader>
           <CardContent>
             <Form {...form}>
@@ -180,9 +175,6 @@ export default function EditCategoryPage() {
                         <FormControl>
                           <Input placeholder="e.g., Building Fund" {...field} />
                         </FormControl>
-                        <FormDescription>
-                          Enter a descriptive name for this category
-                        </FormDescription>
                         <FormMessage />
                       </FormItem>
                     )}
@@ -207,9 +199,6 @@ export default function EditCategoryPage() {
                             <SelectItem value="Special Offering">Special Offering</SelectItem>
                           </SelectContent>
                         </Select>
-                        <FormDescription>
-                          Choose the type of giving this category represents
-                        </FormDescription>
                         <FormMessage />
                       </FormItem>
                     )}
@@ -229,9 +218,6 @@ export default function EditCategoryPage() {
                           {...field} 
                         />
                       </FormControl>
-                      <FormDescription>
-                        Optional description to help identify the category's purpose
-                      </FormDescription>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -273,9 +259,6 @@ export default function EditCategoryPage() {
                           </div>
                         </div>
                       </FormControl>
-                      <FormDescription>
-                        Choose a color to help identify this category
-                      </FormDescription>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -291,9 +274,6 @@ export default function EditCategoryPage() {
                         <FormLabel className="text-base">
                           Active Category
                         </FormLabel>
-                        <FormDescription>
-                          Enable this category for use in new records
-                        </FormDescription>
                       </div>
                       <FormControl>
                         <Switch

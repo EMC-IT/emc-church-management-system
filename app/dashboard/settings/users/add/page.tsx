@@ -10,7 +10,8 @@ import { ArrowLeft, Save, Loader2, Eye, EyeOff } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { PageHeader } from '@/components/ui/page-header';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
@@ -130,10 +131,7 @@ export default function AddUserPage() {
             <ArrowLeft className="h-4 w-4" />
           </Link>
         </Button>
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Add New User</h1>
-          <p className="text-muted-foreground">Create a new system user account</p>
-        </div>
+        <PageHeader title="Add New User" />
       </div>
 
       <Form {...form}>
@@ -145,7 +143,6 @@ export default function AddUserPage() {
               <Card>
                 <CardHeader>
                   <CardTitle>Personal Information</CardTitle>
-                  <CardDescription>Basic user details and contact information</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="grid gap-4 md:grid-cols-2">
@@ -217,7 +214,6 @@ export default function AddUserPage() {
               <Card>
                 <CardHeader>
                   <CardTitle>Account Information</CardTitle>
-                  <CardDescription>Login credentials and access details</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <FormField
@@ -382,7 +378,6 @@ export default function AddUserPage() {
               <Card>
                 <CardHeader>
                   <CardTitle>Preview</CardTitle>
-                  <CardDescription>How this user will appear</CardDescription>
                 </CardHeader>
                 <CardContent className="flex flex-col items-center space-y-4">
                   <Avatar className="h-24 w-24">

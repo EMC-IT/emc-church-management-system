@@ -8,8 +8,9 @@ import * as z from 'zod';
 import { Loader2, PlusCircle, ArrowLeft, Tag } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { PageHeader } from '@/components/ui/page-header';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -98,10 +99,7 @@ export default function AddCategoryPage() {
           <div className="p-2 bg-brand-primary/10 rounded-lg">
             <Tag className="h-6 w-6 text-brand-primary" />
           </div>
-          <div>
-            <h1 className="text-2xl font-bold tracking-tight">Add New Category</h1>
-            <p className="text-muted-foreground">Create a new tithe or offering category</p>
-          </div>
+          <PageHeader title="Add New Category" />
         </div>
       </div>
 
@@ -113,9 +111,6 @@ export default function AddCategoryPage() {
               <PlusCircle className="h-5 w-5" />
               Category Details
             </CardTitle>
-            <CardDescription>
-              Fill in the details below to create a new category
-            </CardDescription>
           </CardHeader>
           <CardContent>
             <Form {...form}>
@@ -131,9 +126,6 @@ export default function AddCategoryPage() {
                         <FormControl>
                           <Input placeholder="e.g., Building Fund" {...field} />
                         </FormControl>
-                        <FormDescription>
-                          Enter a descriptive name for this category
-                        </FormDescription>
                         <FormMessage />
                       </FormItem>
                     )}
@@ -158,9 +150,6 @@ export default function AddCategoryPage() {
                             <SelectItem value="Special Offering">Special Offering</SelectItem>
                           </SelectContent>
                         </Select>
-                        <FormDescription>
-                          Choose the type of giving this category represents
-                        </FormDescription>
                         <FormMessage />
                       </FormItem>
                     )}
@@ -180,9 +169,6 @@ export default function AddCategoryPage() {
                           {...field} 
                         />
                       </FormControl>
-                      <FormDescription>
-                        Optional description to help identify the category's purpose
-                      </FormDescription>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -224,9 +210,6 @@ export default function AddCategoryPage() {
                           </div>
                         </div>
                       </FormControl>
-                      <FormDescription>
-                        Choose a color to help identify this category
-                      </FormDescription>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -242,9 +225,6 @@ export default function AddCategoryPage() {
                         <FormLabel className="text-base">
                           Active Category
                         </FormLabel>
-                        <FormDescription>
-                          Enable this category for use in new records
-                        </FormDescription>
                       </div>
                       <FormControl>
                         <Switch

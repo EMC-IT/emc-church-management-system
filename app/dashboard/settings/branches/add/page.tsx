@@ -10,7 +10,8 @@ import { ArrowLeft, Save, Loader2, Building2, Upload } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { PageHeader } from '@/components/ui/page-header';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -18,7 +19,6 @@ import { useToast } from '@/hooks/use-toast';
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -138,10 +138,7 @@ export default function AddBranchPage() {
             <ArrowLeft className="h-4 w-4" />
           </Link>
         </Button>
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Add New Branch</h1>
-          <p className="text-muted-foreground">Create a new church branch or location</p>
-        </div>
+        <PageHeader title="Add New Branch" />
       </div>
 
       <Form {...form}>
@@ -153,7 +150,6 @@ export default function AddBranchPage() {
               <Card>
                 <CardHeader>
                   <CardTitle>Basic Information</CardTitle>
-                  <CardDescription>Branch identity and classification</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <FormField
@@ -257,7 +253,6 @@ export default function AddBranchPage() {
               <Card>
                 <CardHeader>
                   <CardTitle>Contact Information</CardTitle>
-                  <CardDescription>Branch contact details</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="grid gap-4 md:grid-cols-2">
@@ -310,7 +305,6 @@ export default function AddBranchPage() {
               <Card>
                 <CardHeader>
                   <CardTitle>Physical Address</CardTitle>
-                  <CardDescription>Branch location details</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <FormField
@@ -393,7 +387,6 @@ export default function AddBranchPage() {
               <Card>
                 <CardHeader>
                   <CardTitle>Branch Leadership</CardTitle>
-                  <CardDescription>Key leadership positions</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <FormField
@@ -405,9 +398,6 @@ export default function AddBranchPage() {
                         <FormControl>
                           <Input placeholder="Pastor John Doe" {...field} />
                         </FormControl>
-                        <FormDescription>
-                          Pastor or leader in charge of this branch
-                        </FormDescription>
                         <FormMessage />
                       </FormItem>
                     )}
@@ -449,7 +439,6 @@ export default function AddBranchPage() {
               <Card>
                 <CardHeader>
                   <CardTitle>Capacity & Additional Details</CardTitle>
-                  <CardDescription>Branch facilities and service information</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="grid gap-4 md:grid-cols-2">
@@ -462,7 +451,6 @@ export default function AddBranchPage() {
                           <FormControl>
                             <Input type="number" placeholder="250" {...field} />
                           </FormControl>
-                          <FormDescription>Maximum seating capacity</FormDescription>
                           <FormMessage />
                         </FormItem>
                       )}
@@ -477,7 +465,6 @@ export default function AddBranchPage() {
                           <FormControl>
                             <Input type="number" placeholder="150" {...field} />
                           </FormControl>
-                          <FormDescription>Registered members</FormDescription>
                           <FormMessage />
                         </FormItem>
                       )}
@@ -491,15 +478,12 @@ export default function AddBranchPage() {
                       <FormItem>
                         <FormLabel>Service Schedule</FormLabel>
                         <FormControl>
-                          <Textarea 
+                          <Textarea
                             placeholder="Sunday: 9:00 AM, 11:00 AM&#10;Wednesday: 7:00 PM"
                             rows={3}
                             {...field}
                           />
                         </FormControl>
-                        <FormDescription>
-                          Regular service times and weekly activities
-                        </FormDescription>
                         <FormMessage />
                       </FormItem>
                     )}
@@ -512,15 +496,12 @@ export default function AddBranchPage() {
                       <FormItem>
                         <FormLabel>Facilities & Amenities</FormLabel>
                         <FormControl>
-                          <Textarea 
+                          <Textarea
                             placeholder="Parking lot, Children's room, Fellowship hall, etc."
                             rows={3}
                             {...field}
                           />
                         </FormControl>
-                        <FormDescription>
-                          List available facilities and amenities
-                        </FormDescription>
                         <FormMessage />
                       </FormItem>
                     )}
@@ -535,7 +516,6 @@ export default function AddBranchPage() {
               <Card>
                 <CardHeader>
                   <CardTitle>Branch Image</CardTitle>
-                  <CardDescription>Upload branch photo</CardDescription>
                 </CardHeader>
                 <CardContent className="flex flex-col items-center space-y-4">
                   <Avatar className="h-32 w-32 rounded-lg">

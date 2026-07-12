@@ -3,12 +3,13 @@
 import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
+import { PageHeader } from '@/components/ui/page-header';
 import { useToast } from '@/hooks/use-toast';
 import { givingService } from '@/services';
 import { Giving, GivingType, GivingCategory, GivingStatus, Member } from '@/lib/types';
@@ -237,19 +238,17 @@ export default function AddGivingPage() {
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <div className="flex items-center space-x-4">
+        <div className="flex items-center gap-4">
           <Button variant="ghost" size="sm" asChild>
             <Link href={`/dashboard/members/${member.id}/giving`}>
               <ArrowLeft className="mr-2 h-4 w-4" />
               Back to Giving History
             </Link>
           </Button>
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight">Add Giving Record</h1>
-            <p className="text-muted-foreground">
-              Record a new giving contribution for {member.firstName} {member.lastName}
-            </p>
-          </div>
+          <PageHeader
+            title="Add Giving Record"
+            description={`Record a new giving contribution for ${member.firstName} ${member.lastName}`}
+          />
         </div>
       </div>
 
@@ -257,9 +256,6 @@ export default function AddGivingPage() {
       <Card>
         <CardHeader>
           <CardTitle>Giving Details</CardTitle>
-          <CardDescription>
-            Enter the details of the giving contribution
-          </CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-6">

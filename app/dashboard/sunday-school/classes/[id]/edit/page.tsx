@@ -6,7 +6,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { PageHeader } from '@/components/ui/page-header';
 import {
   Select,
   SelectContent,
@@ -234,33 +235,29 @@ export default function EditClassPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="space-y-1">
-          <div className="flex items-center space-x-2">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={handleCancel}
-              className="h-8 w-8"
-            >
-              <ArrowLeft className="h-4 w-4" />
-            </Button>
-            <div>
-              <h1 className="text-3xl font-bold tracking-tight">Edit Class</h1>
-              <p className="text-muted-foreground">Update class information and settings</p>
-            </div>
-          </div>
-        </div>
-        
-        <div className="flex space-x-2">
-          <Button 
-            variant="outline" 
-            onClick={() => setShowDeleteDialog(true)}
-            className="text-destructive hover:text-destructive"
-          >
-            <Trash2 className="mr-2 h-4 w-4" />
-            Delete Class
-          </Button>
+      <div className="flex items-center gap-2">
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={handleCancel}
+          className="h-8 w-8"
+        >
+          <ArrowLeft className="h-4 w-4" />
+        </Button>
+        <div className="flex-1">
+          <PageHeader
+            title="Edit Class"
+            actions={
+              <Button
+                variant="outline"
+                onClick={() => setShowDeleteDialog(true)}
+                className="text-destructive hover:text-destructive"
+              >
+                <Trash2 className="mr-2 h-4 w-4" />
+                Delete Class
+              </Button>
+            }
+          />
         </div>
       </div>
 
@@ -275,9 +272,6 @@ export default function EditClassPage() {
                   <BookOpen className="h-5 w-5" />
                   <span>Basic Information</span>
                 </CardTitle>
-                <CardDescription>
-                  Update the basic details of the class
-                </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="grid gap-4 md:grid-cols-2">
@@ -348,9 +342,6 @@ export default function EditClassPage() {
                   <Users className="h-5 w-5" />
                   <span>Teacher & Capacity</span>
                 </CardTitle>
-                <CardDescription>
-                  Assign teacher and set class capacity
-                </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="grid gap-4 md:grid-cols-2">
@@ -405,9 +396,6 @@ export default function EditClassPage() {
                   <Calendar className="h-5 w-5" />
                   <span>Schedule & Location</span>
                 </CardTitle>
-                <CardDescription>
-                  Set when and where the class meets
-                </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-4">
@@ -488,9 +476,6 @@ export default function EditClassPage() {
                   <Target className="h-5 w-5" />
                   <span>Curriculum & Objectives</span>
                 </CardTitle>
-                <CardDescription>
-                  Define what will be taught and learning goals
-                </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
@@ -523,9 +508,6 @@ export default function EditClassPage() {
             <Card>
               <CardHeader>
                 <CardTitle>Class Summary</CardTitle>
-                <CardDescription>
-                  Review your class details
-                </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-3">

@@ -4,7 +4,9 @@ import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { PageHeader } from '@/components/ui/page-header';
+import { StatCard } from '@/components/ui/stat-card';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
@@ -170,110 +172,62 @@ export default function ClassStudentsPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="space-y-1">
-          <div className="flex items-center space-x-2">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={handleBack}
-              className="h-8 w-8"
-            >
-              <ArrowLeft className="h-4 w-4" />
-            </Button>
-            <div>
-              <h1 className="text-3xl font-bold tracking-tight">Class Students</h1>
-              <p className="text-muted-foreground">
-                {classData?.name} - {students.length} students enrolled
-              </p>
-            </div>
-          </div>
-        </div>
-        
-        <div className="flex space-x-2">
-          <Button onClick={handleAddStudents} className="bg-brand-primary hover:bg-brand-primary/90">
-            <UserPlus className="mr-2 h-4 w-4" />
-            Add Students
-          </Button>
+      <div className="flex items-center gap-2">
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={handleBack}
+          className="h-8 w-8"
+        >
+          <ArrowLeft className="h-4 w-4" />
+        </Button>
+        <div className="flex-1">
+          <PageHeader
+            title="Class Students"
+            description={classData ? `${classData.name} - ${students.length} students enrolled` : undefined}
+            actions={
+              <Button onClick={handleAddStudents} className="bg-brand-primary hover:bg-brand-primary/90">
+                <UserPlus className="mr-2 h-4 w-4" />
+                Add Students
+              </Button>
+            }
+          />
         </div>
       </div>
 
       {/* Stats Cards */}
       <div className="grid gap-4 md:grid-cols-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Students</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{students.length}</div>
-            <p className="text-xs text-muted-foreground">
-              of {classData?.maxStudents} maximum
-            </p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Capacity</CardTitle>
-            <TrendingUp className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {classData ? Math.round((students.length / classData.maxStudents) * 100) : 0}%
-            </div>
-            <p className="text-xs text-muted-foreground">
-              Class utilization
-            </p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Avg. Age</CardTitle>
-            <Calendar className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {students.length > 0 
-                ? Math.round(students.reduce((sum, s) => sum + s.age, 0) / students.length)
-                : 0
-              }
-            </div>
-            <p className="text-xs text-muted-foreground">
-              Years old
-            </p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Available Spots</CardTitle>
-            <UserPlus className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {classData ? classData.maxStudents - students.length : 0}
-            </div>
-            <p className="text-xs text-muted-foreground">
-              Remaining capacity
-            </p>
-          </CardContent>
-        </Card>
+        <StatCard
+          title="Total Students"
+          value={students.length}
+          icon={Users}
+          description={`of ${classData?.maxStudents} maximum`}
+        />
+        <StatCard
+          title="Capacity"
+          value={`${classData ? Math.round((students.length / classData.maxStudents) * 100) : 0}%`}
+          icon={TrendingUp}
+          description="Class utilization"
+        />
+        <StatCard
+          title="Avg. Age"
+          value={students.length > 0 ? Math.round(students.reduce((sum, s) => sum + s.age, 0) / students.length) : 0}
+          icon={Calendar}
+          description="Years old"
+        />
+        <StatCard
+          title="Available Spots"
+          value={classData ? classData.maxStudents - students.length : 0}
+          icon={UserPlus}
+          description="Remaining capacity"
+        />
       </div>
 
       {/* Students Management */}
       <Card>
         <CardHeader>
-          <div className="flex items-center justify-between">
-            <div>
-              <CardTitle>Students</CardTitle>
-              <CardDescription>
-                Manage students enrolled in this class
-              </CardDescription>
-            </div>
-          </div>
-          
+          <CardTitle>Students</CardTitle>
+
           {/* Search */}
           <div className="flex items-center space-x-4">
             <div className="relative flex-1 max-w-sm">

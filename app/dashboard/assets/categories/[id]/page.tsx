@@ -303,7 +303,7 @@ export default function CategoryDetailsPage() {
             <ArrowLeft className="mr-2 h-4 w-4" />
             Back to Categories
           </Button>
-          <PageHeader title={category.name} description={category.description} />
+          <PageHeader title={category.name} />
         </div>
 
         <div className="flex flex-col gap-2 sm:flex-row">

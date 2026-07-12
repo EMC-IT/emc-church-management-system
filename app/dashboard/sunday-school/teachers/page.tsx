@@ -4,7 +4,9 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { PageHeader } from '@/components/ui/page-header';
+import { StatCard } from '@/components/ui/stat-card';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
@@ -248,7 +250,7 @@ export default function TeachersPage() {
   const getStatusBadge = (status: TeacherStatus) => {
     switch (status) {
       case TeacherStatus.ACTIVE:
-        return <Badge className="bg-brand-success/10 text-brand-success border-brand-success/20">Active</Badge>;
+        return <Badge variant="success">Active</Badge>;
       case TeacherStatus.INACTIVE:
         return <Badge variant="neutral">Inactive</Badge>;
       default:
@@ -396,119 +398,70 @@ export default function TeachersPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Teachers</h1>
-          <p className="text-muted-foreground">
-            Manage Sunday School teachers and their assignments
-          </p>
-        </div>
-        
-        <div className="flex space-x-2">
-          <Button variant="outline">
-            <Download className="mr-2 h-4 w-4" />
-            Export
-          </Button>
-          
-          <Button asChild>
-            <Link href="/dashboard/sunday-school/teachers/add">
-              <Plus className="mr-2 h-4 w-4" />
-              Add Teacher
-            </Link>
-          </Button>
-        </div>
-      </div>
+      <PageHeader
+        title="Teachers"
+        actions={
+          <>
+            <Button variant="outline">
+              <Download className="mr-2 h-4 w-4" />
+              Export
+            </Button>
+
+            <Button asChild>
+              <Link href="/dashboard/sunday-school/teachers/add">
+                <Plus className="mr-2 h-4 w-4" />
+                Add Teacher
+              </Link>
+            </Button>
+          </>
+        }
+      />
 
       {/* Stats Cards */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-6">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Teachers</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.totalTeachers}</div>
-            <p className="text-xs text-muted-foreground">
-              {stats.activeTeachers} active
-            </p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Active Teachers</CardTitle>
-            <UserCheck className="h-4 w-4 text-brand-success" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-brand-success">{stats.activeTeachers}</div>
-            <p className="text-xs text-muted-foreground">
-              {stats.totalTeachers > 0 ? Math.round((stats.activeTeachers / stats.totalTeachers) * 100) : 0}% of total
-            </p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Classes</CardTitle>
-            <BookOpen className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.totalClasses}</div>
-            <p className="text-xs text-muted-foreground">
-              being taught
-            </p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Students</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.totalStudents}</div>
-            <p className="text-xs text-muted-foreground">
-              across all classes
-            </p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Avg Class Size</CardTitle>
-            <Calendar className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.averageClassSize}</div>
-            <p className="text-xs text-muted-foreground">
-              students per class
-            </p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Experience</CardTitle>
-            <Award className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {teachers.length > 0 ? Math.round(teachers.reduce((sum, t) => sum + t.yearsOfService, 0) / teachers.length) : 0}
-            </div>
-            <p className="text-xs text-muted-foreground">
-              avg years
-            </p>
-          </CardContent>
-        </Card>
+        <StatCard
+          title="Total Teachers"
+          value={stats.totalTeachers}
+          icon={Users}
+          description={`${stats.activeTeachers} active`}
+        />
+        <StatCard
+          title="Active Teachers"
+          value={stats.activeTeachers}
+          icon={UserCheck}
+          accent="success"
+          description={`${stats.totalTeachers > 0 ? Math.round((stats.activeTeachers / stats.totalTeachers) * 100) : 0}% of total`}
+        />
+        <StatCard
+          title="Total Classes"
+          value={stats.totalClasses}
+          icon={BookOpen}
+          description="being taught"
+        />
+        <StatCard
+          title="Total Students"
+          value={stats.totalStudents}
+          icon={Users}
+          description="across all classes"
+        />
+        <StatCard
+          title="Avg Class Size"
+          value={stats.averageClassSize}
+          icon={Calendar}
+          description="students per class"
+        />
+        <StatCard
+          title="Experience"
+          value={teachers.length > 0 ? Math.round(teachers.reduce((sum, t) => sum + t.yearsOfService, 0) / teachers.length) : 0}
+          icon={Award}
+          description="avg years"
+        />
       </div>
 
       {/* Filters and Search */}
       <Card>
         <CardHeader>
           <CardTitle>Teachers Directory</CardTitle>
-          <CardDescription>
-            Search and filter teachers by various criteria
-          </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="flex flex-col space-y-4 md:flex-row md:space-y-0 md:space-x-4">

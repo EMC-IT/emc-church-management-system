@@ -3,7 +3,8 @@
 import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { PageHeader } from '@/components/ui/page-header';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
@@ -261,17 +262,18 @@ export default function EditCampaignPage() {
           <div className="p-2 bg-brand-primary/10 rounded-lg">
             <Send className="h-6 w-6 text-brand-primary" />
           </div>
-          <div>
-            <h1 className="text-2xl font-bold tracking-tight">Edit Campaign</h1>
-            <p className="text-muted-foreground">Update campaign content and settings</p>
+          <div className="flex-1">
+            <PageHeader
+              title="Edit Campaign"
+              actions={
+                <Badge variant={getStatusColor(formData.status)} className="flex items-center gap-1">
+                  {getStatusIcon(formData.status)}
+                  Current: {formData.status.charAt(0).toUpperCase() + formData.status.slice(1)}
+                </Badge>
+              }
+            />
           </div>
         </div>
-
-        {/* Current Status */}
-        <Badge variant={getStatusColor(formData.status)} className="flex items-center gap-1">
-          {getStatusIcon(formData.status)}
-          Current: {formData.status.charAt(0).toUpperCase() + formData.status.slice(1)}
-        </Badge>
       </div>
 
       {!canEdit && (
@@ -313,9 +315,6 @@ export default function EditCampaignPage() {
                     {formData.type === 'email' ? <Mail className="h-5 w-5" /> : <MessageSquare className="h-5 w-5" />}
                     Campaign Details
                   </CardTitle>
-                  <CardDescription>
-                    Update your {formData.type === 'email' ? 'email' : 'SMS'} campaign content
-                  </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="space-y-2">
@@ -448,7 +447,6 @@ export default function EditCampaignPage() {
           <Card>
             <CardHeader>
               <CardTitle>Update Target Audience</CardTitle>
-              <CardDescription>Modify which groups will receive this campaign</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="grid gap-4 md:grid-cols-2">
@@ -506,7 +504,6 @@ export default function EditCampaignPage() {
             <Card>
               <CardHeader>
                 <CardTitle>Delivery Settings</CardTitle>
-                <CardDescription>Update when to send your campaign</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="flex items-center space-x-2">
@@ -549,7 +546,6 @@ export default function EditCampaignPage() {
             <Card>
               <CardHeader>
                 <CardTitle>Tracking & Analytics</CardTitle>
-                <CardDescription>Update campaign tracking options</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 {formData.type === 'email' && (
@@ -603,9 +599,6 @@ export default function EditCampaignPage() {
               <Card>
                 <CardHeader>
                   <CardTitle>Test Campaign</CardTitle>
-                  <CardDescription>
-                    Send a test {formData.type} before updating
-                  </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="space-y-2">

@@ -3,7 +3,9 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { PageHeader } from '@/components/ui/page-header';
+import { StatCard } from '@/components/ui/stat-card';
 import { Badge } from '@/components/ui/badge';
 import { 
   Select,
@@ -184,47 +186,31 @@ export default function AnnouncementsPage() {
           <div className="p-2 bg-brand-primary/10 rounded-lg">
             <Megaphone className="h-6 w-6 text-brand-primary" />
           </div>
-          <div>
-            <h1 className="text-2xl font-bold tracking-tight">Announcements</h1>
-            <p className="text-muted-foreground">Manage church announcements and notifications</p>
-          </div>
+          <PageHeader title="Announcements" />
         </div>
       </div>
 
       {/* Summary Cards */}
       <div className="grid gap-4 grid-cols-2 md:grid-cols-3">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Announcements</CardTitle>
-            <Megaphone className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{summaryStats.totalAnnouncements}</div>
-            <p className="text-xs text-muted-foreground">Active announcements</p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Published</CardTitle>
-            <CheckCircle className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-green-600">{summaryStats.published}</div>
-            <p className="text-xs text-muted-foreground">Live announcements</p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Views</CardTitle>
-            <Eye className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{summaryStats.totalViews}</div>
-            <p className="text-xs text-muted-foreground">Across all announcements</p>
-          </CardContent>
-        </Card>
+        <StatCard
+          title="Total Announcements"
+          value={summaryStats.totalAnnouncements}
+          icon={Megaphone}
+          description="Active announcements"
+        />
+        <StatCard
+          title="Published"
+          value={summaryStats.published}
+          icon={CheckCircle}
+          accent="success"
+          description="Live announcements"
+        />
+        <StatCard
+          title="Total Views"
+          value={summaryStats.totalViews}
+          icon={Eye}
+          description="Across all announcements"
+        />
       </div>
 
       {/* Controls */}
@@ -272,7 +258,6 @@ export default function AnnouncementsPage() {
       <Card>
         <CardHeader>
           <CardTitle>All Announcements</CardTitle>
-          <CardDescription>Manage and track your church announcements</CardDescription>
         </CardHeader>
         <CardContent>
           <Table>

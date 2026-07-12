@@ -6,7 +6,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -14,6 +14,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Switch } from '@/components/ui/switch';
 import { Badge } from '@/components/ui/badge';
 import { FileUpload } from '@/components/ui/file-upload';
+import { PageHeader } from '@/components/ui/page-header';
 import { useToast } from '@/hooks/use-toast';
 import { documentsService } from '@/services';
 import { DocumentCategory, Member } from '@/lib/types';
@@ -234,19 +235,17 @@ export default function DocumentUploadPage() {
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <div className="flex items-center space-x-4">
+        <div className="flex items-center gap-4">
           <Button variant="ghost" size="sm" asChild>
             <Link href={`/dashboard/members/${member.id}/documents`}>
               <ArrowLeft className="mr-2 h-4 w-4" />
               Back to Documents
             </Link>
           </Button>
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight">Upload Documents</h1>
-            <p className="text-muted-foreground">
-              Upload documents for {member.firstName} {member.lastName}
-            </p>
-          </div>
+          <PageHeader
+            title="Upload Documents"
+            description={`Upload documents for ${member.firstName} ${member.lastName}`}
+          />
         </div>
       </div>
 
@@ -255,9 +254,6 @@ export default function DocumentUploadPage() {
         <Card>
           <CardHeader>
             <CardTitle>Document Information</CardTitle>
-            <CardDescription>
-              Provide details about the documents you're uploading
-            </CardDescription>
           </CardHeader>
           <CardContent>
             <Form {...form}>
@@ -271,9 +267,6 @@ export default function DocumentUploadPage() {
                       <FormControl>
                         <Input placeholder="Enter document title" {...field} />
                       </FormControl>
-                      <FormDescription>
-                        A descriptive title for the document
-                      </FormDescription>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -286,14 +279,11 @@ export default function DocumentUploadPage() {
                     <FormItem>
                       <FormLabel>Description</FormLabel>
                       <FormControl>
-                        <Textarea 
+                        <Textarea
                           placeholder="Enter document description (optional)"
                           {...field}
                         />
                       </FormControl>
-                      <FormDescription>
-                        Additional details about the document
-                      </FormDescription>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -373,9 +363,6 @@ export default function DocumentUploadPage() {
                     <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
                       <div className="space-y-0.5">
                         <FormLabel className="text-base">Public Document</FormLabel>
-                        <FormDescription>
-                          Make this document visible to all users
-                        </FormDescription>
                       </div>
                       <FormControl>
                         <Switch
@@ -419,9 +406,6 @@ export default function DocumentUploadPage() {
           <Card>
             <CardHeader>
               <CardTitle>Select Files</CardTitle>
-              <CardDescription>
-                Choose the documents you want to upload
-              </CardDescription>
             </CardHeader>
             <CardContent>
               <FileUpload
@@ -475,9 +459,6 @@ export default function DocumentUploadPage() {
           <Card>
             <CardHeader>
               <CardTitle>Upload Guidelines</CardTitle>
-              <CardDescription>
-                Important information about document uploads
-              </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">

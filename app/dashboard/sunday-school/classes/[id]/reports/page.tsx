@@ -3,7 +3,9 @@
 import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { PageHeader } from '@/components/ui/page-header';
+import { StatCard } from '@/components/ui/stat-card';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Progress } from '@/components/ui/progress';
@@ -299,99 +301,70 @@ export default function ClassReportsPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="space-y-1">
-          <div className="flex items-center space-x-2">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={handleBack}
-              className="h-8 w-8"
-            >
-              <ArrowLeft className="h-4 w-4" />
-            </Button>
-            <div>
-              <h1 className="text-3xl font-bold tracking-tight">Class Reports</h1>
-              <p className="text-muted-foreground">
-                {classData?.name} - Performance and attendance analytics
-              </p>
-            </div>
-          </div>
-        </div>
-        
-        <div className="flex space-x-2">
-          <Select value={timeRange} onValueChange={setTimeRange}>
-            <SelectTrigger className="w-40">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="1month">Last Month</SelectItem>
-              <SelectItem value="3months">Last 3 Months</SelectItem>
-              <SelectItem value="6months">Last 6 Months</SelectItem>
-              <SelectItem value="1year">Last Year</SelectItem>
-            </SelectContent>
-          </Select>
-          
-          <Button variant="outline">
-            <Download className="mr-2 h-4 w-4" />
-            Export Report
-          </Button>
+      <div className="flex items-center gap-2">
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={handleBack}
+          className="h-8 w-8"
+        >
+          <ArrowLeft className="h-4 w-4" />
+        </Button>
+        <div className="flex-1">
+          <PageHeader
+            title="Class Reports"
+            description={classData?.name}
+            actions={
+              <>
+                <Select value={timeRange} onValueChange={setTimeRange}>
+                  <SelectTrigger className="w-40">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="1month">Last Month</SelectItem>
+                    <SelectItem value="3months">Last 3 Months</SelectItem>
+                    <SelectItem value="6months">Last 6 Months</SelectItem>
+                    <SelectItem value="1year">Last Year</SelectItem>
+                  </SelectContent>
+                </Select>
+
+                <Button variant="outline">
+                  <Download className="mr-2 h-4 w-4" />
+                  Export Report
+                </Button>
+              </>
+            }
+          />
         </div>
       </div>
 
       {/* Overview Stats */}
       <div className="grid gap-4 md:grid-cols-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Overall Attendance</CardTitle>
-            <BarChart3 className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.overallRate}%</div>
-            <p className="text-xs text-muted-foreground">
-              {stats.totalRecords} total records
-            </p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Present</CardTitle>
-            <CheckCircle className="h-4 w-4 text-brand-success" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-brand-success">{stats.presentRecords}</div>
-            <p className="text-xs text-muted-foreground">
-              {stats.totalRecords > 0 ? Math.round((stats.presentRecords / stats.totalRecords) * 100) : 0}% of sessions
-            </p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Absent</CardTitle>
-            <XCircle className="h-4 w-4 text-destructive" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-destructive">{stats.absentRecords}</div>
-            <p className="text-xs text-muted-foreground">
-              {stats.totalRecords > 0 ? Math.round((stats.absentRecords / stats.totalRecords) * 100) : 0}% of sessions
-            </p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Active Students</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{students.length}</div>
-            <p className="text-xs text-muted-foreground">
-              enrolled in class
-            </p>
-          </CardContent>
-        </Card>
+        <StatCard
+          title="Overall Attendance"
+          value={`${stats.overallRate}%`}
+          icon={BarChart3}
+          description={`${stats.totalRecords} total records`}
+        />
+        <StatCard
+          title="Present"
+          value={stats.presentRecords}
+          icon={CheckCircle}
+          accent="success"
+          description={`${stats.totalRecords > 0 ? Math.round((stats.presentRecords / stats.totalRecords) * 100) : 0}% of sessions`}
+        />
+        <StatCard
+          title="Absent"
+          value={stats.absentRecords}
+          icon={XCircle}
+          description={`${stats.totalRecords > 0 ? Math.round((stats.absentRecords / stats.totalRecords) * 100) : 0}% of sessions`}
+        />
+        <StatCard
+          title="Active Students"
+          value={students.length}
+          icon={Users}
+          description="enrolled in class"
+        />
       </div>
 
       {/* Main Content */}
@@ -408,9 +381,6 @@ export default function ClassReportsPage() {
             <Card>
               <CardHeader>
                 <CardTitle>Attendance Distribution</CardTitle>
-                <CardDescription>
-                  Breakdown of attendance status across all sessions
-                </CardDescription>
               </CardHeader>
               <CardContent>
                 <ChartContainer config={attendanceDistributionConfig} className="h-64 w-full">
@@ -455,9 +425,6 @@ export default function ClassReportsPage() {
             <Card>
               <CardHeader>
                 <CardTitle>Class Summary</CardTitle>
-                <CardDescription>
-                  Key metrics and information about this class
-                </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-3">
@@ -511,9 +478,6 @@ export default function ClassReportsPage() {
           <Card>
             <CardHeader>
               <CardTitle>Attendance Trends Over Time</CardTitle>
-              <CardDescription>
-                Track attendance patterns and identify trends
-              </CardDescription>
             </CardHeader>
             <CardContent>
               {attendanceData.length === 0 ? (
@@ -602,9 +566,6 @@ export default function ClassReportsPage() {
           <Card>
             <CardHeader>
               <CardTitle>Student Performance</CardTitle>
-              <CardDescription>
-                Individual student attendance rates and trends
-              </CardDescription>
             </CardHeader>
             <CardContent>
               {studentPerformance.length === 0 ? (

@@ -1,9 +1,11 @@
 'use client';
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
+import { PageHeader } from '@/components/ui/page-header';
+import { StatCard } from '@/components/ui/stat-card';
 import { 
   Select,
   SelectContent,
@@ -158,71 +160,70 @@ export default function AnalyticsPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Analytics</h1>
-          <p className="text-muted-foreground">Comprehensive insights and reports for church growth</p>
-        </div>
-        <div className="flex space-x-2">
-          <Button variant="outline" asChild>
-            <Link href="/dashboard/analytics/reports">
-              <FileBarChart className="mr-2 h-4 w-4" />
-              Saved Reports
-            </Link>
-          </Button>
-          <Select defaultValue="6months">
-            <SelectTrigger className="w-48">
-              <SelectValue placeholder="Select period" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="today">Today</SelectItem>
-              <SelectItem value="yesterday">Yesterday</SelectItem>
-              <SelectItem value="1week">Last Week</SelectItem>
-              <SelectItem value="1month">Last Month</SelectItem>
-              <SelectItem value="3months">Last 3 Months</SelectItem>
-              <SelectItem value="6months">Last 6 Months</SelectItem>
-              <SelectItem value="1year">Last Year</SelectItem>
-              <SelectItem value="this_year">This Year</SelectItem>
-              <SelectItem value="all_time">All Time</SelectItem>
-            </SelectContent>
-          </Select>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button>
-                <Download className="mr-2 h-4 w-4" />
-                Export
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuLabel>Export Format</DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={() => handleExport('pdf')}>
-                <FileText className="mr-2 h-4 w-4" />
-                Export as PDF
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => handleExport('excel')}>
-                <FileSpreadsheet className="mr-2 h-4 w-4" />
-                Export as Excel
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => handleExport('csv')}>
-                <FileText className="mr-2 h-4 w-4" />
-                Export as CSV
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={() => handleExport('json')}>
-                <FileText className="mr-2 h-4 w-4" />
-                Export as JSON
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-          <Button className="bg-brand-primary hover:bg-brand-primary/90" asChild>
-            <Link href="/dashboard/analytics/report-builder">
-              <PlusCircle className="mr-2 h-4 w-4" />
-              Custom Report
-            </Link>
-          </Button>
-        </div>
-      </div>
+      <PageHeader
+        title="Analytics"
+        actions={
+          <div className="flex space-x-2">
+            <Button variant="outline" asChild>
+              <Link href="/dashboard/analytics/reports">
+                <FileBarChart className="mr-2 h-4 w-4" />
+                Saved Reports
+              </Link>
+            </Button>
+            <Select defaultValue="6months">
+              <SelectTrigger className="w-48">
+                <SelectValue placeholder="Select period" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="today">Today</SelectItem>
+                <SelectItem value="yesterday">Yesterday</SelectItem>
+                <SelectItem value="1week">Last Week</SelectItem>
+                <SelectItem value="1month">Last Month</SelectItem>
+                <SelectItem value="3months">Last 3 Months</SelectItem>
+                <SelectItem value="6months">Last 6 Months</SelectItem>
+                <SelectItem value="1year">Last Year</SelectItem>
+                <SelectItem value="this_year">This Year</SelectItem>
+                <SelectItem value="all_time">All Time</SelectItem>
+              </SelectContent>
+            </Select>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button>
+                  <Download className="mr-2 h-4 w-4" />
+                  Export
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuLabel>Export Format</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={() => handleExport('pdf')}>
+                  <FileText className="mr-2 h-4 w-4" />
+                  Export as PDF
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => handleExport('excel')}>
+                  <FileSpreadsheet className="mr-2 h-4 w-4" />
+                  Export as Excel
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => handleExport('csv')}>
+                  <FileText className="mr-2 h-4 w-4" />
+                  Export as CSV
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={() => handleExport('json')}>
+                  <FileText className="mr-2 h-4 w-4" />
+                  Export as JSON
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+            <Button className="bg-brand-primary hover:bg-brand-primary/90" asChild>
+              <Link href="/dashboard/analytics/report-builder">
+                <PlusCircle className="mr-2 h-4 w-4" />
+                Custom Report
+              </Link>
+            </Button>
+          </div>
+        }
+      />
 
       {/* Quick Actions */}
       <div className="grid gap-4 md:grid-cols-4">
@@ -355,7 +356,6 @@ export default function AnalyticsPage() {
         <Card>
           <CardHeader>
             <CardTitle>Membership Growth</CardTitle>
-            <CardDescription>Track membership growth over time</CardDescription>
           </CardHeader>
           <CardContent>
             <ChartContainer config={membershipChartConfig} className="h-[300px] w-full">
@@ -395,7 +395,6 @@ export default function AnalyticsPage() {
         <Card>
           <CardHeader>
             <CardTitle>Attendance Trends</CardTitle>
-            <CardDescription>Compare attendance across different services</CardDescription>
           </CardHeader>
           <CardContent>
             <ChartContainer config={attendanceChartConfig} className="h-[300px] w-full">
@@ -443,7 +442,6 @@ export default function AnalyticsPage() {
         <Card>
           <CardHeader>
             <CardTitle>Giving Analysis</CardTitle>
-            <CardDescription>Monthly giving breakdown by category</CardDescription>
           </CardHeader>
           <CardContent>
             <ChartContainer config={givingChartConfig} className="h-[300px] w-full">
@@ -477,7 +475,6 @@ export default function AnalyticsPage() {
         <Card>
           <CardHeader>
             <CardTitle>Age Distribution</CardTitle>
-            <CardDescription>Congregation demographics by age group</CardDescription>
           </CardHeader>
           <CardContent>
             <ChartContainer config={ageChartConfig} className="mx-auto aspect-square max-h-[300px]">
@@ -551,7 +548,6 @@ export default function AnalyticsPage() {
       <Card>
         <CardHeader>
           <CardTitle>Department Engagement</CardTitle>
-          <CardDescription>Engagement levels across different ministries</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
@@ -584,7 +580,6 @@ export default function AnalyticsPage() {
       <Card>
         <CardHeader>
           <CardTitle>Multi-Dimensional Analysis</CardTitle>
-          <CardDescription>Explore complex relationships in your data</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="grid gap-4 md:grid-cols-3">
@@ -632,7 +627,6 @@ export default function AnalyticsPage() {
         <Card>
           <CardHeader>
             <CardTitle>Key Insights</CardTitle>
-            <CardDescription>Data-driven observations</CardDescription>
           </CardHeader>
           <CardContent className="space-y-3">
             <div className="flex items-start space-x-3">
@@ -670,7 +664,6 @@ export default function AnalyticsPage() {
         <Card>
           <CardHeader>
             <CardTitle>Recommendations</CardTitle>
-            <CardDescription>Actionable insights for growth</CardDescription>
           </CardHeader>
           <CardContent className="space-y-3">
             <div className="flex items-start space-x-3">

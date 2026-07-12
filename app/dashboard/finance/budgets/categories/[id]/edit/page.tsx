@@ -9,6 +9,7 @@ import { ArrowLeft, FolderOpen, Palette, FileText, Save } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { PageHeader } from '@/components/ui/page-header';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
@@ -148,10 +149,7 @@ export default function EditCategoryPage() {
           <div className="p-2 bg-brand-primary/10 rounded-lg">
             <FolderOpen className="h-6 w-6 text-brand-primary" />
           </div>
-          <div>
-            <h1 className="text-2xl font-bold tracking-tight">Edit Category</h1>
-            <p className="text-muted-foreground">Update category information and settings</p>
-          </div>
+          <PageHeader title="Edit Category" />
         </div>
       </div>
 

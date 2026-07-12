@@ -10,7 +10,8 @@ import { ArrowLeft, Save, Loader2, Shield, CheckCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { PageHeader } from '@/components/ui/page-header';
 import { Textarea } from '@/components/ui/textarea';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Separator } from '@/components/ui/separator';
@@ -200,10 +201,7 @@ export default function AddRolePage() {
             <ArrowLeft className="h-4 w-4" />
           </Link>
         </Button>
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Create New Role</h1>
-          <p className="text-muted-foreground">Define a new role with specific permissions</p>
-        </div>
+        <PageHeader title="Create New Role" />
       </div>
 
       <Form {...form}>
@@ -215,7 +213,6 @@ export default function AddRolePage() {
               <Card>
                 <CardHeader>
                   <CardTitle>Role Information</CardTitle>
-                  <CardDescription>Basic details about this role</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <FormField
@@ -227,9 +224,6 @@ export default function AddRolePage() {
                         <FormControl>
                           <Input placeholder="e.g., Youth Leader" {...field} />
                         </FormControl>
-                        <FormDescription>
-                          A clear, descriptive name for this role
-                        </FormDescription>
                         <FormMessage />
                       </FormItem>
                     )}
@@ -242,15 +236,12 @@ export default function AddRolePage() {
                       <FormItem>
                         <FormLabel>Description *</FormLabel>
                         <FormControl>
-                          <Textarea 
+                          <Textarea
                             placeholder="Describe the responsibilities and purpose of this role..."
                             rows={4}
                             {...field}
                           />
                         </FormControl>
-                        <FormDescription>
-                          Explain what this role is responsible for
-                        </FormDescription>
                         <FormMessage />
                       </FormItem>
                     )}
@@ -262,9 +253,6 @@ export default function AddRolePage() {
               <Card>
                 <CardHeader>
                   <CardTitle>Permissions</CardTitle>
-                  <CardDescription>
-                    Select the permissions for this role. Users with this role will have access to these features.
-                  </CardDescription>
                 </CardHeader>
                 <CardContent>
                   <FormField
@@ -386,7 +374,6 @@ export default function AddRolePage() {
               <Card>
                 <CardHeader>
                   <CardTitle>Quick Presets</CardTitle>
-                  <CardDescription>Apply common permission sets</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-2">
                   <Button

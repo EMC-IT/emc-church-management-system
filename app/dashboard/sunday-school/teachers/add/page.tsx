@@ -3,7 +3,8 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { PageHeader } from '@/components/ui/page-header';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
@@ -178,7 +179,7 @@ export default function AddTeacherPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center space-x-4">
+      <div className="flex items-center gap-2">
         <Button
           variant="ghost"
           size="icon"
@@ -187,11 +188,8 @@ export default function AddTeacherPage() {
         >
           <ArrowLeft className="h-4 w-4" />
         </Button>
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Add New Teacher</h1>
-          <p className="text-muted-foreground">
-            Add a new teacher to the Sunday School program
-          </p>
+        <div className="flex-1">
+          <PageHeader title="Add New Teacher" />
         </div>
       </div>
 
@@ -206,9 +204,6 @@ export default function AddTeacherPage() {
                   <User className="h-5 w-5" />
                   <span>Personal Information</span>
                 </CardTitle>
-                <CardDescription>
-                  Basic personal details of the teacher
-                </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="grid gap-4 md:grid-cols-2">
@@ -243,9 +238,6 @@ export default function AddTeacherPage() {
                   <Phone className="h-5 w-5" />
                   <span>Contact Information</span>
                 </CardTitle>
-                <CardDescription>
-                  Primary and emergency contact details
-                </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="grid gap-4 md:grid-cols-2">
@@ -296,9 +288,6 @@ export default function AddTeacherPage() {
                   <BookOpen className="h-5 w-5" />
                   <span>Teaching Information</span>
                 </CardTitle>
-                <CardDescription>
-                  Teaching experience and qualifications
-                </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
 
@@ -357,9 +346,6 @@ export default function AddTeacherPage() {
             <Card>
               <CardHeader>
                 <CardTitle>Additional Information</CardTitle>
-                <CardDescription>
-                  Optional notes and status information
-                </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
 
@@ -373,9 +359,6 @@ export default function AddTeacherPage() {
             <Card>
               <CardHeader>
                 <CardTitle>Profile Picture</CardTitle>
-                <CardDescription>
-                  Upload a profile picture for the teacher
-                </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="flex flex-col items-center space-y-4">

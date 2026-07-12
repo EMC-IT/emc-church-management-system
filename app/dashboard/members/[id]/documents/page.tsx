@@ -3,9 +3,11 @@
 import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { DataTable } from '@/components/ui/data-table';
+import { PageHeader } from '@/components/ui/page-header';
+import { StatCard } from '@/components/ui/stat-card';
 import { useToast } from '@/hooks/use-toast';
 import { documentsService } from '@/services';
 import { Document, DocumentCategory, Member } from '@/lib/types';
@@ -471,19 +473,17 @@ export default function DocumentsPage() {
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <div className="flex items-center space-x-4">
+        <div className="flex items-center gap-4">
           <Button variant="ghost" size="sm" asChild>
             <Link href={`/dashboard/members/${member.id}`}>
               <ArrowLeft className="mr-2 h-4 w-4" />
               Back to Profile
             </Link>
           </Button>
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight">Documents</h1>
-            <p className="text-muted-foreground">
-              Manage documents for {member.firstName} {member.lastName}
-            </p>
-          </div>
+          <PageHeader
+            title="Documents"
+            description={`Manage documents for ${member.firstName} ${member.lastName}`}
+          />
         </div>
         <div className="flex items-center space-x-2">
           <Button variant="outline" onClick={handleBulkDelete} disabled={selectedDocuments.length === 0}>
@@ -501,72 +501,36 @@ export default function DocumentsPage() {
 
       {/* Documents Overview */}
       <div className="grid gap-4 md:grid-cols-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Documents</CardTitle>
-            <FileText className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{documents.length}</div>
-            <p className="text-xs text-muted-foreground">
-              All document types
-            </p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Size</CardTitle>
-            <HardDrive className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {formatFileSize(documents.reduce((total, doc) => total + doc.fileSize, 0))}
-            </div>
-            <p className="text-xs text-muted-foreground">
-              Combined file size
-            </p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Public Documents</CardTitle>
-            <Eye className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {documents.filter(d => d.isPublic).length}
-            </div>
-            <p className="text-xs text-muted-foreground">
-              Visible to all
-            </p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Categories</CardTitle>
-            <FolderOpen className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {new Set(documents.map(d => d.category)).size}
-            </div>
-            <p className="text-xs text-muted-foreground">
-              Document categories
-            </p>
-          </CardContent>
-        </Card>
+        <StatCard
+          title="Total Documents"
+          value={documents.length}
+          icon={FileText}
+          description="All document types"
+        />
+        <StatCard
+          title="Total Size"
+          value={formatFileSize(documents.reduce((total, doc) => total + doc.fileSize, 0))}
+          icon={HardDrive}
+          description="Combined file size"
+        />
+        <StatCard
+          title="Public Documents"
+          value={documents.filter(d => d.isPublic).length}
+          icon={Eye}
+          description="Visible to all"
+        />
+        <StatCard
+          title="Categories"
+          value={new Set(documents.map(d => d.category)).size}
+          icon={FolderOpen}
+          description="Document categories"
+        />
       </div>
 
       {/* Documents Table */}
       <Card>
         <CardHeader>
           <CardTitle>All Documents</CardTitle>
-          <CardDescription>
-            View and manage all documents for {member.firstName} {member.lastName}
-          </CardDescription>
         </CardHeader>
         <CardContent>
           {documents.length > 0 ? (

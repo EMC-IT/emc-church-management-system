@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { PageHeader } from '@/components/ui/page-header';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Separator } from '@/components/ui/separator';
@@ -213,25 +214,26 @@ export default function CampaignDetailPage() {
             <Send className="h-6 w-6 text-brand-primary" />
           </div>
           <div className="flex-1">
-            <h1 className="text-2xl font-bold tracking-tight">Campaign Details</h1>
-            <p className="text-muted-foreground">View campaign performance and analytics</p>
+            <PageHeader
+              title="Campaign Details"
+              actions={
+                <>
+                  <Button variant="outline" size="sm" onClick={handleDuplicate}>
+                    <Copy className="h-4 w-4 mr-2" />
+                    Duplicate
+                  </Button>
+                  <Button variant="outline" size="sm" onClick={handleEdit}>
+                    <Edit className="h-4 w-4 mr-2" />
+                    Edit
+                  </Button>
+                  <Button variant="outline" size="sm" onClick={handleDeleteClick} disabled={isLoading}>
+                    <Trash2 className="h-4 w-4 mr-2" />
+                    Delete
+                  </Button>
+                </>
+              }
+            />
           </div>
-        </div>
-
-        {/* Action Buttons */}
-        <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm" onClick={handleDuplicate}>
-            <Copy className="h-4 w-4 mr-2" />
-            Duplicate
-          </Button>
-          <Button variant="outline" size="sm" onClick={handleEdit}>
-            <Edit className="h-4 w-4 mr-2" />
-            Edit
-          </Button>
-          <Button variant="outline" size="sm" onClick={handleDeleteClick} disabled={isLoading}>
-            <Trash2 className="h-4 w-4 mr-2" />
-            Delete
-          </Button>
         </div>
       </div>
 
@@ -478,7 +480,6 @@ export default function CampaignDetailPage() {
                   <BarChart3 className="h-5 w-5" />
                   Engagement Over Time
                 </CardTitle>
-                <CardDescription>Campaign performance throughout the day</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
@@ -516,7 +517,6 @@ export default function CampaignDetailPage() {
             <Card>
               <CardHeader>
                 <CardTitle>Performance Summary</CardTitle>
-                <CardDescription>Key metrics comparison</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-3">
@@ -555,7 +555,6 @@ export default function CampaignDetailPage() {
           <Card>
             <CardHeader>
               <CardTitle>Audience Breakdown</CardTitle>
-              <CardDescription>Performance by audience segment</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
@@ -604,7 +603,6 @@ export default function CampaignDetailPage() {
           <Card>
             <CardHeader>
               <CardTitle>Campaign Content</CardTitle>
-              <CardDescription>The message that was sent to recipients</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="border rounded-lg p-6 bg-muted/50">

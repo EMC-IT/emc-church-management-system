@@ -4,7 +4,9 @@ import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { PageHeader } from '@/components/ui/page-header';
+import { StatCard } from '@/components/ui/stat-card';
 import { Badge } from '@/components/ui/badge';
 import { 
   Select,
@@ -193,95 +195,41 @@ export default function GroupEventsPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="space-y-1">
-          <div className="flex items-center space-x-2">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={handleBack}
-              className="h-8 w-8"
-            >
-              <ArrowLeft className="h-4 w-4" />
-            </Button>
-            <div>
-              <h1 className="text-3xl font-bold tracking-tight">Group Events</h1>
-              <p className="text-muted-foreground">
-                Manage events for {group?.name}
-              </p>
-            </div>
-          </div>
-    
-        </div>
-        
-        <Button onClick={handleAddEvent} className="bg-brand-primary hover:bg-brand-primary/90">
-          <Plus className="mr-2 h-4 w-4" />
-          Create Event
+      <div className="flex items-center gap-2">
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={handleBack}
+          className="h-8 w-8"
+        >
+          <ArrowLeft className="h-4 w-4" />
         </Button>
+        <div className="flex-1">
+          <PageHeader
+            title="Group Events"
+            description={`Manage events for ${group?.name}`}
+            actions={
+              <Button onClick={handleAddEvent} className="bg-brand-primary hover:bg-brand-primary/90">
+                <Plus className="mr-2 h-4 w-4" />
+                Create Event
+              </Button>
+            }
+          />
+        </div>
       </div>
 
       {/* Stats Cards */}
       <div className="grid gap-4 md:grid-cols-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Events</CardTitle>
-            <CalendarDays className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{events.length}</div>
-            <p className="text-xs text-muted-foreground">
-              All time events
-            </p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Upcoming Events</CardTitle>
-            <Calendar className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.upcoming}</div>
-            <p className="text-xs text-muted-foreground">
-              Scheduled events
-            </p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Attendees</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.totalAttendees}</div>
-            <p className="text-xs text-muted-foreground">
-              Registered participants
-            </p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Avg. Attendance</CardTitle>
-            <UserCheck className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.averageAttendance}</div>
-            <p className="text-xs text-muted-foreground">
-              Per event
-            </p>
-          </CardContent>
-        </Card>
+        <StatCard title="Total Events" value={events.length} icon={CalendarDays} description="All time events" />
+        <StatCard title="Upcoming Events" value={stats.upcoming} icon={Calendar} description="Scheduled events" />
+        <StatCard title="Total Attendees" value={stats.totalAttendees} icon={Users} description="Registered participants" />
+        <StatCard title="Avg. Attendance" value={stats.averageAttendance} icon={UserCheck} description="Per event" />
       </div>
 
       {/* Events Management */}
       <Card>
         <CardHeader>
           <CardTitle>Event Management</CardTitle>
-          <CardDescription>
-            View and manage all events for this group
-          </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="flex items-center space-x-4 mb-6">

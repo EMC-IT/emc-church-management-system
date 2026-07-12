@@ -4,7 +4,9 @@ import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { PageHeader } from '@/components/ui/page-header';
+import { StatCard } from '@/components/ui/stat-card';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -304,10 +306,10 @@ export default function RegistrationsPage() {
           <div className="p-2 bg-brand-primary/10 rounded-lg">
             <UserPlus className="h-6 w-6 text-brand-primary" />
           </div>
-          <div>
-            <h1 className="text-2xl font-bold tracking-tight">Event Registrations</h1>
-            <p className="text-muted-foreground">{mockEvent.title} - {format(new Date(mockEvent.date), 'PPP')}</p>
-          </div>
+          <PageHeader
+            title="Event Registrations"
+            description={`${mockEvent.title} - ${format(new Date(mockEvent.date), 'PPP')}`}
+          />
         </div>
       </div>
 
@@ -358,67 +360,34 @@ export default function RegistrationsPage() {
 
       {/* Stats Cards */}
       <div className="grid gap-4 md:grid-cols-5">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.total}</div>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Confirmed</CardTitle>
-            <CheckCircle2 className="h-4 w-4 text-green-500" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-green-600">{stats.confirmed}</div>
-            <p className="text-xs text-muted-foreground">
-              {((stats.confirmed / stats.total) * 100).toFixed(1)}%
-            </p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Pending</CardTitle>
-            <Clock className="h-4 w-4 text-yellow-500" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-yellow-600">{stats.pending}</div>
-            <p className="text-xs text-muted-foreground">
-              {((stats.pending / stats.total) * 100).toFixed(1)}%
-            </p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Waitlisted</CardTitle>
-            <AlertCircle className="h-4 w-4 text-blue-500" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-blue-600">{stats.waitlisted}</div>
-            <p className="text-xs text-muted-foreground">
-              {((stats.waitlisted / stats.total) * 100).toFixed(1)}%
-            </p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Cancelled</CardTitle>
-            <XCircle className="h-4 w-4 text-red-500" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-red-600">{stats.cancelled}</div>
-            <p className="text-xs text-muted-foreground">
-              {((stats.cancelled / stats.total) * 100).toFixed(1)}%
-            </p>
-          </CardContent>
-        </Card>
+        <StatCard title="Total" value={stats.total} icon={Users} />
+        <StatCard
+          title="Confirmed"
+          value={stats.confirmed}
+          icon={CheckCircle2}
+          accent="success"
+          description={`${((stats.confirmed / stats.total) * 100).toFixed(1)}%`}
+        />
+        <StatCard
+          title="Pending"
+          value={stats.pending}
+          icon={Clock}
+          accent="accent"
+          description={`${((stats.pending / stats.total) * 100).toFixed(1)}%`}
+        />
+        <StatCard
+          title="Waitlisted"
+          value={stats.waitlisted}
+          icon={AlertCircle}
+          accent="secondary"
+          description={`${((stats.waitlisted / stats.total) * 100).toFixed(1)}%`}
+        />
+        <StatCard
+          title="Cancelled"
+          value={stats.cancelled}
+          icon={XCircle}
+          description={`${((stats.cancelled / stats.total) * 100).toFixed(1)}%`}
+        />
       </div>
 
       {/* Main Content */}
@@ -427,7 +396,6 @@ export default function RegistrationsPage() {
           <div className="flex items-center justify-between">
             <div>
               <CardTitle>Registration Management</CardTitle>
-              <CardDescription>Manage event registrations and communications</CardDescription>
             </div>
             <div className="flex items-center gap-2">
               <Dialog open={emailDialogOpen} onOpenChange={setEmailDialogOpen}>

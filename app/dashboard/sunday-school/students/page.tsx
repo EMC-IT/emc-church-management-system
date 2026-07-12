@@ -4,7 +4,9 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { PageHeader } from '@/components/ui/page-header';
+import { StatCard } from '@/components/ui/stat-card';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
@@ -135,72 +137,43 @@ export default function StudentsPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Students</h1>
-          <p className="text-muted-foreground">Manage Sunday School students</p>
-        </div>
-        <div className="flex space-x-2">
+      <PageHeader
+        title="Students"
+        actions={
           <Button variant="outline" onClick={handleExportStudents}>
             <Download className="mr-2 h-4 w-4" />
             Export Students
           </Button>
-        </div>
-      </div>
+        }
+      />
 
       {/* Stats Cards */}
       <div className="grid gap-4 md:grid-cols-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Students</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.totalStudents}</div>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Active Students</CardTitle>
-            <GraduationCap className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.activeStudents}</div>
-            <p className="text-xs text-muted-foreground">
-              {((stats.activeStudents / stats.totalStudents) * 100).toFixed(1)}% of total
-            </p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Average Age</CardTitle>
-            <Calendar className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.averageAge}</div>
-            <p className="text-xs text-muted-foreground">years old</p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">New Enrollments</CardTitle>
-            <TrendingUp className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.newEnrollments}</div>
-            <p className="text-xs text-muted-foreground">last 30 days</p>
-          </CardContent>
-        </Card>
+        <StatCard title="Total Students" value={stats.totalStudents} icon={Users} />
+        <StatCard
+          title="Active Students"
+          value={stats.activeStudents}
+          icon={GraduationCap}
+          description={`${((stats.activeStudents / stats.totalStudents) * 100).toFixed(1)}% of total`}
+        />
+        <StatCard
+          title="Average Age"
+          value={stats.averageAge}
+          icon={Calendar}
+          description="years old"
+        />
+        <StatCard
+          title="New Enrollments"
+          value={stats.newEnrollments}
+          icon={TrendingUp}
+          description="last 30 days"
+        />
       </div>
 
       {/* Students Management */}
       <Card>
         <CardHeader>
           <CardTitle>Student Directory</CardTitle>
-          <CardDescription>View and manage all Sunday School students</CardDescription>
         </CardHeader>
         <CardContent>
           {/* Filters */}

@@ -18,13 +18,15 @@ import {
 } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { LazySection } from '@/components/ui/lazy-section';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 // Date picker functionality can be added later
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { PageHeader } from '@/components/ui/page-header';
+import { StatCard } from '@/components/ui/stat-card';
 
 // Mock data for asset reports
 const assetStats = {
@@ -107,115 +109,86 @@ export default function AssetReportsPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-        <div className="flex items-center gap-4">
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={() => router.push('/dashboard/assets')}
-            className="h-12 w-12"
-          >
-            <ArrowLeft className="h-5 w-5" />
-          </Button>
-          <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-brand-primary/10">
-            <BarChart3 className="h-6 w-6 text-brand-primary" />
+      <PageHeader
+        title="Asset Reports"
+        description="Comprehensive analysis of asset value, depreciation, and condition"
+        actions={
+          <div className="flex flex-col gap-2 sm:flex-row">
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={() => router.push('/dashboard/assets')}
+            >
+              <ArrowLeft className="h-4 w-4" />
+            </Button>
+            <Select value={selectedPeriod} onValueChange={setSelectedPeriod}>
+              <SelectTrigger className="w-[140px]">
+                <SelectValue placeholder="Period" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="month">This Month</SelectItem>
+                <SelectItem value="quarter">This Quarter</SelectItem>
+                <SelectItem value="year">This Year</SelectItem>
+                <SelectItem value="all">All Time</SelectItem>
+              </SelectContent>
+            </Select>
+
+            <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+              <SelectTrigger className="w-[160px]">
+                <SelectValue placeholder="Category" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Categories</SelectItem>
+                {categoryData.map((cat) => (
+                  <SelectItem key={cat.category} value={cat.category.toLowerCase()}>
+                    {cat.category}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+
+            <Button variant="outline" onClick={() => handleExport('pdf')}>
+              <Download className="mr-2 h-4 w-4" />
+              Export
+            </Button>
           </div>
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900">Asset Reports</h1>
-            <p className="text-gray-600">
-              Comprehensive analysis of asset value, depreciation, and condition
-            </p>
-          </div>
-        </div>
-        
-        <div className="flex flex-col gap-2 sm:flex-row">
-          <Select value={selectedPeriod} onValueChange={setSelectedPeriod}>
-            <SelectTrigger className="w-[140px]">
-              <SelectValue placeholder="Period" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="month">This Month</SelectItem>
-              <SelectItem value="quarter">This Quarter</SelectItem>
-              <SelectItem value="year">This Year</SelectItem>
-              <SelectItem value="all">All Time</SelectItem>
-            </SelectContent>
-          </Select>
-          
-          <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-            <SelectTrigger className="w-[160px]">
-              <SelectValue placeholder="Category" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Categories</SelectItem>
-              {categoryData.map((cat) => (
-                <SelectItem key={cat.category} value={cat.category.toLowerCase()}>
-                  {cat.category}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          
-          <Button variant="outline" onClick={() => handleExport('pdf')}>
-            <Download className="mr-2 h-4 w-4" />
-            Export
-          </Button>
-        </div>
-      </div>
+        }
+      />
 
       {/* Stats Cards */}
       <LazySection>
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Assets</CardTitle>
-              <Package className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{assetStats.totalAssets}</div>
-              <p className="text-xs text-muted-foreground">
-                {assetStats.activeAssets} active assets
-              </p>
-            </CardContent>
-          </Card>
-          
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Value</CardTitle>
-              <Banknote className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{formatCurrency(assetStats.totalValue)}</div>
-              <p className="text-xs text-muted-foreground">
-                Current market value
-              </p>
-            </CardContent>
-          </Card>
-          
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Average Age</CardTitle>
-              <Calendar className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{assetStats.averageAge} years</div>
-              <p className="text-xs text-muted-foreground">
-                Across all assets
-              </p>
-            </CardContent>
-          </Card>
-          
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Depreciation Rate</CardTitle>
-              <TrendingDown className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{assetStats.depreciationRate}%</div>
-              <p className="text-xs text-muted-foreground">
-                Annual average
-              </p>
-            </CardContent>
-          </Card>
+          <StatCard
+            title="Total Assets"
+            value={assetStats.totalAssets}
+            icon={Package}
+            accent="primary"
+            description={`${assetStats.activeAssets} active assets`}
+          />
+
+          <StatCard
+            title="Total Value"
+            value={formatCurrency(assetStats.totalValue)}
+            icon={Banknote}
+            accent="secondary"
+            description="Current market value"
+          />
+
+          <StatCard
+            title="Average Age"
+            value={`${assetStats.averageAge} years`}
+            icon={Calendar}
+            accent="success"
+            description="Across all assets"
+          />
+
+          <StatCard
+            title="Depreciation Rate"
+            value={`${assetStats.depreciationRate}%`}
+            icon={TrendingDown}
+            accent="accent"
+            description="Annual average"
+          />
         </div>
       </LazySection>
 
@@ -294,9 +267,6 @@ export default function AssetReportsPage() {
             <Card>
               <CardHeader>
                 <CardTitle>Asset Condition Analysis</CardTitle>
-                <CardDescription>
-                  Detailed breakdown of asset conditions across all categories
-                </CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
@@ -329,9 +299,6 @@ export default function AssetReportsPage() {
                   <BarChart3 className="h-5 w-5" />
                   Category Breakdown
                 </CardTitle>
-                <CardDescription>
-                  Asset distribution and value by category
-                </CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
@@ -358,9 +325,6 @@ export default function AssetReportsPage() {
             <Card>
               <CardHeader>
                 <CardTitle>Depreciation Trends</CardTitle>
-                <CardDescription>
-                  Asset value and depreciation over time
-                </CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
@@ -394,9 +358,6 @@ export default function AssetReportsPage() {
               <FileText className="h-5 w-5" />
               Export Reports
             </CardTitle>
-            <CardDescription>
-              Download detailed asset reports in various formats
-            </CardDescription>
           </CardHeader>
           <CardContent>
             <div className="flex flex-wrap gap-2">

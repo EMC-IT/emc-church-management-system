@@ -10,13 +10,13 @@ import { ArrowLeft, Save, Loader2, Upload, Church } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { PageHeader } from '@/components/ui/page-header';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -153,10 +153,7 @@ export default function ChurchProfilePage() {
             <ArrowLeft className="h-4 w-4" />
           </Link>
         </Button>
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Church Profile</h1>
-          <p className="text-muted-foreground">Comprehensive church information and identity</p>
-        </div>
+        <PageHeader title="Church Profile" />
       </div>
 
       <Form {...form}>
@@ -168,7 +165,6 @@ export default function ChurchProfilePage() {
               <Card>
                 <CardHeader>
                   <CardTitle>Basic Information</CardTitle>
-                  <CardDescription>Core church identity and details</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <FormField
@@ -194,9 +190,6 @@ export default function ChurchProfilePage() {
                         <FormControl>
                           <Input placeholder="Transforming lives through faith" {...field} />
                         </FormControl>
-                        <FormDescription>
-                          A short, memorable phrase that captures your church's essence
-                        </FormDescription>
                         <FormMessage />
                       </FormItem>
                     )}
@@ -238,7 +231,6 @@ export default function ChurchProfilePage() {
               <Card>
                 <CardHeader>
                   <CardTitle>Vision, Mission & Core Values</CardTitle>
-                  <CardDescription>Your church's purpose and guiding principles</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <FormField
@@ -248,15 +240,12 @@ export default function ChurchProfilePage() {
                       <FormItem>
                         <FormLabel>Vision Statement *</FormLabel>
                         <FormControl>
-                          <Textarea 
+                          <Textarea
                             placeholder="Where do you see the church going? What's your long-term aspiration?"
                             rows={4}
                             {...field}
                           />
                         </FormControl>
-                        <FormDescription>
-                          Your church's future-focused aspirational statement
-                        </FormDescription>
                         <FormMessage />
                       </FormItem>
                     )}
@@ -269,15 +258,12 @@ export default function ChurchProfilePage() {
                       <FormItem>
                         <FormLabel>Mission Statement *</FormLabel>
                         <FormControl>
-                          <Textarea 
+                          <Textarea
                             placeholder="What is your church's purpose? How do you serve your community?"
                             rows={4}
                             {...field}
                           />
                         </FormControl>
-                        <FormDescription>
-                          Your church's purpose and what you do daily
-                        </FormDescription>
                         <FormMessage />
                       </FormItem>
                     )}
@@ -290,15 +276,12 @@ export default function ChurchProfilePage() {
                       <FormItem>
                         <FormLabel>Core Values *</FormLabel>
                         <FormControl>
-                          <Textarea 
+                          <Textarea
                             placeholder="Faith, Love, Service, Excellence, Integrity..."
                             rows={3}
                             {...field}
                           />
                         </FormControl>
-                        <FormDescription>
-                          The fundamental beliefs and principles that guide your church
-                        </FormDescription>
                         <FormMessage />
                       </FormItem>
                     )}
@@ -311,15 +294,12 @@ export default function ChurchProfilePage() {
                       <FormItem>
                         <FormLabel>Church History</FormLabel>
                         <FormControl>
-                          <Textarea 
+                          <Textarea
                             placeholder="Share your church's story, major milestones, and journey..."
                             rows={5}
                             {...field}
                           />
                         </FormControl>
-                        <FormDescription>
-                          Brief history of how your church started and grew
-                        </FormDescription>
                         <FormMessage />
                       </FormItem>
                     )}
@@ -331,7 +311,6 @@ export default function ChurchProfilePage() {
               <Card>
                 <CardHeader>
                   <CardTitle>Contact Information</CardTitle>
-                  <CardDescription>How people can reach your church</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="grid gap-4 md:grid-cols-2">
@@ -400,7 +379,6 @@ export default function ChurchProfilePage() {
               <Card>
                 <CardHeader>
                   <CardTitle>Physical Address</CardTitle>
-                  <CardDescription>Church location details</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <FormField
@@ -483,7 +461,6 @@ export default function ChurchProfilePage() {
               <Card>
                 <CardHeader>
                   <CardTitle>Social Media</CardTitle>
-                  <CardDescription>Connect your social media profiles</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="grid gap-4 md:grid-cols-2">
@@ -552,7 +529,6 @@ export default function ChurchProfilePage() {
               <Card>
                 <CardHeader>
                   <CardTitle>Church Leadership</CardTitle>
-                  <CardDescription>Key leadership positions</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="grid gap-4 md:grid-cols-2">
@@ -621,7 +597,6 @@ export default function ChurchProfilePage() {
               <Card>
                 <CardHeader>
                   <CardTitle>Additional Information</CardTitle>
-                  <CardDescription>Church capacity and service details</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="grid gap-4 md:grid-cols-2">
@@ -634,7 +609,6 @@ export default function ChurchProfilePage() {
                           <FormControl>
                             <Input type="number" placeholder="500" {...field} />
                           </FormControl>
-                          <FormDescription>Maximum seating capacity</FormDescription>
                           <FormMessage />
                         </FormItem>
                       )}
@@ -649,7 +623,6 @@ export default function ChurchProfilePage() {
                           <FormControl>
                             <Input type="number" placeholder="350" {...field} />
                           </FormControl>
-                          <FormDescription>Current registered members</FormDescription>
                           <FormMessage />
                         </FormItem>
                       )}
@@ -663,15 +636,12 @@ export default function ChurchProfilePage() {
                       <FormItem>
                         <FormLabel>Service Schedule</FormLabel>
                         <FormControl>
-                          <Textarea 
+                          <Textarea
                             placeholder="Sunday: 8:00 AM, 10:00 AM&#10;Wednesday: 7:00 PM Bible Study"
                             rows={4}
                             {...field}
                           />
                         </FormControl>
-                        <FormDescription>
-                          Regular service times and weekly activities
-                        </FormDescription>
                         <FormMessage />
                       </FormItem>
                     )}
@@ -686,7 +656,6 @@ export default function ChurchProfilePage() {
               <Card>
                 <CardHeader>
                   <CardTitle>Church Logo</CardTitle>
-                  <CardDescription>Upload your church logo</CardDescription>
                 </CardHeader>
                 <CardContent className="flex flex-col items-center space-y-4">
                   <Avatar className="h-32 w-32">

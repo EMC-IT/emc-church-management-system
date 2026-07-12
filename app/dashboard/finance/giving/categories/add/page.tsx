@@ -3,7 +3,8 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { PageHeader } from '@/components/ui/page-header';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
@@ -26,7 +27,6 @@ import * as z from 'zod';
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -166,19 +166,17 @@ export default function AddCategoryPage() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center space-x-4">
-        <Button variant="ghost" size="sm" asChild>
-          <Link href="/dashboard/finance/giving/categories">
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Back to Categories
-          </Link>
-        </Button>
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Add Giving Category</h1>
-          <p className="text-muted-foreground">Create a new category for organizing giving</p>
-        </div>
-      </div>
+      <PageHeader
+        title="Add Giving Category"
+        actions={
+          <Button variant="ghost" size="sm" asChild>
+            <Link href="/dashboard/finance/giving/categories">
+              <ArrowLeft className="mr-2 h-4 w-4" />
+              Back to Categories
+            </Link>
+          </Button>
+        }
+      />
 
       <div className="grid gap-6 md:grid-cols-3">
         {/* Main Form */}
@@ -189,9 +187,6 @@ export default function AddCategoryPage() {
                 <BadgeCent className="h-5 w-5" />
                 <span>Category Information</span>
               </CardTitle>
-              <CardDescription>
-                Provide details for the new giving category
-              </CardDescription>
             </CardHeader>
             <CardContent>
               <Form {...form}>
@@ -206,9 +201,6 @@ export default function AddCategoryPage() {
                           <FormControl>
                             <Input placeholder="e.g., Building Fund" {...field} />
                           </FormControl>
-                          <FormDescription>
-                            A descriptive name for this category
-                          </FormDescription>
                           <FormMessage />
                         </FormItem>
                       )}
@@ -237,9 +229,6 @@ export default function AddCategoryPage() {
                               ))}
                             </SelectContent>
                           </Select>
-                          <FormDescription>
-                            Choose the type that best fits this category
-                          </FormDescription>
                           <FormMessage />
                         </FormItem>
                       )}
@@ -259,9 +248,6 @@ export default function AddCategoryPage() {
                             {...field}
                           />
                         </FormControl>
-                        <FormDescription>
-                          Explain what this category is used for
-                        </FormDescription>
                         <FormMessage />
                       </FormItem>
                     )}
@@ -283,9 +269,6 @@ export default function AddCategoryPage() {
                             onChange={(e) => field.onChange(e.target.value ? parseFloat(e.target.value) : undefined)}
                           />
                         </FormControl>
-                        <FormDescription>
-                          Set a target amount for this category (optional)
-                        </FormDescription>
                         <FormMessage />
                       </FormItem>
                     )}
@@ -304,9 +287,6 @@ export default function AddCategoryPage() {
                             {...field}
                           />
                         </FormControl>
-                        <FormDescription>
-                          Any additional information about this category
-                        </FormDescription>
                         <FormMessage />
                       </FormItem>
                     )}
@@ -319,9 +299,6 @@ export default function AddCategoryPage() {
                       <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
                         <div className="space-y-0.5">
                           <FormLabel className="text-base">Active Category</FormLabel>
-                          <FormDescription>
-                            Enable this category for new giving transactions
-                          </FormDescription>
                         </div>
                         <FormControl>
                           <Switch
