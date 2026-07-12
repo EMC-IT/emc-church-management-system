@@ -4,8 +4,9 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { PageHeader } from '@/components/ui/page-header';
+import { StatCard } from '@/components/ui/stat-card';
 import { Badge } from '@/components/ui/badge';
-import { Progress } from '@/components/ui/progress';
 import {
   BookOpen,
   Users,
@@ -128,86 +129,61 @@ export default function SundaySchoolPage() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Sunday School</h1>
-          <p className="text-muted-foreground">Manage classes, teachers, students, and educational resources</p>
-        </div>
-        <div className="flex space-x-2">
-          <Button variant="outline" asChild>
-            <Link href="/dashboard/sunday-school/reports">
-              <FileText className="mr-2 h-4 w-4" />
-              View Reports
-            </Link>
-          </Button>
-          <Button className="bg-brand-primary hover:bg-brand-primary/90" asChild>
-            <Link href="/dashboard/sunday-school/classes/add">
-              <Plus className="mr-2 h-4 w-4" />
-              Create Class
-            </Link>
-          </Button>
-        </div>
-      </div>
+      <PageHeader
+        title="Sunday School"
+        actions={
+          <>
+            <Button variant="outline" asChild>
+              <Link href="/dashboard/sunday-school/reports">
+                <FileText className="mr-2 h-4 w-4" />
+                View Reports
+              </Link>
+            </Button>
+            <Button className="bg-brand-primary hover:bg-brand-primary/90" asChild>
+              <Link href="/dashboard/sunday-school/classes/add">
+                <Plus className="mr-2 h-4 w-4" />
+                Create Class
+              </Link>
+            </Button>
+          </>
+        }
+      />
 
       {/* Stats Cards */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Classes</CardTitle>
-            <School className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats?.totalClasses || 0}</div>
-            <p className="text-xs text-muted-foreground">
-              {stats?.activeClasses || 0} active, {stats?.inactiveClasses || 0} inactive
-            </p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Students</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats?.totalStudents || 0}</div>
-            <p className="text-xs text-muted-foreground">
-              {stats?.studentsThisWeek || 0} attended this week
-            </p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Teachers</CardTitle>
-            <GraduationCap className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats?.totalTeachers || 0}</div>
-            <p className="text-xs text-muted-foreground">
-              Active teaching staff
-            </p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Attendance Rate</CardTitle>
-            <UserCheck className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats?.averageAttendance || 0}%</div>
-            <Progress value={stats?.averageAttendance || 0} className="mt-2 h-2" />
-          </CardContent>
-        </Card>
+        <StatCard
+          title="Total Classes"
+          value={stats?.totalClasses || 0}
+          icon={School}
+          accent="primary"
+          description={`${stats?.activeClasses || 0} active, ${stats?.inactiveClasses || 0} inactive`}
+        />
+        <StatCard
+          title="Total Students"
+          value={stats?.totalStudents || 0}
+          icon={Users}
+          accent="secondary"
+          description={`${stats?.studentsThisWeek || 0} attended this week`}
+        />
+        <StatCard
+          title="Teachers"
+          value={stats?.totalTeachers || 0}
+          icon={GraduationCap}
+          accent="success"
+          description="Active teaching staff"
+        />
+        <StatCard
+          title="Attendance Rate"
+          value={`${stats?.averageAttendance || 0}%`}
+          icon={UserCheck}
+          accent="accent"
+        />
       </div>
 
       {/* Quick Actions */}
       <Card>
         <CardHeader>
           <CardTitle>Quick Actions</CardTitle>
-          <CardDescription>Common tasks and shortcuts</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">

@@ -17,13 +17,15 @@ import {
 } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { DataTable } from '@/components/ui/data-table';
 import { Badge } from '@/components/ui/badge';
 import { LazySection } from '@/components/ui/lazy-section';
 import { Skeleton } from '@/components/ui/skeleton';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { ColumnDef } from '@tanstack/react-table';
+import { PageHeader } from '@/components/ui/page-header';
+import { StatCard } from '@/components/ui/stat-card';
 
 // Asset data interface
 interface Asset {
@@ -301,10 +303,7 @@ export default function CategoryDetailsPage() {
             <ArrowLeft className="mr-2 h-4 w-4" />
             Back to Categories
           </Button>
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight">{category.name}</h1>
-            <p className="text-muted-foreground">{category.description}</p>
-          </div>
+          <PageHeader title={category.name} description={category.description} />
         </div>
 
         <div className="flex flex-col gap-2 sm:flex-row">
@@ -325,57 +324,37 @@ export default function CategoryDetailsPage() {
       {/* Category Overview */}
       <LazySection>
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Assets</CardTitle>
-              <Package className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{category.assetCount}</div>
-              <p className="text-xs text-muted-foreground">
-                {category.activeAssets} active
-              </p>
-            </CardContent>
-          </Card>
+          <StatCard
+            title="Total Assets"
+            value={category.assetCount}
+            icon={Package}
+            accent="primary"
+            description={`${category.activeAssets} active`}
+          />
 
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Value</CardTitle>
-              <Banknote className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{formatCurrency(category.totalValue)}</div>
-              <p className="text-xs text-muted-foreground">
-                Current market value
-              </p>
-            </CardContent>
-          </Card>
+          <StatCard
+            title="Total Value"
+            value={formatCurrency(category.totalValue)}
+            icon={Banknote}
+            accent="secondary"
+            description="Current market value"
+          />
 
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Average Age</CardTitle>
-              <Calendar className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{category.averageAge} years</div>
-              <p className="text-xs text-muted-foreground">
-                Across all assets
-              </p>
-            </CardContent>
-          </Card>
+          <StatCard
+            title="Average Age"
+            value={`${category.averageAge} years`}
+            icon={Calendar}
+            accent="success"
+            description="Across all assets"
+          />
 
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Maintenance</CardTitle>
-              <Package className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{category.maintenanceAssets}</div>
-              <p className="text-xs text-muted-foreground">
-                Assets under maintenance
-              </p>
-            </CardContent>
-          </Card>
+          <StatCard
+            title="Maintenance"
+            value={category.maintenanceAssets}
+            icon={Package}
+            accent="accent"
+            description="Assets under maintenance"
+          />
         </div>
       </LazySection>
 
@@ -384,9 +363,6 @@ export default function CategoryDetailsPage() {
         <Card>
           <CardHeader>
             <CardTitle>Category Information</CardTitle>
-            <CardDescription>
-              Detailed information about this asset category
-            </CardDescription>
           </CardHeader>
           <CardContent>
             <div className="grid gap-4 md:grid-cols-2">
@@ -420,9 +396,6 @@ export default function CategoryDetailsPage() {
         <Card>
           <CardHeader>
             <CardTitle>Assets in {category.name}</CardTitle>
-            <CardDescription>
-              All assets belonging to this category
-            </CardDescription>
           </CardHeader>
           <CardContent>
             <DataTable

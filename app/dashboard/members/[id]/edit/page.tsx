@@ -6,6 +6,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Button } from '@/components/ui/button';
+import { PageHeader } from '@/components/ui/page-header';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
@@ -175,16 +176,15 @@ export default function EditMemberPage() {
   }
   return (
     <div className="space-y-6">
-      <div className="flex items-center space-x-4">
+      <div className="flex items-center gap-4">
         <Button variant="ghost" size="sm" asChild>
           <Link href={`/dashboard/members/${memberId}`}>
             <ArrowLeft className="mr-2 h-4 w-4" />
             Back to Profile
           </Link>
         </Button>
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Edit Member</h1>
-          <p className="text-muted-foreground">Update member information</p>
+        <div className="flex-1">
+          <PageHeader title="Edit Member" />
         </div>
       </div>
       <MemberFullForm

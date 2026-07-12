@@ -3,7 +3,9 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { PageHeader } from '@/components/ui/page-header';
+import { StatCard } from '@/components/ui/stat-card';
 import { Badge } from '@/components/ui/badge';
 import { 
   Select,
@@ -239,63 +241,42 @@ export default function CampaignsPage() {
         >
           <ArrowLeft className="h-4 w-4" />
         </Button>
-        
-        <div className="flex items-center gap-3">
-          <div className="p-2 bg-brand-primary/10 rounded-lg">
-            <Send className="h-6 w-6 text-brand-primary" />
-          </div>
-          <div>
-            <h1 className="text-2xl font-bold tracking-tight">Campaigns</h1>
-            <p className="text-muted-foreground">Manage SMS and email campaigns</p>
-          </div>
+
+        <div className="flex-1">
+          <PageHeader title="Campaigns" />
         </div>
       </div>
 
       {/* Summary Cards */}
       <div className="grid gap-4 grid-cols-2 md:grid-cols-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Campaigns</CardTitle>
-            <Send className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{summaryStats.totalCampaigns}</div>
-            <p className="text-xs text-muted-foreground">All campaigns</p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Completed</CardTitle>
-            <CheckCircle className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-green-600">{summaryStats.completed}</div>
-            <p className="text-xs text-muted-foreground">Successfully sent</p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Sent</CardTitle>
-            <TrendingUp className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{summaryStats.totalSent}</div>
-            <p className="text-xs text-muted-foreground">Messages delivered</p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Avg Open Rate</CardTitle>
-            <BarChart3 className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-blue-600">{summaryStats.avgOpenRate}%</div>
-            <p className="text-xs text-muted-foreground">Campaign engagement</p>
-          </CardContent>
-        </Card>
+        <StatCard
+          title="Total Campaigns"
+          value={summaryStats.totalCampaigns}
+          icon={Send}
+          accent="primary"
+          description="All campaigns"
+        />
+        <StatCard
+          title="Completed"
+          value={summaryStats.completed}
+          icon={CheckCircle}
+          accent="secondary"
+          description="Successfully sent"
+        />
+        <StatCard
+          title="Total Sent"
+          value={summaryStats.totalSent}
+          icon={TrendingUp}
+          accent="success"
+          description="Messages delivered"
+        />
+        <StatCard
+          title="Avg Open Rate"
+          value={`${summaryStats.avgOpenRate}%`}
+          icon={BarChart3}
+          accent="accent"
+          description="Campaign engagement"
+        />
       </div>
 
       {/* Controls */}
@@ -343,7 +324,6 @@ export default function CampaignsPage() {
       <Card>
         <CardHeader>
           <CardTitle>All Campaigns</CardTitle>
-          <CardDescription>Manage and track your communication campaigns</CardDescription>
         </CardHeader>
         <CardContent>
           <Table>

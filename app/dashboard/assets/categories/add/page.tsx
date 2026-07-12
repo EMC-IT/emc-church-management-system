@@ -19,7 +19,7 @@ import {
 } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
@@ -199,12 +199,7 @@ export default function AddCategoryPage() {
           <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-brand-primary/10">
             <FolderPlus className="h-6 w-6 text-brand-primary" />
           </div>
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900">Add New Category</h1>
-            <p className="text-gray-600">
-              Create a new asset category to organize your assets
-            </p>
-          </div>
+          <h1 className="text-3xl font-bold text-gray-900">Add New Category</h1>
         </div>
         <div className="flex items-center space-x-2">
           <Button variant="outline" onClick={() => router.back()}>
@@ -231,9 +226,6 @@ export default function AddCategoryPage() {
                   <Package className="h-5 w-5" />
                   <span>Basic Information</span>
                 </CardTitle>
-                <CardDescription>
-                  Essential details about the category
-                </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <FormField
@@ -335,9 +327,6 @@ export default function AddCategoryPage() {
             <Card>
               <CardHeader>
                 <CardTitle>Appearance & Settings</CardTitle>
-                <CardDescription>
-                  Visual appearance and category behavior
-                </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <FormField
@@ -440,9 +429,6 @@ export default function AddCategoryPage() {
             <Card>
               <CardHeader>
                 <CardTitle>Default Values</CardTitle>
-                <CardDescription>
-                  Default settings for assets in this category
-                </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <FormField
@@ -466,9 +452,6 @@ export default function AddCategoryPage() {
                           <span className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground">%</span>
                         </div>
                       </FormControl>
-                      <FormDescription>
-                        Annual depreciation rate for assets in this category
-                      </FormDescription>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -489,9 +472,6 @@ export default function AddCategoryPage() {
                           onChange={(e) => field.onChange(parseInt(e.target.value) || undefined)}
                         />
                       </FormControl>
-                      <FormDescription>
-                        Default warranty period in months
-                      </FormDescription>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -503,9 +483,6 @@ export default function AddCategoryPage() {
             <Card>
               <CardHeader>
                 <CardTitle>Custom Fields</CardTitle>
-                <CardDescription>
-                  Additional fields specific to this category
-                </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 {/* Add Custom Field Form */}
@@ -608,9 +585,6 @@ export default function AddCategoryPage() {
           <Card>
             <CardHeader>
               <CardTitle>Preview</CardTitle>
-              <CardDescription>
-                How this category will appear in the system
-              </CardDescription>
             </CardHeader>
             <CardContent>
               <div className="flex items-center space-x-4 p-4 border rounded-lg">

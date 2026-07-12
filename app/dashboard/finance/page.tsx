@@ -6,6 +6,8 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { DataTable } from '@/components/ui/data-table';
+import { PageHeader } from '@/components/ui/page-header';
+import { StatCard } from '@/components/ui/stat-card';
 import { useToast } from '@/hooks/use-toast';
 import { financeService } from '@/services';
 import { Donation, TitheOffering, Expense, FinancialSummary, Currency } from '@/lib/types';
@@ -218,99 +220,62 @@ export default function FinanceOverviewPage() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Finance Overview</h1>
-          <p className="text-muted-foreground">Monitor church finances and track giving</p>
-        </div>
-        <div className="flex items-center space-x-2">
-          <Button variant="outline">
-            <Download className="mr-2 h-4 w-4" />
-            Export Report
-          </Button>
-          <Button asChild>
-            <Link href="/dashboard/finance/giving/donations/add">
-              <Plus className="mr-2 h-4 w-4" />
-              Record Donation
-            </Link>
-          </Button>
-        </div>
-      </div>
+      <PageHeader
+        title="Finance Overview"
+        actions={
+          <>
+            <Button variant="outline">
+              <Download className="mr-2 h-4 w-4" />
+              Export Report
+            </Button>
+            <Button asChild>
+              <Link href="/dashboard/finance/giving/donations/add">
+                <Plus className="mr-2 h-4 w-4" />
+                Record Donation
+              </Link>
+            </Button>
+          </>
+        }
+      />
 
       {/* Financial Summary Cards */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Income</CardTitle>
-            <TrendingUp className="h-4 w-4 text-green-500" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-green-600">
-              <CurrencyDisplay 
-                amount={financialSummary?.totalDonations || 0} 
-                currency="GHS" 
-              />
-            </div>
-            <p className="text-xs text-muted-foreground">
-              Donations this month
-            </p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Tithes & Offerings</CardTitle>
-            <BadgeCent className="h-4 w-4 text-blue-500" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-blue-600">
-              <CurrencyDisplay 
-                amount={(financialSummary?.totalTithes || 0) + (financialSummary?.totalOfferings || 0)} 
-                currency="GHS" 
-              />
-            </div>
-            <p className="text-xs text-muted-foreground">
-              Tithes & offerings this month
-            </p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Expenses</CardTitle>
-            <TrendingDown className="h-4 w-4 text-red-500" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-red-600">
-              <CurrencyDisplay 
-                amount={financialSummary?.totalExpenses || 0} 
-                currency="GHS" 
-              />
-            </div>
-            <p className="text-xs text-muted-foreground">
-              Expenses this month
-            </p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Net Income</CardTitle>
-            <Activity className="h-4 w-4 text-purple-500" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-purple-600">
-              <CurrencyDisplay 
-                amount={financialSummary?.netIncome || 0} 
-                currency="GHS" 
-              />
-            </div>
-            <p className="text-xs text-muted-foreground">
-              Net income this month
-            </p>
-          </CardContent>
-        </Card>
+        <StatCard
+          title="Total Income"
+          value={<CurrencyDisplay amount={financialSummary?.totalDonations || 0} currency="GHS" />}
+          icon={TrendingUp}
+          accent="success"
+          description="Donations this month"
+        />
+
+        <StatCard
+          title="Tithes & Offerings"
+          value={
+            <CurrencyDisplay
+              amount={(financialSummary?.totalTithes || 0) + (financialSummary?.totalOfferings || 0)}
+              currency="GHS"
+            />
+          }
+          icon={BadgeCent}
+          accent="secondary"
+          description="Tithes & offerings this month"
+        />
+
+        <StatCard
+          title="Total Expenses"
+          value={<CurrencyDisplay amount={financialSummary?.totalExpenses || 0} currency="GHS" />}
+          icon={TrendingDown}
+          accent="accent"
+          description="Expenses this month"
+        />
+
+        <StatCard
+          title="Net Income"
+          value={<CurrencyDisplay amount={financialSummary?.netIncome || 0} currency="GHS" />}
+          icon={Activity}
+          accent="primary"
+          description="Net income this month"
+        />
       </div>
 
       {/* Quick Actions */}
@@ -323,7 +288,6 @@ export default function FinanceOverviewPage() {
               </div>
               <div>
                 <h3 className="font-semibold">Giving</h3>
-                <p className="text-sm text-muted-foreground">Manage giving</p>
               </div>
             </div>
           </CardContent>
@@ -337,7 +301,6 @@ export default function FinanceOverviewPage() {
               </div>
               <div>
                 <h3 className="font-semibold">Tithes & Offerings</h3>
-                <p className="text-sm text-muted-foreground">Track tithes</p>
               </div>
             </div>
           </CardContent>
@@ -351,7 +314,6 @@ export default function FinanceOverviewPage() {
               </div>
               <div>
                 <h3 className="font-semibold">Expenses</h3>
-                <p className="text-sm text-muted-foreground">Track expenses</p>
               </div>
             </div>
           </CardContent>
@@ -365,7 +327,6 @@ export default function FinanceOverviewPage() {
               </div>
               <div>
                 <h3 className="font-semibold">Budgets</h3>
-                <p className="text-sm text-muted-foreground">Manage budgets</p>
               </div>
             </div>
           </CardContent>
@@ -381,9 +342,6 @@ export default function FinanceOverviewPage() {
               <BarChart3 className="mr-2 h-5 w-5" />
               Recent Giving
             </CardTitle>
-            <CardDescription>
-              Latest giving transactions recorded
-            </CardDescription>
           </CardHeader>
           <CardContent>
             <DataTable
@@ -413,9 +371,6 @@ export default function FinanceOverviewPage() {
               <PieChart className="mr-2 h-5 w-5" />
               Recent Expenses
             </CardTitle>
-            <CardDescription>
-              Latest expenses recorded
-            </CardDescription>
           </CardHeader>
           <CardContent>
             <DataTable

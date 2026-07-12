@@ -20,11 +20,13 @@ import {
 } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { DataTable } from '@/components/ui/data-table';
 import { Badge } from '@/components/ui/badge';
 import { LazySection } from '@/components/ui/lazy-section';
 import { Skeleton } from '@/components/ui/skeleton';
+import { PageHeader } from '@/components/ui/page-header';
+import { StatCard } from '@/components/ui/stat-card';
 import { ColumnDef } from '@tanstack/react-table';
 import { Asset, AssetStatus, AssetCondition, AssetCategory } from '@/lib/types/assets';
 
@@ -378,79 +380,52 @@ export default function AssetsOverviewPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Assets</h1>
-          <p className="text-muted-foreground">
-            Manage church assets, equipment, and inventory
-          </p>
-        </div>
-        <Button asChild>
-          <Link href="/dashboard/assets/add">
-            <Plus className="mr-2 h-4 w-4" />
-            Add Asset
-          </Link>
-        </Button>
-      </div>
+      <PageHeader
+        title="Assets"
+        actions={
+          <Button asChild>
+            <Link href="/dashboard/assets/add">
+              <Plus className="mr-2 h-4 w-4" />
+              Add Asset
+            </Link>
+          </Button>
+        }
+      />
 
       {/* Stats Cards */}
       <LazySection>
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Assets</CardTitle>
-              <Package className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{assetStats.totalAssets}</div>
-              <p className="text-xs text-muted-foreground">
-                {assetStats.categoriesCount} categories
-              </p>
-            </CardContent>
-          </Card>
+          <StatCard
+            title="Total Assets"
+            value={assetStats.totalAssets}
+            icon={Package}
+            accent="primary"
+            description={`${assetStats.categoriesCount} categories`}
+          />
 
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Value</CardTitle>
-              <TrendingUp className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">
-                {formatCurrency(assetStats.totalValue)}
-              </div>
-              <p className="text-xs text-muted-foreground">
-                Avg: {formatCurrency(assetStats.averageValue)}
-              </p>
-            </CardContent>
-          </Card>
+          <StatCard
+            title="Total Value"
+            value={formatCurrency(assetStats.totalValue)}
+            icon={TrendingUp}
+            accent="secondary"
+            description={`Avg: ${formatCurrency(assetStats.averageValue)}`}
+          />
 
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Active Assets</CardTitle>
-              <Users className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{assetStats.activeAssets}</div>
-              <p className="text-xs text-muted-foreground">
-                {((assetStats.activeAssets / assetStats.totalAssets) * 100).toFixed(1)}% of total
-              </p>
-            </CardContent>
-          </Card>
+          <StatCard
+            title="Active Assets"
+            value={assetStats.activeAssets}
+            icon={Users}
+            accent="success"
+            description={`${((assetStats.activeAssets / assetStats.totalAssets) * 100).toFixed(1)}% of total`}
+          />
 
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Needs Attention</CardTitle>
-              <AlertTriangle className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-amber-600">
-                {assetStats.maintenanceNeeded + assetStats.warrantyExpiring}
-              </div>
-              <p className="text-xs text-muted-foreground">
-                {assetStats.maintenanceNeeded} maintenance, {assetStats.warrantyExpiring} warranty
-              </p>
-            </CardContent>
-          </Card>
+          <StatCard
+            title="Needs Attention"
+            value={assetStats.maintenanceNeeded + assetStats.warrantyExpiring}
+            icon={AlertTriangle}
+            accent="accent"
+            description={`${assetStats.maintenanceNeeded} maintenance, ${assetStats.warrantyExpiring} warranty`}
+          />
         </div>
       </LazySection>
 
@@ -459,9 +434,6 @@ export default function AssetsOverviewPage() {
         <Card>
           <CardHeader>
             <CardTitle>Quick Actions</CardTitle>
-            <CardDescription>
-              Common asset management tasks
-            </CardDescription>
           </CardHeader>
           <CardContent>
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
@@ -500,12 +472,7 @@ export default function AssetsOverviewPage() {
         <Card>
           <CardHeader>
             <div className="flex items-center justify-between">
-              <div>
-                <CardTitle>Recent Assets</CardTitle>
-                <CardDescription>
-                  Latest registered assets and their status
-                </CardDescription>
-              </div>
+              <CardTitle>Recent Assets</CardTitle>
               <Button variant="outline" asChild>
                 <Link href="/dashboard/assets/reports">
                   <FileText className="mr-2 h-4 w-4" />

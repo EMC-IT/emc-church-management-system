@@ -5,7 +5,9 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { PageHeader } from '@/components/ui/page-header';
+import { StatCard } from '@/components/ui/stat-card';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { 
@@ -153,26 +155,25 @@ export default function PrayerRequestsPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Prayer Requests</h1>
-          <p className="text-muted-foreground">Manage and track prayer requests from the congregation</p>
-        </div>
-        <div className="flex gap-2">
-          <Button variant="outline" asChild>
-            <Link href="/dashboard/prayer-requests/categories">
-              <FolderOpen className="mr-2 h-4 w-4" />
-              Categories
-            </Link>
-          </Button>
-          <Button className="bg-brand-primary hover:bg-brand-primary/90" asChild>
-            <Link href="/dashboard/prayer-requests/add">
-              <Plus className="mr-2 h-4 w-4" />
-              New Request
-            </Link>
-          </Button>
-        </div>
-      </div>
+      <PageHeader
+        title="Prayer Requests"
+        actions={
+          <>
+            <Button variant="outline" asChild>
+              <Link href="/dashboard/prayer-requests/categories">
+                <FolderOpen className="mr-2 h-4 w-4" />
+                Categories
+              </Link>
+            </Button>
+            <Button className="bg-brand-primary hover:bg-brand-primary/90" asChild>
+              <Link href="/dashboard/prayer-requests/add">
+                <Plus className="mr-2 h-4 w-4" />
+                New Request
+              </Link>
+            </Button>
+          </>
+        }
+      />
 
       {/* Old dialog kept for backward compatibility but hidden */}
       <div className="hidden">
@@ -249,52 +250,16 @@ export default function PrayerRequestsPage() {
 
       {/* Stats Cards */}
       <div className="grid gap-4 md:grid-cols-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Requests</CardTitle>
-            <Heart className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{totalRequests}</div>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">New Requests</CardTitle>
-            <AlertCircle className="h-4 w-4 text-blue-600" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-blue-600">{newRequests}</div>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">In Progress</CardTitle>
-            <Clock className="h-4 w-4 text-yellow-600" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-yellow-600">{inProgress}</div>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Answered</CardTitle>
-            <CheckCircle className="h-4 w-4 text-green-600" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-green-600">{answered}</div>
-          </CardContent>
-        </Card>
+        <StatCard title="Total Requests" value={totalRequests} icon={Heart} accent="primary" />
+        <StatCard title="New Requests" value={newRequests} icon={AlertCircle} accent="secondary" />
+        <StatCard title="In Progress" value={inProgress} icon={Clock} accent="accent" />
+        <StatCard title="Answered" value={answered} icon={CheckCircle} accent="success" />
       </div>
 
       {/* Prayer Requests Table */}
       <Card>
         <CardHeader>
           <CardTitle>Prayer Request Management</CardTitle>
-          <CardDescription>View and manage all prayer requests</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="flex items-center space-x-4 mb-4">

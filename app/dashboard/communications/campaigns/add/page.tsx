@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { PageHeader } from '@/components/ui/page-header';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
@@ -307,15 +308,9 @@ export default function AddCampaignPage() {
         >
           <ArrowLeft className="h-4 w-4" />
         </Button>
-        
-        <div className="flex items-center gap-3">
-          <div className="p-2 bg-brand-primary/10 rounded-lg">
-            <Send className="h-6 w-6 text-brand-primary" />
-          </div>
-          <div>
-            <h1 className="text-2xl font-bold tracking-tight">Create New Campaign</h1>
-            <p className="text-muted-foreground">Send targeted SMS or email campaigns to your congregation</p>
-          </div>
+
+        <div className="flex-1">
+          <PageHeader title="Create New Campaign" />
         </div>
       </div>
 

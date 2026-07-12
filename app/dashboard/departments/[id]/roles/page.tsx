@@ -6,6 +6,7 @@ import { Plus, Search, MoreHorizontal, Edit, Trash2, Users, Crown, Shield, FileT
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { PageHeader } from '@/components/ui/page-header';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
@@ -191,103 +192,99 @@ export default function DepartmentRolesPage() {
   return (
     <div className="space-y-6">
       
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div>
-          <h1 className="text-3xl font-bold">{department?.name} Roles</h1>
-          <p className="text-muted-foreground">
-            Define and manage leadership roles and responsibilities
-          </p>
-        </div>
-        
-        <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
-          <DialogTrigger asChild>
-            <Button>
-              <Plus className="mr-2 h-4 w-4" />
-              Add Role
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="max-w-2xl">
-            <DialogHeader>
-              <DialogTitle>Create New Role</DialogTitle>
-              <DialogDescription>
-                Define a new role with its responsibilities and requirements.
-              </DialogDescription>
-            </DialogHeader>
-            
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
+      <PageHeader
+        title={<>{department?.name} Roles</>}
+        actions={
+          <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
+            <DialogTrigger asChild>
+              <Button>
+                <Plus className="mr-2 h-4 w-4" />
+                Add Role
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="max-w-2xl">
+              <DialogHeader>
+                <DialogTitle>Create New Role</DialogTitle>
+                <DialogDescription>
+                  Define a new role with its responsibilities and requirements.
+                </DialogDescription>
+              </DialogHeader>
+
+              <form onSubmit={handleSubmit} className="space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="title">Role Title</Label>
+                    <Input
+                      id="title"
+                      value={formData.title}
+                      onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                      placeholder="e.g., Worship Leader"
+                      required
+                    />
+                  </div>
+
+                  <div>
+                    <Label htmlFor="level">Role Level</Label>
+                    <Select value={formData.level} onValueChange={(value: any) => setFormData({ ...formData, level: value })}>
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="leader">Leader</SelectItem>
+                        <SelectItem value="assistant">Assistant</SelectItem>
+                        <SelectItem value="member">Member</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+
                 <div>
-                  <Label htmlFor="title">Role Title</Label>
-                  <Input
-                    id="title"
-                    value={formData.title}
-                    onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                    placeholder="e.g., Worship Leader"
+                  <Label htmlFor="description">Description</Label>
+                  <Textarea
+                    id="description"
+                    value={formData.description}
+                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                    placeholder="Brief description of the role..."
                     required
                   />
                 </div>
-                
+
                 <div>
-                  <Label htmlFor="level">Role Level</Label>
-                  <Select value={formData.level} onValueChange={(value: any) => setFormData({ ...formData, level: value })}>
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="leader">Leader</SelectItem>
-                      <SelectItem value="assistant">Assistant</SelectItem>
-                      <SelectItem value="member">Member</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <Label htmlFor="responsibilities">Responsibilities</Label>
+                  <Textarea
+                    id="responsibilities"
+                    value={formData.responsibilities}
+                    onChange={(e) => setFormData({ ...formData, responsibilities: e.target.value })}
+                    placeholder="List responsibilities (one per line)..."
+                    rows={4}
+                    required
+                  />
                 </div>
-              </div>
-              
-              <div>
-                <Label htmlFor="description">Description</Label>
-                <Textarea
-                  id="description"
-                  value={formData.description}
-                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                  placeholder="Brief description of the role..."
-                  required
-                />
-              </div>
-              
-              <div>
-                <Label htmlFor="responsibilities">Responsibilities</Label>
-                <Textarea
-                  id="responsibilities"
-                  value={formData.responsibilities}
-                  onChange={(e) => setFormData({ ...formData, responsibilities: e.target.value })}
-                  placeholder="List responsibilities (one per line)..."
-                  rows={4}
-                  required
-                />
-              </div>
-              
-              <div>
-                <Label htmlFor="requirements">Requirements</Label>
-                <Textarea
-                  id="requirements"
-                  value={formData.requirements}
-                  onChange={(e) => setFormData({ ...formData, requirements: e.target.value })}
-                  placeholder="List requirements (one per line)..."
-                  rows={3}
-                />
-              </div>
-              
-              <DialogFooter>
-                <Button type="button" variant="outline" onClick={() => setShowAddDialog(false)}>
-                  Cancel
-                </Button>
-                <Button type="submit">
-                  Create Role
-                </Button>
-              </DialogFooter>
-            </form>
-          </DialogContent>
-        </Dialog>
-      </div>
+
+                <div>
+                  <Label htmlFor="requirements">Requirements</Label>
+                  <Textarea
+                    id="requirements"
+                    value={formData.requirements}
+                    onChange={(e) => setFormData({ ...formData, requirements: e.target.value })}
+                    placeholder="List requirements (one per line)..."
+                    rows={3}
+                  />
+                </div>
+
+                <DialogFooter>
+                  <Button type="button" variant="outline" onClick={() => setShowAddDialog(false)}>
+                    Cancel
+                  </Button>
+                  <Button type="submit">
+                    Create Role
+                  </Button>
+                </DialogFooter>
+              </form>
+            </DialogContent>
+          </Dialog>
+        }
+      />
 
       {/* Search */}
       <Card>

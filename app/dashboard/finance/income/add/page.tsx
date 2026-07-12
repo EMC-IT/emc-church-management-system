@@ -18,12 +18,13 @@ import {
 } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { LazySection } from '@/components/ui/lazy-section';
+import { PageHeader } from '@/components/ui/page-header';
 import { toast } from 'sonner';
 
 // Form validation schema
@@ -116,21 +117,17 @@ export default function AddIncomePage() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center space-x-4">
+      <PageHeader
+        title="Record Income"
+        actions={
           <Button variant="outline" size="sm" asChild>
             <Link href="/dashboard/finance/income">
               <ArrowLeft className="mr-2 h-4 w-4" />
               Back to Income
             </Link>
           </Button>
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight">Record Income</h1>
-            <p className="text-muted-foreground">Add a new income transaction</p>
-          </div>
-        </div>
-      </div>
+        }
+      />
 
       {/* Form */}
       <LazySection
@@ -146,9 +143,6 @@ export default function AddIncomePage() {
               <BadgeCent className="mr-2 h-5 w-5" />
               Income Details
             </CardTitle>
-            <CardDescription>
-              Enter the details of the income transaction
-            </CardDescription>
           </CardHeader>
           <CardContent>
             <Form {...form}>

@@ -7,7 +7,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { PageHeader } from '@/components/ui/page-header';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Switch } from '@/components/ui/switch';
 import { Badge } from '@/components/ui/badge';
@@ -191,12 +192,7 @@ export default function SettingsPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Settings</h1>
-          <p className="text-muted-foreground">Manage system settings and configurations</p>
-        </div>
-      </div>
+      <PageHeader title="Settings" />
 
       <Tabs value={activeTab} onValueChange={setActiveTab}>
         <TabsList className="grid w-full grid-cols-6">
@@ -218,7 +214,6 @@ export default function SettingsPage() {
                       <Settings className="mr-2 h-5 w-5" />
                       Church Information
                     </CardTitle>
-                    <CardDescription>Comprehensive church profile and identity</CardDescription>
                   </div>
                   <Button variant="outline" size="sm" asChild>
                     <Link href="/dashboard/settings/church-profile">
@@ -268,7 +263,6 @@ export default function SettingsPage() {
                       <Building2 className="mr-2 h-5 w-5" />
                       Branch Management
                     </CardTitle>
-                    <CardDescription>Manage church branches and locations</CardDescription>
                   </div>
                   <Button variant="outline" size="sm" asChild>
                     <Link href="/dashboard/settings/branches">
@@ -312,7 +306,6 @@ export default function SettingsPage() {
                   <Palette className="mr-2 h-5 w-5" />
                   Appearance
                 </CardTitle>
-                <CardDescription>Customize the look and feel</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div>
@@ -405,7 +398,6 @@ export default function SettingsPage() {
                     <Users className="mr-2 h-5 w-5" />
                     User Management
                   </CardTitle>
-                  <CardDescription>Manage system users and their access</CardDescription>
                 </div>
                 <Button asChild className="bg-brand-primary hover:bg-brand-primary/90">
                   <Link href="/dashboard/settings/users/add">
@@ -483,7 +475,6 @@ export default function SettingsPage() {
                     <Shield className="mr-2 h-5 w-5" />
                     Role Management
                   </CardTitle>
-                  <CardDescription>Configure roles and permissions</CardDescription>
                 </div>
                 <div className="flex gap-2">
                   <Button variant="outline" asChild>
@@ -576,7 +567,6 @@ export default function SettingsPage() {
                 <Bell className="mr-2 h-5 w-5" />
                 Notification Settings
               </CardTitle>
-              <CardDescription>Configure system notifications and alerts</CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="space-y-4">
@@ -652,7 +642,6 @@ export default function SettingsPage() {
                 <Globe className="mr-2 h-5 w-5" />
                 Third-Party Integrations
               </CardTitle>
-              <CardDescription>Connect with external services</CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="grid gap-4 md:grid-cols-2">
@@ -766,7 +755,6 @@ export default function SettingsPage() {
                 <Database className="mr-2 h-5 w-5" />
                 Backup & Recovery
               </CardTitle>
-              <CardDescription>Manage data backups and system recovery</CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="grid gap-4 md:grid-cols-2">

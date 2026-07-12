@@ -10,8 +10,8 @@ import { CalendarIcon, Upload, X, ArrowLeft, Plus } from 'lucide-react';
 import { format } from 'date-fns';
 
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -204,12 +204,7 @@ export default function AddAssetPage() {
         <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-brand-primary/10">
           <Plus className="h-6 w-6 text-brand-primary" />
         </div>
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">Add New Asset</h1>
-          <p className="text-gray-600">
-            Register a new asset in the church inventory system
-          </p>
-        </div>
+        <h1 className="text-3xl font-bold text-gray-900">Add New Asset</h1>
       </div>
 
       <Form {...form}>
@@ -218,9 +213,6 @@ export default function AddAssetPage() {
           <Card>
             <CardHeader>
               <CardTitle>Basic Information</CardTitle>
-              <CardDescription>
-                Essential details about the asset
-              </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -365,9 +357,6 @@ export default function AddAssetPage() {
           <Card>
             <CardHeader>
               <CardTitle>Financial Information</CardTitle>
-              <CardDescription>
-                Purchase price, current value, and depreciation details
-              </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -451,9 +440,6 @@ export default function AddAssetPage() {
                           onChange={(e) => field.onChange(parseFloat(e.target.value) || undefined)}
                         />
                       </FormControl>
-                      <FormDescription>
-                        Annual depreciation rate
-                      </FormDescription>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -466,9 +452,6 @@ export default function AddAssetPage() {
           <Card>
             <CardHeader>
               <CardTitle>Location & Assignment</CardTitle>
-              <CardDescription>
-                Where the asset is located and who it's assigned to
-              </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -543,9 +526,6 @@ export default function AddAssetPage() {
           <Card>
             <CardHeader>
               <CardTitle>Important Dates</CardTitle>
-              <CardDescription>
-                Purchase date, warranty, and maintenance schedules
-              </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -678,9 +658,6 @@ export default function AddAssetPage() {
           <Card>
             <CardHeader>
               <CardTitle>Technical Details</CardTitle>
-              <CardDescription>
-                Manufacturer information, serial numbers, and identifiers
-              </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -763,9 +740,6 @@ export default function AddAssetPage() {
           <Card>
             <CardHeader>
               <CardTitle>Additional Information</CardTitle>
-              <CardDescription>
-                Notes, tags, and other relevant details
-              </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <FormField

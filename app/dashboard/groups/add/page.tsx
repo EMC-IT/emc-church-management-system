@@ -6,7 +6,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label as UILabel } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { PageHeader } from '@/components/ui/page-header';
 import { 
   Select,
   SelectContent,
@@ -124,24 +125,16 @@ export default function AddGroupPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div className="space-y-1">
-          <div className="flex items-center space-x-2">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={handleCancel}
-              className="h-8 w-8"
-            >
-              <ArrowLeft className="h-4 w-4" />
-            </Button>
-            <div>
-              <h1 className="text-3xl font-bold tracking-tight">Create New Group</h1>
-              <p className="text-muted-foreground">Add a new group to your church community</p>
-            </div>
-          </div>
-
-        </div>
+      <div className="flex items-center gap-2">
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={handleCancel}
+          className="h-8 w-8"
+        >
+          <ArrowLeft className="h-4 w-4" />
+        </Button>
+        <PageHeader title="Create New Group" />
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
@@ -155,9 +148,6 @@ export default function AddGroupPage() {
                   <Users className="h-5 w-5" />
                   <span>Basic Information</span>
                 </CardTitle>
-                <CardDescription>
-                  Enter the basic details for the new group
-                </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="grid gap-4 md:grid-cols-2">
@@ -245,9 +235,6 @@ export default function AddGroupPage() {
                   <Calendar className="h-5 w-5" />
                   <span>Meeting Details</span>
                 </CardTitle>
-                <CardDescription>
-                  Specify when and where the group meets
-                </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="grid gap-4 md:grid-cols-2">
@@ -281,9 +268,6 @@ export default function AddGroupPage() {
                   <User className="h-5 w-5" />
                   <span>Group Leader</span>
                 </CardTitle>
-                <CardDescription>
-                  Assign a leader for this group
-                </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="grid gap-4 md:grid-cols-2">
@@ -330,9 +314,6 @@ export default function AddGroupPage() {
             <Card>
               <CardHeader>
                 <CardTitle>Actions</CardTitle>
-                <CardDescription>
-                  Save or cancel your changes
-                </CardDescription>
               </CardHeader>
               <CardContent className="space-y-3">
                 <Button

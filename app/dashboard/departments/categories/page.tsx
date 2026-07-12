@@ -6,6 +6,8 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { PageHeader } from '@/components/ui/page-header';
+import { StatCard } from '@/components/ui/stat-card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -320,12 +322,7 @@ export default function DepartmentCategoriesPage() {
           <Button variant="outline" size="icon" onClick={() => router.back()}>
             <ArrowLeft className="h-4 w-4" />
           </Button>
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight">Department Categories</h1>
-            <p className="text-muted-foreground">
-              Organize departments by creating and managing categories
-            </p>
-          </div>
+          <PageHeader title="Department Categories" />
         </div>
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
           <DialogTrigger asChild>
@@ -450,36 +447,23 @@ export default function DepartmentCategoriesPage() {
 
       {/* Stats */}
       <div className="grid gap-4 md:grid-cols-3">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Categories</CardTitle>
-            <Tag className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{categories.length}</div>
-            <p className="text-xs text-muted-foreground">
-              Active categories
-            </p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Most Used</CardTitle>
-            <Building2 className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">Music Ministry</div>
-            <p className="text-xs text-muted-foreground">
-              3 departments
-            </p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Color Palette</CardTitle>
-            <Palette className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
+        <StatCard
+          title="Total Categories"
+          value={categories.length}
+          icon={Tag}
+          accent="primary"
+          description="Active categories"
+        />
+        <StatCard
+          title="Most Used"
+          value="Music Ministry"
+          icon={Building2}
+          accent="secondary"
+          description="3 departments"
+        />
+        <StatCard
+          title="Color Palette"
+          value={
             <div className="flex space-x-1">
               {categories.slice(0, 6).map((category, index) => (
                 <div
@@ -489,11 +473,11 @@ export default function DepartmentCategoriesPage() {
                 />
               ))}
             </div>
-            <p className="text-xs text-muted-foreground mt-2">
-              Category colors
-            </p>
-          </CardContent>
-        </Card>
+          }
+          icon={Palette}
+          accent="success"
+          description="Category colors"
+        />
       </div>
 
       {/* Categories Table */}

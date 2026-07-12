@@ -6,7 +6,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { PageHeader } from '@/components/ui/page-header';
 import {
   Select,
   SelectContent,
@@ -181,22 +182,17 @@ export default function AddClassPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="space-y-1">
-          <div className="flex items-center space-x-2">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={handleCancel}
-              className="h-8 w-8"
-            >
-              <ArrowLeft className="h-4 w-4" />
-            </Button>
-            <div>
-              <h1 className="text-3xl font-bold tracking-tight">Create New Class</h1>
-              <p className="text-muted-foreground">Set up a new Sunday School class</p>
-            </div>
-          </div>
+      <div className="flex items-center gap-2">
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={handleCancel}
+          className="h-8 w-8"
+        >
+          <ArrowLeft className="h-4 w-4" />
+        </Button>
+        <div className="flex-1">
+          <PageHeader title="Create New Class" />
         </div>
       </div>
 
@@ -211,9 +207,6 @@ export default function AddClassPage() {
                   <School className="h-5 w-5" />
                   <span>Basic Information</span>
                 </CardTitle>
-                <CardDescription>
-                  Enter the basic details for the new class
-                </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="grid gap-4 md:grid-cols-2">
@@ -275,9 +268,6 @@ export default function AddClassPage() {
                   <GraduationCap className="h-5 w-5" />
                   <span>Teacher Assignment</span>
                 </CardTitle>
-                <CardDescription>
-                  Assign a teacher to lead this class
-                </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="grid gap-4 md:grid-cols-2">
@@ -336,9 +326,6 @@ export default function AddClassPage() {
                   <Calendar className="h-5 w-5" />
                   <span>Schedule & Location</span>
                 </CardTitle>
-                <CardDescription>
-                  Set the class schedule and meeting location
-                </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="grid gap-4 md:grid-cols-3">

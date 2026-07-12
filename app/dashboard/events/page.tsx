@@ -3,7 +3,9 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { PageHeader } from '@/components/ui/page-header';
+import { StatCard } from '@/components/ui/stat-card';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { 
@@ -120,82 +122,44 @@ export default function EventsPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Events</h1>
-          <p className="text-muted-foreground">Manage church events and activities</p>
-        </div>
-        <div className="flex items-center gap-2">
-          <Button variant="outline" asChild>
-            <Link href="/dashboard/events/calendar">
-              <CalendarIcon className="mr-2 h-4 w-4" />
-              Calendar View
-            </Link>
-          </Button>
-          <Button variant="outline" asChild>
-            <Link href="/dashboard/events/categories">
-              <Filter className="mr-2 h-4 w-4" />
-              Categories
-            </Link>
-          </Button>
-          <Button asChild className="bg-brand-primary hover:bg-brand-primary/90">
-            <Link href="/dashboard/events/add">
-              <Plus className="mr-2 h-4 w-4" />
-              Create Event
-            </Link>
-          </Button>
-        </div>
-      </div>
+      <PageHeader
+        title="Events"
+        actions={
+          <>
+            <Button variant="outline" asChild>
+              <Link href="/dashboard/events/calendar">
+                <CalendarIcon className="mr-2 h-4 w-4" />
+                Calendar View
+              </Link>
+            </Button>
+            <Button variant="outline" asChild>
+              <Link href="/dashboard/events/categories">
+                <Filter className="mr-2 h-4 w-4" />
+                Categories
+              </Link>
+            </Button>
+            <Button asChild className="bg-brand-primary hover:bg-brand-primary/90">
+              <Link href="/dashboard/events/add">
+                <Plus className="mr-2 h-4 w-4" />
+                Create Event
+              </Link>
+            </Button>
+          </>
+        }
+      />
 
       {/* Stats Cards */}
       <div className="grid gap-4 md:grid-cols-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Events</CardTitle>
-            <CalendarIcon className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{events.length}</div>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Upcoming Events</CardTitle>
-            <Clock className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{upcomingEvents}</div>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Attendees</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{totalAttendees}</div>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">This Week</CardTitle>
-            <CalendarIcon className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">3</div>
-            <p className="text-xs text-muted-foreground">Events scheduled</p>
-          </CardContent>
-        </Card>
+        <StatCard title="Total Events" value={events.length} icon={CalendarIcon} />
+        <StatCard title="Upcoming Events" value={upcomingEvents} icon={Clock} />
+        <StatCard title="Total Attendees" value={totalAttendees} icon={Users} />
+        <StatCard title="This Week" value={3} icon={CalendarIcon} description="Events scheduled" />
       </div>
 
       {/* Quick Actions */}
       <Card>
         <CardHeader>
           <CardTitle>Quick Actions</CardTitle>
-          <CardDescription>Streamline your event management workflow</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
@@ -302,7 +266,6 @@ export default function EventsPage() {
       <Card>
         <CardHeader>
           <CardTitle>Event Management</CardTitle>
-          <CardDescription>View and manage all church events</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="flex items-center space-x-4 mb-6">

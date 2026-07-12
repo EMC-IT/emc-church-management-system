@@ -2,7 +2,8 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { PageHeader } from '@/components/ui/page-header';
+import { StatCard } from '@/components/ui/stat-card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
@@ -310,80 +311,56 @@ export default function DepartmentsPage() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Departments</h1>
-          <p className="text-muted-foreground">
-            Manage church departments, their members, and activities
-          </p>
-        </div>
-        <div className="flex items-center gap-2">
-          <Button variant="outline" asChild>
-            <Link href="/dashboard/departments/categories">
-              <Settings className="mr-2 h-4 w-4" />
-              Categories
-            </Link>
-          </Button>
-          <Button asChild>
-            <Link href="/dashboard/departments/add">
-              <Plus className="mr-2 h-4 w-4" />
-              Add Department
-            </Link>
-          </Button>
-        </div>
-      </div>
+      <PageHeader
+        title="Departments"
+        actions={
+          <div className="flex items-center gap-2">
+            <Button variant="outline" asChild>
+              <Link href="/dashboard/departments/categories">
+                <Settings className="mr-2 h-4 w-4" />
+                Categories
+              </Link>
+            </Button>
+            <Button asChild>
+              <Link href="/dashboard/departments/add">
+                <Plus className="mr-2 h-4 w-4" />
+                Add Department
+              </Link>
+            </Button>
+          </div>
+        }
+      />
 
       {/* Stats Cards */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Departments</CardTitle>
-            <Building2 className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{departments.length}</div>
-            <p className="text-xs text-muted-foreground">
-              {activeDepartments} active departments
-            </p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Members</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{totalMembers}</div>
-            <p className="text-xs text-muted-foreground">
-              Across all departments
-            </p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Average Attendance</CardTitle>
-            <TrendingUp className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{averageAttendance}%</div>
-            <p className="text-xs text-muted-foreground">
-              Department meetings
-            </p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Categories</CardTitle>
-            <Filter className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{categories.length}</div>
-            <p className="text-xs text-muted-foreground">
-              Department categories
-            </p>
-          </CardContent>
-        </Card>
+        <StatCard
+          title="Total Departments"
+          value={departments.length}
+          icon={Building2}
+          accent="primary"
+          description={`${activeDepartments} active departments`}
+        />
+        <StatCard
+          title="Total Members"
+          value={totalMembers}
+          icon={Users}
+          accent="secondary"
+          description="Across all departments"
+        />
+        <StatCard
+          title="Average Attendance"
+          value={`${averageAttendance}%`}
+          icon={TrendingUp}
+          accent="success"
+          description="Department meetings"
+        />
+        <StatCard
+          title="Categories"
+          value={categories.length}
+          icon={Filter}
+          accent="accent"
+          description="Department categories"
+        />
       </div>
 
       {/* Departments Table */}

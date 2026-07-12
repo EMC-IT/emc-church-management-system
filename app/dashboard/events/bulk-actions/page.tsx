@@ -3,7 +3,8 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { PageHeader } from '@/components/ui/page-header';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
@@ -225,10 +226,7 @@ export default function BulkActionsPage() {
           <div className="p-2 bg-brand-primary/10 rounded-lg">
             <CheckSquare className="h-6 w-6 text-brand-primary" />
           </div>
-          <div>
-            <h1 className="text-2xl font-bold tracking-tight">Bulk Actions</h1>
-            <p className="text-muted-foreground">Perform actions on multiple events</p>
-          </div>
+          <PageHeader title="Bulk Actions" />
         </div>
       </div>
 
@@ -236,7 +234,6 @@ export default function BulkActionsPage() {
       <Card>
         <CardHeader>
           <CardTitle>Event Selection</CardTitle>
-          <CardDescription>Filter and select events for bulk operations</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="flex items-center space-x-4 mb-6">

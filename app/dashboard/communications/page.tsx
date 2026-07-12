@@ -6,6 +6,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { PageHeader } from '@/components/ui/page-header';
+import { StatCard } from '@/components/ui/stat-card';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { 
@@ -403,26 +405,24 @@ export default function CommunicationsPage() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Communications</h1>
-          <p className="text-muted-foreground">Manage all church communications and engagement</p>
-        </div>
-        <div className="flex space-x-2">
-          <Button variant="outline">
-            <Download className="mr-2 h-4 w-4" />
-            Export Report
-          </Button>
-          <Button 
-            className="bg-brand-primary hover:bg-brand-primary/90"
-            onClick={() => router.push('/dashboard/communications/campaigns/add')}
-          >
-            <Plus className="mr-2 h-4 w-4" />
-            New Campaign
-          </Button>
-        </div>
-      </div>
+      <PageHeader
+        title="Communications"
+        actions={
+          <>
+            <Button variant="outline">
+              <Download className="mr-2 h-4 w-4" />
+              Export Report
+            </Button>
+            <Button
+              className="bg-brand-primary hover:bg-brand-primary/90"
+              onClick={() => router.push('/dashboard/communications/campaigns/add')}
+            >
+              <Plus className="mr-2 h-4 w-4" />
+              New Campaign
+            </Button>
+          </>
+        }
+      />
 
       <Tabs value={activeTab} onValueChange={setActiveTab}>
         <TabsList className="grid w-full grid-cols-6">
@@ -437,100 +437,62 @@ export default function CommunicationsPage() {
         <TabsContent value="overview" className="space-y-6">
           {/* Key Metrics Cards */}
           <div className="grid gap-4 grid-cols-2 md:grid-cols-4">
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Messages Sent</CardTitle>
-                <MessageSquare className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">{communicationStats.messagesSent.toLocaleString()}</div>
-                <p className="text-xs text-muted-foreground">This month</p>
-              </CardContent>
-            </Card>
-            
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Open Rate</CardTitle>
-                <Eye className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold text-brand-primary">{communicationStats.openRate}%</div>
-                <p className="text-xs text-muted-foreground">Average open rate</p>
-              </CardContent>
-            </Card>
-            
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Active Campaigns</CardTitle>
-                <Activity className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">{communicationStats.activeCampaigns}</div>
-                <p className="text-xs text-muted-foreground">Running campaigns</p>
-              </CardContent>
-            </Card>
-            
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Member Reach</CardTitle>
-                <Users className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">{communicationStats.memberReach}</div>
-                <p className="text-xs text-muted-foreground">Active subscribers</p>
-              </CardContent>
-            </Card>
-            
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Delivery Rate</CardTitle>
-                <CheckCircle className="h-4 w-4 text-brand-success" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold text-brand-success">{communicationStats.deliveryRate}%</div>
-                <p className="text-xs text-muted-foreground">Success rate</p>
-              </CardContent>
-            </Card>
-            
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Click Rate</CardTitle>
-                <MousePointer className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">{communicationStats.clickRate}%</div>
-                <p className="text-xs text-muted-foreground">Click-through rate</p>
-              </CardContent>
-            </Card>
-            
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Response Rate</CardTitle>
-                <TrendingUp className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">{communicationStats.responseRate}%</div>
-                <p className="text-xs text-muted-foreground">Member responses</p>
-              </CardContent>
-            </Card>
-            
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Unsubscribe Rate</CardTitle>
-                <XCircle className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">{communicationStats.unsubscribeRate}%</div>
-                <p className="text-xs text-muted-foreground">Monthly average</p>
-              </CardContent>
-            </Card>
+            <StatCard
+              title="Messages Sent"
+              value={communicationStats.messagesSent.toLocaleString()}
+              icon={MessageSquare}
+              description="This month"
+            />
+            <StatCard
+              title="Open Rate"
+              value={`${communicationStats.openRate}%`}
+              icon={Eye}
+              accent="primary"
+              description="Average open rate"
+            />
+            <StatCard
+              title="Active Campaigns"
+              value={communicationStats.activeCampaigns}
+              icon={Activity}
+              description="Running campaigns"
+            />
+            <StatCard
+              title="Member Reach"
+              value={communicationStats.memberReach}
+              icon={Users}
+              description="Active subscribers"
+            />
+            <StatCard
+              title="Delivery Rate"
+              value={`${communicationStats.deliveryRate}%`}
+              icon={CheckCircle}
+              accent="success"
+              description="Success rate"
+            />
+            <StatCard
+              title="Click Rate"
+              value={`${communicationStats.clickRate}%`}
+              icon={MousePointer}
+              description="Click-through rate"
+            />
+            <StatCard
+              title="Response Rate"
+              value={`${communicationStats.responseRate}%`}
+              icon={TrendingUp}
+              description="Member responses"
+            />
+            <StatCard
+              title="Unsubscribe Rate"
+              value={`${communicationStats.unsubscribeRate}%`}
+              icon={XCircle}
+              description="Monthly average"
+            />
           </div>
 
           {/* Quick Actions */}
           <Card>
             <CardHeader>
               <CardTitle>Quick Actions</CardTitle>
-              <CardDescription>Common communication tasks</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="grid gap-4 md:grid-cols-3">
@@ -567,7 +529,6 @@ export default function CommunicationsPage() {
             <Card>
               <CardHeader>
                 <CardTitle>Communication Trends</CardTitle>
-                <CardDescription>Monthly communication metrics</CardDescription>
               </CardHeader>
               <CardContent>
                 <ChartContainer config={monthlyStatsConfig} className="h-[300px] w-full">
@@ -620,7 +581,6 @@ export default function CommunicationsPage() {
             <Card>
               <CardHeader>
                 <CardTitle>Recent Activity</CardTitle>
-                <CardDescription>Latest communication activities</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
@@ -660,7 +620,6 @@ export default function CommunicationsPage() {
               <div className="flex items-center justify-between">
                 <div>
                   <CardTitle>All Announcements</CardTitle>
-                  <CardDescription>View and manage church announcements</CardDescription>
                 </div>
                 <div className="flex space-x-2">
                   <div className="relative">
@@ -923,7 +882,6 @@ export default function CommunicationsPage() {
             <Card>
               <CardHeader>
                 <CardTitle>Message Templates</CardTitle>
-                <CardDescription>Quick message templates</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
@@ -946,7 +904,6 @@ export default function CommunicationsPage() {
             <Card className="md:col-span-2">
               <CardHeader>
                 <CardTitle>Compose Message</CardTitle>
-                <CardDescription>Send a message to members</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="grid gap-4 md:grid-cols-2">
@@ -1055,7 +1012,6 @@ export default function CommunicationsPage() {
             <Card>
               <CardHeader>
                 <CardTitle>Communication Channels</CardTitle>
-                <CardDescription>Usage by communication type</CardDescription>
               </CardHeader>
               <CardContent>
                 <ChartContainer config={channelDistributionConfig} className="h-[300px] w-full">

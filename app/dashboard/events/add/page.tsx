@@ -6,7 +6,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { PageHeader } from '@/components/ui/page-header';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
@@ -157,10 +158,7 @@ export default function AddEventPage() {
           <div className="p-2 bg-brand-primary/10 rounded-lg">
             <Plus className="h-6 w-6 text-brand-primary" />
           </div>
-          <div>
-            <h1 className="text-2xl font-bold tracking-tight">Create Event</h1>
-            <p className="text-muted-foreground">Add a new church event or activity</p>
-          </div>
+          <PageHeader title="Create Event" />
         </div>
       </div>
 
@@ -169,7 +167,6 @@ export default function AddEventPage() {
         <Card>
           <CardHeader>
             <CardTitle>Basic Information</CardTitle>
-            <CardDescription>Essential details about the event</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -225,7 +222,6 @@ export default function AddEventPage() {
               <CalendarIcon className="h-5 w-5" />
               Date & Time
             </CardTitle>
-            <CardDescription>When will this event take place?</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -287,7 +283,6 @@ export default function AddEventPage() {
               <MapPin className="h-5 w-5" />
               Location & Capacity
             </CardTitle>
-            <CardDescription>Where will this event be held?</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -326,7 +321,6 @@ export default function AddEventPage() {
               <Users className="h-5 w-5" />
               Registration Settings
             </CardTitle>
-            <CardDescription>Configure event registration options</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="flex items-center space-x-2">
@@ -366,7 +360,6 @@ export default function AddEventPage() {
         <Card>
           <CardHeader>
             <CardTitle>Organizer Information</CardTitle>
-            <CardDescription>Contact details for the event organizer</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -413,7 +406,6 @@ export default function AddEventPage() {
         <Card>
           <CardHeader>
             <CardTitle>Linked Groups/Departments</CardTitle>
-            <CardDescription>Select groups or departments involved in this event</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
@@ -437,7 +429,6 @@ export default function AddEventPage() {
         <Card>
           <CardHeader>
             <CardTitle>Additional Notes</CardTitle>
-            <CardDescription>Any additional information about the event</CardDescription>
           </CardHeader>
           <CardContent>
             <Textarea

@@ -3,7 +3,9 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { PageHeader } from '@/components/ui/page-header';
+import { StatCard } from '@/components/ui/stat-card';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { 
@@ -217,63 +219,38 @@ export default function MessagesPage() {
         >
           <ArrowLeft className="h-4 w-4" />
         </Button>
-        
-        <div className="flex items-center gap-3">
-          <div className="p-2 bg-brand-primary/10 rounded-lg">
-            <MessageCircle className="h-6 w-6 text-brand-primary" />
-          </div>
-          <div>
-            <h1 className="text-2xl font-bold tracking-tight">Messages</h1>
-            <p className="text-muted-foreground">Communicate with church members and teams</p>
-          </div>
+
+        <div className="flex-1">
+          <PageHeader title="Messages" />
         </div>
       </div>
 
       {/* Summary Cards */}
       <div className="grid gap-4 grid-cols-2 md:grid-cols-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Conversations</CardTitle>
-            <MessageCircle className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{summaryStats.totalConversations}</div>
-            <p className="text-xs text-muted-foreground">Active conversations</p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Unread Messages</CardTitle>
-            <Circle className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-blue-600">{summaryStats.unreadMessages}</div>
-            <p className="text-xs text-muted-foreground">Need attention</p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Starred</CardTitle>
-            <Star className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-yellow-600">{summaryStats.starredConversations}</div>
-            <p className="text-xs text-muted-foreground">Important chats</p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Archived</CardTitle>
-            <Archive className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-gray-600">{summaryStats.archivedConversations}</div>
-            <p className="text-xs text-muted-foreground">Archived chats</p>
-          </CardContent>
-        </Card>
+        <StatCard
+          title="Total Conversations"
+          value={summaryStats.totalConversations}
+          icon={MessageCircle}
+          description="Active conversations"
+        />
+        <StatCard
+          title="Unread Messages"
+          value={summaryStats.unreadMessages}
+          icon={Circle}
+          description="Need attention"
+        />
+        <StatCard
+          title="Starred"
+          value={summaryStats.starredConversations}
+          icon={Star}
+          description="Important chats"
+        />
+        <StatCard
+          title="Archived"
+          value={summaryStats.archivedConversations}
+          icon={Archive}
+          description="Archived chats"
+        />
       </div>
 
       {/* Controls */}
@@ -319,7 +296,6 @@ export default function MessagesPage() {
       <Card>
         <CardHeader>
           <CardTitle>Conversations</CardTitle>
-          <CardDescription>Your recent conversations and group chats</CardDescription>
         </CardHeader>
         <CardContent className="p-0">
           <div className="divide-y">

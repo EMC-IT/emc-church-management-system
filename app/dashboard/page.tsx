@@ -1,8 +1,10 @@
 'use client';
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { PageHeader } from '@/components/ui/page-header';
+import { ChartHeader } from '@/components/ui/chart-header';
+import { StatCard } from '@/components/ui/stat-card';
 import { Badge } from '@/components/ui/badge';
-import { Progress } from '@/components/ui/progress';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { CurrencyDisplay } from '@/components/ui/currency-display';
@@ -14,19 +16,15 @@ import {
   ChartLegendContent,
   type ChartConfig,
 } from '@/components/ui/chart';
-import { 
-  Users, 
-  UserCheck, 
-  BadgeCent, 
+import {
+  Users,
+  UserCheck,
+  BadgeCent,
   Calendar,
-  TrendingUp,
-  TrendingDown,
   Plus,
   Mail,
-  Phone,
   MapPin,
   ActivitySquare,
-  ArrowRight,
 } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, BarChart, Bar, PieChart, Pie, Cell, Label, ComposedChart } from 'recharts';
 
@@ -149,104 +147,54 @@ const prayerChartConfig = {
 export default function DashboardPage() {
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
-          <p className="text-muted-foreground">Welcome back! Here's what's happening in your church.</p>
-        </div>
-        <Button className="bg-brand-primary hover:bg-brand-primary/90">
-          <Plus className="mr-2 h-4 w-4" />
-          Quick Add
-        </Button>
-      </div>
+      <PageHeader
+        title="Dashboard"
+        description="Overview of today's church activity"
+        actions={
+          <Button className="bg-brand-primary hover:bg-brand-primary/90">
+            <Plus className="mr-2 h-4 w-4" />
+            Quick Add
+          </Button>
+        }
+      />
 
       {/* Stats Cards */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Card className="hover:shadow-md transition-shadow border-l-4 border-l-brand-primary">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Members</CardTitle>
-            <div className="p-2 bg-brand-primary/10 rounded-lg">
-              <Users className="h-4 w-4 text-brand-primary"/>
-            </div>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">1,234</div>
-            <p className="text-xs text-muted-foreground">
-              <span className="text-brand-success flex items-center font-medium">
-                <TrendingUp className="h-3 w-3 mr-1" />
-                +12% from last month
-              </span>
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card className="hover:shadow-md transition-shadow border-l-4 border-l-brand-secondary">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Today's Attendance</CardTitle>
-            <div className="p-2 bg-brand-secondary/10 rounded-lg">
-              <UserCheck className="h-4 w-4 text-brand-secondary" />
-            </div>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">365</div>
-            <p className="text-xs text-muted-foreground">
-              <span className="text-brand-success flex items-center font-medium">
-                <TrendingUp className="h-3 w-3 mr-1" />
-                +8% from last week
-              </span>
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card className="hover:shadow-md transition-shadow border-l-4 border-l-brand-success">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">This Month's Giving</CardTitle>
-            <div className="p-2 bg-brand-success/10 rounded-lg">
-              <BadgeCent className="h-4 w-4 text-brand-success" />
-            </div>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              <CurrencyDisplay amount={24500} />
-            </div>
-            <p className="text-xs text-muted-foreground">
-              <span className="text-brand-success flex items-center font-medium">
-                <TrendingUp className="h-3 w-3 mr-1" />
-                +15% from last month
-              </span>
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card className="hover:shadow-md transition-shadow border-l-4 border-l-brand-accent">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Upcoming Events</CardTitle>
-            <div className="p-2 bg-brand-accent/10 rounded-lg">
-              <Calendar className="h-4 w-4 text-brand-accent" />
-            </div>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">8</div>
-            <p className="text-xs text-muted-foreground">
-              <span className="text-brand-accent font-medium">This week</span>
-            </p>
-          </CardContent>
-        </Card>
+        <StatCard
+          title="Total Members"
+          value="1,234"
+          icon={Users}
+          accent="primary"
+          trend={{ value: '+12% from last month', direction: 'up' }}
+        />
+        <StatCard
+          title="Today's Attendance"
+          value="365"
+          icon={UserCheck}
+          accent="secondary"
+          trend={{ value: '+8% from last week', direction: 'up' }}
+        />
+        <StatCard
+          title="This Month's Giving"
+          value={<CurrencyDisplay amount={24500} />}
+          icon={BadgeCent}
+          accent="success"
+          trend={{ value: '+15% from last month', direction: 'up' }}
+        />
+        <StatCard
+          title="Upcoming Events"
+          value="8"
+          icon={Calendar}
+          accent="accent"
+          description="This week"
+        />
       </div>
 
       {/* Charts */}
       <div className="grid gap-4 md:grid-cols-2">
         <Card className="hover:shadow-md transition-shadow">
           <CardHeader>
-            <div className="flex items-center justify-between">
-              <div>
-                <CardTitle>Attendance Trend</CardTitle>
-                <CardDescription>Monthly attendance over the past 6 months</CardDescription>
-              </div>
-              <Badge variant="secondary" className="bg-brand-secondary/10 text-brand-secondary">
-                +8.2%
-              </Badge>
-            </div>
+            <ChartHeader title="Attendance Trend" badge="+8.2%" tone="secondary" />
           </CardHeader>
           <CardContent>
             <ChartContainer config={attendanceChartConfig} className="h-[300px] w-full">
@@ -292,15 +240,7 @@ export default function DashboardPage() {
 
         <Card className="hover:shadow-md transition-shadow">
           <CardHeader>
-            <div className="flex items-center justify-between">
-              <div>
-                <CardTitle>Giving Trend</CardTitle>
-                <CardDescription>Monthly giving over the past 6 months</CardDescription>
-              </div>
-              <Badge variant="secondary" className="bg-brand-success/10 text-brand-success">
-                +15.3%
-              </Badge>
-            </div>
+            <ChartHeader title="Giving Trend" badge="+15.3%" tone="success" />
           </CardHeader>
           <CardContent>
             <ChartContainer config={givingChartConfig} className="h-[300px] w-full">
@@ -340,8 +280,7 @@ export default function DashboardPage() {
         {/* Events Trend */}
         <Card className="hover:shadow-md transition-shadow lg:col-span-2">
           <CardHeader>
-            <CardTitle>Events Overview</CardTitle>
-            <CardDescription>Monthly events and attendance</CardDescription>
+            <ChartHeader title="Events" badge="Last 6 Months" />
           </CardHeader>
           <CardContent>
             <ChartContainer config={eventsChartConfig} className="h-[250px] w-full">
@@ -397,7 +336,6 @@ export default function DashboardPage() {
         <Card className="hover:shadow-md transition-shadow">
           <CardHeader>
             <CardTitle>Departments</CardTitle>
-            <CardDescription>Member distribution</CardDescription>
           </CardHeader>
           <CardContent>
             <ChartContainer config={departmentsChartConfig} className="mx-auto aspect-square max-h-[250px]">
@@ -456,7 +394,6 @@ export default function DashboardPage() {
         <Card className="hover:shadow-md transition-shadow">
           <CardHeader>
             <CardTitle>Prayer Requests</CardTitle>
-            <CardDescription>By category</CardDescription>
           </CardHeader>
           <CardContent>
             <ChartContainer config={prayerChartConfig} className="h-[250px] w-full">
@@ -489,15 +426,7 @@ export default function DashboardPage() {
       {/* Groups Activity Chart */}
       <Card className="hover:shadow-md transition-shadow">
         <CardHeader>
-          <div className="flex items-center justify-between">
-            <div>
-              <CardTitle>Groups Activity</CardTitle>
-              <CardDescription>Total vs Active members across groups</CardDescription>
-            </div>
-            <Badge variant="secondary" className="bg-brand-primary/10 text-brand-primary">
-              86% Active
-            </Badge>
-          </div>
+          <ChartHeader title="Groups Activity" badge="86% Active" tone="primary" />
         </CardHeader>
         <CardContent>
           <ChartContainer config={groupsChartConfig} className="h-[300px] w-full">
@@ -533,7 +462,6 @@ export default function DashboardPage() {
         <Card>
           <CardHeader>
             <CardTitle>Recent Members</CardTitle>
-            <CardDescription>Latest members who joined the church</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
@@ -560,7 +488,6 @@ export default function DashboardPage() {
         <Card>
           <CardHeader>
             <CardTitle>Upcoming Events</CardTitle>
-            <CardDescription>Events scheduled for this week</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
@@ -592,10 +519,7 @@ export default function DashboardPage() {
             <div className="p-2 bg-brand-primary/10 rounded-lg">
               <ActivitySquare className="h-5 w-5 text-brand-primary" />
             </div>
-            <div>
-              <CardTitle>Today's Activity Summary</CardTitle>
-              <CardDescription>Quick overview of today's church activities</CardDescription>
-            </div>
+            <CardTitle>Today's Activity</CardTitle>
           </div>
         </CardHeader>
         <CardContent>
@@ -639,7 +563,6 @@ export default function DashboardPage() {
       <Card>
         <CardHeader>
           <CardTitle>Quick Actions</CardTitle>
-          <CardDescription>Frequently used actions for quick access</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">

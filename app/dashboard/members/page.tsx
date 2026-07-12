@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { PageHeader } from '@/components/ui/page-header';
+import { StatCard } from '@/components/ui/stat-card';
 import { DataTable, StatusBadge } from '@/components/ui/data-table';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
@@ -542,67 +543,30 @@ export default function MembersPage() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Members</h1>
-          <p className="text-muted-foreground">Manage your church members and their information</p>
-        </div>
-        <div className="flex items-center space-x-2">
-          <Button variant="outline" onClick={handleExport}>
-            <Download className="mr-2 h-4 w-4" />
-            Export
-          </Button>
-          <Button asChild className="bg-brand-primary hover:bg-brand-primary/90">
-            <Link href="/dashboard/members/add">
-              <Plus className="mr-2 h-4 w-4" />
-              Add Member
-            </Link>
-          </Button>
-        </div>
-      </div>
+      <PageHeader
+        title="Members"
+        actions={
+          <>
+            <Button variant="outline" onClick={handleExport}>
+              <Download className="mr-2 h-4 w-4" />
+              Export
+            </Button>
+            <Button asChild className="bg-brand-primary hover:bg-brand-primary/90">
+              <Link href="/dashboard/members/add">
+                <Plus className="mr-2 h-4 w-4" />
+                Add Member
+              </Link>
+            </Button>
+          </>
+        }
+      />
 
       {/* Stats Cards */}
       <div className="grid gap-4 md:grid-cols-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Members</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.total}</div>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Active Members</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.active}</div>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">New Members</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.new}</div>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Inactive Members</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.inactive}</div>
-          </CardContent>
-        </Card>
+        <StatCard title="Total Members" value={stats.total} icon={Users} accent="primary" />
+        <StatCard title="Active Members" value={stats.active} icon={Users} accent="success" />
+        <StatCard title="New Members" value={stats.new} icon={Users} accent="secondary" />
+        <StatCard title="Inactive Members" value={stats.inactive} icon={Users} accent="accent" />
       </div>
 
       {/* Members Table */}

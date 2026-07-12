@@ -3,7 +3,8 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { PageHeader } from '@/components/ui/page-header';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -360,10 +361,7 @@ export default function EventsCalendarPage() {
           <div className="p-2 bg-brand-primary/10 rounded-lg">
             <CalendarIcon className="h-6 w-6 text-brand-primary" />
           </div>
-          <div>
-            <h1 className="text-2xl font-bold tracking-tight">Events Calendar</h1>
-            <p className="text-muted-foreground">View and manage church events in calendar format</p>
-          </div>
+          <PageHeader title="Events Calendar" />
         </div>
       </div>
 
@@ -452,7 +450,6 @@ export default function EventsCalendarPage() {
           <Card>
             <CardHeader>
               <CardTitle>Event Legend</CardTitle>
-              <CardDescription>Event categories and their colors</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-2 md:grid-cols-5 gap-3">

@@ -9,6 +9,7 @@ import { ArrowLeft, Wallet, Calendar, DollarSign, Users, FileText } from 'lucide
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { PageHeader } from '@/components/ui/page-header';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
@@ -135,10 +136,7 @@ export default function AddBudgetPage() {
           <div className="p-2 bg-brand-primary/10 rounded-lg">
             <Wallet className="h-6 w-6 text-brand-primary" />
           </div>
-          <div>
-            <h1 className="text-2xl font-bold tracking-tight">Create New Budget</h1>
-            <p className="text-muted-foreground">Set up a new budget for a department or ministry</p>
-          </div>
+          <PageHeader title="Create New Budget" />
         </div>
       </div>
 

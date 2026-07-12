@@ -18,12 +18,14 @@ import {
 } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { DataTable } from '@/components/ui/data-table';
 import { Badge } from '@/components/ui/badge';
 import { LazySection } from '@/components/ui/lazy-section';
 import { LazyLoader } from '@/components/ui/lazy-loader';
 import { TableSkeleton } from '@/components/ui/skeleton-loaders';
+import { PageHeader } from '@/components/ui/page-header';
+import { StatCard } from '@/components/ui/stat-card';
 import { ColumnDef } from '@tanstack/react-table';
 
 // Income data interface
@@ -159,14 +161,6 @@ export default function IncomeOverviewPage() {
     }
   };
 
-  const getGrowthIcon = (growth: number) => {
-    return growth > 0 ? (
-      <TrendingUp className="h-3 w-3 text-brand-success" />
-    ) : (
-      <TrendingUp className="h-3 w-3 text-red-500 rotate-180" />
-    );
-  };
-
   const columns: ColumnDef<IncomeRecord>[] = [
     {
       accessorKey: 'description',
@@ -217,27 +211,25 @@ export default function IncomeOverviewPage() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Income Overview</h1>
-          <p className="text-muted-foreground">Track and manage church income</p>
-        </div>
-        <div className="flex items-center space-x-2">
-          <Button variant="outline" asChild>
-            <Link href="/dashboard/finance/income/reports">
-              <FileText className="mr-2 h-4 w-4" />
-              View Reports
-            </Link>
-          </Button>
-          <Button asChild>
-            <Link href="/dashboard/finance/income/add">
-              <Plus className="mr-2 h-4 w-4" />
-              Record Income
-            </Link>
-          </Button>
-        </div>
-      </div>
+      <PageHeader
+        title="Income Overview"
+        actions={
+          <>
+            <Button variant="outline" asChild>
+              <Link href="/dashboard/finance/income/reports">
+                <FileText className="mr-2 h-4 w-4" />
+                View Reports
+              </Link>
+            </Button>
+            <Button asChild>
+              <Link href="/dashboard/finance/income/add">
+                <Plus className="mr-2 h-4 w-4" />
+                Record Income
+              </Link>
+            </Button>
+          </>
+        }
+      />
 
       {/* Statistics Cards */}
       <LazySection
@@ -248,58 +240,40 @@ export default function IncomeOverviewPage() {
         className="grid gap-4 md:grid-cols-2 lg:grid-cols-4"
         threshold={0.1}
       >
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Income</CardTitle>
-            <BadgeCent className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{formatCurrency(incomeStats.totalAmount)}</div>
-            <p className="text-xs text-muted-foreground">
-              {incomeStats.totalCount} transactions
-            </p>
-          </CardContent>
-        </Card>
+        <StatCard
+          title="Total Income"
+          value={formatCurrency(incomeStats.totalAmount)}
+          icon={BadgeCent}
+          accent="primary"
+          description={`${incomeStats.totalCount} transactions`}
+        />
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">This Month</CardTitle>
-            <Calendar className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{formatCurrency(incomeStats.thisMonth)}</div>
-            <div className="flex items-center text-xs text-muted-foreground">
-              {getGrowthIcon(incomeStats.growth)}
-              <span className="ml-1">+{incomeStats.growth}% from last month</span>
-            </div>
-          </CardContent>
-        </Card>
+        <StatCard
+          title="This Month"
+          value={formatCurrency(incomeStats.thisMonth)}
+          icon={Calendar}
+          accent="secondary"
+          trend={{
+            value: `+${incomeStats.growth}% from last month`,
+            direction: incomeStats.growth > 0 ? 'up' : 'down',
+          }}
+        />
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Average Income</CardTitle>
-            <TrendingUp className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{formatCurrency(incomeStats.averageAmount)}</div>
-            <p className="text-xs text-muted-foreground">
-              Per transaction
-            </p>
-          </CardContent>
-        </Card>
+        <StatCard
+          title="Average Income"
+          value={formatCurrency(incomeStats.averageAmount)}
+          icon={TrendingUp}
+          accent="success"
+          description="Per transaction"
+        />
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Categories</CardTitle>
-            <PieChart className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{incomeStats.categoriesCount}</div>
-            <p className="text-xs text-muted-foreground">
-              Active categories
-            </p>
-          </CardContent>
-        </Card>
+        <StatCard
+          title="Categories"
+          value={incomeStats.categoriesCount}
+          icon={PieChart}
+          accent="accent"
+          description="Active categories"
+        />
       </LazySection>
 
       {/* Quick Actions */}
@@ -316,10 +290,7 @@ export default function IncomeOverviewPage() {
           return (
             <Card key={action.title} className="hover:shadow-md transition-shadow cursor-pointer" onClick={() => router.push(action.href)}>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <div>
-                  <CardTitle className="text-sm font-medium">{action.title}</CardTitle>
-                  <CardDescription className="text-xs">{action.description}</CardDescription>
-                </div>
+                <CardTitle className="text-sm font-medium">{action.title}</CardTitle>
                 <div className={`p-2 rounded-md ${action.color}`}>
                   <IconComponent className="h-4 w-4 text-white" />
                 </div>
@@ -340,10 +311,7 @@ export default function IncomeOverviewPage() {
         <Card>
           <CardHeader>
             <div className="flex items-center justify-between">
-              <div>
-                <CardTitle>Recent Income</CardTitle>
-                <CardDescription>Latest income transactions</CardDescription>
-              </div>
+              <CardTitle>Recent Income</CardTitle>
               <Button variant="outline" size="sm" asChild>
                 <Link href="/dashboard/finance/income/reports">
                   View All

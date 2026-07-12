@@ -6,7 +6,9 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label as UILabel } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { PageHeader } from '@/components/ui/page-header';
+import { StatCard } from '@/components/ui/stat-card';
 import { Badge } from '@/components/ui/badge';
 import {
   Dialog,
@@ -269,95 +271,67 @@ export default function GroupCategoriesPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="space-y-1">
-          <div className="flex items-center space-x-2">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={handleBack}
-              className="h-8 w-8"
-            >
-              <ArrowLeft className="h-4 w-4" />
-            </Button>
-            <div>
-              <h1 className="text-3xl font-bold tracking-tight">Group Categories</h1>
-              <p className="text-muted-foreground">
-                Organize and manage group categories
-              </p>
-            </div>
-          </div>
-    
-        </div>
-        
-        <Button onClick={handleAddCategory} className="bg-brand-primary hover:bg-brand-primary/90">
-          <Plus className="mr-2 h-4 w-4" />
-          Add Category
+      <div className="flex items-center gap-2">
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={handleBack}
+          className="h-8 w-8"
+        >
+          <ArrowLeft className="h-4 w-4" />
         </Button>
+        <div className="flex-1">
+          <PageHeader
+            title="Group Categories"
+            actions={
+              <Button onClick={handleAddCategory} className="bg-brand-primary hover:bg-brand-primary/90">
+                <Plus className="mr-2 h-4 w-4" />
+                Add Category
+              </Button>
+            }
+          />
+        </div>
       </div>
 
       {/* Stats Cards */}
       <div className="grid gap-4 md:grid-cols-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Categories</CardTitle>
-            <Folder className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.totalCategories}</div>
-            <p className="text-xs text-muted-foreground">
-              All categories
-            </p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Active Categories</CardTitle>
-            <Tag className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.activeCategories}</div>
-            <p className="text-xs text-muted-foreground">
-              Currently active
-            </p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Groups</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.totalGroups}</div>
-            <p className="text-xs text-muted-foreground">
-              Across all categories
-            </p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Avg. Groups</CardTitle>
-            <TrendingUp className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.averageGroupsPerCategory}</div>
-            <p className="text-xs text-muted-foreground">
-              Per category
-            </p>
-          </CardContent>
-        </Card>
+        <StatCard
+          title="Total Categories"
+          value={stats.totalCategories}
+          icon={Folder}
+          accent="primary"
+          description="All categories"
+        />
+
+        <StatCard
+          title="Active Categories"
+          value={stats.activeCategories}
+          icon={Tag}
+          accent="secondary"
+          description="Currently active"
+        />
+
+        <StatCard
+          title="Total Groups"
+          value={stats.totalGroups}
+          icon={Users}
+          accent="success"
+          description="Across all categories"
+        />
+
+        <StatCard
+          title="Avg. Groups"
+          value={stats.averageGroupsPerCategory}
+          icon={TrendingUp}
+          accent="accent"
+          description="Per category"
+        />
       </div>
 
       {/* Categories Management */}
       <Card>
         <CardHeader>
           <CardTitle>Category Management</CardTitle>
-          <CardDescription>
-            Create and manage group categories to organize your groups
-          </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="flex items-center space-x-4 mb-6">

@@ -6,7 +6,9 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { PageHeader } from '@/components/ui/page-header';
+import { StatCard } from '@/components/ui/stat-card';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import {
@@ -346,54 +348,24 @@ export default function EventCategoriesPage() {
           <div className="p-2 bg-brand-primary/10 rounded-lg">
             <FolderOpen className="h-6 w-6 text-brand-primary" />
           </div>
-          <div>
-            <h1 className="text-2xl font-bold tracking-tight">Event Categories</h1>
-            <p className="text-muted-foreground">Manage event categories and classifications</p>
-          </div>
+          <PageHeader title="Event Categories" />
         </div>
       </div>
 
       {/* Stats Cards */}
       <div className="grid gap-4 md:grid-cols-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Categories</CardTitle>
-            <Tag className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.total}</div>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Active Categories</CardTitle>
-            <Settings className="h-4 w-4 text-green-500" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-green-600">{stats.active}</div>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Inactive Categories</CardTitle>
-            <Settings className="h-4 w-4 text-red-500" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-red-600">{stats.inactive}</div>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Events</CardTitle>
-            <Calendar className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.totalEvents}</div>
-          </CardContent>
-        </Card>
+        <StatCard title="Total Categories" value={stats.total} icon={Tag} />
+        <StatCard
+          title="Active Categories"
+          value={<span className="text-green-600">{stats.active}</span>}
+          icon={Settings}
+        />
+        <StatCard
+          title="Inactive Categories"
+          value={<span className="text-red-600">{stats.inactive}</span>}
+          icon={Settings}
+        />
+        <StatCard title="Total Events" value={stats.totalEvents} icon={Calendar} />
       </div>
 
       {/* Main Content */}
@@ -402,7 +374,6 @@ export default function EventCategoriesPage() {
           <div className="flex items-center justify-between">
             <div>
               <CardTitle>Category Management</CardTitle>
-              <CardDescription>Create, edit, and organize event categories</CardDescription>
             </div>
             
             <Dialog open={addDialogOpen} onOpenChange={setAddDialogOpen}>

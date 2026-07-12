@@ -19,12 +19,13 @@ import {
 } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Skeleton } from '@/components/ui/skeleton';
+import { StatCard } from '@/components/ui/stat-card';
 import { toast } from 'sonner';
 import { AssetCategory } from '@/lib/types/assets';
 
@@ -284,12 +285,7 @@ export default function CategoriesPage() {
           <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-brand-primary/10">
             <Folder className="h-6 w-6 text-brand-primary" />
           </div>
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900">Asset Categories</h1>
-            <p className="text-gray-600">
-              Manage and organize your asset categories
-            </p>
-          </div>
+          <h1 className="text-3xl font-bold text-gray-900">Asset Categories</h1>
         </div>
         <div className="flex items-center space-x-2">
           <Button variant="outline">
@@ -311,71 +307,44 @@ export default function CategoriesPage() {
 
       {/* Stats Cards */}
       <div className="grid gap-4 md:grid-cols-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Categories</CardTitle>
-            <Package className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{totalCategories}</div>
-            <p className="text-xs text-muted-foreground">
-              {activeCategories} active categories
-            </p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Assets</CardTitle>
-            <Package className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{totalAssets}</div>
-            <p className="text-xs text-muted-foreground">
-              Across all categories
-            </p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Value</CardTitle>
-            <Package className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{formatCurrency(totalValue)}</div>
-            <p className="text-xs text-muted-foreground">
-              Combined asset value
-            </p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Average per Category</CardTitle>
-            <Package className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {totalCategories > 0 ? Math.round(totalAssets / totalCategories) : 0}
-            </div>
-            <p className="text-xs text-muted-foreground">
-              Assets per category
-            </p>
-          </CardContent>
-        </Card>
+        <StatCard
+          title="Total Categories"
+          value={totalCategories}
+          icon={Package}
+          accent="primary"
+          description={`${activeCategories} active categories`}
+        />
+
+        <StatCard
+          title="Total Assets"
+          value={totalAssets}
+          icon={Package}
+          accent="secondary"
+          description="Across all categories"
+        />
+
+        <StatCard
+          title="Total Value"
+          value={formatCurrency(totalValue)}
+          icon={Package}
+          accent="success"
+          description="Combined asset value"
+        />
+
+        <StatCard
+          title="Average per Category"
+          value={totalCategories > 0 ? Math.round(totalAssets / totalCategories) : 0}
+          icon={Package}
+          accent="accent"
+          description="Assets per category"
+        />
       </div>
 
       {/* Filters and Search */}
       <Card>
         <CardHeader>
           <div className="flex items-center justify-between">
-            <div>
-              <CardTitle>Categories</CardTitle>
-              <CardDescription>
-                Manage your asset categories and their properties
-              </CardDescription>
-            </div>
+            <CardTitle>Categories</CardTitle>
             <div className="flex items-center space-x-2">
               <div className="relative">
                 <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />

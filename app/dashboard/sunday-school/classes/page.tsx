@@ -4,7 +4,8 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { PageHeader } from '@/components/ui/page-header';
 import { StatCard } from '@/components/ui/stat-card';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -134,28 +135,26 @@ export default function ClassesPage() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Classes</h1>
-          <p className="text-muted-foreground">Manage Sunday School classes and schedules</p>
-        </div>
-        <div className="flex space-x-2">
-          <Button variant="outline">
-            <Download className="mr-2 h-4 w-4" />
-            Export Classes
-          </Button>
-          <Button 
-            className="bg-brand-primary hover:bg-brand-primary/90"
-            asChild
-          >
-            <Link href="/dashboard/sunday-school/classes/add">
-              <Plus className="mr-2 h-4 w-4" />
-              Create Class
-            </Link>
-          </Button>
-        </div>
-      </div>
+      <PageHeader
+        title="Classes"
+        actions={
+          <>
+            <Button variant="outline">
+              <Download className="mr-2 h-4 w-4" />
+              Export Classes
+            </Button>
+            <Button
+              className="bg-brand-primary hover:bg-brand-primary/90"
+              asChild
+            >
+              <Link href="/dashboard/sunday-school/classes/add">
+                <Plus className="mr-2 h-4 w-4" />
+                Create Class
+              </Link>
+            </Button>
+          </>
+        }
+      />
 
       {/* Stats Cards */}
       <div className="grid gap-4 md:grid-cols-4">
@@ -192,7 +191,6 @@ export default function ClassesPage() {
       <Card>
         <CardHeader>
           <CardTitle>Class Management</CardTitle>
-          <CardDescription>View and manage all Sunday School classes</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="flex items-center space-x-4 mb-6">

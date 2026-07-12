@@ -3,7 +3,9 @@
 import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { PageHeader } from '@/components/ui/page-header';
+import { StatCard } from '@/components/ui/stat-card';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Progress } from '@/components/ui/progress';
@@ -148,94 +150,70 @@ export default function GroupDetailsPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="space-y-1">
-          <div className="flex items-center space-x-2">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={handleBack}
-              className="h-8 w-8"
-            >
-              <ArrowLeft className="h-4 w-4" />
-            </Button>
-            <div>
-              <h1 className="text-3xl font-bold tracking-tight">{group.name}</h1>
-              <p className="text-muted-foreground">{group.description}</p>
-            </div>
-          </div>
-    
-        </div>
-        
-        <div className="flex space-x-2">
-          <Button variant="outline" onClick={handleEdit}>
-            <Edit className="mr-2 h-4 w-4" />
-            Edit Group
-          </Button>
+      <div className="flex items-center gap-2">
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={handleBack}
+          className="h-8 w-8"
+        >
+          <ArrowLeft className="h-4 w-4" />
+        </Button>
+        <div className="flex-1">
+          <PageHeader
+            title={group.name}
+            description={group.description}
+            actions={
+              <Button variant="outline" onClick={handleEdit}>
+                <Edit className="mr-2 h-4 w-4" />
+                Edit Group
+              </Button>
+            }
+          />
         </div>
       </div>
 
       {/* Group Overview Cards */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Members</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{group.members}</div>
-            <p className="text-xs text-muted-foreground">
-              of {group.maxMembers} maximum
-            </p>
-            <Progress 
-              value={(group.members / group.maxMembers) * 100} 
-              className="mt-2 h-2" 
-            />
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Engagement</CardTitle>
-            <TrendingUp className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className={`text-2xl font-bold ${getEngagementColor(group.engagement)}`}>
-              {group.engagement}%
-            </div>
-            <p className="text-xs text-muted-foreground">
-              Average participation
-            </p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Events</CardTitle>
-            <CalendarDays className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{events.length}</div>
-            <p className="text-xs text-muted-foreground">
-              Upcoming events
-            </p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Status</CardTitle>
-            <Settings className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <Badge className={getStatusColor(group.status)}>
-              {group.status}
-            </Badge>
-            <p className="text-xs text-muted-foreground mt-2">
-              Current status
-            </p>
-          </CardContent>
-        </Card>
+        <StatCard
+          title="Members"
+          value={group.members}
+          icon={Users}
+          accent="primary"
+          description={
+            <>
+              <p>of {group.maxMembers} maximum</p>
+              <Progress
+                value={(group.members / group.maxMembers) * 100}
+                className="mt-2 h-2"
+              />
+            </>
+          }
+        />
+
+        <StatCard
+          title="Engagement"
+          value={<span className={getEngagementColor(group.engagement)}>{group.engagement}%</span>}
+          icon={TrendingUp}
+          accent="secondary"
+          description="Average participation"
+        />
+
+        <StatCard
+          title="Events"
+          value={events.length}
+          icon={CalendarDays}
+          accent="success"
+          description="Upcoming events"
+        />
+
+        <StatCard
+          title="Status"
+          value={<Badge className={getStatusColor(group.status)}>{group.status}</Badge>}
+          icon={Settings}
+          accent="accent"
+          description="Current status"
+        />
       </div>
 
       {/* Main Content */}
@@ -302,9 +280,6 @@ export default function GroupDetailsPage() {
               <Card>
                 <CardHeader>
                   <CardTitle>Quick Actions</CardTitle>
-                  <CardDescription>
-                    Manage different aspects of this group
-                  </CardDescription>
                 </CardHeader>
                 <CardContent>
                   <div className="grid gap-3 md:grid-cols-2">

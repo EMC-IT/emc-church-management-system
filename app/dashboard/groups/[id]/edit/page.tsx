@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Label as UILabel } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { PageHeader } from '@/components/ui/page-header';
 import { 
   Select,
   SelectContent,
@@ -212,24 +213,16 @@ export default function EditGroupPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div className="space-y-1">
-          <div className="flex items-center space-x-2">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={handleCancel}
-              className="h-8 w-8"
-            >
-              <ArrowLeft className="h-4 w-4" />
-            </Button>
-            <div>
-              <h1 className="text-3xl font-bold tracking-tight">Edit Group</h1>
-              <p className="text-muted-foreground">Update group information and settings</p>
-            </div>
-          </div>
-
-        </div>
+      <div className="flex items-center gap-2">
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={handleCancel}
+          className="h-8 w-8"
+        >
+          <ArrowLeft className="h-4 w-4" />
+        </Button>
+        <PageHeader title="Edit Group" />
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
@@ -243,9 +236,6 @@ export default function EditGroupPage() {
                   <Users className="h-5 w-5" />
                   <span>Basic Information</span>
                 </CardTitle>
-                <CardDescription>
-                  Update the basic details for this group
-                </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="grid gap-4 md:grid-cols-2">
@@ -333,9 +323,6 @@ export default function EditGroupPage() {
                   <Calendar className="h-5 w-5" />
                   <span>Meeting Details</span>
                 </CardTitle>
-                <CardDescription>
-                  Update when and where the group meets
-                </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="grid gap-4 md:grid-cols-2">
@@ -369,9 +356,6 @@ export default function EditGroupPage() {
                   <User className="h-5 w-5" />
                   <span>Group Leader</span>
                 </CardTitle>
-                <CardDescription>
-                  Update the leader information for this group
-                </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="grid gap-4 md:grid-cols-2">
@@ -418,9 +402,6 @@ export default function EditGroupPage() {
             <Card>
               <CardHeader>
                 <CardTitle>Actions</CardTitle>
-                <CardDescription>
-                  Save changes or cancel editing
-                </CardDescription>
               </CardHeader>
               <CardContent className="space-y-3">
                 <Button

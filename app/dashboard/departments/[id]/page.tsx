@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { StatCard } from '@/components/ui/stat-card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
@@ -212,56 +213,34 @@ export default function DepartmentDetailsPage() {
 
       {/* Stats Cards */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Members</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats?.totalMembers || 0}</div>
-            <p className="text-xs text-muted-foreground">
-              {stats?.activeMembers || 0} active members
-            </p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Attendance Rate</CardTitle>
-            <TrendingUp className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats?.attendanceRate || 0}%</div>
-            <p className="text-xs text-muted-foreground">
-              Average meeting attendance
-            </p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Meetings</CardTitle>
-            <Calendar className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats?.totalMeetings || 0}</div>
-            <p className="text-xs text-muted-foreground">
-              Meetings held this year
-            </p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Budget Status</CardTitle>
-            <BadgeCent className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {department.budget ? formatCurrency(department.budget) : 'N/A'}
-            </div>
-            <p className="text-xs text-muted-foreground">
-              {stats?.spentBudget ? `${formatCurrency(stats.spentBudget)} spent` : 'No budget set'}
-            </p>
-          </CardContent>
-        </Card>
+        <StatCard
+          title="Total Members"
+          value={stats?.totalMembers || 0}
+          icon={Users}
+          accent="primary"
+          description={`${stats?.activeMembers || 0} active members`}
+        />
+        <StatCard
+          title="Attendance Rate"
+          value={`${stats?.attendanceRate || 0}%`}
+          icon={TrendingUp}
+          accent="secondary"
+          description="Average meeting attendance"
+        />
+        <StatCard
+          title="Total Meetings"
+          value={stats?.totalMeetings || 0}
+          icon={Calendar}
+          accent="success"
+          description="Meetings held this year"
+        />
+        <StatCard
+          title="Budget Status"
+          value={department.budget ? formatCurrency(department.budget) : 'N/A'}
+          icon={BadgeCent}
+          accent="accent"
+          description={stats?.spentBudget ? `${formatCurrency(stats.spentBudget)} spent` : 'No budget set'}
+        />
       </div>
 
       {/* Department Information */}

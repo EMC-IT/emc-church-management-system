@@ -3,7 +3,8 @@
 import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { PageHeader } from '@/components/ui/page-header';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -360,38 +361,39 @@ export default function MemberProfilePage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center space-x-4">
-          <Button variant="ghost" size="sm" asChild>
-            <Link href="/dashboard/members">
-              <ArrowLeft className="mr-2 h-4 w-4" />
-              Back to Members
-            </Link>
-          </Button>
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight">Member Profile</h1>
-            <p className="text-muted-foreground">View and manage member information</p>
-          </div>
-        </div>
-        <div className="flex items-center space-x-2">
-          <Button variant="outline" size="sm">
-            <Download className="mr-2 h-4 w-4" />
-            Export
-          </Button>
-          <Button variant="outline" size="sm">
-            <Share2 className="mr-2 h-4 w-4" />
-            Share
-          </Button>
-          <Button asChild>
-            <Link href={`/dashboard/members/${member.id}/edit`}>
-              <Edit className="mr-2 h-4 w-4" />
-              Edit Member
-            </Link>
-          </Button>
-          <Button variant="destructive" size="sm" onClick={handleDeleteMember}>
-            <Trash2 className="mr-2 h-4 w-4" />
-            Delete
-          </Button>
+      <div className="flex items-center gap-4">
+        <Button variant="ghost" size="sm" asChild>
+          <Link href="/dashboard/members">
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            Back to Members
+          </Link>
+        </Button>
+        <div className="flex-1">
+          <PageHeader
+            title="Member Profile"
+            actions={
+              <>
+                <Button variant="outline" size="sm">
+                  <Download className="mr-2 h-4 w-4" />
+                  Export
+                </Button>
+                <Button variant="outline" size="sm">
+                  <Share2 className="mr-2 h-4 w-4" />
+                  Share
+                </Button>
+                <Button asChild>
+                  <Link href={`/dashboard/members/${member.id}/edit`}>
+                    <Edit className="mr-2 h-4 w-4" />
+                    Edit Member
+                  </Link>
+                </Button>
+                <Button variant="destructive" size="sm" onClick={handleDeleteMember}>
+                  <Trash2 className="mr-2 h-4 w-4" />
+                  Delete
+                </Button>
+              </>
+            }
+          />
         </div>
       </div>
 
@@ -409,7 +411,6 @@ export default function MemberProfilePage() {
               </Avatar>
             </div>
             <CardTitle className="text-xl">{member.title} {member.fullName}</CardTitle>
-            <CardDescription>{member.email}</CardDescription>
             <Badge variant={member.status === 'Member' ? 'default' : 'secondary'}>
               {member.status}
             </Badge>
@@ -454,7 +455,6 @@ export default function MemberProfilePage() {
         <Card className="md:col-span-2">
           <CardHeader>
             <CardTitle>Member Information</CardTitle>
-            <CardDescription>Detailed member information and history</CardDescription>
           </CardHeader>
           <CardContent>
             <Tabs defaultValue="overview" className="w-full">
@@ -563,10 +563,7 @@ export default function MemberProfilePage() {
               <TabsContent value="family" className="space-y-4">
                 <div className="text-center py-8">
                   <Users className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
-                  <h3 className="text-lg font-semibold mb-2">Family Members</h3>
-                  <p className="text-muted-foreground mb-4">
-                    View and manage family relationships
-                  </p>
+                  <h3 className="text-lg font-semibold mb-4">Family Members</h3>
                   <Button asChild>
                     <Link href={`/dashboard/members/${member.id}/family`}>
                       Manage Family
@@ -578,10 +575,7 @@ export default function MemberProfilePage() {
               <TabsContent value="history" className="space-y-4">
                 <div className="text-center py-8">
                   <Activity className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
-                  <h3 className="text-lg font-semibold mb-2">Activity History</h3>
-                  <p className="text-muted-foreground mb-4">
-                    View member's activity and attendance history
-                  </p>
+                  <h3 className="text-lg font-semibold mb-4">Activity History</h3>
                   <Button asChild>
                     <Link href={`/dashboard/members/${member.id}/history`}>
                       View History
@@ -593,10 +587,7 @@ export default function MemberProfilePage() {
               <TabsContent value="documents" className="space-y-4">
                 <div className="text-center py-8">
                   <FileText className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
-                  <h3 className="text-lg font-semibold mb-2">Documents</h3>
-                  <p className="text-muted-foreground mb-4">
-                    View and manage member documents
-                  </p>
+                  <h3 className="text-lg font-semibold mb-4">Documents</h3>
                   <div className="flex items-center justify-center space-x-4">
                     <Button asChild>
                       <Link href={`/dashboard/members/${member.id}/documents`}>

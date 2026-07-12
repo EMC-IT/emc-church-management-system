@@ -6,7 +6,8 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { PageHeader } from '@/components/ui/page-header';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -177,25 +178,26 @@ export default function AddMemberPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between mb-4">
-        <div className="flex items-center space-x-4">
-          <Button variant="ghost" size="sm" asChild>
-            <Link href="/dashboard/members">
-              <ArrowLeft className="mr-2 h-4 w-4" />
-              Back to Members
-            </Link>
-          </Button>
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight">Add New Member</h1>
-            <p className="text-muted-foreground">Register a new church member or convert.</p>
-          </div>
-        </div>
-        <Button asChild variant="outline" className="ml-auto">
-          <Link href="/dashboard/members/import">
-            <Upload className="mr-2 h-4 w-4" />
-            Import Members
+      <div className="flex items-center gap-4 mb-4">
+        <Button variant="ghost" size="sm" asChild>
+          <Link href="/dashboard/members">
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            Back to Members
           </Link>
         </Button>
+        <div className="flex-1">
+          <PageHeader
+            title="Add New Member"
+            actions={
+              <Button asChild variant="outline">
+                <Link href="/dashboard/members/import">
+                  <Upload className="mr-2 h-4 w-4" />
+                  Import Members
+                </Link>
+              </Button>
+            }
+          />
+        </div>
       </div>
 
       <Form {...form}>
@@ -204,7 +206,6 @@ export default function AddMemberPage() {
           <Card>
             <CardHeader>
                 <CardTitle>Registration Type</CardTitle>
-                <CardDescription>Select whether you are registering a full member or a new convert.</CardDescription>
             </CardHeader>
             <CardContent>
                 <RadioGroup
@@ -232,7 +233,6 @@ export default function AddMemberPage() {
                   <User className="mr-2 h-5 w-5" />
                   New Convert Registration
                 </CardTitle>
-                <CardDescription>Register a new convert with essential details</CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
                 <FormField
@@ -390,7 +390,6 @@ export default function AddMemberPage() {
                     <User className="mr-2 h-5 w-5" />
                     Personal Information
                   </CardTitle>
-                  <CardDescription>Basic member details and contact information</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-6">
                   <div className="flex items-center space-x-6">
@@ -655,7 +654,6 @@ export default function AddMemberPage() {
                     <Users className="mr-2 h-5 w-5" />
                     Church Details
                   </CardTitle>
-                  <CardDescription>Church-related details and life development</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -812,7 +810,6 @@ export default function AddMemberPage() {
                     <Users className="mr-2 h-5 w-5" />
                     Leadership & Invitation
                   </CardTitle>
-                  <CardDescription>Role within the church and invitation details</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <FormField

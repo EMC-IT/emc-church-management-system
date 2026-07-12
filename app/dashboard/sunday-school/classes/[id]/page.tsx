@@ -4,9 +4,10 @@ import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { PageHeader } from '@/components/ui/page-header';
+import { StatCard } from '@/components/ui/stat-card';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { 
   ArrowLeft,
@@ -142,95 +143,63 @@ export default function ClassDetailsPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="space-y-1">
-          <div className="flex items-center space-x-2">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={handleBack}
-              className="h-8 w-8"
-            >
-              <ArrowLeft className="h-4 w-4" />
-            </Button>
-            <div>
-              <h1 className="text-3xl font-bold tracking-tight">{classData.name}</h1>
-              <p className="text-muted-foreground">{classData.description}</p>
-            </div>
-          </div>
-        </div>
-        
-        <div className="flex space-x-2">
-          <Button variant="outline" onClick={handleEdit}>
-            <Edit className="mr-2 h-4 w-4" />
-            Edit Class
-          </Button>
-          <Button onClick={handleTakeAttendance} className="bg-brand-primary hover:bg-brand-primary/90">
-            <ClipboardList className="mr-2 h-4 w-4" />
-            Take Attendance
-          </Button>
+      <div className="flex items-center gap-2">
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={handleBack}
+          className="h-8 w-8"
+        >
+          <ArrowLeft className="h-4 w-4" />
+        </Button>
+        <div className="flex-1">
+          <PageHeader
+            title={classData.name}
+            description={classData.description}
+            actions={
+              <>
+                <Button variant="outline" onClick={handleEdit}>
+                  <Edit className="mr-2 h-4 w-4" />
+                  Edit Class
+                </Button>
+                <Button onClick={handleTakeAttendance} className="bg-brand-primary hover:bg-brand-primary/90">
+                  <ClipboardList className="mr-2 h-4 w-4" />
+                  Take Attendance
+                </Button>
+              </>
+            }
+          />
         </div>
       </div>
 
       {/* Class Overview Cards */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Students</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{students.length}</div>
-            <p className="text-xs text-muted-foreground">
-              of {classData.maxStudents} maximum
-            </p>
-            <Progress 
-              value={(students.length / classData.maxStudents) * 100} 
-              className="mt-2 h-2" 
-            />
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Attendance Rate</CardTitle>
-            <TrendingUp className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{getAttendanceRate()}%</div>
-            <p className="text-xs text-muted-foreground">
-              Last 10 sessions
-            </p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Age Group</CardTitle>
-            <BookOpen className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{classData.ageGroup}</div>
-            <p className="text-xs text-muted-foreground">
-              Target age range
-            </p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Status</CardTitle>
-            <Clock className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <Badge className={getStatusColor(classData.status)}>
-              {classData.status}
-            </Badge>
-            <p className="text-xs text-muted-foreground mt-2">
-              Current status
-            </p>
-          </CardContent>
-        </Card>
+        <StatCard
+          title="Students"
+          value={students.length}
+          icon={Users}
+          accent="primary"
+          description={`of ${classData.maxStudents} maximum`}
+        />
+        <StatCard
+          title="Attendance Rate"
+          value={`${getAttendanceRate()}%`}
+          icon={TrendingUp}
+          accent="secondary"
+          description="Last 10 sessions"
+        />
+        <StatCard
+          title="Age Group"
+          value={classData.ageGroup}
+          icon={BookOpen}
+          accent="success"
+        />
+        <StatCard
+          title="Status"
+          value={<Badge className={getStatusColor(classData.status)}>{classData.status}</Badge>}
+          icon={Clock}
+          accent="accent"
+        />
       </div>
 
       {/* Main Content Tabs */}
@@ -323,9 +292,6 @@ export default function ClassDetailsPage() {
           <Card>
             <CardHeader>
               <CardTitle>Quick Actions</CardTitle>
-              <CardDescription>
-                Common tasks for this class
-              </CardDescription>
             </CardHeader>
             <CardContent>
               <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">

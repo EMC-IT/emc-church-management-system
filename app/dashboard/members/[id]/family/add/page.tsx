@@ -6,8 +6,9 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { PageHeader } from '@/components/ui/page-header';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -222,20 +223,18 @@ export default function AddFamilyMemberPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center space-x-4">
-          <Button variant="ghost" size="sm" asChild>
-            <Link href={`/dashboard/members/${member.id}/family`}>
-              <ArrowLeft className="mr-2 h-4 w-4" />
-              Back to Family
-            </Link>
-          </Button>
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight">Add Family Member</h1>
-            <p className="text-muted-foreground">
-              Add a new family member for {member.firstName} {member.lastName}
-            </p>
-          </div>
+      <div className="flex items-center gap-4">
+        <Button variant="ghost" size="sm" asChild>
+          <Link href={`/dashboard/members/${member.id}/family`}>
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            Back to Family
+          </Link>
+        </Button>
+        <div className="flex-1">
+          <PageHeader
+            title="Add Family Member"
+            description={`Add a new family member for ${member.firstName} ${member.lastName}`}
+          />
         </div>
       </div>
 
@@ -244,9 +243,6 @@ export default function AddFamilyMemberPage() {
         <Card>
           <CardHeader>
             <CardTitle>Family Member Information</CardTitle>
-            <CardDescription>
-              Enter the details for the new family member
-            </CardDescription>
           </CardHeader>
           <CardContent>
             <Form {...form}>
@@ -295,9 +291,6 @@ export default function AddFamilyMemberPage() {
                           <FormControl>
                             <Input placeholder="Enter email address" type="email" {...field} />
                           </FormControl>
-                          <FormDescription>
-                            Optional - for communication purposes
-                          </FormDescription>
                           <FormMessage />
                         </FormItem>
                       )}

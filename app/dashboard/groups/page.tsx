@@ -4,7 +4,9 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { PageHeader } from '@/components/ui/page-header';
+import { StatCard } from '@/components/ui/stat-card';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Progress } from '@/components/ui/progress';
@@ -130,78 +132,64 @@ export default function GroupsPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Groups</h1>
-          <p className="text-muted-foreground">Manage church groups and ministries</p>
-        </div>
-        <div className="flex space-x-2">
-          <Button variant="outline">
-            <Download className="mr-2 h-4 w-4" />
-            Export Contacts
-          </Button>
-          <Button variant="outline" onClick={handleManageCategories}>
-            <Settings className="mr-2 h-4 w-4" />
-            Manage Categories
-          </Button>
-          <Button 
-            onClick={handleCreateGroup}
-            className="bg-brand-primary hover:bg-brand-primary/90"
-          >
-            <Plus className="mr-2 h-4 w-4" />
-            Create Group
-          </Button>
-        </div>
-      </div>
+      <PageHeader
+        title="Groups"
+        actions={
+          <div className="flex space-x-2">
+            <Button variant="outline">
+              <Download className="mr-2 h-4 w-4" />
+              Export Contacts
+            </Button>
+            <Button variant="outline" onClick={handleManageCategories}>
+              <Settings className="mr-2 h-4 w-4" />
+              Manage Categories
+            </Button>
+            <Button
+              onClick={handleCreateGroup}
+              className="bg-brand-primary hover:bg-brand-primary/90"
+            >
+              <Plus className="mr-2 h-4 w-4" />
+              Create Group
+            </Button>
+          </div>
+        }
+      />
 
       {/* Stats Cards */}
       <div className="grid gap-4 md:grid-cols-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Groups</CardTitle>
-            <UsersRound className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats?.totalGroups || 0}</div>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Members</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats?.totalMembers || 0}</div>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Average Engagement</CardTitle>
-            <TrendingUp className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats?.averageEngagement || 0}%</div>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Active Groups</CardTitle>
-            <UsersRound className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats?.activeGroups || 0}</div>
-          </CardContent>
-        </Card>
+        <StatCard
+          title="Total Groups"
+          value={stats?.totalGroups || 0}
+          icon={UsersRound}
+          accent="primary"
+        />
+
+        <StatCard
+          title="Total Members"
+          value={stats?.totalMembers || 0}
+          icon={Users}
+          accent="secondary"
+        />
+
+        <StatCard
+          title="Average Engagement"
+          value={`${stats?.averageEngagement || 0}%`}
+          icon={TrendingUp}
+          accent="success"
+        />
+
+        <StatCard
+          title="Active Groups"
+          value={stats?.activeGroups || 0}
+          icon={UsersRound}
+          accent="accent"
+        />
       </div>
 
       {/* Filters */}
       <Card>
         <CardHeader>
           <CardTitle>Group Management</CardTitle>
-          <CardDescription>View and manage all church groups and ministries</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="flex items-center space-x-4 mb-6">

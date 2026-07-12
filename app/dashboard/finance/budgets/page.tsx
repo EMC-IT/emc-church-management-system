@@ -5,7 +5,9 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { PageHeader } from '@/components/ui/page-header';
+import { StatCard } from '@/components/ui/stat-card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { 
@@ -239,62 +241,50 @@ export default function BudgetsPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Budget Management</h1>
-          <p className="text-muted-foreground">Plan, track, and manage church budgets across departments</p>
-        </div>
-        <div className="flex space-x-2">
-          <Button variant="outline">
-            <Download className="mr-2 h-4 w-4" />
-            Export Budgets
-          </Button>
-          <Button asChild>
-            <Link href="/dashboard/finance/budgets/add">
-              <Plus className="mr-2 h-4 w-4" />
-              Create Budget
-            </Link>
-          </Button>
-        </div>
-      </div>
+      <PageHeader
+        title="Budget Management"
+        actions={
+          <>
+            <Button variant="outline">
+              <Download className="mr-2 h-4 w-4" />
+              Export Budgets
+            </Button>
+            <Button asChild>
+              <Link href="/dashboard/finance/budgets/add">
+                <Plus className="mr-2 h-4 w-4" />
+                Create Budget
+              </Link>
+            </Button>
+          </>
+        }
+      />
 
       {/* Stats Cards */}
       <div className="grid gap-4 md:grid-cols-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Budget</CardTitle>
-            <Target className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">₵{totalBudget.toLocaleString()}</div>
-            <p className="text-xs text-muted-foreground">Allocated this quarter</p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Spent</CardTitle>
-            <BadgeCent className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">₵{totalSpent.toLocaleString()}</div>
-            <p className="text-xs text-muted-foreground">Spent so far</p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Remaining</CardTitle>
-            <Calendar className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-green-600">
-              ₵{(totalBudget - totalSpent).toLocaleString()}
-            </div>
-            <p className="text-xs text-muted-foreground">Available to spend</p>
-          </CardContent>
-        </Card>
-        
+        <StatCard
+          title="Total Budget"
+          value={`₵${totalBudget.toLocaleString()}`}
+          icon={Target}
+          accent="primary"
+          description="Allocated this quarter"
+        />
+
+        <StatCard
+          title="Total Spent"
+          value={`₵${totalSpent.toLocaleString()}`}
+          icon={BadgeCent}
+          accent="secondary"
+          description="Spent so far"
+        />
+
+        <StatCard
+          title="Remaining"
+          value={`₵${(totalBudget - totalSpent).toLocaleString()}`}
+          icon={Calendar}
+          accent="success"
+          description="Available to spend"
+        />
+
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Utilization Rate</CardTitle>
@@ -340,7 +330,6 @@ export default function BudgetsPage() {
         <Card>
           <CardHeader>
             <CardTitle>Budget vs Spending Trends</CardTitle>
-            <CardDescription>Monthly budget allocation vs actual spending</CardDescription>
           </CardHeader>
           <CardContent>
             <ChartContainer config={budgetTrendsConfig} className="h-[300px] w-full">
@@ -386,7 +375,6 @@ export default function BudgetsPage() {
         <Card>
           <CardHeader>
             <CardTitle>Department Budget Overview</CardTitle>
-            <CardDescription>Budget vs spending by department</CardDescription>
           </CardHeader>
           <CardContent>
             <ChartContainer config={departmentConfig} className="h-[300px] w-full">
@@ -430,7 +418,6 @@ export default function BudgetsPage() {
       <Card>
         <CardHeader>
           <CardTitle>Budget Overview</CardTitle>
-          <CardDescription>Manage and track all department budgets</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="flex items-center space-x-4 mb-4">

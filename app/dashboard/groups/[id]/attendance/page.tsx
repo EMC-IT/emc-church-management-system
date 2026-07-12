@@ -4,7 +4,9 @@ import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { PageHeader } from '@/components/ui/page-header';
+import { StatCard } from '@/components/ui/stat-card';
 import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
 import { 
@@ -250,41 +252,34 @@ export default function GroupAttendancePage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="space-y-1">
-          <div className="flex items-center space-x-2">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={handleBack}
-              className="h-8 w-8"
-            >
-              <ArrowLeft className="h-4 w-4" />
-            </Button>
-            <div>
-              <h1 className="text-3xl font-bold tracking-tight">Group Attendance</h1>
-              <p className="text-muted-foreground">
-                Track attendance for {group?.name}
-              </p>
-            </div>
-          </div>
-    
-        </div>
-        
-        <div className="flex items-center space-x-2">
-          <Button variant="outline">
-            <Download className="mr-2 h-4 w-4" />
-            Export
-          </Button>
-          
-          <Dialog open={showTakeAttendance} onOpenChange={setShowTakeAttendance}>
-            <DialogTrigger asChild>
-              <Button className="bg-brand-primary hover:bg-brand-primary/90">
-                <UserCheck className="mr-2 h-4 w-4" />
-                Take Attendance
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+      <div className="flex items-center gap-2">
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={handleBack}
+          className="h-8 w-8"
+        >
+          <ArrowLeft className="h-4 w-4" />
+        </Button>
+        <div className="flex-1">
+          <PageHeader
+            title="Group Attendance"
+            description={`Track attendance for ${group?.name}`}
+            actions={
+              <div className="flex items-center space-x-2">
+                <Button variant="outline">
+                  <Download className="mr-2 h-4 w-4" />
+                  Export
+                </Button>
+
+                <Dialog open={showTakeAttendance} onOpenChange={setShowTakeAttendance}>
+                  <DialogTrigger asChild>
+                    <Button className="bg-brand-primary hover:bg-brand-primary/90">
+                      <UserCheck className="mr-2 h-4 w-4" />
+                      Take Attendance
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
               <DialogHeader>
                 <DialogTitle>Take Attendance</DialogTitle>
                 <DialogDescription>

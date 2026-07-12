@@ -6,6 +6,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { PageHeader } from '@/components/ui/page-header';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -178,12 +179,7 @@ export default function AddDepartmentPage() {
         <Button variant="outline" size="icon" onClick={handleCancel}>
           <ArrowLeft className="h-4 w-4" />
         </Button>
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Add New Department</h1>
-          <p className="text-muted-foreground">
-            Create a new department to organize church activities and members
-          </p>
-        </div>
+        <PageHeader title="Add New Department" />
       </div>
 
       {/* Form */}
@@ -339,9 +335,6 @@ export default function AddDepartmentPage() {
                         <FormControl>
                           <Input placeholder="e.g., Sanctuary, Media Room" {...field} />
                         </FormControl>
-                        <FormDescription>
-                          Where the department usually meets or operates
-                        </FormDescription>
                         <FormMessage />
                       </FormItem>
                     )}
@@ -382,9 +375,6 @@ export default function AddDepartmentPage() {
                           <FormLabel className="text-base">
                             Regular Meeting Schedule
                           </FormLabel>
-                          <FormDescription>
-                            Enable if this department has regular meetings
-                          </FormDescription>
                         </div>
                         <FormControl>
                           <Switch

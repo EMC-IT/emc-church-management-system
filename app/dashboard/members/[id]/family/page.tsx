@@ -3,7 +3,9 @@
 import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { PageHeader } from '@/components/ui/page-header';
+import { StatCard } from '@/components/ui/stat-card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { DataTable } from '@/components/ui/data-table';
@@ -320,83 +322,60 @@ export default function FamilyPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center space-x-4">
-          <Button variant="ghost" size="sm" asChild>
-            <Link href={`/dashboard/members/${member.id}`}>
-              <ArrowLeft className="mr-2 h-4 w-4" />
-              Back to Profile
-            </Link>
-          </Button>
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight">Family Management</h1>
-            <p className="text-muted-foreground">
-              Manage family relationships for {member.firstName} {member.lastName}
-            </p>
-          </div>
-        </div>
-        <div className="flex items-center space-x-2">
-          <Button variant="outline" asChild>
-            <Link href={`/dashboard/members/${member.id}/family/link`}>
-              <LinkIcon className="mr-2 h-4 w-4" />
-              Link Existing Member
-            </Link>
-          </Button>
-          <Button asChild>
-            <Link href={`/dashboard/members/${member.id}/family/add`}>
-              <Plus className="mr-2 h-4 w-4" />
-              Add New Family Member
-            </Link>
-          </Button>
+      <div className="flex items-center gap-4">
+        <Button variant="ghost" size="sm" asChild>
+          <Link href={`/dashboard/members/${member.id}`}>
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            Back to Profile
+          </Link>
+        </Button>
+        <div className="flex-1">
+          <PageHeader
+            title="Family Management"
+            description={`Manage family relationships for ${member.firstName} ${member.lastName}`}
+            actions={
+              <>
+                <Button variant="outline" asChild>
+                  <Link href={`/dashboard/members/${member.id}/family/link`}>
+                    <LinkIcon className="mr-2 h-4 w-4" />
+                    Link Existing Member
+                  </Link>
+                </Button>
+                <Button asChild>
+                  <Link href={`/dashboard/members/${member.id}/family/add`}>
+                    <Plus className="mr-2 h-4 w-4" />
+                    Add New Family Member
+                  </Link>
+                </Button>
+              </>
+            }
+          />
         </div>
       </div>
 
       {/* Family Overview */}
       <div className="grid gap-4 md:grid-cols-3">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Family Members</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{familyMembers.length + 1}</div>
-            <p className="text-xs text-muted-foreground">
-              Including {member.firstName} {member.lastName}
-            </p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Active Members</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {familyMembers.filter(m => m.membershipStatus === 'Active').length + 
-               (member.membershipStatus === 'Active' ? 1 : 0)}
-            </div>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Family ID</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-sm font-mono">{member.familyId}</div>
-          </CardContent>
-        </Card>
+        <StatCard
+          title="Total Family Members"
+          value={familyMembers.length + 1}
+          icon={Users}
+          description={`Including ${member.firstName} ${member.lastName}`}
+        />
+        <StatCard
+          title="Active Members"
+          value={
+            familyMembers.filter(m => m.membershipStatus === 'Active').length +
+            (member.membershipStatus === 'Active' ? 1 : 0)
+          }
+          icon={Users}
+        />
+        <StatCard title="Family ID" value={member.familyId} icon={Users} />
       </div>
 
       {/* Family Members Table */}
       <Card>
         <CardHeader>
           <CardTitle>Family Members</CardTitle>
-          <CardDescription>
-            View and manage family relationships for {member.firstName} {member.lastName}
-          </CardDescription>
         </CardHeader>
         <CardContent>
           <DataTable

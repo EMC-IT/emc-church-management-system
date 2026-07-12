@@ -2,18 +2,18 @@
 
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { PageHeader } from '@/components/ui/page-header';
+import { StatCard } from '@/components/ui/stat-card';
 import { Badge } from '@/components/ui/badge';
 import { DataTable } from '@/components/ui/data-table';
 import { SearchInput } from '@/components/ui/search-input';
 import { LazySection } from '@/components/ui/lazy-section';
 import { LazyLoader } from '@/components/ui/lazy-loader';
 import { CardSkeleton, ChartSkeleton, TableSkeleton } from '@/components/ui/skeleton-loaders';
-import { 
-  Plus, 
+import {
+  Plus,
   BadgeCent,
-  TrendingUp,
-  TrendingDown,
   Users,
   Calendar,
   Target,
@@ -178,12 +178,6 @@ export default function GivingOverviewPage() {
     }).format(amount);
   };
 
-  const getGrowthIcon = (growth: number) => {
-    if (growth > 0) return <TrendingUp className="h-4 w-4 text-green-500" />;
-    if (growth < 0) return <TrendingDown className="h-4 w-4 text-red-500" />;
-    return <TrendingUp className="h-4 w-4 text-gray-500" />;
-  };
-
   const getTypeIcon = (type: GivingType) => {
     switch (type) {
       case GivingType.TITHE:
@@ -267,13 +261,8 @@ export default function GivingOverviewPage() {
   if (loading) {
     return (
       <div className="space-y-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight">Giving Overview</h1>
-            <p className="text-muted-foreground">Track and manage church giving</p>
-          </div>
-        </div>
-        <CardSkeleton 
+        <PageHeader title="Giving Overview" />
+        <CardSkeleton
           count={4} 
           className="grid gap-4 md:grid-cols-2 lg:grid-cols-4" 
         />
@@ -293,27 +282,25 @@ export default function GivingOverviewPage() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Giving Overview</h1>
-          <p className="text-muted-foreground">Track and manage church giving</p>
-        </div>
-        <div className="flex items-center space-x-2">
-          <Button variant="outline" asChild>
-            <Link href="/dashboard/finance/giving/reports">
-              <FileText className="mr-2 h-4 w-4" />
-              View Reports
-            </Link>
-          </Button>
-          <Button asChild>
-            <Link href="/dashboard/finance/giving/donations/add">
-              <Plus className="mr-2 h-4 w-4" />
-              Record Giving
-            </Link>
-          </Button>
-        </div>
-      </div>
+      <PageHeader
+        title="Giving Overview"
+        actions={
+          <>
+            <Button variant="outline" asChild>
+              <Link href="/dashboard/finance/giving/reports">
+                <FileText className="mr-2 h-4 w-4" />
+                View Reports
+              </Link>
+            </Button>
+            <Button asChild>
+              <Link href="/dashboard/finance/giving/donations/add">
+                <Plus className="mr-2 h-4 w-4" />
+                Record Giving
+              </Link>
+            </Button>
+          </>
+        }
+      />
 
       {/* Statistics Cards */}
       <LazySection
@@ -324,58 +311,37 @@ export default function GivingOverviewPage() {
         className="grid gap-4 md:grid-cols-2 lg:grid-cols-4"
         threshold={0.1}
       >
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Giving</CardTitle>
-            <BadgeCent className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{formatCurrency(stats.totalAmount)}</div>
-            <p className="text-xs text-muted-foreground">
-              {stats.totalCount} transactions
-            </p>
-          </CardContent>
-        </Card>
+        <StatCard
+          title="Total Giving"
+          value={formatCurrency(stats.totalAmount)}
+          icon={BadgeCent}
+          accent="primary"
+          description={`${stats.totalCount} transactions`}
+        />
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">This Month</CardTitle>
-            <Calendar className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{formatCurrency(stats.thisMonth)}</div>
-            <div className="flex items-center text-xs text-muted-foreground">
-              {getGrowthIcon(stats.growth)}
-              <span className="ml-1">+{stats.growth}% from last month</span>
-            </div>
-          </CardContent>
-        </Card>
+        <StatCard
+          title="This Month"
+          value={formatCurrency(stats.thisMonth)}
+          icon={Calendar}
+          accent="secondary"
+          trend={{ value: `+${stats.growth}% from last month`, direction: stats.growth >= 0 ? 'up' : 'down' }}
+        />
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Average Giving</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{formatCurrency(stats.averageAmount)}</div>
-            <p className="text-xs text-muted-foreground">
-              Per transaction
-            </p>
-          </CardContent>
-        </Card>
+        <StatCard
+          title="Average Giving"
+          value={formatCurrency(stats.averageAmount)}
+          icon={Users}
+          accent="success"
+          description="Per transaction"
+        />
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Active Pledges</CardTitle>
-            <Target className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">25</div>
-            <p className="text-xs text-muted-foreground">
-              {formatCurrency(45000)} committed
-            </p>
-          </CardContent>
-        </Card>
+        <StatCard
+          title="Active Pledges"
+          value="25"
+          icon={Target}
+          accent="accent"
+          description={`${formatCurrency(45000)} committed`}
+        />
       </LazySection>
 
       {/* Quick Actions */}
@@ -392,10 +358,7 @@ export default function GivingOverviewPage() {
           return (
             <Card key={action.title} className="hover:shadow-md transition-shadow cursor-pointer" onClick={() => router.push(action.href)}>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <div>
-                  <CardTitle className="text-sm font-medium">{action.title}</CardTitle>
-                  <CardDescription className="text-xs">{action.description}</CardDescription>
-                </div>
+                <CardTitle className="text-sm font-medium">{action.title}</CardTitle>
                 <div className={`p-2 rounded-md ${action.color}`}>
                   <IconComponent className="h-4 w-4 text-white" />
                 </div>

@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
+import { PageHeader } from '@/components/ui/page-header';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { FileUpload } from '@/components/ui/file-upload';
 import { DataTable } from '@/components/ui/data-table';
@@ -342,23 +343,24 @@ export default function ImportMembersPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center space-x-4">
-          <Button variant="ghost" size="sm" asChild>
-            <Link href="/dashboard/members">
-              <ArrowLeft className="mr-2 h-4 w-4" />
-              Back to Members
-            </Link>
-          </Button>
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight">Import Members</h1>
-            <p className="text-muted-foreground">Bulk import members from CSV file</p>
-          </div>
-        </div>
-        <Button variant="outline" onClick={handleDownloadTemplate}>
-          <Download className="mr-2 h-4 w-4" />
-          Download Template
+      <div className="flex items-center gap-4">
+        <Button variant="ghost" size="sm" asChild>
+          <Link href="/dashboard/members">
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            Back to Members
+          </Link>
         </Button>
+        <div className="flex-1">
+          <PageHeader
+            title="Import Members"
+            actions={
+              <Button variant="outline" onClick={handleDownloadTemplate}>
+                <Download className="mr-2 h-4 w-4" />
+                Download Template
+              </Button>
+            }
+          />
+        </div>
       </div>
 
       {/* Import Steps */}
