@@ -62,7 +62,12 @@ export const StatCard = ({
         <Icon className="h-3.5 w-3.5 text-muted-foreground" aria-hidden="true" />
       </CardHeader>
       <CardContent>
-        <div className="text-2xl font-semibold text-foreground">{value}</div>
+        <div
+          data-metric
+          className="font-heading text-2xl font-semibold tabular-nums text-foreground"
+        >
+          {value}
+        </div>
         {trend ? (
           <p className={cn("mt-1 flex items-center gap-1 text-xs font-medium", trendColor[direction])}>
             <TrendIcon className="h-3 w-3" aria-hidden="true" />

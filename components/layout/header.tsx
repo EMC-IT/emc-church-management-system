@@ -12,30 +12,24 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Bell, Search, LogOut, User, Settings } from 'lucide-react';
-import { Input } from '@/components/ui/input';
+import { Bell, LogOut, User, Settings } from 'lucide-react';
 import Breadcrumb from '@/components/ui/breadcrumb';
 import { ThemeToggle } from '@/components/theme/theme-toggle';
+import { GlobalSearch } from '@/components/layout/global-search';
 
 export default function Header() {
   const { user, logout } = useAuth();
   const router = useRouter();
 
   return (
-    <header className="bg-card border-b border-border px-6 py-4">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center space-x-4">
+    <header className="border-b border-border bg-card px-4 py-3 sm:px-6">
+      <div className="flex items-center justify-between gap-4">
+        <div className="hidden min-w-0 items-center space-x-4 md:flex">
           <Breadcrumb />
         </div>
         
-        <div className="flex items-center space-x-4">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder="Search..."
-              className="pl-10 w-64"
-            />
-          </div>
+        <div className="flex items-center gap-2 sm:gap-3">
+          <GlobalSearch />
           
           <Button variant="ghost" size="icon" className="text-brand-primary hover:text-brand-primary">
             <Bell className="h-5 w-5" />
