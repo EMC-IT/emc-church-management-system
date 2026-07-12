@@ -131,6 +131,144 @@
   }
 }
 
+@layer utilities {
+  /* Stat cards follow the neutral Classes-page pattern across legacy layouts. */
+  [data-slot='card']:has(
+      > [data-slot='card-header'] [data-slot='card-title'].text-sm
+    ) {
+    border-left-width: 1px !important;
+    border-left-color: hsl(var(--border)) !important;
+    box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05) !important;
+  }
+
+  [data-slot='card']:has(
+      > [data-slot='card-header'] [data-slot='card-title'].text-sm
+    ):hover {
+    box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05) !important;
+  }
+
+  [data-slot='card']
+    > [data-slot='card-header']:has([data-slot='card-title'].text-sm) {
+    padding: 1.5rem 1.5rem 0.5rem !important;
+  }
+
+  [data-slot='card']
+    > [data-slot='card-header']
+    [data-slot='card-title'].text-sm {
+    color: hsl(var(--foreground)) !important;
+    font-weight: 600 !important;
+  }
+
+  [data-slot='card']
+    > [data-slot='card-header']:has([data-slot='card-title'].text-sm)
+    > :last-child:not([data-slot='card-title']) {
+    width: auto !important;
+    height: auto !important;
+    padding: 0 !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+    color: hsl(var(--muted-foreground)) !important;
+  }
+
+  [data-slot='card']
+    > [data-slot='card-header']:has([data-slot='card-title'].text-sm)
+    svg {
+    width: 0.875rem !important;
+    height: 0.875rem !important;
+    color: hsl(var(--muted-foreground)) !important;
+  }
+
+  [data-slot='card']:has(
+      > [data-slot='card-header'] [data-slot='card-title'].text-sm
+    )
+    > [data-slot='card-content']
+    > :is(.text-2xl, .text-3xl) {
+    color: hsl(var(--foreground)) !important;
+    font-weight: 600 !important;
+  }
+
+  [data-slot='card']:has(
+      > [data-slot='card-content']
+        > .flex.items-center.justify-between
+        :is(.text-2xl, .text-3xl)
+    ) {
+    border-left-width: 1px !important;
+    border-left-color: hsl(var(--border)) !important;
+    box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05) !important;
+  }
+
+  [data-slot='card']:has(
+      > [data-slot='card-content']
+        > .flex.items-center.justify-between
+        :is(.text-2xl, .text-3xl)
+    ):hover {
+    box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05) !important;
+  }
+
+  [data-slot='card']:has(
+      > [data-slot='card-content']
+        > .flex.items-center.justify-between
+        :is(.text-2xl, .text-3xl)
+    )
+    > [data-slot='card-content'] {
+    padding: 1.5rem !important;
+  }
+
+  [data-slot='card']
+    > [data-slot='card-content']
+    > .flex.items-center.justify-between:has(:is(.text-2xl, .text-3xl)) {
+    align-items: flex-start !important;
+  }
+
+  [data-slot='card']
+    > [data-slot='card-content']
+    > .flex.items-center.justify-between:has(:is(.text-2xl, .text-3xl))
+    > div
+    > p:first-child:not(.text-2xl):not(.text-3xl) {
+    margin-bottom: 0.5rem !important;
+    color: hsl(var(--foreground)) !important;
+    font-weight: 600 !important;
+  }
+
+  [data-slot='card']
+    > [data-slot='card-content']
+    > .flex.items-center.justify-between:has(:is(.text-2xl, .text-3xl))
+    :is(.text-2xl, .text-3xl) {
+    color: hsl(var(--foreground)) !important;
+    font-weight: 600 !important;
+  }
+
+  [data-slot='card']
+    > [data-slot='card-content']
+    > .flex.items-center.justify-between:has(:is(.text-2xl, .text-3xl))
+    > :last-child:has(svg) {
+    width: auto !important;
+    height: auto !important;
+    padding: 0 !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+  }
+
+  [data-slot='card']
+    > [data-slot='card-content']
+    > .flex.items-center.justify-between:has(:is(.text-2xl, .text-3xl))
+    > svg {
+    width: 0.875rem !important;
+    height: 0.875rem !important;
+    color: hsl(var(--muted-foreground)) !important;
+  }
+
+  [data-slot='card']
+    > [data-slot='card-content']
+    > .flex.items-center.justify-between:has(:is(.text-2xl, .text-3xl))
+    > :last-child
+    svg {
+    width: 0.875rem !important;
+    height: 0.875rem !important;
+    color: hsl(var(--muted-foreground)) !important;
+  }
+}
+
 /* Enhanced Scrollbar Styling */
 @layer utilities {
   /* WebKit browsers (Chrome, Safari, Edge) */

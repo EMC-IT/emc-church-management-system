@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { StatCard } from '@/components/ui/stat-card';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Progress } from '@/components/ui/progress';
@@ -158,66 +159,33 @@ export default function ClassesPage() {
 
       {/* Stats Cards */}
       <div className="grid gap-4 md:grid-cols-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Classes</CardTitle>
-            <School className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{classes.length}</div>
-            <p className="text-xs text-muted-foreground">
-              {classes.filter(c => c.status === ClassStatus.ACTIVE).length} active
-            </p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Students</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {classes.reduce((sum, cls) => sum + cls.students, 0)}
-            </div>
-            <p className="text-xs text-muted-foreground">
-              Across all classes
-            </p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Teachers</CardTitle>
-            <GraduationCap className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {new Set(classes.map(c => c.teacher.id)).size}
-            </div>
-            <p className="text-xs text-muted-foreground">
-              Unique teachers
-            </p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Capacity</CardTitle>
-            <TrendingUp className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {Math.round(
+        <StatCard
+          title="Total Classes"
+          value={classes.length}
+          description={`${classes.filter(c => c.status === ClassStatus.ACTIVE).length} active`}
+          icon={School}
+        />
+        <StatCard
+          title="Total Students"
+          value={classes.reduce((sum, cls) => sum + cls.students, 0)}
+          description="Across all classes"
+          icon={Users}
+        />
+        <StatCard
+          title="Teachers"
+          value={new Set(classes.map(c => c.teacher.id)).size}
+          description="Unique teachers"
+          icon={GraduationCap}
+        />
+        <StatCard
+          title="Capacity"
+          value={`${Math.round(
                 (classes.reduce((sum, cls) => sum + cls.students, 0) /
                 classes.reduce((sum, cls) => sum + cls.maxStudents, 0)) * 100
-              ) || 0}%
-            </div>
-            <p className="text-xs text-muted-foreground">
-              Overall utilization
-            </p>
-          </CardContent>
-        </Card>
+              ) || 0}%`}
+          description="Overall utilization"
+          icon={TrendingUp}
+        />
       </div>
 
       {/* Filters and Classes */}
