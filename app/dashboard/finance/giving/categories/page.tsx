@@ -420,6 +420,8 @@ export default function GivingCategoriesPage() {
               <DataTable
                 columns={columns}
                 data={categories}
+                recordLabel="category"
+                recordLabelPlural="categories"
                 searchKey="name"
                 searchPlaceholder="Search categories..."
               />

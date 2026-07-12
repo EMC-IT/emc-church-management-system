@@ -8,7 +8,6 @@ import { z } from 'zod';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
@@ -18,7 +17,6 @@ import { membersService } from '@/services';
 import { Member } from '@/lib/types';
 import { 
   ArrowLeft, 
-  Search, 
   User, 
   Phone, 
   Mail, 
@@ -113,7 +111,6 @@ export default function LinkFamilyMemberPage() {
   const [existingMembers, setExistingMembers] = useState<Member[]>([]);
   const [filteredMembers, setFilteredMembers] = useState<Member[]>([]);
   const [loading, setLoading] = useState(true);
-  const [searching, setSearching] = useState(false);
   const [linking, setLinking] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
@@ -196,32 +193,6 @@ export default function LinkFamilyMemberPage() {
       setFilteredMembers(filtered);
     }
   }, [searchTerm, existingMembers]);
-
-  const handleSearch = async () => {
-    if (!searchTerm.trim()) return;
-    
-    try {
-      setSearching(true);
-      // For now, use mock data. Replace with actual API call:
-      // const response = await membersService.searchMembers(searchTerm);
-      // setFilteredMembers(response);
-      const filtered = mockExistingMembers.filter(member => 
-        member.firstName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        member.lastName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        member.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        member.phone.includes(searchTerm)
-      );
-      setFilteredMembers(filtered);
-    } catch (err: any) {
-      toast({
-        title: 'Error',
-        description: err.message || 'Failed to search members',
-        variant: 'destructive',
-      });
-    } finally {
-      setSearching(false);
-    }
-  };
 
   const handleLinkMember = async (selectedMember: Member) => {
     try {
@@ -392,32 +363,16 @@ export default function LinkFamilyMemberPage() {
         </div>
       </div>
 
-      {/* Search and Relationship Form */}
+      {/* Relationship Form */}
       <div className="grid gap-6 md:grid-cols-2">
         <Card>
           <CardHeader>
-            <CardTitle>Search Members</CardTitle>
+            <CardTitle>Family Relationship</CardTitle>
             <CardDescription>
-              Search for existing members to link to the family
+              Choose how the selected member is related to this family
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="flex space-x-2">
-              <Input
-                placeholder="Search by name, email, or phone..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
-              />
-              <Button onClick={handleSearch} disabled={searching}>
-                {searching ? (
-                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                ) : (
-                  <Search className="h-4 w-4" />
-                )}
-              </Button>
-            </div>
-            
             <Form {...form}>
               <form className="space-y-4">
                 <FormField
@@ -481,36 +436,21 @@ export default function LinkFamilyMemberPage() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          {filteredMembers.length > 0 ? (
-            <DataTable
-              columns={columns}
-              data={filteredMembers}
-              loading={searching}
-              error={error || undefined}
-              searchKey="name"
-              showSearch={false}
-              showFilters={false}
-              pagination={{
-                pageSize: 10,
-                pageSizeOptions: [10, 20, 50],
-              }}
-              className="bg-card"
-            />
-          ) : (
-            <div className="text-center py-8">
-              <Users className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
-              <h3 className="text-lg font-semibold mb-2">No members found</h3>
-              <p className="text-muted-foreground mb-4">
-                Try adjusting your search terms or add a new family member instead
-              </p>
-              <Button asChild>
-                <Link href={`/dashboard/members/${member.id}/family/add`}>
-                  <Plus className="mr-2 h-4 w-4" />
-                  Add New Family Member
-                </Link>
-              </Button>
-            </div>
-          )}
+          <DataTable
+            columns={columns}
+            data={filteredMembers}
+            recordLabel="member"
+            error={error || undefined}
+            searchValue={searchTerm}
+            onSearchChange={setSearchTerm}
+            searchPlaceholder="Search by name, email, or phone..."
+            showFilters={false}
+            pagination={{
+              pageSize: 10,
+              pageSizeOptions: [10, 20, 50],
+            }}
+            className="bg-card"
+          />
         </CardContent>
       </Card>
     </div>

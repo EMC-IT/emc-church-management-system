@@ -356,6 +356,8 @@ export default function IncomeOverviewPage() {
             <DataTable
               columns={columns}
               data={recentIncome}
+              recordLabel="income entry"
+              recordLabelPlural="income entries"
               searchKey="description"
               searchPlaceholder="Search income..."
             />

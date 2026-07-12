@@ -658,6 +658,7 @@ export default function PledgeDetailsPage() {
                 <DataTable
                   columns={columns}
                   data={payments}
+                  recordLabel="payment"
                   searchKey="receiptNumber"
                   searchPlaceholder="Search payments..."
                 />

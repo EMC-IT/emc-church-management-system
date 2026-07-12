@@ -402,6 +402,7 @@ export default function FamilyPage() {
           <DataTable
             columns={columns}
             data={familyMembers}
+            recordLabel="family member"
             loading={loading}
             error={error || undefined}
             searchKey="name"
@@ -418,4 +419,4 @@ export default function FamilyPage() {
       </Card>
     </div>
   );
-} 
+}

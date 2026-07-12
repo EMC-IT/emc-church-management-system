@@ -9,7 +9,6 @@ import {
   Edit,
   Trash2,
   Eye,
-  Search,
   Filter,
   Download,
   Calendar,
@@ -24,7 +23,6 @@ import {
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { DataTable } from '@/components/ui/data-table';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
@@ -561,15 +559,6 @@ export default function ExpenseCategoryDetailsPage() {
           <CardContent>
             {/* Search and Filter */}
             <div className="flex flex-col sm:flex-row gap-4 mb-6">
-              <div className="relative flex-1">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-                <Input
-                  placeholder="Search expenses..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10"
-                />
-              </div>
               <Select value={dateFilter} onValueChange={(value: any) => setDateFilter(value)}>
                 <SelectTrigger className="w-full sm:w-48">
                   <SelectValue placeholder="Filter by date" />
@@ -601,6 +590,9 @@ export default function ExpenseCategoryDetailsPage() {
             <DataTable
               columns={columns}
               data={filteredExpenses}
+              recordLabel="expense"
+              searchValue={searchTerm}
+              onSearchChange={setSearchTerm}
               searchKey="title"
               searchPlaceholder="Search expenses..."
             />

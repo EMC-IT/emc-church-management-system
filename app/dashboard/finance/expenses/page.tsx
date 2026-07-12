@@ -361,6 +361,7 @@ export default function ExpensesOverviewPage() {
             <DataTable
               columns={columns}
               data={recentExpenses}
+              recordLabel="expense"
               searchKey="description"
               searchPlaceholder="Search expenses..."
             />

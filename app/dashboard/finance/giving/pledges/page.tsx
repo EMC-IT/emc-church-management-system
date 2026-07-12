@@ -508,6 +508,7 @@ export default function PledgesPage() {
               <DataTable
                 columns={columns}
                 data={pledges}
+                recordLabel="pledge"
                 searchKey="description"
                 searchPlaceholder="Search pledges..."
               />

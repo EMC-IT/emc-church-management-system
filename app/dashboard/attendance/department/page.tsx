@@ -5,7 +5,6 @@ import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 import { DataTable } from '@/components/ui/data-table';
@@ -21,7 +20,6 @@ import {
   Clock, 
   TrendingUp, 
   TrendingDown, 
-  Search,
   Filter,
   Download,
   CalendarIcon,
@@ -623,16 +621,6 @@ export default function DepartmentAttendancePage() {
             </CardHeader>
             <CardContent>
               <div className="grid gap-4 md:grid-cols-3">
-                <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-                  <Input
-                    placeholder="Search departments or heads..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="pl-10"
-                  />
-                </div>
-                
                 <Select value={selectedType} onValueChange={setSelectedType}>
                   <SelectTrigger>
                     <SelectValue placeholder="Department Type" />
@@ -685,6 +673,9 @@ export default function DepartmentAttendancePage() {
               <DataTable
                 columns={departmentColumns}
                 data={filteredDepartments}
+                recordLabel="department"
+                searchValue={searchTerm}
+                onSearchChange={setSearchTerm}
                 searchKey="name"
                 searchPlaceholder="Search departments..."
               />

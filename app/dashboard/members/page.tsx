@@ -4,7 +4,6 @@ import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { DataTable, StatusBadge } from '@/components/ui/data-table';
-import { SearchInput } from '@/components/ui/search-input';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
   DropdownMenu,
@@ -34,7 +33,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useToast } from '@/hooks/use-toast';
 import { membersService } from '@/services';
-import { Member, SearchParams } from '@/lib/types';
+import { Member } from '@/lib/types';
 import { ColumnDef } from '@tanstack/react-table';
 import {
   AlertDialog,
@@ -274,40 +273,6 @@ export default function MembersPage() {
     }
   };
 
-  // Handle search
-  const handleSearch = async (query: string, filters: Record<string, any>) => {
-    try {
-      setLoading(true);
-      const searchParams: SearchParams = {
-        search: query,
-        ...filters,
-      };
-      // For now, filter locally. Replace with API call:
-      // const response = await membersService.searchMembers(searchParams);
-      // setMembers(response.data);
-      const filtered = mockMembers.filter(member => {
-        const matchesSearch = query === '' || 
-          member.firstName.toLowerCase().includes(query.toLowerCase()) ||
-          member.lastName.toLowerCase().includes(query.toLowerCase()) ||
-          member.email.toLowerCase().includes(query.toLowerCase());
-        
-        const matchesStatus = !filters.status || member.membershipStatus === filters.status;
-        const matchesGender = !filters.gender || member.gender === filters.gender;
-        
-        return matchesSearch && matchesStatus && matchesGender;
-      });
-      setMembers(filtered);
-    } catch (err: any) {
-      toast({
-        title: 'Error',
-        description: 'Failed to search members',
-        variant: 'destructive',
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
-
   const handlePromoteToMember = (memberId: string) => {
     setMembers(prevMembers => prevMembers.map(m =>
       m.id === memberId && m.customFields?.isConvert
@@ -324,8 +289,27 @@ export default function MembersPage() {
   // Table columns definition
   const columns: ColumnDef<Member>[] = [
     {
-      accessorKey: 'name',
+      id: 'name',
+      accessorFn: (member) =>
+        member.customFields?.fullName ||
+        `${member.firstName} ${member.lastName}`.trim() ||
+        member.phone,
       header: 'Member',
+      filterFn: (row, _columnId, value) => {
+        const member = row.original;
+        const searchableMember = [
+          member.customFields?.fullName,
+          member.firstName,
+          member.lastName,
+          member.email,
+          member.phone,
+        ]
+          .filter(Boolean)
+          .join(' ')
+          .toLowerCase();
+
+        return searchableMember.includes(String(value).toLowerCase());
+      },
       cell: ({ row }) => {
         const member = row.original;
         const isConvert = member.customFields?.isConvert === true;
@@ -524,7 +508,7 @@ export default function MembersPage() {
   // Search filters
   const searchFilters = [
     {
-      key: 'status',
+      key: 'membershipStatus',
       label: 'Status',
       type: 'select' as const,
       options: [
@@ -621,32 +605,16 @@ export default function MembersPage() {
         </Card>
       </div>
 
-      {/* Search and Filters */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Member Directory</CardTitle>
-          <CardDescription>Search and filter through your church members</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <SearchInput
-            placeholder="Search members by name, email, or phone..."
-            onSearch={handleSearch}
-            filters={searchFilters}
-            showFilters={true}
-            loading={loading}
-          />
-        </CardContent>
-      </Card>
-
       {/* Members Table */}
       <DataTable
         columns={columns}
         data={members}
+        recordLabel="member"
         loading={loading}
         error={error || undefined}
         searchKey="name"
-        showSearch={false}
-        showFilters={false}
+        searchPlaceholder="Search members by name, email, or phone..."
+        filters={searchFilters}
         pagination={{
           pageSize: 10,
           pageSizeOptions: [10, 20, 50, 100],

@@ -4,7 +4,6 @@ import React, { useState, useMemo } from 'react';
 import Link from 'next/link';
 import { 
   PlusCircle, 
-  Search, 
   Tag, 
   Edit, 
   Trash2, 
@@ -16,7 +15,6 @@ import {
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { DataTable } from '@/components/ui/data-table';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
@@ -470,15 +468,6 @@ export default function ExpenseCategoriesPage() {
           <CardContent>
             {/* Search and Filter */}
             <div className="flex flex-col sm:flex-row gap-4 mb-6">
-              <div className="relative flex-1">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-                <Input
-                  placeholder="Search categories..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10"
-                />
-              </div>
               <div className="flex gap-2">
                 <Button
                   variant={filterStatus === 'all' ? 'default' : 'outline'}
@@ -508,6 +497,10 @@ export default function ExpenseCategoriesPage() {
             <DataTable
               columns={columns}
               data={filteredCategories}
+              recordLabel="category"
+              recordLabelPlural="categories"
+              searchValue={searchTerm}
+              onSearchChange={setSearchTerm}
               searchKey="name"
               searchPlaceholder="Search categories..."
             />

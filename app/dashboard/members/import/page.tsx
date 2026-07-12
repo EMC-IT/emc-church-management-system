@@ -496,6 +496,7 @@ export default function ImportMembersPage() {
               <DataTable
                 columns={columns}
                 data={importData}
+                recordLabel="import row"
                 loading={false}
                 searchKey="name"
                 showSearch={true}
@@ -553,4 +554,4 @@ export default function ImportMembersPage() {
       )}
     </div>
   );
-} 
+}

@@ -29,21 +29,22 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
   DropdownMenu,
-  DropdownMenuCheckboxItem,
   DropdownMenuContent,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent } from "@/components/ui/card";
+import { DataTableAdvancedFilters } from "@/components/ui/data-table-advanced-filters";
+import { DataTableColumnVisibility } from "@/components/ui/data-table-column-visibility";
 import { Skeleton } from "@/components/ui/skeleton";
-import { 
-  ChevronDown, 
-  Search, 
-  Filter, 
-  Download, 
+import {
+  ChevronLeft,
+  ChevronRight,
+  ChevronsLeft,
+  ChevronsRight,
+  Search,
+  Filter,
+  Download,
   RefreshCw,
-  Eye,
-  EyeOff
 } from "lucide-react";
 
 import { cn } from "@/lib/utils";
@@ -54,9 +55,15 @@ export interface DataTableProps<TData, TValue> {
   loading?: boolean;
   error?: string;
   searchPlaceholder?: string;
+  searchValue?: string;
+  onSearchChange?: (value: string) => void;
+  toolbarContent?: React.ReactNode;
+  recordLabel?: string;
+  recordLabelPlural?: string;
   searchKey?: string;
   showSearch?: boolean;
   showFilters?: boolean;
+  showAdvancedFilters?: boolean;
   showColumnVisibility?: boolean;
   showExport?: boolean;
   showRefresh?: boolean;
@@ -84,9 +91,15 @@ export function DataTable<TData, TValue>({
   loading = false,
   error,
   searchPlaceholder = "Search...",
+  searchValue,
+  onSearchChange,
+  toolbarContent,
+  recordLabel = "record",
+  recordLabelPlural,
   searchKey,
   showSearch = true,
   showFilters = true,
+  showAdvancedFilters,
   showColumnVisibility = true,
   showExport = false,
   showRefresh = false,
@@ -111,6 +124,11 @@ export function DataTable<TData, TValue>({
   const table = useReactTable({
     data,
     columns,
+    initialState: {
+      pagination: {
+        pageSize: typeof pagination === "object" ? pagination.pageSize ?? 10 : 10,
+      },
+    },
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
     getCoreRowModel: getCoreRowModel(),
@@ -131,97 +149,135 @@ export function DataTable<TData, TValue>({
     },
   });
 
+  const searchColumn = searchKey
+    ? table
+        .getAllLeafColumns()
+        .find(
+          (column) =>
+            column.id === searchKey ||
+            column.id === searchKey.replaceAll(".", "_")
+        )
+    : undefined;
+
+  const recordCount = table.getFilteredRowModel().rows.length;
+  const pluralRecordLabel = recordLabelPlural ?? `${recordLabel}s`;
+  const displayedRecordLabel = recordCount === 1 ? recordLabel : pluralRecordLabel;
+  const tableLabel = `${pluralRecordLabel.charAt(0).toUpperCase()}${pluralRecordLabel.slice(1)} table`;
+  const shouldShowAdvancedFilters = showAdvancedFilters ?? showFilters;
+  const advancedFilterColumns = table
+    .getAllLeafColumns()
+    .filter(
+      (column) =>
+        column.getCanFilter() &&
+        column.id !== "actions" &&
+        column.id !== searchColumn?.id &&
+        column.getFacetedUniqueValues().size > 0
+    );
+
   // Handle search
   const handleSearch = (value: string) => {
-    if (searchKey) {
-      table.getColumn(searchKey)?.setFilterValue(value);
-    } else {
-      setGlobalFilter(value);
+    if (onSearchChange) {
+      onSearchChange(value);
+      return;
     }
+
+    if (searchColumn) {
+      searchColumn.setFilterValue(value);
+      return;
+    }
+
+    setGlobalFilter(value);
   };
 
   // Loading skeleton
   if (loading) {
     return (
-      <Card className={className}>
-        <CardContent className="p-6">
-          <div className="space-y-4">
-            {/* Search and controls skeleton */}
-            <div className="flex items-center justify-between">
-              <Skeleton className="h-10 w-64" />
-              <div className="flex gap-2">
-                <Skeleton className="h-10 w-24" />
-                <Skeleton className="h-10 w-24" />
-                <Skeleton className="h-10 w-24" />
-              </div>
+      <section
+        className={cn("overflow-hidden rounded-lg border bg-card", className)}
+        aria-busy="true"
+        aria-label={loadingMessage}
+      >
+        <div className="space-y-4 p-4">
+          <div className="flex items-center justify-between gap-4">
+            <Skeleton className="h-10 w-full max-w-sm" />
+            <div className="flex gap-2">
+              <Skeleton className="h-10 w-24" />
+              <Skeleton className="h-10 w-24" />
             </div>
-            
-            {/* Table skeleton */}
-            <div className="space-y-2">
-              {Array.from({ length: 5 }).map((_, i) => (
-                <Skeleton key={i} className="h-12 w-full" />
-              ))}
-            </div>
-            
-            {/* Pagination skeleton */}
-            <div className="flex items-center justify-between">
-              <Skeleton className="h-4 w-32" />
-              <Skeleton className="h-8 w-48" />
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+        </div>
+          {Array.from({ length: 5 }).map((_, index) => (
+            <Skeleton key={index} className="h-12 w-full" />
+          ))}
+        </div>
+      </section>
     );
   }
 
   // Error state
   if (error) {
     return (
-      <Card className={className}>
-        <CardContent className="p-6">
-          <div className="flex flex-col items-center justify-center py-8">
-            <div className="text-destructive text-center">
-              <p className="font-medium">Error loading data</p>
-              <p className="text-sm text-muted-foreground">{error}</p>
-            </div>
-            {onRefresh && (
-              <Button
-                variant="outline"
-                onClick={onRefresh}
-                className="mt-4"
-              >
-                <RefreshCw className="mr-2 h-4 w-4" />
-                Try Again
-              </Button>
-            )}
+      <section className={cn("overflow-hidden rounded-lg border bg-card", className)}>
+        <div className="flex flex-col items-center justify-center px-4 py-12 text-center">
+          <p className="font-semibold text-destructive">Error loading data</p>
+          <p className="mt-1 text-sm text-muted-foreground">{error}</p>
+          {onRefresh && (
+            <Button variant="outline" onClick={onRefresh} className="mt-4">
+              <RefreshCw className="mr-2 h-4 w-4" />
+              Try again
+            </Button>
+          )}
           </div>
-        </CardContent>
-      </Card>
+      </section>
     );
   }
 
   return (
-    <Card className={className}>
-      <CardContent className="p-6">
-        {/* Search and Controls */}
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-4 flex-1">
+    <section
+      className={cn(
+        "min-w-0 max-w-full overflow-hidden rounded-lg border bg-card text-card-foreground",
+        className
+      )}
+      aria-label={tableLabel}
+    >
+      <div className="flex flex-col gap-3 border-b bg-card p-4 lg:flex-row lg:items-center lg:justify-between">
+          <div className="flex min-w-0 flex-1 flex-col gap-2 sm:flex-row sm:items-center">
             {showSearch && (
-              <div className="relative flex-1 max-w-sm">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+              <div className="relative w-full sm:max-w-md">
+                <Search
+                  className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
+                  aria-hidden="true"
+                />
                 <Input
+                  aria-label={searchPlaceholder}
                   placeholder={searchPlaceholder}
-                  value={searchKey ? (table.getColumn(searchKey)?.getFilterValue() as string) ?? "" : globalFilter}
+                  value={
+                    searchValue !== undefined
+                      ? searchValue
+                      : searchColumn
+                      ? (searchColumn.getFilterValue() as string) ?? ""
+                      : globalFilter
+                  }
                   onChange={(event) => handleSearch(event.target.value)}
-                  className="pl-10"
+                  className="h-10 border-border bg-background pl-10 focus-visible:border-primary"
                 />
               </div>
             )}
-            
-            {showFilters && filters.length > 0 && (
+
+            {toolbarContent}
+
+            {shouldShowAdvancedFilters && advancedFilterColumns.length > 0 ? (
+              <DataTableAdvancedFilters
+                table={table}
+                columns={advancedFilterColumns}
+                resultCount={recordCount}
+                recordLabelPlural={pluralRecordLabel}
+              />
+            ) : null}
+
+            {showFilters && !shouldShowAdvancedFilters && filters.length > 0 && (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="outline" size="sm">
+                  <Button variant="outline" className="h-10 justify-start">
                     <Filter className="mr-2 h-4 w-4" />
                     Filters
                   </Button>
@@ -229,10 +285,10 @@ export function DataTable<TData, TValue>({
                 <DropdownMenuContent align="end" className="w-56">
                   {filters.map((filter) => (
                     <div key={filter.key} className="p-2">
-                      <label className="text-sm font-medium">{filter.label}</label>
+                      <label className="text-sm font-semibold">{filter.label}</label>
                       {filter.type === 'select' && filter.options && (
                         <select
-                          className="w-full mt-1 p-2 border rounded"
+                          className="mt-1 h-10 w-full rounded-md border border-input bg-background px-3 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
                           onChange={(e) => {
                             table.getColumn(filter.key)?.setFilterValue(e.target.value);
                           }}
@@ -252,13 +308,17 @@ export function DataTable<TData, TValue>({
             )}
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2 lg:justify-end">
+            <span className="mr-auto whitespace-nowrap text-sm text-muted-foreground lg:mr-2">
+              {recordCount} {displayedRecordLabel}
+            </span>
             {showRefresh && onRefresh && (
               <Button
                 variant="outline"
                 size="sm"
                 onClick={onRefresh}
                 disabled={loading}
+                aria-label="Refresh data"
               >
                 <RefreshCw className={cn("h-4 w-4", loading && "animate-spin")} />
               </Button>
@@ -276,46 +336,19 @@ export function DataTable<TData, TValue>({
             )}
 
             {showColumnVisibility && (
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="outline" size="sm">
-                    <Eye className="mr-2 h-4 w-4" />
-                    Columns
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  {table
-                    .getAllColumns()
-                    .filter((column) => column.getCanHide())
-                    .map((column) => {
-                      return (
-                        <DropdownMenuCheckboxItem
-                          key={column.id}
-                          className="capitalize"
-                          checked={column.getIsVisible()}
-                          onCheckedChange={(value) =>
-                            column.toggleVisibility(!!value)
-                          }
-                        >
-                          {column.id}
-                        </DropdownMenuCheckboxItem>
-                      );
-                    })}
-                </DropdownMenuContent>
-              </DropdownMenu>
+              <DataTableColumnVisibility table={table} />
             )}
           </div>
         </div>
 
-        {/* Table */}
-        <div className="rounded-md border">
-          <Table>
-            <TableHeader>
+        <div className="max-w-full overflow-x-auto overscroll-x-contain">
+          <Table className="min-w-full whitespace-nowrap">
+            <TableHeader className="bg-muted/40 text-xs uppercase tracking-wide text-muted-foreground">
               {table.getHeaderGroups().map((headerGroup) => (
                 <TableRow key={headerGroup.id}>
                   {headerGroup.headers.map((header) => {
                     return (
-                      <TableHead key={header.id}>
+                      <TableHead key={header.id} className="h-12 px-3 font-semibold first:pl-4 last:pr-4">
                         {header.isPlaceholder
                           ? null
                           : flexRender(
@@ -335,12 +368,13 @@ export function DataTable<TData, TValue>({
                     key={row.id}
                     data-state={row.getIsSelected() && "selected"}
                     className={cn(
-                      onRowClick && "cursor-pointer hover:bg-muted/50"
+                      "hover:bg-primary/5",
+                      onRowClick && "cursor-pointer focus-within:bg-primary/5"
                     )}
                     onClick={() => onRowClick?.(row.original)}
                   >
                     {row.getVisibleCells().map((cell) => (
-                      <TableCell key={cell.id}>
+                      <TableCell key={cell.id} className="px-3 py-4 first:pl-4 last:pr-4">
                         {flexRender(
                           cell.column.columnDef.cell,
                           cell.getContext()
@@ -353,7 +387,7 @@ export function DataTable<TData, TValue>({
                 <TableRow>
                   <TableCell
                     colSpan={columns.length}
-                    className="h-24 text-center"
+                    className="h-32 text-center text-muted-foreground"
                   >
                     {emptyMessage}
                   </TableCell>
@@ -363,22 +397,17 @@ export function DataTable<TData, TValue>({
           </Table>
         </div>
 
-        {/* Pagination */}
         {pagination && (
-          <div className="flex items-center justify-between space-x-2 py-4">
-            <div className="flex-1 text-sm text-muted-foreground">
-              {table.getFilteredSelectedRowModel().rows.length} of{" "}
-              {table.getFilteredRowModel().rows.length} row(s) selected.
-            </div>
-            <div className="flex items-center space-x-6 lg:space-x-8">
-              <div className="flex items-center space-x-2">
-                <p className="text-sm font-medium">Rows per page</p>
+          <div className="flex flex-col gap-3 border-t bg-muted/20 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+              <div className="flex items-center gap-2">
+                <p className="text-sm text-muted-foreground">Rows per page</p>
                 <select
+                  aria-label="Rows per page"
                   value={table.getState().pagination.pageSize}
                   onChange={(e) => {
                     table.setPageSize(Number(e.target.value));
                   }}
-                  className="h-8 w-16 rounded border border-input bg-background px-2 py-1 text-sm"
+                  className="h-8 w-16 rounded-md border border-input bg-background px-2 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
                 >
                   {(typeof pagination === 'object' ? pagination.pageSizeOptions : [10, 20, 50, 100])?.map((pageSize) => (
                     <option key={pageSize} value={pageSize}>
@@ -387,53 +416,56 @@ export function DataTable<TData, TValue>({
                   ))}
                 </select>
               </div>
-              <div className="flex w-[100px] items-center justify-center text-sm font-medium">
-                Page {table.getState().pagination.pageIndex + 1} of{" "}
-                {table.getPageCount()}
-              </div>
-              <div className="flex items-center space-x-2">
+              <div className="flex items-center justify-between gap-4 sm:justify-end">
+                <p className="whitespace-nowrap text-sm text-muted-foreground">
+                  Page <span className="font-semibold text-foreground">{table.getState().pagination.pageIndex + 1}</span> of {Math.max(table.getPageCount(), 1)}
+                </p>
+                <div className="flex items-center gap-1">
                 <Button
                   variant="outline"
-                  className="hidden h-8 w-8 p-0 lg:flex"
+                  size="icon"
+                  className="hidden h-8 w-8 sm:inline-flex"
                   onClick={() => table.setPageIndex(0)}
                   disabled={!table.getCanPreviousPage()}
                 >
                   <span className="sr-only">Go to first page</span>
-                  <ChevronDown className="h-4 w-4 rotate-90" />
+                  <ChevronsLeft className="h-4 w-4" />
                 </Button>
                 <Button
                   variant="outline"
-                  className="h-8 w-8 p-0"
+                  size="icon"
+                  className="h-8 w-8"
                   onClick={() => table.previousPage()}
                   disabled={!table.getCanPreviousPage()}
                 >
                   <span className="sr-only">Go to previous page</span>
-                  <ChevronDown className="h-4 w-4 rotate-90" />
+                  <ChevronLeft className="h-4 w-4" />
                 </Button>
                 <Button
                   variant="outline"
-                  className="h-8 w-8 p-0"
+                  size="icon"
+                  className="h-8 w-8"
                   onClick={() => table.nextPage()}
                   disabled={!table.getCanNextPage()}
                 >
                   <span className="sr-only">Go to next page</span>
-                  <ChevronDown className="h-4 w-4 -rotate-90" />
+                  <ChevronRight className="h-4 w-4" />
                 </Button>
                 <Button
                   variant="outline"
-                  className="hidden h-8 w-8 p-0 lg:flex"
+                  size="icon"
+                  className="hidden h-8 w-8 sm:inline-flex"
                   onClick={() => table.setPageIndex(table.getPageCount() - 1)}
                   disabled={!table.getCanNextPage()}
                 >
                   <span className="sr-only">Go to last page</span>
-                  <ChevronDown className="h-4 w-4 -rotate-90" />
+                  <ChevronsRight className="h-4 w-4" />
                 </Button>
+                </div>
               </div>
-            </div>
           </div>
         )}
-      </CardContent>
-    </Card>
+    </section>
   );
 }
 
@@ -450,19 +482,19 @@ export function StatusBadge({
       case 'active':
       case 'success':
       case 'completed':
-        return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300';
+        return 'border-brand-success/40 bg-brand-success/15 text-foreground dark:text-brand-success';
       case 'inactive':
       case 'pending':
-        return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300';
+        return 'border-brand-accent/40 bg-brand-accent/15 text-foreground dark:text-brand-accent';
       case 'error':
       case 'failed':
       case 'cancelled':
-        return 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300';
+        return 'border-destructive/40 bg-destructive/10 text-destructive';
       case 'processing':
       case 'in progress':
-        return 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300';
+        return 'border-primary/40 bg-primary/10 text-primary';
       default:
-        return 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-300';
+        return 'border-border bg-muted text-muted-foreground';
     }
   };
 
@@ -470,7 +502,7 @@ export function StatusBadge({
     <Badge 
       variant={variant}
       className={cn(
-        "capitalize",
+        "rounded-full px-2.5 py-1 font-normal capitalize",
         variant === "default" && getStatusColor(status)
       )}
     >

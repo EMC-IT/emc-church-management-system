@@ -10,7 +10,6 @@ import {
   Download, 
   Filter, 
   Calendar,
-  Search,
   FileText,
   Wallet,
   TrendingUp,
@@ -24,7 +23,6 @@ import { ChartContainer, ChartTooltip, ChartTooltipContent, ChartLegend, ChartLe
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 // import { DatePickerWithRange } from '@/components/ui/date-range-picker';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -477,19 +475,6 @@ export default function ExpenseReportsPage() {
                 </Select>
               </div>
 
-              {/* Search */}
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Search</label>
-                <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-                  <Input
-                    placeholder="Search expenses..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="pl-10"
-                  />
-                </div>
-              </div>
             </div>
 
             {/* Custom Date Range */}
@@ -713,6 +698,9 @@ export default function ExpenseReportsPage() {
                 <DataTable
                   columns={columns}
                   data={filteredExpenses}
+                  recordLabel="expense"
+                  searchValue={searchTerm}
+                  onSearchChange={setSearchTerm}
                   searchKey="title"
                   searchPlaceholder="Search expenses..."
                 />

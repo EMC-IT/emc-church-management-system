@@ -428,6 +428,7 @@ export default function CategoryDetailsPage() {
             <DataTable
               columns={columns}
               data={assets}
+              recordLabel="asset"
               searchKey="name"
               searchPlaceholder="Search assets..."
             />

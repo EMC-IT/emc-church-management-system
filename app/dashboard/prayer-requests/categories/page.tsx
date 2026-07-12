@@ -11,7 +11,6 @@ import { useToast } from '@/hooks/use-toast';
 import {
   Heart,
   Plus,
-  Search,
   Edit,
   Trash2,
   MoreHorizontal,
@@ -504,19 +503,15 @@ export default function PrayerCategoriesPage() {
           <CardDescription>Manage categories for organizing prayer requests</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="flex items-center mb-4">
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="Search categories..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10"
-              />
-            </div>
-          </div>
-
-          <DataTable columns={columns} data={filteredCategories} />
+          <DataTable
+            columns={columns}
+            data={filteredCategories}
+            recordLabel="category"
+            recordLabelPlural="categories"
+            searchValue={searchTerm}
+            onSearchChange={setSearchTerm}
+            searchPlaceholder="Search categories..."
+          />
         </CardContent>
       </Card>
 

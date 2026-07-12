@@ -376,6 +376,7 @@ export default function TithesOfferingsOverviewPage() {
             <DataTable
               columns={columns}
               data={recentTithesOfferings}
+              recordLabel="contribution"
               searchKey="memberName"
               searchPlaceholder="Search by member name..."
             />

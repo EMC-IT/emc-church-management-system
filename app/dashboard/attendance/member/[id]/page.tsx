@@ -5,7 +5,6 @@ import { useRouter, useParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 import { DataTable } from '@/components/ui/data-table';
@@ -22,7 +21,6 @@ import {
   Clock, 
   TrendingUp, 
   TrendingDown, 
-  Search,
   Filter,
   Download,
   CalendarIcon,
@@ -806,16 +804,6 @@ export default function MemberAttendanceDetailPage() {
             </CardHeader>
             <CardContent>
               <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
-                <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-                  <Input
-                    placeholder="Search records..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="pl-10"
-                  />
-                </div>
-                
                 <Select value={selectedServiceType} onValueChange={setSelectedServiceType}>
                   <SelectTrigger>
                     <SelectValue placeholder="Service Type" />
@@ -888,6 +876,9 @@ export default function MemberAttendanceDetailPage() {
               <DataTable
                 columns={attendanceColumns}
                 data={filteredAttendance}
+                recordLabel="attendance record"
+                searchValue={searchTerm}
+                onSearchChange={setSearchTerm}
                 searchKey="serviceType"
                 searchPlaceholder="Search attendance records..."
               />

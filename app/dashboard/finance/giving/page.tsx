@@ -432,6 +432,7 @@ export default function GivingOverviewPage() {
             <DataTable
               columns={columns}
               data={recentGiving}
+              recordLabel="giving transaction"
               searchKey="description"
               searchPlaceholder="Search giving..."
             />

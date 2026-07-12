@@ -756,6 +756,7 @@ export default function GivingReportsPage() {
                 <DataTable
                   columns={columns}
                   data={givingData}
+                  recordLabel="giving transaction"
                   searchKey="description"
                   searchPlaceholder="Search transactions..."
                 />

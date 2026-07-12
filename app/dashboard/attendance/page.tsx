@@ -5,7 +5,6 @@ import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 import { DataTable } from '@/components/ui/data-table';
@@ -24,7 +23,6 @@ import {
   Download, 
   Filter,
   CalendarIcon,
-  Search,
   BarChart3,
   PieChart,
   QrCode
@@ -526,17 +524,6 @@ export default function AttendancePage() {
         <CardContent>
           {/* Filters */}
           <div className="flex flex-col sm:flex-row gap-4 mb-6">
-            <div className="flex-1">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-                <Input
-                  placeholder="Search members..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10"
-                />
-              </div>
-            </div>
             <Select value={selectedService} onValueChange={setSelectedService}>
               <SelectTrigger className="w-full sm:w-48">
                 <SelectValue placeholder="Service type" />
@@ -570,6 +557,9 @@ export default function AttendancePage() {
           <DataTable
             columns={attendanceColumns}
             data={filteredAttendance}
+            recordLabel="attendance record"
+            searchValue={searchTerm}
+            onSearchChange={setSearchTerm}
             searchKey="member.name"
             searchPlaceholder="Search members..."
           />

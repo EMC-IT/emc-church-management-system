@@ -505,6 +505,8 @@ export default function DepartmentCategoriesPage() {
           <DataTable
             columns={columns}
             data={categories}
+            recordLabel="category"
+            recordLabelPlural="categories"
             loading={loading}
             pagination={true}
           />

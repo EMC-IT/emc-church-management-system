@@ -389,6 +389,7 @@ export default function FinanceOverviewPage() {
             <DataTable
               columns={recentDonationsColumns}
               data={recentDonations}
+              recordLabel="donation"
               loading={false}
               showSearch={false}
               showFilters={false}
@@ -420,6 +421,7 @@ export default function FinanceOverviewPage() {
             <DataTable
               columns={recentExpensesColumns}
               data={recentExpenses}
+              recordLabel="expense"
               loading={false}
               showSearch={false}
               showFilters={false}

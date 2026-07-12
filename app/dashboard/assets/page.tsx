@@ -518,6 +518,7 @@ export default function AssetsOverviewPage() {
             <DataTable
               columns={columns}
               data={recentAssets}
+              recordLabel="asset"
               searchKey="name"
               searchPlaceholder="Search assets..."
             />

@@ -36,7 +36,6 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { MoreHorizontal } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Input } from '@/components/ui/input';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
 import { Label } from '@/components/ui/label';
@@ -512,15 +511,6 @@ export default function DonationsPage() {
           <CardContent>
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
             <div className="space-y-2">
-              <Label>Search</Label>
-              <Input
-                placeholder="Search donations..."
-                value={filters.search}
-                onChange={(e) => setFilters({ ...filters, search: e.target.value })}
-              />
-            </div>
-            
-            <div className="space-y-2">
               <Label>Category</Label>
               <Select value={filters.category} onValueChange={(value) => setFilters({ ...filters, category: value })}>
                 <SelectTrigger>
@@ -643,6 +633,9 @@ export default function DonationsPage() {
               <DataTable
                 columns={columns}
                 data={filteredDonations}
+                recordLabel="donation"
+                searchValue={filters.search}
+                onSearchChange={(value) => setFilters({ ...filters, search: value })}
                 searchKey="description"
                 searchPlaceholder="Search donations..."
               />

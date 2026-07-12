@@ -5,7 +5,6 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
@@ -35,7 +34,6 @@ import {
 } from '@/components/ui/alert-dialog';
 import { 
   Plus,
-  Search,
   MoreHorizontal,
   Users,
   BookOpen,
@@ -514,18 +512,6 @@ export default function TeachersPage() {
         </CardHeader>
         <CardContent>
           <div className="flex flex-col space-y-4 md:flex-row md:space-y-0 md:space-x-4">
-            <div className="flex-1">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-                <Input
-                  placeholder="Search teachers by name, email, phone, or specialization..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10"
-                />
-              </div>
-            </div>
-            
             <Select value={statusFilter} onValueChange={setStatusFilter}>
               <SelectTrigger className="w-40">
                 <SelectValue placeholder="Status" />
@@ -559,6 +545,9 @@ export default function TeachersPage() {
           <DataTable
             columns={columns}
             data={filteredTeachers}
+            recordLabel="teacher"
+            searchValue={searchTerm}
+            onSearchChange={setSearchTerm}
             searchKey="name"
             pagination={true}
           />

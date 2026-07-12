@@ -665,6 +665,7 @@ export default function GivingPage() {
             <DataTable
               columns={columns}
               data={giving}
+              recordLabel="gift"
               loading={loading}
               error={error || undefined}
               searchKey="type"

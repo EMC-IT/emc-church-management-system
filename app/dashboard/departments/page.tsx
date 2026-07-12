@@ -4,7 +4,6 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { DataTable } from '@/components/ui/data-table';
@@ -34,7 +33,6 @@ import {
 } from '@/components/ui/alert-dialog';
 import {
   Plus,
-  Search,
   Filter,
   MoreHorizontal,
   Eye,
@@ -61,9 +59,16 @@ export default function DepartmentsPage() {
   const [departmentToDelete, setDepartmentToDelete] = useState<Department | null>(null);
 
   useEffect(() => {
-    loadDepartments();
     loadCategories();
   }, []);
+
+  useEffect(() => {
+    const searchTimer = window.setTimeout(() => {
+      loadDepartments();
+    }, 250);
+
+    return () => window.clearTimeout(searchTimer);
+  }, [searchTerm, selectedCategory, selectedStatus]);
 
   const loadDepartments = async () => {
     try {
@@ -95,10 +100,6 @@ export default function DepartmentsPage() {
     } catch (error) {
       console.error('Failed to load categories:', error);
     }
-  };
-
-  const handleSearch = () => {
-    loadDepartments();
   };
 
   const handleDeleteDepartment = async () => {
@@ -385,27 +386,20 @@ export default function DepartmentsPage() {
         </Card>
       </div>
 
-      {/* Filters */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Filter Departments</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="flex flex-col sm:flex-row gap-4">
-            <div className="flex-1">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-                <Input
-                  placeholder="Search departments..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
-                  className="pl-10"
-                />
-              </div>
-            </div>
+      {/* Departments Table */}
+      <DataTable
+        columns={columns}
+        data={departments}
+        recordLabel="department"
+        searchValue={searchTerm}
+        onSearchChange={setSearchTerm}
+        searchPlaceholder="Search departments..."
+        loading={loading}
+        pagination={true}
+        toolbarContent={
+          <>
             <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-              <SelectTrigger className="w-full sm:w-[200px]">
+              <SelectTrigger className="h-10 w-full sm:w-48">
                 <SelectValue placeholder="All Categories" />
               </SelectTrigger>
               <SelectContent>
@@ -418,7 +412,7 @@ export default function DepartmentsPage() {
               </SelectContent>
             </Select>
             <Select value={selectedStatus} onValueChange={setSelectedStatus}>
-              <SelectTrigger className="w-full sm:w-[150px]">
+              <SelectTrigger className="h-10 w-full sm:w-40">
                 <SelectValue placeholder="All Status" />
               </SelectTrigger>
               <SelectContent>
@@ -427,28 +421,9 @@ export default function DepartmentsPage() {
                 <SelectItem value="Inactive">Inactive</SelectItem>
               </SelectContent>
             </Select>
-            <Button onClick={handleSearch}>
-              <Search className="mr-2 h-4 w-4" />
-              Search
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Departments Table */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Departments List</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <DataTable
-            columns={columns}
-            data={departments}
-            loading={loading}
-            pagination={true}
-          />
-        </CardContent>
-      </Card>
+          </>
+        }
+      />
 
       {/* Delete Confirmation Dialog */}
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>

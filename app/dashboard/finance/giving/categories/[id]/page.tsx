@@ -495,6 +495,7 @@ export default function CategoryDetailsPage() {
               <DataTable
                 columns={columns}
                 data={transactions}
+                recordLabel="transaction"
                 searchKey="description"
                 searchPlaceholder="Search transactions..."
               />

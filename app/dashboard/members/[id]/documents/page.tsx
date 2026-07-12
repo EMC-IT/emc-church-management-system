@@ -573,6 +573,7 @@ export default function DocumentsPage() {
             <DataTable
               columns={columns}
               data={documents}
+              recordLabel="document"
               loading={loading}
               error={error || undefined}
               searchKey="title"
@@ -604,4 +605,4 @@ export default function DocumentsPage() {
       </Card>
     </div>
   );
-} 
+}
