@@ -137,7 +137,7 @@ export default function BudgetCategoriesPage() {
   };
 
   const getStatusVariant = (status: string) => {
-    return status === 'Active' ? 'default' : 'secondary';
+    return status === 'Active' ? 'primary' : 'neutral';
   };
 
   const totalCategories = categories.length;

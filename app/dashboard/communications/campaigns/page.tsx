@@ -158,19 +158,19 @@ export default function CampaignsPage() {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'completed': return 'default';
-      case 'scheduled': return 'secondary';
-      case 'draft': return 'outline';
-      case 'sending': return 'default';
-      default: return 'default';
+      case 'completed': return 'primary';
+      case 'scheduled': return 'neutral';
+      case 'draft': return 'neutral';
+      case 'sending': return 'primary';
+      default: return 'primary';
     }
   };
 
   const getTypeColor = (type: string) => {
     switch (type) {
-      case 'email': return 'default';
-      case 'sms': return 'secondary';
-      default: return 'default';
+      case 'email': return 'primary';
+      case 'sms': return 'neutral';
+      default: return 'primary';
     }
   };
 

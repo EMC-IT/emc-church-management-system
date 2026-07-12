@@ -272,7 +272,7 @@ export function SearchInput({
                 <Filter className="mr-2 h-4 w-4" />
                 Filters
                 {getActiveFiltersCount() > 0 && (
-                  <Badge variant="secondary" className="ml-2">
+                  <Badge variant="neutral" className="ml-2">
                     {getActiveFiltersCount()}
                   </Badge>
                 )}
@@ -357,7 +357,7 @@ export function SearchInput({
             return (
               <Badge
                 key={key}
-                variant="secondary"
+                variant="neutral"
                 className="flex items-center space-x-1"
               >
                 <span className="text-xs">

@@ -220,7 +220,7 @@ export default function BranchesPage() {
                   </Avatar>
                   <div>
                     <CardTitle className="text-lg">{branch.name}</CardTitle>
-                    <Badge variant={branch.type === 'Headquarters' ? 'default' : 'secondary'} className="mt-1">
+                    <Badge variant={branch.type === 'Headquarters' ? 'primary' : 'neutral'} className="mt-1">
                       {branch.type}
                     </Badge>
                   </div>
@@ -338,12 +338,12 @@ export default function BranchesPage() {
                   <TableCell>{branch.pastor}</TableCell>
                   <TableCell>{branch.members}</TableCell>
                   <TableCell>
-                    <Badge variant={branch.type === 'Headquarters' ? 'default' : 'secondary'}>
+                    <Badge variant={branch.type === 'Headquarters' ? 'primary' : 'neutral'}>
                       {branch.type}
                     </Badge>
                   </TableCell>
                   <TableCell>
-                    <Badge variant="outline" className="text-green-600">
+                    <Badge variant="neutral" className="text-green-600">
                       {branch.status}
                     </Badge>
                   </TableCell>

@@ -218,7 +218,7 @@ export default function EditBranchPage() {
             <p className="text-muted-foreground">Update branch information</p>
           </div>
         </div>
-        <Badge variant={watchStatus === 'active' ? 'default' : 'secondary'}>
+        <Badge variant={watchStatus === 'active' ? 'primary' : 'neutral'}>
           {watchStatus}
         </Badge>
       </div>

@@ -326,7 +326,7 @@ export default function IncomeReportsPage() {
                       </div>
                       <div className="text-right">
                         <p className="font-semibold">₵{donor.amount.toLocaleString()}</p>
-                        <Badge variant="outline">#{index + 1}</Badge>
+                        <Badge variant="neutral">#{index + 1}</Badge>
                       </div>
                     </div>
                   ))}

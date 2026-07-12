@@ -206,11 +206,11 @@ export default function BudgetsPage() {
 
   const getStatusColor = (status: string) => {
     switch (status.toLowerCase()) {
-      case 'active': return 'default';
-      case 'completed': return 'outline';
-      case 'exceeded': return 'destructive';
-      case 'draft': return 'secondary';
-      default: return 'default';
+      case 'active': return 'primary';
+      case 'completed': return 'neutral';
+      case 'exceeded': return 'danger';
+      case 'draft': return 'neutral';
+      default: return 'primary';
     }
   };
 
@@ -475,7 +475,7 @@ export default function BudgetsPage() {
                       </div>
                     </TableCell>
                     <TableCell>
-                      <Badge variant="outline">{budget.department}</Badge>
+                      <Badge variant="neutral">{budget.department}</Badge>
                     </TableCell>
                     <TableCell className="font-semibold">
                       ₵{budget.amount.toLocaleString()}

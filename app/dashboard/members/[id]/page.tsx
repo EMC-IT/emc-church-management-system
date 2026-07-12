@@ -324,13 +324,13 @@ export default function MemberProfilePage() {
     switch (status) {
       case 'present':
       case 'completed':
-        return <Badge variant="default">Present</Badge>;
+        return <Badge variant="primary">Present</Badge>;
       case 'absent':
-        return <Badge variant="secondary">Absent</Badge>;
+        return <Badge variant="neutral">Absent</Badge>;
       case 'late':
-        return <Badge variant="outline">Late</Badge>;
+        return <Badge variant="neutral">Late</Badge>;
       default:
-        return <Badge variant="secondary">{status}</Badge>;
+        return <Badge variant="neutral">{status}</Badge>;
     }
   };
 
@@ -411,7 +411,7 @@ export default function MemberProfilePage() {
               </Avatar>
             </div>
             <CardTitle className="text-xl">{member.title} {member.fullName}</CardTitle>
-            <Badge variant={member.status === 'Member' ? 'default' : 'secondary'}>
+            <Badge variant={member.status === 'Member' ? 'primary' : 'neutral'}>
               {member.status}
             </Badge>
           </CardHeader>

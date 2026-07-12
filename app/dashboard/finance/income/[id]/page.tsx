@@ -148,13 +148,13 @@ export default function IncomeDetailsPage() {
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'received':
-        return <Badge variant="default" className="bg-brand-success">Received</Badge>;
+        return <Badge variant="primary" className="bg-brand-success">Received</Badge>;
       case 'pending':
-        return <Badge variant="secondary">Pending</Badge>;
+        return <Badge variant="neutral">Pending</Badge>;
       case 'cancelled':
-        return <Badge variant="destructive">Cancelled</Badge>;
+        return <Badge variant="danger">Cancelled</Badge>;
       default:
-        return <Badge variant="outline">{status}</Badge>;
+        return <Badge variant="neutral">{status}</Badge>;
     }
   };
 
@@ -571,7 +571,7 @@ export default function IncomeDetailsPage() {
                   <div className="space-y-2">
                     <label className="text-sm font-medium text-muted-foreground">Category</label>
                     <p className="text-sm">
-                      <Badge variant="outline">{incomeData.categoryName}</Badge>
+                      <Badge variant="neutral">{incomeData.categoryName}</Badge>
                     </p>
                   </div>
 

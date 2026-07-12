@@ -225,7 +225,7 @@ export default function GroupsPage() {
                   <div className="flex items-start justify-between">
                     <div className="space-y-1">
                       <CardTitle className="text-lg">{group.name}</CardTitle>
-                      <Badge variant="outline">{group.category}</Badge>
+                      <Badge variant="neutral">{group.category}</Badge>
                     </div>
                     <div className="flex space-x-1">
                       <Button 
@@ -286,7 +286,7 @@ export default function GroupsPage() {
                       <span className="text-xs text-muted-foreground">{group.leader.name}</span>
                     </div>
                     
-                    <Badge variant={group.status === 'Active' ? 'default' : 'secondary'}>
+                    <Badge variant={group.status === 'Active' ? 'primary' : 'neutral'}>
                       {group.status}
                     </Badge>
                   </div>

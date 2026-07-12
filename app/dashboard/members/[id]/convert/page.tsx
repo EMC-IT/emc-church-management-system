@@ -52,7 +52,7 @@ export default function ConvertProfilePage() {
             </Avatar>
             <CardTitle className="text-2xl font-bold mb-1 text-center">{mockConvert.fullName}</CardTitle>
             <div className="flex items-center gap-2 mb-2">
-              <Badge variant={mockConvert.status === 'New' ? 'success' : 'outline'}>{mockConvert.status}</Badge>
+              <Badge variant={mockConvert.status === 'New' ? 'success' : 'neutral'}>{mockConvert.status}</Badge>
             </div>
             <Button size="sm" className="w-full" onClick={() => router.push(`/dashboard/members/${mockConvert.id}/convert/edit`)}>
               <Edit className="mr-2 h-4 w-4" /> Edit Convert

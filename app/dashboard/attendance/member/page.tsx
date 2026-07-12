@@ -294,7 +294,7 @@ const memberColumns = [
     accessorKey: 'group',
     header: 'Group',
     cell: ({ row }: any) => (
-      <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">
+      <Badge variant="neutral" className="bg-blue-50 text-blue-700 border-blue-200">
         {row.getValue('group')}
       </Badge>
     )
@@ -332,7 +332,7 @@ const memberColumns = [
       const streak = row.getValue('streak') as number;
       return (
         <Badge 
-          variant="outline" 
+          variant="neutral" 
           className={cn(
             streak >= 10 ? "bg-green-100 text-green-800 border-green-200" :
             streak >= 5 ? "bg-yellow-100 text-yellow-800 border-yellow-200" :
@@ -359,7 +359,7 @@ const memberColumns = [
       const Icon = config.icon;
       
       return (
-        <Badge variant="outline" className={config.className}>
+        <Badge variant="neutral" className={config.className}>
           <Icon className="h-3 w-3 mr-1" />
           {status}
         </Badge>

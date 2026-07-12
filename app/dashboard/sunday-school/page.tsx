@@ -225,7 +225,7 @@ export default function SundaySchoolPage() {
                     <IconComponent className="h-5 w-5 text-brand-primary" />
                     <CardTitle className="text-lg">{module.title}</CardTitle>
                   </div>
-                  <Badge variant="secondary">{module.count}</Badge>
+                  <Badge variant="neutral">{module.count}</Badge>
                 </div>
                 <CardDescription>{module.description}</CardDescription>
               </CardHeader>

@@ -158,11 +158,11 @@ export default function AttendancePage() {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'Present': return 'default';
-      case 'Absent': return 'destructive';
-      case 'Late': return 'secondary';
-      case 'Excused': return 'outline';
-      default: return 'outline';
+      case 'Present': return 'primary';
+      case 'Absent': return 'danger';
+      case 'Late': return 'neutral';
+      case 'Excused': return 'neutral';
+      default: return 'neutral';
     }
   };
 
@@ -630,7 +630,7 @@ export default function AttendancePage() {
                     </div>
                     
                     <div className="w-32">
-                      <Badge variant="outline" className="text-xs">
+                      <Badge variant="neutral" className="text-xs">
                         {attendee.group}
                       </Badge>
                     </div>

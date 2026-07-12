@@ -171,13 +171,13 @@ export default function BudgetDetailsPage() {
   const getStatusVariant = (status: string) => {
     switch (status) {
       case 'Completed':
-        return 'default';
+        return 'primary';
       case 'On Track':
-        return 'secondary';
+        return 'neutral';
       case 'Over Budget':
-        return 'destructive';
+        return 'danger';
       default:
-        return 'outline';
+        return 'neutral';
     }
   };
 
@@ -276,7 +276,7 @@ export default function BudgetDetailsPage() {
           </CardHeader>
           <CardContent>
             <div className="flex items-center space-x-2">
-              <Badge variant={budget.status === 'Active' ? 'default' : 'secondary'}>
+              <Badge variant={budget.status === 'Active' ? 'primary' : 'neutral'}>
                 {budget.status}
               </Badge>
             </div>
@@ -421,7 +421,7 @@ export default function BudgetDetailsPage() {
                       <TableCell>{new Date(transaction.date).toLocaleDateString()}</TableCell>
                       <TableCell>{transaction.description}</TableCell>
                       <TableCell>
-                        <Badge variant="outline">{transaction.category}</Badge>
+                        <Badge variant="neutral">{transaction.category}</Badge>
                       </TableCell>
                       <TableCell className="text-red-600">
                         -₵{transaction.amount.toLocaleString()}
@@ -452,7 +452,7 @@ export default function BudgetDetailsPage() {
                   </div>
                   <div>
                     <Label className="text-sm font-medium text-muted-foreground">Priority</Label>
-                    <Badge variant="outline">{budget.priority}</Badge>
+                    <Badge variant="neutral">{budget.priority}</Badge>
                   </div>
                   <div>
                     <Label className="text-sm font-medium text-muted-foreground">Created</Label>

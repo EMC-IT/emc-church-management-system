@@ -217,32 +217,32 @@ export default function AssetsOverviewPage() {
   const getStatusBadge = (status: AssetStatus) => {
     switch (status) {
       case AssetStatus.ACTIVE:
-        return <Badge variant="default" className="bg-brand-success">Active</Badge>;
+        return <Badge variant="primary" className="bg-brand-success">Active</Badge>;
       case AssetStatus.MAINTENANCE:
-        return <Badge variant="secondary" className="bg-brand-accent">Maintenance</Badge>;
+        return <Badge variant="neutral" className="bg-brand-accent">Maintenance</Badge>;
       case AssetStatus.RETIRED:
-        return <Badge variant="outline">Retired</Badge>;
+        return <Badge variant="neutral">Retired</Badge>;
       case AssetStatus.DAMAGED:
-        return <Badge variant="destructive">Damaged</Badge>;
+        return <Badge variant="danger">Damaged</Badge>;
       default:
-        return <Badge variant="outline">{status}</Badge>;
+        return <Badge variant="neutral">{status}</Badge>;
     }
   };
 
   const getConditionBadge = (condition: AssetCondition) => {
     switch (condition) {
       case AssetCondition.EXCELLENT:
-        return <Badge variant="default" className="bg-brand-success">Excellent</Badge>;
+        return <Badge variant="primary" className="bg-brand-success">Excellent</Badge>;
       case AssetCondition.GOOD:
-        return <Badge variant="default" className="bg-brand-secondary">Good</Badge>;
+        return <Badge variant="primary" className="bg-brand-secondary">Good</Badge>;
       case AssetCondition.FAIR:
-        return <Badge variant="secondary">Fair</Badge>;
+        return <Badge variant="neutral">Fair</Badge>;
       case AssetCondition.POOR:
-        return <Badge variant="destructive">Poor</Badge>;
+        return <Badge variant="danger">Poor</Badge>;
       case AssetCondition.DAMAGED:
-        return <Badge variant="destructive">Damaged</Badge>;
+        return <Badge variant="danger">Damaged</Badge>;
       default:
-        return <Badge variant="outline">{condition}</Badge>;
+        return <Badge variant="neutral">{condition}</Badge>;
     }
   };
 
@@ -285,7 +285,7 @@ export default function AssetsOverviewPage() {
       header: 'Category',
       cell: ({ row }) => {
         const category = row.getValue('category') as AssetCategory;
-        return <Badge variant="outline">{category.replace('_', ' ')}</Badge>;
+        return <Badge variant="neutral">{category.replace('_', ' ')}</Badge>;
       },
     },
     {
@@ -330,7 +330,7 @@ export default function AssetsOverviewPage() {
       cell: ({ row }) => {
         const department = row.getValue('assignedDepartment') as string;
         return department ? (
-          <Badge variant="outline">{department}</Badge>
+          <Badge variant="neutral">{department}</Badge>
         ) : (
           <span className="text-muted-foreground">Unassigned</span>
         );

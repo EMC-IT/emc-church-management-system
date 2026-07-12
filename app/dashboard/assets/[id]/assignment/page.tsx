@@ -250,13 +250,13 @@ export default function AssignmentPage() {
       case 'active':
         return <Badge className="bg-brand-success">Active</Badge>;
       case 'returned':
-        return <Badge variant="outline">Returned</Badge>;
+        return <Badge variant="neutral">Returned</Badge>;
       case 'overdue':
-        return <Badge variant="destructive">Overdue</Badge>;
+        return <Badge variant="danger">Overdue</Badge>;
       case 'cancelled':
-        return <Badge variant="secondary">Cancelled</Badge>;
+        return <Badge variant="neutral">Cancelled</Badge>;
       default:
-        return <Badge variant="outline">{status}</Badge>;
+        return <Badge variant="neutral">{status}</Badge>;
     }
   };
 
@@ -269,9 +269,9 @@ export default function AssignmentPage() {
       case 'person':
         return <Badge className="bg-brand-accent">Person</Badge>;
       case 'location':
-        return <Badge variant="outline">Location</Badge>;
+        return <Badge variant="neutral">Location</Badge>;
       default:
-        return <Badge variant="outline">{type}</Badge>;
+        return <Badge variant="neutral">{type}</Badge>;
     }
   };
 
@@ -282,13 +282,13 @@ export default function AssignmentPage() {
       case AssetCondition.GOOD:
         return <Badge className="bg-brand-secondary">Good</Badge>;
       case AssetCondition.FAIR:
-        return <Badge variant="secondary">Fair</Badge>;
+        return <Badge variant="neutral">Fair</Badge>;
       case AssetCondition.POOR:
-        return <Badge variant="destructive">Poor</Badge>;
+        return <Badge variant="danger">Poor</Badge>;
       case AssetCondition.DAMAGED:
-        return <Badge variant="destructive">Damaged</Badge>;
+        return <Badge variant="danger">Damaged</Badge>;
       default:
-        return <Badge variant="outline">{condition}</Badge>;
+        return <Badge variant="neutral">{condition}</Badge>;
     }
   };
 
@@ -805,7 +805,7 @@ export default function AssignmentPage() {
                     {assignment.expectedReturnDate && assignment.status === 'active' && (
                       <div className="mt-2">
                         <Badge
-                          variant={new Date(assignment.expectedReturnDate) < new Date() ? 'destructive' : 'secondary'}
+                          variant={new Date(assignment.expectedReturnDate) < new Date() ? 'danger' : 'neutral'}
                           className="text-xs"
                         >
                           <Clock className="mr-1 h-3 w-3" />

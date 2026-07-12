@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { PageHeader } from '@/components/ui/page-header';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -195,11 +195,11 @@ export default function EventsCalendarPage() {
 
   const getStatusColor = (status: string) => {
     switch (status.toLowerCase()) {
-      case 'upcoming': return 'default';
-      case 'planning': return 'secondary';
-      case 'completed': return 'outline';
-      case 'cancelled': return 'destructive';
-      default: return 'default';
+      case 'upcoming': return 'primary';
+      case 'planning': return 'neutral';
+      case 'completed': return 'neutral';
+      case 'cancelled': return 'danger';
+      default: return 'primary';
     }
   };
 
@@ -564,7 +564,7 @@ export default function EventsCalendarPage() {
                 <Badge variant={getStatusColor(selectedEvent.status)}>
                   {selectedEvent.status}
                 </Badge>
-                <Badge variant="outline">
+                <Badge variant="neutral">
                   {selectedEvent.category}
                 </Badge>
               </div>

@@ -329,7 +329,7 @@ export default function MessagesPage() {
                           {conversation.participant.name}
                         </h3>
                         {conversation.type === 'group' && (
-                          <Badge variant="outline" className="text-xs">
+                          <Badge variant="neutral" className="text-xs">
                             {conversation.participant.memberCount} members
                           </Badge>
                         )}
@@ -342,7 +342,7 @@ export default function MessagesPage() {
                           {formatTimestamp(conversation.lastMessage.timestamp)}
                         </span>
                         {conversation.unreadCount > 0 && (
-                          <Badge variant="default" className="h-5 w-5 rounded-full p-0 flex items-center justify-center text-xs">
+                          <Badge variant="primary" className="h-5 w-5 rounded-full p-0 flex items-center justify-center text-xs">
                             {conversation.unreadCount}
                           </Badge>
                         )}

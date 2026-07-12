@@ -193,13 +193,13 @@ export default function MemberHistoryPage() {
     switch (status) {
       case 'present':
       case 'completed':
-        return <Badge variant="default">Present</Badge>;
+        return <Badge variant="primary">Present</Badge>;
       case 'absent':
-        return <Badge variant="secondary">Absent</Badge>;
+        return <Badge variant="neutral">Absent</Badge>;
       case 'late':
-        return <Badge variant="outline">Late</Badge>;
+        return <Badge variant="neutral">Late</Badge>;
       default:
-        return <Badge variant="secondary">{status}</Badge>;
+        return <Badge variant="neutral">{status}</Badge>;
     }
   };
 

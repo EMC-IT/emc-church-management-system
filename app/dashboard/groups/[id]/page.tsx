@@ -237,7 +237,7 @@ export default function GroupDetailsPage() {
                     <div>
                       <Label className="text-sm font-medium text-muted-foreground">Category</Label>
                       <p className="mt-1">
-                        <Badge variant="outline">{group.category}</Badge>
+                        <Badge variant="neutral">{group.category}</Badge>
                       </p>
                     </div>
                     
@@ -415,7 +415,7 @@ export default function GroupDetailsPage() {
                         Joined {new Date(member.joinedAt).toLocaleDateString()}
                       </p>
                     </div>
-                    <Badge variant={member.status === 'Active' ? 'default' : 'secondary'}>
+                    <Badge variant={member.status === 'Active' ? 'primary' : 'neutral'}>
                       {member.status}
                     </Badge>
                   </div>
@@ -473,7 +473,7 @@ export default function GroupDetailsPage() {
                       </div>
                     </div>
                     
-                    <Badge variant={event.status === 'Upcoming' ? 'default' : 'secondary'}>
+                    <Badge variant={event.status === 'Upcoming' ? 'primary' : 'neutral'}>
                       {event.status}
                     </Badge>
                   </div>

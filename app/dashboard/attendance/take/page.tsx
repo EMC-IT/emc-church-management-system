@@ -701,7 +701,7 @@ export default function TakeAttendancePage() {
                     </div>
 
                     <div className="flex items-center space-x-2">
-                      <Badge variant="outline" className={getStatusColor(member.status)}>
+                      <Badge variant="neutral" className={getStatusColor(member.status)}>
                         {getStatusIcon(member.status)}
                         <span className="ml-1 capitalize">{member.status}</span>
                       </Badge>

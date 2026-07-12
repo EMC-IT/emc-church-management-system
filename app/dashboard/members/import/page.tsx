@@ -305,7 +305,7 @@ export default function ImportMembersPage() {
       header: 'Status',
       cell: ({ row }) => {
         const data = row.original;
-        return <Badge variant="outline">{data.membershipStatus}</Badge>;
+        return <Badge variant="neutral">{data.membershipStatus}</Badge>;
       },
     },
     {
@@ -314,11 +314,11 @@ export default function ImportMembersPage() {
       cell: ({ row }) => {
         const data = row.original;
         if (data.status === 'valid') {
-          return <Badge variant="default" className="bg-green-500">Valid</Badge>;
+          return <Badge variant="primary" className="bg-green-500">Valid</Badge>;
         } else if (data.status === 'invalid') {
-          return <Badge variant="destructive">Invalid</Badge>;
+          return <Badge variant="danger">Invalid</Badge>;
         } else {
-          return <Badge variant="secondary">Pending</Badge>;
+          return <Badge variant="neutral">Pending</Badge>;
         }
       },
     },

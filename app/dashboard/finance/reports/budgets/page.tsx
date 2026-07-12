@@ -215,11 +215,11 @@ export default function BudgetReportsPage() {
 
   const getStatusColor = (status: string) => {
     switch (status.toLowerCase()) {
-      case 'on track': return 'default';
-      case 'near limit': return 'destructive';
-      case 'over budget': return 'destructive';
-      case 'under budget': return 'secondary';
-      default: return 'default';
+      case 'on track': return 'primary';
+      case 'near limit': return 'danger';
+      case 'over budget': return 'danger';
+      case 'under budget': return 'neutral';
+      default: return 'primary';
     }
   };
 

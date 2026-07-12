@@ -241,7 +241,7 @@ export default function ClassesPage() {
                   <div className="flex items-start justify-between">
                     <div className="space-y-1">
                       <CardTitle className="text-lg">{cls.name}</CardTitle>
-                      <Badge variant="outline">{cls.ageGroup}</Badge>
+                      <Badge variant="neutral">{cls.ageGroup}</Badge>
                     </div>
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
@@ -306,7 +306,7 @@ export default function ClassesPage() {
                     </div>
                     
                     <Badge 
-                      variant={cls.status === ClassStatus.ACTIVE ? 'default' : 'secondary'}
+                      variant={cls.status === ClassStatus.ACTIVE ? 'primary' : 'neutral'}
                       className={cls.status === ClassStatus.ACTIVE ? getStatusColor(cls.status) : ''}
                     >
                       {cls.status}

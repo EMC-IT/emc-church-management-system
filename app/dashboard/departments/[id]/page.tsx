@@ -112,11 +112,11 @@ export default function DepartmentDetailsPage() {
   const getStatusColor = (status: string) => {
     switch (status.toLowerCase()) {
       case 'active':
-        return 'default';
+        return 'primary';
       case 'inactive':
-        return 'secondary';
+        return 'neutral';
       default:
-        return 'default';
+        return 'primary';
     }
   };
 
@@ -181,7 +181,7 @@ export default function DepartmentDetailsPage() {
               <p className="text-muted-foreground">{department.description}</p>
               {department.category && (
                 <Badge 
-                  variant="outline" 
+                  variant="neutral" 
                   className="mt-2"
                   style={{ 
                     borderColor: department.category.color,

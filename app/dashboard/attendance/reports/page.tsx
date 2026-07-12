@@ -649,7 +649,7 @@ export default function AttendanceReportsPage() {
                       </div>
                       <Progress value={dept.rate} className="w-24" />
                       <Badge 
-                        variant="outline" 
+                        variant="neutral" 
                         className={cn(
                           dept.rate >= 90 ? "bg-green-100 text-green-800 border-green-200" :
                           dept.rate >= 80 ? "bg-yellow-100 text-yellow-800 border-yellow-200" :

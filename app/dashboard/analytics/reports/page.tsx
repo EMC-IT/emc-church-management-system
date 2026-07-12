@@ -334,8 +334,8 @@ export default function SavedReportsPage() {
             </CardHeader>
             <CardContent className="space-y-3">
               <div className="flex items-center gap-2">
-                <Badge variant="outline">{report.dataSource}</Badge>
-                <Badge variant="secondary">{report.visualization}</Badge>
+                <Badge variant="neutral">{report.dataSource}</Badge>
+                <Badge variant="neutral">{report.visualization}</Badge>
                 {report.favorite && <Badge>⭐ Favorite</Badge>}
               </div>
 

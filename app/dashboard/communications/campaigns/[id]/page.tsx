@@ -108,19 +108,19 @@ export default function CampaignDetailPage() {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'completed': return 'default';
-      case 'scheduled': return 'secondary';
-      case 'draft': return 'outline';
-      case 'sending': return 'default';
-      default: return 'default';
+      case 'completed': return 'primary';
+      case 'scheduled': return 'neutral';
+      case 'draft': return 'neutral';
+      case 'sending': return 'primary';
+      default: return 'primary';
     }
   };
 
   const getTypeColor = (type: string) => {
     switch (type) {
-      case 'email': return 'default';
-      case 'sms': return 'secondary';
-      default: return 'default';
+      case 'email': return 'primary';
+      case 'sms': return 'neutral';
+      default: return 'primary';
     }
   };
 
@@ -368,7 +368,7 @@ export default function CampaignDetailPage() {
                     </div>
                     <div className="pl-6 space-y-1">
                       {campaign.targetAudience.map((group) => (
-                        <Badge key={group} variant="outline" className="text-xs mr-1">
+                        <Badge key={group} variant="neutral" className="text-xs mr-1">
                           {group}
                         </Badge>
                       ))}
@@ -563,7 +563,7 @@ export default function CampaignDetailPage() {
                   <div key={index} className="p-4 border rounded-lg">
                     <div className="flex items-center justify-between mb-3">
                       <h4 className="font-medium">{audience.group}</h4>
-                      <Badge variant="outline">{audience.sent} recipients</Badge>
+                      <Badge variant="neutral">{audience.sent} recipients</Badge>
                     </div>
                     
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">

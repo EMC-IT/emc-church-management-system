@@ -154,13 +154,13 @@ export default function ExpensesOverviewPage() {
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'paid':
-        return <Badge variant="default" className="bg-brand-success">Paid</Badge>;
+        return <Badge variant="primary" className="bg-brand-success">Paid</Badge>;
       case 'pending':
-        return <Badge variant="secondary">Pending</Badge>;
+        return <Badge variant="neutral">Pending</Badge>;
       case 'cancelled':
-        return <Badge variant="destructive">Cancelled</Badge>;
+        return <Badge variant="danger">Cancelled</Badge>;
       default:
-        return <Badge variant="outline">{status}</Badge>;
+        return <Badge variant="neutral">{status}</Badge>;
     }
   };
 
@@ -191,7 +191,7 @@ export default function ExpensesOverviewPage() {
       header: 'Category',
       cell: ({ row }) => {
         const category = row.getValue('category') as string;
-        return <Badge variant="outline">{category}</Badge>;
+        return <Badge variant="neutral">{category}</Badge>;
       },
     },
     {

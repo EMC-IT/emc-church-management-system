@@ -223,11 +223,11 @@ export default function AssetReportsPage() {
 
   const getConditionBadge = (condition: string) => {
     switch (condition.toLowerCase()) {
-      case 'excellent': return 'default';
-      case 'good': return 'secondary';
-      case 'fair': return 'outline';
-      case 'poor': return 'destructive';
-      default: return 'outline';
+      case 'excellent': return 'primary';
+      case 'good': return 'neutral';
+      case 'fair': return 'neutral';
+      case 'poor': return 'danger';
+      default: return 'neutral';
     }
   };
 

@@ -282,7 +282,7 @@ export default function AssetReportsPage() {
                     </div>
                     <div className="flex justify-between">
                       <span className="text-sm">Overdue Maintenance</span>
-                      <Badge variant="destructive">5</Badge>
+                      <Badge variant="danger">5</Badge>
                     </div>
                   </div>
                 </CardContent>

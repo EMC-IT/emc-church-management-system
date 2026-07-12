@@ -476,7 +476,7 @@ export default function DashboardPage() {
                       <p className="text-xs text-muted-foreground">{member.email}</p>
                     </div>
                   </div>
-                  <Badge variant={member.status === 'New' ? 'default' : 'secondary'}>
+                  <Badge variant={member.status === 'New' ? 'primary' : 'neutral'}>
                     {member.status}
                   </Badge>
                 </div>

@@ -232,10 +232,10 @@ export default function NewMessagePage() {
 
   const getPriorityColor = (priority: string) => {
     switch (priority) {
-      case 'high': return 'destructive';
-      case 'normal': return 'default';
-      case 'low': return 'secondary';
-      default: return 'default';
+      case 'high': return 'danger';
+      case 'normal': return 'primary';
+      case 'low': return 'neutral';
+      default: return 'primary';
     }
   };
 
@@ -309,7 +309,7 @@ export default function NewMessagePage() {
                   <Label>Selected Recipients ({selectedMembers.length})</Label>
                   <div className="flex flex-wrap gap-2 p-3 border rounded-lg bg-muted/50">
                     {selectedMembers.map((member) => (
-                      <Badge key={member.id} variant="secondary" className="flex items-center gap-2">
+                      <Badge key={member.id} variant="neutral" className="flex items-center gap-2">
                         <Avatar className="h-4 w-4">
                           <AvatarImage src={member.avatar} />
                           <AvatarFallback className="text-xs">
@@ -380,7 +380,7 @@ export default function NewMessagePage() {
                       <p className="font-medium">{member.name}</p>
                       <p className="text-sm text-muted-foreground">{member.role}</p>
                     </div>
-                    <Badge variant="outline" className="text-xs">{member.department}</Badge>
+                    <Badge variant="neutral" className="text-xs">{member.department}</Badge>
                   </div>
                 ))}
                 
@@ -485,7 +485,7 @@ export default function NewMessagePage() {
                     {formData.priority.charAt(0).toUpperCase() + formData.priority.slice(1)} Priority
                   </Badge>
                   {formData.type === 'group' && (
-                    <Badge variant="outline" className="text-xs">
+                    <Badge variant="neutral" className="text-xs">
                       <Users className="h-3 w-3 mr-1" />
                       Group Message
                     </Badge>

@@ -161,11 +161,11 @@ export default function ComparisonReportsPage() {
 
   const getStatusBadge = (status: string) => {
     switch (status.toLowerCase()) {
-      case 'excellent': return 'default';
-      case 'good': return 'secondary';
-      case 'fair': return 'outline';
-      case 'poor': return 'destructive';
-      default: return 'outline';
+      case 'excellent': return 'primary';
+      case 'good': return 'neutral';
+      case 'fair': return 'neutral';
+      case 'poor': return 'danger';
+      default: return 'neutral';
     }
   };
 
@@ -478,7 +478,7 @@ export default function ComparisonReportsPage() {
                         </div>
                       </TableCell>
                       <TableCell>
-                        <Badge variant={item.trend === 'up' ? 'default' : 'secondary'}>
+                        <Badge variant={item.trend === 'up' ? 'primary' : 'neutral'}>
                           {item.trend === 'up' ? 'Growing' : 'Declining'}
                         </Badge>
                       </TableCell>

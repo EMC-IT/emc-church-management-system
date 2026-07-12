@@ -210,7 +210,7 @@ export default function EditUserPage() {
             <p className="text-muted-foreground">Update user account details</p>
           </div>
         </div>
-        <Badge variant={watchStatus === 'active' ? 'default' : 'secondary'}>
+        <Badge variant={watchStatus === 'active' ? 'primary' : 'neutral'}>
           {watchStatus}
         </Badge>
       </div>

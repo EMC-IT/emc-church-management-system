@@ -580,7 +580,7 @@ export default function ExpenseDetailsPage() {
                       <Tag className="h-4 w-4" />
                       Category
                     </div>
-                    <Badge variant="secondary" className="text-sm">
+                    <Badge variant="neutral" className="text-sm">
                       {getCategoryName(expense.category)}
                     </Badge>
                   </div>

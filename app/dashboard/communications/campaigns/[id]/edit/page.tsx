@@ -224,11 +224,11 @@ export default function EditCampaignPage() {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'completed': return 'default';
-      case 'scheduled': return 'secondary';
-      case 'draft': return 'outline';
-      case 'sending': return 'default';
-      default: return 'default';
+      case 'completed': return 'primary';
+      case 'scheduled': return 'neutral';
+      case 'draft': return 'neutral';
+      case 'sending': return 'primary';
+      default: return 'primary';
     }
   };
 
@@ -477,7 +477,7 @@ export default function EditCampaignPage() {
                             <p className="text-sm text-muted-foreground">{group.description}</p>
                           </div>
                         </div>
-                        <Badge variant="outline">{group.count}</Badge>
+                        <Badge variant="neutral">{group.count}</Badge>
                       </div>
                     </CardContent>
                   </Card>

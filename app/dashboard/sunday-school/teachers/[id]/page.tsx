@@ -318,9 +318,9 @@ export default function TeacherProfilePage() {
       case TeacherStatus.ACTIVE:
         return <Badge className="bg-brand-success/10 text-brand-success border-brand-success/20">Active</Badge>;
       case TeacherStatus.INACTIVE:
-        return <Badge variant="secondary">Inactive</Badge>;
+        return <Badge variant="neutral">Inactive</Badge>;
       default:
-        return <Badge variant="outline">Unknown</Badge>;
+        return <Badge variant="neutral">Unknown</Badge>;
     }
   };
 
@@ -753,7 +753,7 @@ export default function TeacherProfilePage() {
                     <h4 className="font-medium mb-2">Qualifications</h4>
                     <div className="flex flex-wrap gap-2">
                       {teacher.qualifications.map((qualification, index) => (
-                        <Badge key={index} variant="secondary">
+                        <Badge key={index} variant="neutral">
                           {qualification}
                         </Badge>
                       ))}

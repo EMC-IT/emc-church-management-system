@@ -108,10 +108,10 @@ const mockPrayerRequest = {
 };
 
 const PRAYER_STATUSES = [
-  { value: 'New', label: 'New', icon: AlertCircle, color: 'default' },
-  { value: 'In Progress', label: 'In Progress', icon: Clock, color: 'secondary' },
-  { value: 'Answered', label: 'Answered', icon: CheckCircle2, color: 'default' },
-  { value: 'Closed', label: 'Closed', icon: CheckCircle2, color: 'outline' },
+  { value: 'New', label: 'New', icon: AlertCircle, color: 'primary' },
+  { value: 'In Progress', label: 'In Progress', icon: Clock, color: 'neutral' },
+  { value: 'Answered', label: 'Answered', icon: CheckCircle2, color: 'primary' },
+  { value: 'Closed', label: 'Closed', icon: CheckCircle2, color: 'neutral' },
 ];
 
 export default function PrayerRequestDetailsPage() {
@@ -197,17 +197,17 @@ export default function PrayerRequestDetailsPage() {
 
   const getPriorityColor = (priority: string) => {
     switch (priority.toLowerCase()) {
-      case 'urgent': return 'destructive';
-      case 'high': return 'destructive';
-      case 'medium': return 'secondary';
-      case 'low': return 'outline';
-      default: return 'default';
+      case 'urgent': return 'danger';
+      case 'high': return 'danger';
+      case 'medium': return 'neutral';
+      case 'low': return 'neutral';
+      default: return 'primary';
     }
   };
 
-  const getStatusColor = (status: string): "default" | "secondary" | "outline" | "destructive" => {
+  const getStatusColor = (status: string): "primary" | "neutral" => {
     const statusObj = PRAYER_STATUSES.find(s => s.value === status);
-    return (statusObj?.color as "default" | "secondary" | "outline" | "destructive") || 'default';
+    return (statusObj?.color as "primary" | "neutral") || 'primary';
   };
 
   const StatusIcon = PRAYER_STATUSES.find(s => s.value === prayerRequest.status)?.icon || AlertCircle;
@@ -295,7 +295,7 @@ export default function PrayerRequestDetailsPage() {
                     {prayerRequest.status}
                   </Badge>
                   {prayerRequest.isConfidential && (
-                    <Badge variant="outline" className="flex items-center gap-1">
+                    <Badge variant="neutral" className="flex items-center gap-1">
                       <Lock className="h-3 w-3" />
                       Confidential
                     </Badge>
@@ -426,7 +426,7 @@ export default function PrayerRequestDetailsPage() {
                         <div className="flex-1 space-y-1">
                           <div className="flex items-center gap-2">
                             <p className="font-semibold text-sm">{update.user}</p>
-                            <Badge variant="outline" className="text-xs">{update.action}</Badge>
+                            <Badge variant="neutral" className="text-xs">{update.action}</Badge>
                           </div>
                           <p className="text-sm text-muted-foreground">{update.message}</p>
                           <p className="text-xs text-muted-foreground">

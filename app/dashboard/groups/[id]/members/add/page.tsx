@@ -249,7 +249,7 @@ export default function AddGroupMemberPage() {
                     <Users className="h-5 w-5" />
                     <span>Available Members</span>
                   </div>
-                  <Badge variant="outline">
+                  <Badge variant="neutral">
                     {selectedMembers.size} selected
                   </Badge>
                 </CardTitle>
@@ -281,7 +281,7 @@ export default function AddGroupMemberPage() {
                             <h4 className="font-medium">
                               {member.firstName} {member.lastName}
                             </h4>
-                            <Badge variant="outline">{member.department}</Badge>
+                            <Badge variant="neutral">{member.department}</Badge>
                           </div>
                           
                           <div className="flex items-center space-x-4 text-sm text-muted-foreground">
@@ -424,7 +424,7 @@ export default function AddGroupMemberPage() {
                       <p className="text-xs text-muted-foreground">{role.description}</p>
                     </div>
                     {role.isDefault && (
-                      <Badge variant="outline" className="text-xs">
+                      <Badge variant="neutral" className="text-xs">
                         Default
                       </Badge>
                     )}

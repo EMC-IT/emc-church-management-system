@@ -376,7 +376,7 @@ const departmentColumns = [
       const streak = row.getValue('streak') as number;
       return (
         <Badge 
-          variant="outline" 
+          variant="neutral" 
           className={cn(
             streak >= 10 ? "bg-green-100 text-green-800 border-green-200" :
             streak >= 5 ? "bg-yellow-100 text-yellow-800 border-yellow-200" :

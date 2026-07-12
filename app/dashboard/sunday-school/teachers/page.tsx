@@ -250,9 +250,9 @@ export default function TeachersPage() {
       case TeacherStatus.ACTIVE:
         return <Badge className="bg-brand-success/10 text-brand-success border-brand-success/20">Active</Badge>;
       case TeacherStatus.INACTIVE:
-        return <Badge variant="secondary">Inactive</Badge>;
+        return <Badge variant="neutral">Inactive</Badge>;
       default:
-        return <Badge variant="outline">Unknown</Badge>;
+        return <Badge variant="neutral">Unknown</Badge>;
     }
   };
 

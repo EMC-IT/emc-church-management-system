@@ -509,7 +509,7 @@ export default function EventCategoriesPage() {
                       </div>
                       <div>
                         <h3 className="font-semibold">{category.name}</h3>
-                        <Badge variant={category.isActive ? 'default' : 'secondary'}>
+                        <Badge variant={category.isActive ? 'primary' : 'neutral'}>
                           {category.isActive ? 'Active' : 'Inactive'}
                         </Badge>
                       </div>

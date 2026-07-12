@@ -363,7 +363,7 @@ export default function DocumentsPage() {
       cell: ({ row }) => {
         const category = row.getValue('category') as DocumentCategory;
         return (
-          <Badge variant="outline">
+          <Badge variant="neutral">
             {getCategoryLabel(category)}
           </Badge>
         );
@@ -396,7 +396,7 @@ export default function DocumentsPage() {
       cell: ({ row }) => {
         const isPublic = row.getValue('isPublic') as boolean;
         return (
-          <Badge variant={isPublic ? 'default' : 'secondary'}>
+          <Badge variant={isPublic ? 'primary' : 'neutral'}>
             {isPublic ? 'Public' : 'Private'}
           </Badge>
         );

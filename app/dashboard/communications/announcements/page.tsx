@@ -119,19 +119,19 @@ export default function AnnouncementsPage() {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'published': return 'default';
-      case 'scheduled': return 'secondary';
-      case 'draft': return 'outline';
-      default: return 'default';
+      case 'published': return 'primary';
+      case 'scheduled': return 'neutral';
+      case 'draft': return 'neutral';
+      default: return 'primary';
     }
   };
 
   const getPriorityColor = (priority: string) => {
     switch (priority) {
-      case 'high': return 'destructive';
-      case 'medium': return 'default';
-      case 'low': return 'secondary';
-      default: return 'default';
+      case 'high': return 'danger';
+      case 'medium': return 'primary';
+      case 'low': return 'neutral';
+      default: return 'primary';
     }
   };
 

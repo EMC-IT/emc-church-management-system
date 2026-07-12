@@ -284,7 +284,7 @@ export default function StudentsPage() {
                   <div className="space-y-2">
                     <div className="flex items-center justify-between text-sm">
                       <span>Age:</span>
-                      <Badge variant="outline">{student.age} years</Badge>
+                      <Badge variant="neutral">{student.age} years</Badge>
                     </div>
                     
                     <div className="flex items-center justify-between text-sm">
@@ -294,7 +294,7 @@ export default function StudentsPage() {
                     
                     <div className="flex items-center justify-between text-sm">
                       <span>Status:</span>
-                      <Badge variant={student.status === 'Active' ? 'default' : 'secondary'}>
+                      <Badge variant={student.status === 'Active' ? 'primary' : 'neutral'}>
                         {student.status}
                       </Badge>
                     </div>
@@ -306,7 +306,7 @@ export default function StudentsPage() {
                   </div>
                   
                   <div className="flex items-center justify-between pt-4 border-t mt-4">
-                    <Badge variant={student.status === 'Active' ? 'default' : 'secondary'}>
+                    <Badge variant={student.status === 'Active' ? 'primary' : 'neutral'}>
                       {student.status}
                     </Badge>
                     <Button 

@@ -384,12 +384,12 @@ export default function CommunicationsPage() {
     switch (status.toLowerCase()) {
       case 'sent':
       case 'published':
-      case 'active': return 'default';
-      case 'scheduled': return 'secondary';
-      case 'draft': return 'outline';
+      case 'active': return 'primary';
+      case 'scheduled': return 'neutral';
+      case 'draft': return 'neutral';
       case 'failed':
-      case 'paused': return 'destructive';
-      default: return 'default';
+      case 'paused': return 'danger';
+      default: return 'primary';
     }
   };
 
@@ -823,7 +823,7 @@ export default function CommunicationsPage() {
                     <TableRow key={campaign.id}>
                       <TableCell className="font-medium">{campaign.name}</TableCell>
                       <TableCell>
-                        <Badge variant="outline">
+                        <Badge variant="neutral">
                           {campaign.type === 'Email' ? <Mail className="mr-1 h-3 w-3" /> : <Smartphone className="mr-1 h-3 w-3" />}
                           {campaign.type}
                         </Badge>
@@ -889,7 +889,7 @@ export default function CommunicationsPage() {
                     <div key={template.id} className="p-3 border rounded-lg">
                       <div className="flex items-center justify-between mb-2">
                         <span className="font-medium text-sm">{template.name}</span>
-                        <Badge variant="outline" className="text-xs">{template.type}</Badge>
+                        <Badge variant="neutral" className="text-xs">{template.type}</Badge>
                       </div>
                       <p className="text-xs text-muted-foreground mb-2">{template.content.substring(0, 50)}...</p>
                       <Button variant="outline" size="sm" className="w-full">
@@ -1113,7 +1113,7 @@ export default function CommunicationsPage() {
                     <TableRow key={template.id}>
                       <TableCell className="font-medium">{template.name}</TableCell>
                       <TableCell>
-                        <Badge variant="outline">{template.type}</Badge>
+                        <Badge variant="neutral">{template.type}</Badge>
                       </TableCell>
                       <TableCell>{template.category}</TableCell>
                       <TableCell>{template.usage}</TableCell>

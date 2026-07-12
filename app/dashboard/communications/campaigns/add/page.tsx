@@ -601,7 +601,7 @@ export default function AddCampaignPage() {
                             <p className="text-sm text-muted-foreground">{group.description}</p>
                           </div>
                         </div>
-                        <Badge variant="outline">{group.count}</Badge>
+                        <Badge variant="neutral">{group.count}</Badge>
                       </div>
                     </CardContent>
                   </Card>

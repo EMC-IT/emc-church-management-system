@@ -190,27 +190,27 @@ export default function DonationDetailsPage() {
     switch (status) {
       case GivingStatus.COMPLETED:
         return (
-          <Badge variant="default" className="bg-green-100 text-green-800">
+          <Badge variant="primary" className="bg-green-100 text-green-800">
             <CheckCircle className="mr-1 h-3 w-3" />
             Completed
           </Badge>
         );
       case GivingStatus.PENDING:
         return (
-          <Badge variant="secondary">
+          <Badge variant="neutral">
             <Clock className="mr-1 h-3 w-3" />
             Pending
           </Badge>
         );
       case GivingStatus.FAILED:
         return (
-          <Badge variant="destructive">
+          <Badge variant="danger">
             <AlertCircle className="mr-1 h-3 w-3" />
             Failed
           </Badge>
         );
       default:
-        return <Badge variant="outline">{status}</Badge>;
+        return <Badge variant="neutral">{status}</Badge>;
     }
   };
 

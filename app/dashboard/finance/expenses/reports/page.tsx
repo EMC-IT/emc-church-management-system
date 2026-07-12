@@ -360,7 +360,7 @@ export default function ExpenseReportsPage() {
       cell: ({ row }: { row: any }) => {
         const expense = row.original as ExpenseReport;
         return (
-          <Badge variant="outline">
+          <Badge variant="neutral">
             {paymentMethods[expense.paymentMethod as keyof typeof paymentMethods] || expense.paymentMethod}
           </Badge>
         );

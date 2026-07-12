@@ -139,15 +139,15 @@ export default function TitheOfferingCategoriesPage() {
   const getTypeBadge = (type: string) => {
     switch (type) {
       case 'Tithe':
-        return <Badge variant="default" className="bg-brand-primary">Tithe</Badge>;
+        return <Badge variant="primary" className="bg-brand-primary">Tithe</Badge>;
       case 'Offering':
-        return <Badge variant="default" className="bg-brand-secondary">Offering</Badge>;
+        return <Badge variant="primary" className="bg-brand-secondary">Offering</Badge>;
       case 'First Fruits':
-        return <Badge variant="default" className="bg-brand-accent">First Fruits</Badge>;
+        return <Badge variant="primary" className="bg-brand-accent">First Fruits</Badge>;
       case 'Special Offering':
-        return <Badge variant="default" className="bg-brand-success">Special</Badge>;
+        return <Badge variant="primary" className="bg-brand-success">Special</Badge>;
       default:
-        return <Badge variant="outline">{type}</Badge>;
+        return <Badge variant="neutral">{type}</Badge>;
     }
   };
 
@@ -221,7 +221,7 @@ export default function TitheOfferingCategoriesPage() {
       cell: ({ row }) => {
         const isActive = row.getValue('isActive') as boolean;
         return (
-          <Badge variant={isActive ? 'default' : 'secondary'}>
+          <Badge variant={isActive ? 'primary' : 'neutral'}>
             {isActive ? 'Active' : 'Inactive'}
           </Badge>
         );

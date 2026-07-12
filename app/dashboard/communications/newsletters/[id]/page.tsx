@@ -115,10 +115,10 @@ export default function NewsletterDetailPage() {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'sent': return 'default';
-      case 'scheduled': return 'secondary';
-      case 'draft': return 'outline';
-      default: return 'default';
+      case 'sent': return 'primary';
+      case 'scheduled': return 'neutral';
+      case 'draft': return 'neutral';
+      default: return 'primary';
     }
   };
 
@@ -246,7 +246,7 @@ export default function NewsletterDetailPage() {
                           {getStatusIcon(newsletter.status)}
                           {newsletter.status.charAt(0).toUpperCase() + newsletter.status.slice(1)}
                         </Badge>
-                        <Badge variant="outline">{newsletter.template}</Badge>
+                        <Badge variant="neutral">{newsletter.template}</Badge>
                       </div>
                       <CardTitle className="text-2xl">{newsletter.title}</CardTitle>
                       <CardDescription className="text-lg">{newsletter.subject}</CardDescription>
@@ -348,7 +348,7 @@ export default function NewsletterDetailPage() {
                     </div>
                     <div className="pl-6 space-y-1">
                       {newsletter.subscriberGroups.map((group) => (
-                        <Badge key={group} variant="outline" className="text-xs mr-1">
+                        <Badge key={group} variant="neutral" className="text-xs mr-1">
                           {group}
                         </Badge>
                       ))}
@@ -552,7 +552,7 @@ export default function NewsletterDetailPage() {
                         <Users className="h-4 w-4 text-muted-foreground" />
                         <span>{group}</span>
                       </div>
-                      <Badge variant="outline">Active</Badge>
+                      <Badge variant="neutral">Active</Badge>
                     </div>
                   ))}
                 </div>

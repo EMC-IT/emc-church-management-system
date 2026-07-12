@@ -122,20 +122,20 @@ export default function PrayerRequestsPage() {
 
   const getStatusColor = (status: string) => {
     switch (status.toLowerCase()) {
-      case 'new': return 'default';
-      case 'in progress': return 'secondary';
-      case 'answered': return 'outline';
-      case 'closed': return 'destructive';
-      default: return 'default';
+      case 'new': return 'primary';
+      case 'in progress': return 'neutral';
+      case 'answered': return 'neutral';
+      case 'closed': return 'danger';
+      default: return 'primary';
     }
   };
 
   const getPriorityColor = (priority: string) => {
     switch (priority.toLowerCase()) {
-      case 'high': return 'destructive';
-      case 'medium': return 'secondary';
-      case 'low': return 'outline';
-      default: return 'default';
+      case 'high': return 'danger';
+      case 'medium': return 'neutral';
+      case 'low': return 'neutral';
+      default: return 'primary';
     }
   };
 

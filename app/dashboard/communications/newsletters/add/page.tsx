@@ -335,7 +335,7 @@ export default function AddNewsletterPage() {
                         <p className="text-sm font-medium">Includes:</p>
                         <div className="flex flex-wrap gap-1">
                           {template.sections.map((section) => (
-                            <Badge key={section} variant="outline" className="text-xs">
+                            <Badge key={section} variant="neutral" className="text-xs">
                               {section}
                             </Badge>
                           ))}
@@ -458,7 +458,7 @@ export default function AddNewsletterPage() {
                         <p className="text-sm font-medium mb-2">Template Sections:</p>
                         <div className="space-y-1">
                           {selectedTemplate.sections.map((section) => (
-                            <Badge key={section} variant="outline" className="text-xs mr-1">
+                            <Badge key={section} variant="neutral" className="text-xs mr-1">
                               {section}
                             </Badge>
                           ))}

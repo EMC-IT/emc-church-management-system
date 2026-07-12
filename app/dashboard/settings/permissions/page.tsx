@@ -647,7 +647,7 @@ export default function PermissionsPage() {
                           <div className="font-semibold">{category.name}</div>
                           <div className="text-sm text-muted-foreground">{category.description}</div>
                         </div>
-                        <Badge variant="secondary">
+                        <Badge variant="neutral">
                           {selectedInCategory}/{category.permissions.length}
                         </Badge>
                       </div>

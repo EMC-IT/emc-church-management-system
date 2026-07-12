@@ -311,7 +311,7 @@ export default function AddCategoryPage() {
                     {form.watch('tags') && form.watch('tags')!.length > 0 && (
                       <div className="flex flex-wrap gap-2">
                         {form.watch('tags')!.map((tag) => (
-                          <Badge key={tag} variant="secondary" className="cursor-pointer" onClick={() => handleRemoveTag(tag)}>
+                          <Badge key={tag} variant="neutral" className="cursor-pointer" onClick={() => handleRemoveTag(tag)}>
                             {tag}
                             <X className="ml-1 h-3 w-3" />
                           </Badge>
@@ -527,7 +527,7 @@ export default function AddCategoryPage() {
                       {newCustomField.options.length > 0 && (
                         <div className="flex flex-wrap gap-1">
                           {newCustomField.options.map((option) => (
-                            <Badge key={option} variant="outline" className="cursor-pointer" onClick={() => handleRemoveOption(option)}>
+                            <Badge key={option} variant="neutral" className="cursor-pointer" onClick={() => handleRemoveOption(option)}>
                               {option}
                               <X className="ml-1 h-3 w-3" />
                             </Badge>
@@ -563,7 +563,7 @@ export default function AddCategoryPage() {
                         <div>
                           <span className="font-medium">{field.name}</span>
                           <span className="ml-2 text-sm text-muted-foreground">({field.type})</span>
-                          {field.required && <Badge variant="outline" className="ml-2 text-xs">Required</Badge>}
+                          {field.required && <Badge variant="neutral" className="ml-2 text-xs">Required</Badge>}
                         </div>
                         <Button 
                           type="button" 
@@ -602,11 +602,11 @@ export default function AddCategoryPage() {
                     {form.watch('description') || 'Category description will appear here'}
                   </p>
                   <div className="flex items-center space-x-2 mt-2">
-                    <Badge variant="outline">{form.watch('code') || 'CODE'}</Badge>
+                    <Badge variant="neutral">{form.watch('code') || 'CODE'}</Badge>
                     {form.watch('isActive') ? (
                       <Badge className="bg-brand-success">Active</Badge>
                     ) : (
-                      <Badge variant="secondary">Inactive</Badge>
+                      <Badge variant="neutral">Inactive</Badge>
                     )}
                   </div>
                 </div>

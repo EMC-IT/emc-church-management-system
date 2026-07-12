@@ -441,7 +441,7 @@ export default function EditRolePage() {
                   <Users className="h-4 w-4 text-muted-foreground" />
                   <span className="text-sm">Assigned Users</span>
                 </div>
-                <Badge variant="secondary">{mockRole.users}</Badge>
+                <Badge variant="neutral">{mockRole.users}</Badge>
               </div>
 
               <div className="flex items-center justify-between">
@@ -449,7 +449,7 @@ export default function EditRolePage() {
                   <CheckCircle className="h-4 w-4 text-muted-foreground" />
                   <span className="text-sm">Permissions</span>
                 </div>
-                <Badge variant="secondary">
+                <Badge variant="neutral">
                   {selectedPermissions.size}/{totalPermissions}
                 </Badge>
               </div>
@@ -564,7 +564,7 @@ export default function EditRolePage() {
                       >
                         {category.name}
                       </Label>
-                      <Badge variant="outline">
+                      <Badge variant="neutral">
                         {category.permissions.filter(p => selectedPermissions.has(p.id)).length}/
                         {category.permissions.length}
                       </Badge>

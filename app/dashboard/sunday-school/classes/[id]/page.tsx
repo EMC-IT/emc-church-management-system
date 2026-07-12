@@ -443,7 +443,7 @@ export default function ClassDetailsPage() {
                         </div>
                       </div>
                       <Badge 
-                        variant={record.status === 'Present' ? 'default' : 'secondary'}
+                        variant={record.status === 'Present' ? 'primary' : 'neutral'}
                         className={record.status === 'Present' ? 'bg-brand-success' : ''}
                       >
                         {record.status}

@@ -235,7 +235,7 @@ export default function ProfilePage() {
             Manage your account settings and preferences
           </p>
         </div>
-        <Badge variant="outline" className="text-brand-primary border-brand-primary">
+        <Badge variant="neutral" className="text-brand-primary border-brand-primary">
           {typeof user?.role === 'object' ? user?.role.name : (user?.role || 'Admin')}
         </Badge>
       </div>
@@ -277,11 +277,11 @@ export default function ProfilePage() {
                 </div>
               </div>
               <div className="flex items-center gap-2">
-                <Badge variant="outline" className="text-green-600 border-green-600">
+                <Badge variant="neutral" className="text-green-600 border-green-600">
                   <CheckCircle className="h-3 w-3 mr-1" />
                   Active
                 </Badge>
-                <Badge variant="outline">
+                <Badge variant="neutral">
                   <Calendar className="h-3 w-3 mr-1" />
                   Joined {new Date().toLocaleDateString()}
                 </Badge>
@@ -595,7 +595,7 @@ export default function ProfilePage() {
                       Last active: Just now
                     </p>
                   </div>
-                  <Badge variant="outline" className="text-green-600 border-green-600">
+                  <Badge variant="neutral" className="text-green-600 border-green-600">
                     Active
                   </Badge>
                 </div>

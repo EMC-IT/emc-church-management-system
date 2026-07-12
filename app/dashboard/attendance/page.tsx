@@ -136,7 +136,7 @@ const attendanceColumns = [
     accessorKey: 'serviceType',
     header: 'Service Type',
     cell: ({ row }: any) => (
-      <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">
+      <Badge variant="neutral" className="bg-blue-50 text-blue-700 border-blue-200">
         {row.getValue('serviceType')}
       </Badge>
     )
@@ -166,7 +166,7 @@ const attendanceColumns = [
       
       const config = statusConfig[status] || statusConfig[AttendanceStatus.ABSENT];
       return (
-        <Badge variant="outline" className={config.className}>
+        <Badge variant="neutral" className={config.className}>
           {config.label}
         </Badge>
       );
@@ -338,7 +338,7 @@ export default function AttendancePage() {
                   Attendance patterns across the week
                 </CardDescription>
               </div>
-              <Badge variant="secondary" className="bg-brand-primary/10 text-brand-primary">
+              <Badge variant="neutral" className="bg-brand-primary/10 text-brand-primary">
                 This Week
               </Badge>
             </div>
@@ -467,7 +467,7 @@ export default function AttendancePage() {
                 Attendance trends over the past months
               </CardDescription>
             </div>
-            <Badge variant="secondary" className="bg-brand-success/10 text-brand-success">
+            <Badge variant="neutral" className="bg-brand-success/10 text-brand-success">
               +3.2% Growth
             </Badge>
           </div>

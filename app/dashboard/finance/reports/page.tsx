@@ -263,21 +263,21 @@ export default function ReportsPage() {
 
   const getStatusColor = (status: string) => {
     switch (status.toLowerCase()) {
-      case 'on track': return 'default';
-      case 'over budget': return 'destructive';
-      case 'under budget': return 'secondary';
-      default: return 'default';
+      case 'on track': return 'primary';
+      case 'over budget': return 'danger';
+      case 'under budget': return 'neutral';
+      default: return 'primary';
     }
   };
 
   const getReportTypeColor = (type: string) => {
     switch (type.toLowerCase()) {
-      case 'summary': return 'default';
-      case 'giving': return 'secondary';
-      case 'budget': return 'outline';
-      case 'tax': return 'destructive';
-      case 'projection': return 'default';
-      default: return 'default';
+      case 'summary': return 'primary';
+      case 'giving': return 'neutral';
+      case 'budget': return 'neutral';
+      case 'tax': return 'danger';
+      case 'projection': return 'primary';
+      default: return 'primary';
     }
   };
 
@@ -430,7 +430,6 @@ export default function ReportsPage() {
             <Card className="hover:shadow-md transition-shadow">
               <CardHeader>
                 <CardTitle>Monthly Financial Trends</CardTitle>
-                <CardDescription>Income vs expenses over time</CardDescription>
               </CardHeader>
               <CardContent>
                 <ChartContainer config={monthlyChartConfig} className="h-[300px] w-full">
@@ -486,7 +485,6 @@ export default function ReportsPage() {
             <Card>
               <CardHeader>
                 <CardTitle>Department Performance</CardTitle>
-                <CardDescription>Budget vs actual spending by department</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
@@ -516,7 +514,6 @@ export default function ReportsPage() {
           <Card>
             <CardHeader>
               <CardTitle>Quick Links</CardTitle>
-              <CardDescription>Navigate to specialized financial reports</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
@@ -559,7 +556,6 @@ export default function ReportsPage() {
             <Card className="hover:shadow-md transition-shadow">
               <CardHeader>
                 <CardTitle>Income Distribution</CardTitle>
-                <CardDescription>Breakdown of income sources</CardDescription>
               </CardHeader>
               <CardContent>
                 <ChartContainer config={incomeChartConfig} className="h-[300px] w-full">
@@ -590,7 +586,6 @@ export default function ReportsPage() {
             <Card>
               <CardHeader>
                 <CardTitle>Income Details</CardTitle>
-                <CardDescription>Detailed breakdown by category</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
@@ -620,7 +615,6 @@ export default function ReportsPage() {
             <Card className="hover:shadow-md transition-shadow">
               <CardHeader>
                 <CardTitle>Expense Distribution</CardTitle>
-                <CardDescription>Breakdown of expenses by category</CardDescription>
               </CardHeader>
               <CardContent>
                 <ChartContainer config={expenseChartConfig} className="h-[300px] w-full">
@@ -651,7 +645,6 @@ export default function ReportsPage() {
             <Card>
               <CardHeader>
                 <CardTitle>Expense Details</CardTitle>
-                <CardDescription>Detailed breakdown by category</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
@@ -680,7 +673,6 @@ export default function ReportsPage() {
           <Card>
             <CardHeader>
               <CardTitle>Available Reports</CardTitle>
-              <CardDescription>Generate and download financial reports</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">

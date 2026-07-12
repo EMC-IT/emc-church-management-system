@@ -435,10 +435,10 @@ export default function SettingsPage() {
                         </div>
                       </TableCell>
                       <TableCell>
-                        <Badge variant="outline">{user.role}</Badge>
+                        <Badge variant="neutral">{user.role}</Badge>
                       </TableCell>
                       <TableCell>
-                        <Badge variant={user.status === 'Active' ? 'default' : 'secondary'}>
+                        <Badge variant={user.status === 'Active' ? 'primary' : 'neutral'}>
                           {user.status}
                         </Badge>
                       </TableCell>

@@ -210,7 +210,7 @@ export default function AllocationsOverviewPage() {
                     <SelectItem key={budget.id} value={budget.id}>
                       <div className="flex items-center justify-between w-full">
                         <span>{budget.name}</span>
-                        <Badge variant="outline" className="ml-2">{budget.department}</Badge>
+                        <Badge variant="neutral" className="ml-2">{budget.department}</Badge>
                       </div>
                     </SelectItem>
                   ))}
@@ -289,7 +289,7 @@ export default function AllocationsOverviewPage() {
                 >
                   <TableCell className="font-medium">{allocation.budgetName}</TableCell>
                   <TableCell>
-                    <Badge variant="outline">{allocation.department}</Badge>
+                    <Badge variant="neutral">{allocation.department}</Badge>
                   </TableCell>
                   <TableCell>₵{allocation.amount.toLocaleString()}</TableCell>
                   <TableCell>₵{allocation.allocatedAmount.toLocaleString()}</TableCell>

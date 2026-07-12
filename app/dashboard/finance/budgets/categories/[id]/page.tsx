@@ -152,13 +152,13 @@ export default function CategoryDetailsPage() {
   const getStatusVariant = (status: string) => {
     switch (status) {
       case 'Active':
-        return 'default';
+        return 'primary';
       case 'Completed':
-        return 'secondary';
+        return 'neutral';
       case 'On Hold':
-        return 'outline';
+        return 'neutral';
       default:
-        return 'outline';
+        return 'neutral';
     }
   };
 
@@ -201,7 +201,7 @@ export default function CategoryDetailsPage() {
                 style={{ backgroundColor: category.color }}
               ></div>
               <h1 className="text-2xl font-bold tracking-tight">{category.name}</h1>
-              <Badge variant={category.status === 'Active' ? 'default' : 'secondary'}>
+              <Badge variant={category.status === 'Active' ? 'primary' : 'neutral'}>
                 {category.status}
               </Badge>
             </div>
@@ -428,7 +428,7 @@ export default function CategoryDetailsPage() {
                   </div>
                   <div>
                     <Label className="text-sm font-medium text-muted-foreground">Status</Label>
-                    <Badge variant={category.status === 'Active' ? 'default' : 'secondary'}>
+                    <Badge variant={category.status === 'Active' ? 'primary' : 'neutral'}>
                       {category.status}
                     </Badge>
                   </div>

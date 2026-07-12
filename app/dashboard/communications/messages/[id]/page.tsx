@@ -370,7 +370,7 @@ export default function MessageThreadPage() {
             <div key={message.id} className="space-y-2">
               {showTimestamp && (
                 <div className="flex justify-center">
-                  <Badge variant="outline" className="text-xs">
+                  <Badge variant="neutral" className="text-xs">
                     {formatMessageTime(message.timestamp)}
                   </Badge>
                 </div>

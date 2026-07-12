@@ -76,6 +76,24 @@
     --border: 0 0% 89.8%;
     --input: 0 0% 89.8%;
     --ring: 196 62% 44%;
+    --badge-neutral-bg: 0 0% 97%;
+    --badge-neutral-border: 0 0% 88%;
+    --badge-neutral-text: 0 0% 28%;
+    --badge-primary-bg: 196 62% 96%;
+    --badge-primary-border: 196 45% 82%;
+    --badge-primary-text: 196 68% 30%;
+    --badge-success-bg: 142 45% 95%;
+    --badge-success-border: 142 32% 80%;
+    --badge-success-text: 142 55% 27%;
+    --badge-warning-bg: 43 75% 95%;
+    --badge-warning-border: 43 58% 78%;
+    --badge-warning-text: 35 72% 28%;
+    --badge-danger-bg: 0 70% 96%;
+    --badge-danger-border: 0 52% 83%;
+    --badge-danger-text: 0 64% 36%;
+    --badge-info-bg: 204 70% 96%;
+    --badge-info-border: 204 48% 82%;
+    --badge-info-text: 204 68% 32%;
     /* Chart Colors */
     --chart-1: 196 62% 44%;        /* #2E8DB0 */
     --chart-2: 199 66% 50%;        /* #28ACD1 */
@@ -113,6 +131,24 @@
     --border: 0 0% 15%;             /* #262626 - Lighter border for card definition */
     --input: 0 0% 12%;              /* Matching muted for inputs */
     --ring: 196 62% 44%;
+    --badge-neutral-bg: 0 0% 12%;
+    --badge-neutral-border: 0 0% 24%;
+    --badge-neutral-text: 0 0% 82%;
+    --badge-primary-bg: 196 45% 14%;
+    --badge-primary-border: 196 42% 28%;
+    --badge-primary-text: 196 58% 72%;
+    --badge-success-bg: 142 34% 13%;
+    --badge-success-border: 142 30% 27%;
+    --badge-success-text: 142 45% 70%;
+    --badge-warning-bg: 43 42% 13%;
+    --badge-warning-border: 43 38% 28%;
+    --badge-warning-text: 43 62% 72%;
+    --badge-danger-bg: 0 38% 14%;
+    --badge-danger-border: 0 36% 30%;
+    --badge-danger-text: 0 58% 75%;
+    --badge-info-bg: 204 40% 14%;
+    --badge-info-border: 204 36% 29%;
+    --badge-info-text: 204 58% 74%;
     /* Chart Colors - Dark Mode */
     --chart-1: 196 62% 44%;        /* #2E8DB0 */
     --chart-2: 199 66% 50%;        /* #28ACD1 */

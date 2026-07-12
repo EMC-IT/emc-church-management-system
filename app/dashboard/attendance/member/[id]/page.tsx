@@ -223,7 +223,7 @@ const attendanceColumns = [
     accessorKey: 'serviceType',
     header: 'Service Type',
     cell: ({ row }: any) => (
-      <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">
+      <Badge variant="neutral" className="bg-blue-50 text-blue-700 border-blue-200">
         {row.getValue('serviceType')}
       </Badge>
     )
@@ -244,7 +244,7 @@ const attendanceColumns = [
       const Icon = config.icon;
       
       return (
-        <Badge variant="outline" className={config.className}>
+        <Badge variant="neutral" className={config.className}>
           <Icon className="h-3 w-3 mr-1" />
           {status}
         </Badge>
@@ -523,7 +523,7 @@ export default function MemberAttendanceDetailPage() {
                 <Users className="h-4 w-4" />
                 Group
               </div>
-              <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">
+              <Badge variant="neutral" className="bg-blue-50 text-blue-700 border-blue-200">
                 {memberData.group}
               </Badge>
             </div>

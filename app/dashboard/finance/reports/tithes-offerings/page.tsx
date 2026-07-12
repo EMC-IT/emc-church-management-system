@@ -115,10 +115,10 @@ export default function TithesOfferingsReportsPage() {
 
   const getStatusBadge = (status: string) => {
     switch (status.toLowerCase()) {
-      case 'faithful': return 'default';
-      case 'consistent': return 'secondary';
-      case 'regular': return 'outline';
-      default: return 'destructive';
+      case 'faithful': return 'primary';
+      case 'consistent': return 'neutral';
+      case 'regular': return 'neutral';
+      default: return 'danger';
     }
   };
 

@@ -326,7 +326,7 @@ export default function ExportEventsPage() {
                       <div className="text-sm text-muted-foreground">
                         {format(new Date(event.date), 'MMM dd, yyyy')} • {event.category}
                       </div>
-                      <Badge variant="outline" className="mt-1">
+                      <Badge variant="neutral" className="mt-1">
                         {event.attendees} attendees
                       </Badge>
                     </div>

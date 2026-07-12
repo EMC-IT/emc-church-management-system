@@ -362,7 +362,7 @@ export default function AdvancedFiltersPage() {
                   {index > 0 && (
                     <div className="flex items-center gap-2">
                       <Separator className="flex-1" />
-                      <Badge variant="secondary">AND</Badge>
+                      <Badge variant="neutral">AND</Badge>
                       <Separator className="flex-1" />
                     </div>
                   )}
@@ -522,7 +522,7 @@ export default function AdvancedFiltersPage() {
                       </div>
 
                       <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                        <Badge variant="secondary" className="text-xs">
+                        <Badge variant="neutral" className="text-xs">
                           {filter.rules.length} rules
                         </Badge>
                         <span>•</span>

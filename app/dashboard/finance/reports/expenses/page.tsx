@@ -96,11 +96,11 @@ export default function ExpenseReportsPage() {
 
   const getStatusColor = (status: string) => {
     switch (status.toLowerCase()) {
-      case 'on track': return 'default';
-      case 'near limit': return 'destructive';
-      case 'under budget': return 'secondary';
-      case 'over budget': return 'destructive';
-      default: return 'default';
+      case 'on track': return 'primary';
+      case 'near limit': return 'danger';
+      case 'under budget': return 'neutral';
+      case 'over budget': return 'danger';
+      default: return 'primary';
     }
   };
 

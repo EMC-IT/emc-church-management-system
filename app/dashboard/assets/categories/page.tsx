@@ -213,11 +213,11 @@ export default function CategoriesPage() {
       case 'good':
         return <Badge className="bg-brand-secondary">Good</Badge>;
       case 'fair':
-        return <Badge variant="secondary">Fair</Badge>;
+        return <Badge variant="neutral">Fair</Badge>;
       case 'poor':
-        return <Badge variant="destructive">Poor</Badge>;
+        return <Badge variant="danger">Poor</Badge>;
       default:
-        return <Badge variant="outline">{condition}</Badge>;
+        return <Badge variant="neutral">{condition}</Badge>;
     }
   };
 
@@ -390,7 +390,7 @@ export default function CategoriesPage() {
                       <p className="text-sm text-muted-foreground">{category.description}</p>
                     </div>
                     <div className="flex items-center space-x-2">
-                      <Badge variant={category.isActive ? 'default' : 'secondary'}>
+                      <Badge variant={category.isActive ? 'primary' : 'neutral'}>
                         {category.isActive ? 'Active' : 'Inactive'}
                       </Badge>
                       {getConditionBadge(category.averageCondition)}

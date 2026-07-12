@@ -354,7 +354,7 @@ export default function AddRolePage() {
                   <Separator />
                   <div className="flex items-center justify-between">
                     <span className="text-sm text-muted-foreground">Permissions:</span>
-                    <Badge variant="secondary">
+                    <Badge variant="neutral">
                       {selectedPermissions.length}
                     </Badge>
                   </div>
@@ -369,7 +369,7 @@ export default function AddRolePage() {
                         if (!hasPermissions) return null;
                         
                         return (
-                          <Badge key={key} variant="outline" className="text-xs">
+                          <Badge key={key} variant="neutral" className="text-xs">
                             {category.label}
                           </Badge>
                         );

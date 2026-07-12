@@ -307,7 +307,7 @@ export default function PrayerCategoriesPage() {
       accessorKey: 'activeRequests',
       header: 'Active Requests',
       cell: ({ row }) => (
-        <Badge variant="secondary">{row.original.activeRequests}</Badge>
+        <Badge variant="neutral">{row.original.activeRequests}</Badge>
       ),
     },
     {
@@ -502,7 +502,6 @@ export default function PrayerCategoriesPage() {
       <Card>
         <CardHeader>
           <CardTitle>Prayer Categories</CardTitle>
-          <CardDescription>Manage categories for organizing prayer requests</CardDescription>
         </CardHeader>
         <CardContent>
           <DataTable

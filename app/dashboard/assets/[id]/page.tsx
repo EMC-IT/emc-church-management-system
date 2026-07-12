@@ -207,47 +207,47 @@ export default function AssetDetailsPage() {
   const getStatusBadge = (status: AssetStatus) => {
     switch (status) {
       case AssetStatus.ACTIVE:
-        return <Badge variant="default" className="bg-brand-success">Active</Badge>;
+        return <Badge variant="primary" className="bg-brand-success">Active</Badge>;
       case AssetStatus.MAINTENANCE:
-        return <Badge variant="secondary" className="bg-brand-accent">Maintenance</Badge>;
+        return <Badge variant="neutral" className="bg-brand-accent">Maintenance</Badge>;
       case AssetStatus.RETIRED:
-        return <Badge variant="outline">Retired</Badge>;
+        return <Badge variant="neutral">Retired</Badge>;
       case AssetStatus.DAMAGED:
-        return <Badge variant="destructive">Damaged</Badge>;
+        return <Badge variant="danger">Damaged</Badge>;
       default:
-        return <Badge variant="outline">{status}</Badge>;
+        return <Badge variant="neutral">{status}</Badge>;
     }
   };
 
   const getConditionBadge = (condition: AssetCondition) => {
     switch (condition) {
       case AssetCondition.EXCELLENT:
-        return <Badge variant="default" className="bg-brand-success">Excellent</Badge>;
+        return <Badge variant="primary" className="bg-brand-success">Excellent</Badge>;
       case AssetCondition.GOOD:
-        return <Badge variant="default" className="bg-brand-secondary">Good</Badge>;
+        return <Badge variant="primary" className="bg-brand-secondary">Good</Badge>;
       case AssetCondition.FAIR:
-        return <Badge variant="secondary">Fair</Badge>;
+        return <Badge variant="neutral">Fair</Badge>;
       case AssetCondition.POOR:
-        return <Badge variant="destructive">Poor</Badge>;
+        return <Badge variant="danger">Poor</Badge>;
       case AssetCondition.DAMAGED:
-        return <Badge variant="destructive">Damaged</Badge>;
+        return <Badge variant="danger">Damaged</Badge>;
       default:
-        return <Badge variant="outline">{condition}</Badge>;
+        return <Badge variant="neutral">{condition}</Badge>;
     }
   };
 
   const getPriorityBadge = (priority: string) => {
     switch (priority) {
       case 'critical':
-        return <Badge variant="destructive">Critical</Badge>;
+        return <Badge variant="danger">Critical</Badge>;
       case 'high':
-        return <Badge variant="default" className="bg-red-500">High</Badge>;
+        return <Badge variant="primary" className="bg-red-500">High</Badge>;
       case 'medium':
-        return <Badge variant="default" className="bg-brand-accent">Medium</Badge>;
+        return <Badge variant="primary" className="bg-brand-accent">Medium</Badge>;
       case 'low':
-        return <Badge variant="outline">Low</Badge>;
+        return <Badge variant="neutral">Low</Badge>;
       default:
-        return <Badge variant="outline">{priority}</Badge>;
+        return <Badge variant="neutral">{priority}</Badge>;
     }
   };
 
@@ -375,7 +375,7 @@ export default function AssetDetailsPage() {
                 <div>
                   <p className="text-sm font-medium text-muted-foreground">Category</p>
                   <div className="mt-1">
-                    <Badge variant="outline">
+                    <Badge variant="neutral">
                       {asset.category.replace('_', ' ')}
                     </Badge>
                   </div>
@@ -394,7 +394,7 @@ export default function AssetDetailsPage() {
                   <p className="text-sm font-medium text-muted-foreground mb-2">Tags</p>
                   <div className="flex flex-wrap gap-2">
                     {asset.tags.map((tag) => (
-                      <Badge key={tag} variant="secondary">
+                      <Badge key={tag} variant="neutral">
                         {tag}
                       </Badge>
                     ))}
@@ -438,7 +438,7 @@ export default function AssetDetailsPage() {
                           <div className="flex items-center justify-between mb-2">
                             <h4 className="font-medium">{maintenance.title}</h4>
                             <Badge
-                              variant={maintenance.status === 'completed' ? 'default' : 'secondary'}
+                              variant={maintenance.status === 'completed' ? 'primary' : 'neutral'}
                               className={maintenance.status === 'completed' ? 'bg-brand-success' : ''}
                             >
                               {maintenance.status}
@@ -491,7 +491,7 @@ export default function AssetDetailsPage() {
                               Assigned to {assignment.assignedTo}
                             </h4>
                             <Badge
-                              variant={assignment.status === 'active' ? 'default' : 'secondary'}
+                              variant={assignment.status === 'active' ? 'primary' : 'neutral'}
                               className={assignment.status === 'active' ? 'bg-brand-success' : ''}
                             >
                               {assignment.status}
@@ -653,7 +653,7 @@ export default function AssetDetailsPage() {
                   <p className="text-sm font-medium text-muted-foreground">Warranty Expiry</p>
                   <p className="text-sm">{formatDate(asset.warrantyExpiry)}</p>
                   {new Date(asset.warrantyExpiry) < new Date() && (
-                    <Badge variant="destructive" className="mt-1">
+                    <Badge variant="danger" className="mt-1">
                       <AlertTriangle className="mr-1 h-3 w-3" />
                       Expired
                     </Badge>
@@ -671,7 +671,7 @@ export default function AssetDetailsPage() {
                   <p className="text-sm font-medium text-muted-foreground">Next Maintenance</p>
                   <p className="text-sm">{formatDate(asset.nextMaintenance)}</p>
                   {new Date(asset.nextMaintenance) <= new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) && (
-                    <Badge variant="secondary" className="mt-1 bg-brand-accent">
+                    <Badge variant="neutral" className="mt-1 bg-brand-accent">
                       <Clock className="mr-1 h-3 w-3" />
                       Due Soon
                     </Badge>

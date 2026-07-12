@@ -293,13 +293,13 @@ export default function GivingReportsPage() {
   const getStatusBadge = (status: GivingStatus) => {
     switch (status) {
       case GivingStatus.COMPLETED:
-        return <Badge variant="default" className="bg-green-100 text-green-800">Completed</Badge>;
+        return <Badge variant="primary" className="bg-green-100 text-green-800">Completed</Badge>;
       case GivingStatus.PENDING:
-        return <Badge variant="secondary">Pending</Badge>;
+        return <Badge variant="neutral">Pending</Badge>;
       case GivingStatus.FAILED:
-        return <Badge variant="destructive">Failed</Badge>;
+        return <Badge variant="danger">Failed</Badge>;
       default:
-        return <Badge variant="outline">{status}</Badge>;
+        return <Badge variant="neutral">{status}</Badge>;
     }
   };
 
@@ -317,7 +317,7 @@ export default function GivingReportsPage() {
       header: 'Type',
       cell: ({ row }) => {
         const type = row.getValue('type') as GivingType;
-        return <Badge variant="outline" className="capitalize">{type}</Badge>;
+        return <Badge variant="neutral" className="capitalize">{type}</Badge>;
       },
     },
     {
@@ -342,7 +342,7 @@ export default function GivingReportsPage() {
       cell: ({ row }) => {
         const method = row.getValue('method') as string;
         return (
-          <Badge variant="outline" className="capitalize">
+          <Badge variant="neutral" className="capitalize">
             {method.replace('_', ' ')}
           </Badge>
         );
@@ -723,7 +723,7 @@ export default function GivingReportsPage() {
                   {report.methods.map((method) => (
                     <div key={method.method} className="flex items-center justify-between p-4 border rounded-lg">
                       <div className="flex items-center space-x-4">
-                        <Badge variant="outline" className="capitalize">
+                        <Badge variant="neutral" className="capitalize">
                           {method.method.replace('_', ' ')}
                         </Badge>
                         <div>

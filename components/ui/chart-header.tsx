@@ -27,7 +27,7 @@ export function ChartHeader({ title, badge, tone = "neutral", className }: Chart
       <CardTitle>{title}</CardTitle>
       {badge ? (
         <Badge
-          variant="outline"
+          variant="neutral"
           className={cn("shrink-0 border-transparent font-medium", toneClasses[tone])}
         >
           {badge}

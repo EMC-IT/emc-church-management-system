@@ -777,7 +777,7 @@ export default function AddAssetPage() {
                   {tags.length > 0 && (
                     <div className="flex flex-wrap gap-2">
                       {tags.map((tag) => (
-                        <Badge key={tag} variant="secondary" className="flex items-center gap-1">
+                        <Badge key={tag} variant="neutral" className="flex items-center gap-1">
                           {tag}
                           <X
                             className="h-3 w-3 cursor-pointer"

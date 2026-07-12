@@ -164,10 +164,10 @@ export default function NewslettersPage() {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'sent': return 'default';
-      case 'scheduled': return 'secondary';
-      case 'draft': return 'outline';
-      default: return 'default';
+      case 'sent': return 'primary';
+      case 'scheduled': return 'neutral';
+      case 'draft': return 'neutral';
+      default: return 'primary';
     }
   };
 
@@ -371,7 +371,6 @@ export default function NewslettersPage() {
       <Card>
         <CardHeader>
           <CardTitle>All Newsletters</CardTitle>
-          <CardDescription>Manage and track your church newsletters</CardDescription>
         </CardHeader>
         <CardContent>
           <Table>
@@ -406,7 +405,7 @@ export default function NewslettersPage() {
                     </Badge>
                   </TableCell>
                   <TableCell>
-                    <Badge variant="outline">{newsletter.template}</Badge>
+                    <Badge variant="neutral">{newsletter.template}</Badge>
                   </TableCell>
                   <TableCell>
                     <div className="flex items-center gap-1">

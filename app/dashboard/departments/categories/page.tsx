@@ -248,7 +248,7 @@ export default function DepartmentCategoriesPage() {
       cell: ({ row }: { row: any }) => {
         const category = row.original as DepartmentCategory;
         return (
-          <Badge variant="outline">
+          <Badge variant="neutral">
             {category.icon}
           </Badge>
         );

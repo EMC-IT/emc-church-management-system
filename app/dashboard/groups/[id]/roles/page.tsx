@@ -304,7 +304,7 @@ export default function GroupRolesPage() {
                           <div className="flex items-center space-x-2">
                             <h4 className="font-semibold text-lg">{role.name}</h4>
                             {role.isDefault && (
-                              <Badge variant="outline" className="text-xs">
+                              <Badge variant="neutral" className="text-xs">
                                 Default
                               </Badge>
                             )}
@@ -319,7 +319,7 @@ export default function GroupRolesPage() {
                               {role.permissions.map((permission, index) => (
                                 <Badge 
                                   key={index} 
-                                  variant="secondary"
+                                  variant="neutral"
                                   className={`text-xs ${getPermissionBadgeColor(permission)}`}
                                 >
                                   {permission.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}
@@ -336,12 +336,12 @@ export default function GroupRolesPage() {
                             {roleMembers.length > 0 ? (
                               <div className="flex flex-wrap gap-2">
                                 {roleMembers.slice(0, 5).map((member) => (
-                                  <Badge key={member.id} variant="outline" className="text-xs">
+                                  <Badge key={member.id} variant="neutral" className="text-xs">
                                     {member.memberName}
                                   </Badge>
                                 ))}
                                 {roleMembers.length > 5 && (
-                                  <Badge variant="outline" className="text-xs">
+                                  <Badge variant="neutral" className="text-xs">
                                     +{roleMembers.length - 5} more
                                   </Badge>
                                 )}

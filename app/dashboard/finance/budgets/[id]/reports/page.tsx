@@ -173,13 +173,13 @@ export default function BudgetReportsPage() {
   const getStatusVariant = (status: string) => {
     switch (status) {
       case 'On Target':
-        return 'default';
+        return 'primary';
       case 'Under Budget':
-        return 'secondary';
+        return 'neutral';
       case 'Over Budget':
-        return 'destructive';
+        return 'danger';
       default:
-        return 'outline';
+        return 'neutral';
     }
   };
 
@@ -429,7 +429,7 @@ export default function BudgetReportsPage() {
                         {month.variancePercent > 0 ? '+' : ''}{month.variancePercent.toFixed(1)}%
                       </TableCell>
                       <TableCell>
-                        <Badge variant={month.variance <= 0 ? 'secondary' : 'destructive'}>
+                        <Badge variant={month.variance <= 0 ? 'neutral' : 'danger'}>
                           {month.variance <= 0 ? 'Under Budget' : 'Over Budget'}
                         </Badge>
                       </TableCell>

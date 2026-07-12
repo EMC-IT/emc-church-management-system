@@ -161,7 +161,7 @@ export default function TestLazyLoadingPage() {
                             <h4 className="font-medium">{item.name}</h4>
                             <p className="text-sm text-muted-foreground">{item.description}</p>
                           </div>
-                          <Badge variant={item.status === 'active' ? 'default' : 'secondary'}>
+                          <Badge variant={item.status === 'active' ? 'primary' : 'neutral'}>
                             {item.status}
                           </Badge>
                         </div>

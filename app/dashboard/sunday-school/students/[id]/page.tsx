@@ -253,7 +253,7 @@ export default function StudentProfilePage() {
                   <div>
                     <h3 className="text-lg font-semibold">{student.name}</h3>
                     <p className="text-muted-foreground">Age {student.age}</p>
-                    <Badge variant={student.status === 'Active' ? 'default' : 'secondary'}>
+                    <Badge variant={student.status === 'Active' ? 'primary' : 'neutral'}>
                       {student.status}
                     </Badge>
                   </div>
@@ -365,7 +365,7 @@ export default function StudentProfilePage() {
                     </div>
                     <div className="flex items-center space-x-2">
                       <Badge 
-                        variant="outline" 
+                        variant="neutral" 
                         className={`${getStatusColor(record.status)} text-white`}
                       >
                         {record.status}

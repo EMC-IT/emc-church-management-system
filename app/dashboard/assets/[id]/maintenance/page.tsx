@@ -292,24 +292,24 @@ export default function MaintenancePage() {
       case 'scheduled':
         return <Badge className="bg-brand-accent">Scheduled</Badge>;
       case 'cancelled':
-        return <Badge variant="destructive">Cancelled</Badge>;
+        return <Badge variant="danger">Cancelled</Badge>;
       default:
-        return <Badge variant="outline">{status}</Badge>;
+        return <Badge variant="neutral">{status}</Badge>;
     }
   };
 
   const getPriorityBadge = (priority: string) => {
     switch (priority) {
       case 'critical':
-        return <Badge variant="destructive">Critical</Badge>;
+        return <Badge variant="danger">Critical</Badge>;
       case 'high':
         return <Badge className="bg-red-500">High</Badge>;
       case 'medium':
         return <Badge className="bg-brand-accent">Medium</Badge>;
       case 'low':
-        return <Badge variant="outline">Low</Badge>;
+        return <Badge variant="neutral">Low</Badge>;
       default:
-        return <Badge variant="outline">{priority}</Badge>;
+        return <Badge variant="neutral">{priority}</Badge>;
     }
   };
 
@@ -320,11 +320,11 @@ export default function MaintenancePage() {
       case 'corrective':
         return <Badge className="bg-brand-secondary">Corrective</Badge>;
       case 'emergency':
-        return <Badge variant="destructive">Emergency</Badge>;
+        return <Badge variant="danger">Emergency</Badge>;
       case 'upgrade':
         return <Badge className="bg-brand-primary">Upgrade</Badge>;
       default:
-        return <Badge variant="outline">{type}</Badge>;
+        return <Badge variant="neutral">{type}</Badge>;
     }
   };
 
@@ -899,7 +899,7 @@ export default function MaintenancePage() {
                     <p className="text-xs font-medium mb-1">Parts Used:</p>
                     <div className="flex flex-wrap gap-1">
                       {maintenance.partsUsed.map((part, index) => (
-                        <Badge key={index} variant="outline" className="text-xs">
+                        <Badge key={index} variant="neutral" className="text-xs">
                           {part.name} (x{part.quantity})
                         </Badge>
                       ))}

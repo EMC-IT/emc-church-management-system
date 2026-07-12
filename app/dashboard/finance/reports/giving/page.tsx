@@ -298,7 +298,7 @@ export default function GivingReportsPage() {
                       <div>
                         <p className="font-medium">{giver.name}</p>
                         <div className="flex items-center space-x-2 mt-1">
-                          <Badge variant="outline" className={getFrequencyColor(giver.frequency)}>
+                          <Badge variant="neutral" className={getFrequencyColor(giver.frequency)}>
                             {giver.frequency}
                           </Badge>
                           <span className="text-xs text-muted-foreground">

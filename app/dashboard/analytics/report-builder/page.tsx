@@ -304,7 +304,7 @@ export default function ReportBuilderPage() {
                       </CardDescription>
                     </CardHeader>
                     <CardContent>
-                      <Badge variant="secondary">{source.fields.length} fields</Badge>
+                      <Badge variant="neutral">{source.fields.length} fields</Badge>
                     </CardContent>
                   </Card>
                 ))}
@@ -359,7 +359,7 @@ export default function ReportBuilderPage() {
                             Type: {field.type}
                           </div>
                         </Label>
-                        <Badge variant="outline">{field.type}</Badge>
+                        <Badge variant="neutral">{field.type}</Badge>
                       </div>
                     ))}
                   </div>

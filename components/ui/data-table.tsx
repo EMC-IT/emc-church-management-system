@@ -470,12 +470,12 @@ export function DataTable<TData, TValue>({
 }
 
 // Status Badge Component
-export function StatusBadge({ 
-  status, 
-  variant = "default" 
-}: { 
-  status: string; 
-  variant?: "default" | "secondary" | "destructive" | "outline" 
+export function StatusBadge({
+  status,
+  variant = "neutral"
+}: {
+  status: string;
+  variant?: "neutral" | "primary" | "success" | "warning" | "danger" | "info"
 }) {
   const getStatusColor = (status: string) => {
     switch (status.toLowerCase()) {
@@ -503,7 +503,7 @@ export function StatusBadge({
       variant={variant}
       className={cn(
         "rounded-full px-2.5 py-1 font-normal capitalize",
-        variant === "default" && getStatusColor(status)
+        variant === "neutral" && getStatusColor(status)
       )}
     >
       {status}

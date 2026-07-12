@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { PageHeader } from '@/components/ui/page-header';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -198,11 +198,11 @@ export default function BulkActionsPage() {
 
   const getStatusColor = (status: string) => {
     switch (status.toLowerCase()) {
-      case 'upcoming': return 'default';
-      case 'planning': return 'secondary';
-      case 'completed': return 'outline';
-      case 'cancelled': return 'destructive';
-      default: return 'default';
+      case 'upcoming': return 'primary';
+      case 'planning': return 'neutral';
+      case 'completed': return 'neutral';
+      case 'cancelled': return 'danger';
+      default: return 'primary';
     }
   };
 
@@ -351,7 +351,7 @@ export default function BulkActionsPage() {
                         <span>{event.attendees} / {event.maxAttendees}</span>
                       </div>
                       
-                      <Badge variant="outline" className="text-xs">
+                      <Badge variant="neutral" className="text-xs">
                         {event.category}
                       </Badge>
                     </div>

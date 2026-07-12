@@ -237,7 +237,7 @@ export default function FamilyPage() {
       header: 'Status',
       cell: ({ row }) => {
         const status = row.getValue('membershipStatus') as string;
-        return <Badge variant={status === 'Active' ? 'default' : 'secondary'}>{status}</Badge>;
+        return <Badge variant={status === 'Active' ? 'primary' : 'neutral'}>{status}</Badge>;
       },
     },
     {

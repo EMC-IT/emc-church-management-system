@@ -324,7 +324,7 @@ export default function QRCheckinPage() {
               {/* Session Info */}
               <div className="text-center space-y-2">
                 <div className="flex items-center justify-center gap-2">
-                  <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
+                  <Badge variant="neutral" className="bg-green-50 text-green-700 border-green-200">
                     <CheckCircle2 className="h-3 w-3 mr-1" />
                     Active Session
                   </Badge>
@@ -394,7 +394,7 @@ export default function QRCheckinPage() {
                         </div>
                       </div>
                       <Badge 
-                        variant="outline" 
+                        variant="neutral" 
                         className={checkin.status === AttendanceStatus.PRESENT 
                           ? 'bg-green-50 text-green-700 border-green-200' 
                           : 'bg-yellow-50 text-yellow-700 border-yellow-200'

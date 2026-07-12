@@ -183,13 +183,13 @@ export default function BudgetReportsPage() {
   const getStatusVariant = (status: string) => {
     switch (status) {
       case 'On Track':
-        return 'default';
+        return 'primary';
       case 'Under Budget':
-        return 'secondary';
+        return 'neutral';
       case 'Over Budget':
-        return 'destructive';
+        return 'danger';
       default:
-        return 'outline';
+        return 'neutral';
     }
   };
 

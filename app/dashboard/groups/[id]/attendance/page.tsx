@@ -375,6 +375,9 @@ export default function GroupAttendancePage() {
             </DialogContent>
           </Dialog>
         </div>
+              }
+            />
+        </div>
       </div>
 
       {/* Stats Cards */}
@@ -436,9 +439,6 @@ export default function GroupAttendancePage() {
       <Card>
         <CardHeader>
           <CardTitle>Member Attendance Overview</CardTitle>
-          <CardDescription>
-            Individual attendance rates for group members
-          </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
@@ -487,9 +487,6 @@ export default function GroupAttendancePage() {
       <Card>
         <CardHeader>
           <CardTitle>Attendance Records</CardTitle>
-          <CardDescription>
-            Detailed attendance history for all events
-          </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="flex items-center space-x-4 mb-6">

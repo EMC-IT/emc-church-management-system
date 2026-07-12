@@ -368,7 +368,7 @@ export default function TitheOfferingReportsPage() {
                   </div>
                   <div className="text-right">
                     <div className="font-bold text-brand-success">{formatCurrency(giver.amount)}</div>
-                    <Badge variant="outline" className="text-xs">
+                    <Badge variant="neutral" className="text-xs">
                       Rank #{index + 1}
                     </Badge>
                   </div>

@@ -201,10 +201,10 @@ export default function EventGroupsPage() {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'Confirmed': return 'default';
-      case 'Pending': return 'secondary';
-      case 'Declined': return 'destructive';
-      default: return 'outline';
+      case 'Confirmed': return 'primary';
+      case 'Pending': return 'neutral';
+      case 'Declined': return 'danger';
+      default: return 'neutral';
     }
   };
 

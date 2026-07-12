@@ -240,17 +240,17 @@ export default function GivingDetailPage() {
   const getStatusBadge = (status: GivingStatus) => {
     switch (status) {
       case GivingStatus.COMPLETED:
-        return <Badge variant="default">Completed</Badge>;
+        return <Badge variant="primary">Completed</Badge>;
       case GivingStatus.PENDING:
-        return <Badge variant="secondary">Pending</Badge>;
+        return <Badge variant="neutral">Pending</Badge>;
       case GivingStatus.FAILED:
-        return <Badge variant="destructive">Failed</Badge>;
+        return <Badge variant="danger">Failed</Badge>;
       case GivingStatus.REFUNDED:
-        return <Badge variant="outline">Refunded</Badge>;
+        return <Badge variant="neutral">Refunded</Badge>;
       case GivingStatus.CANCELLED:
-        return <Badge variant="secondary">Cancelled</Badge>;
+        return <Badge variant="neutral">Cancelled</Badge>;
       default:
-        return <Badge variant="secondary">{status}</Badge>;
+        return <Badge variant="neutral">{status}</Badge>;
     }
   };
 

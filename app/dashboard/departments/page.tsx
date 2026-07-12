@@ -130,11 +130,11 @@ export default function DepartmentsPage() {
   const getStatusColor = (status: string) => {
     switch (status.toLowerCase()) {
       case 'active':
-        return 'default';
+        return 'primary';
       case 'inactive':
-        return 'secondary';
+        return 'neutral';
       default:
-        return 'default';
+        return 'primary';
     }
   };
 
@@ -177,7 +177,7 @@ export default function DepartmentsPage() {
         const category = categories.find(cat => cat.id === department.categoryId);
         return category ? (
           <Badge 
-            variant="outline" 
+            variant="neutral" 
             style={{ 
               borderColor: category.color,
               color: category.color,
@@ -187,7 +187,7 @@ export default function DepartmentsPage() {
             {category.name}
           </Badge>
         ) : (
-          <Badge variant="outline">Uncategorized</Badge>
+          <Badge variant="neutral">Uncategorized</Badge>
         );
       },
     },

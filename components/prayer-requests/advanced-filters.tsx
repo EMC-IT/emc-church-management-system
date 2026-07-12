@@ -97,7 +97,7 @@ export function AdvancedFilters({ onFilterChange, categories = [], prayerTeams =
           Advanced Filters
           {activeFilterCount > 0 && (
             <Badge 
-              variant="secondary" 
+              variant="neutral" 
               className="ml-2 h-5 w-5 rounded-full p-0 flex items-center justify-center bg-brand-primary text-white"
             >
               {activeFilterCount}
@@ -128,7 +128,7 @@ export function AdvancedFilters({ onFilterChange, categories = [], prayerTeams =
               {statusOptions.map(option => (
                 <Badge
                   key={option.value}
-                  variant={filters.status.includes(option.value) ? "default" : "outline"}
+                  variant={filters.status.includes(option.value) ? "primary" : "neutral"}
                   className={cn(
                     "cursor-pointer hover:opacity-80",
                     filters.status.includes(option.value) && "bg-brand-primary hover:bg-brand-primary/90"
@@ -151,7 +151,7 @@ export function AdvancedFilters({ onFilterChange, categories = [], prayerTeams =
               {priorityOptions.map(option => (
                 <Badge
                   key={option.value}
-                  variant={filters.priority.includes(option.value) ? "default" : "outline"}
+                  variant={filters.priority.includes(option.value) ? "primary" : "neutral"}
                   className={cn(
                     "cursor-pointer hover:opacity-80",
                     filters.priority.includes(option.value) && "bg-brand-primary hover:bg-brand-primary/90"
@@ -175,7 +175,7 @@ export function AdvancedFilters({ onFilterChange, categories = [], prayerTeams =
                 {categories.map(category => (
                   <Badge
                     key={category.id}
-                    variant={filters.category.includes(category.id) ? "default" : "outline"}
+                    variant={filters.category.includes(category.id) ? "primary" : "neutral"}
                     className={cn(
                       "cursor-pointer hover:opacity-80",
                       filters.category.includes(category.id) && "bg-brand-primary hover:bg-brand-primary/90"

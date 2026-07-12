@@ -324,7 +324,7 @@ export default function ExpenseCategoryDetailsPage() {
       cell: ({ row }: { row: any }) => {
         const expense = row.original as Expense;
         return (
-          <Badge variant="outline">
+          <Badge variant="neutral">
             {paymentMethods[expense.paymentMethod as keyof typeof paymentMethods] || expense.paymentMethod}
           </Badge>
         );
@@ -449,7 +449,7 @@ export default function ExpenseCategoryDetailsPage() {
               <div className="space-y-2">
                 <div className="text-sm text-gray-500">Status</div>
                 <Badge
-                  variant={category.isActive ? 'default' : 'secondary'}
+                  variant={category.isActive ? 'primary' : 'neutral'}
                   className={category.isActive ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}
                 >
                   {category.isActive ? 'Active' : 'Inactive'}

@@ -394,7 +394,7 @@ export default function GroupCategoriesPage() {
                   <div className="space-y-3">
                     <div className="flex items-center justify-between text-sm">
                       <span>Groups in category</span>
-                      <Badge variant="secondary">0</Badge>
+                      <Badge variant="neutral">0</Badge>
                     </div>
                     
                     <div className="flex items-center justify-between text-sm">

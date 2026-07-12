@@ -442,7 +442,7 @@ export default function ReportsPage() {
                       <h4 className="font-semibold">
                         Week of {new Date(trend.date).toLocaleDateString()}
                       </h4>
-                      <Badge variant={trend.rate >= 90 ? 'default' : trend.rate >= 80 ? 'secondary' : 'destructive'}>
+                      <Badge variant={trend.rate >= 90 ? 'primary' : trend.rate >= 80 ? 'neutral' : 'danger'}>
                         {trend.rate.toFixed(1)}%
                       </Badge>
                     </div>
@@ -495,7 +495,7 @@ export default function ReportsPage() {
                       </div>
                       <div className="flex items-center space-x-2">
                         {getTrendIcon(cls.trend)}
-                        <Badge variant="outline">{cls.totalStudents} students</Badge>
+                        <Badge variant="neutral">{cls.totalStudents} students</Badge>
                       </div>
                     </div>
                     
@@ -548,7 +548,7 @@ export default function ReportsPage() {
                     <div className="flex items-center justify-between mb-3">
                       <h4 className="font-semibold">{teacher.name}</h4>
                       <Badge 
-                        variant="outline" 
+                        variant="neutral" 
                         className={getWorkloadColor(teacher.workloadScore)}
                       >
                         Workload: {teacher.workloadScore}%
@@ -600,7 +600,7 @@ export default function ReportsPage() {
                   <div key={index} className="p-4 border rounded-lg">
                     <div className="flex items-center justify-between mb-3">
                       <h4 className="font-semibold">{group.ageGroup}</h4>
-                      <Badge variant="outline">{group.totalStudents} students</Badge>
+                      <Badge variant="neutral">{group.totalStudents} students</Badge>
                     </div>
                     
                     <div className="grid grid-cols-4 gap-4 text-sm">

@@ -109,11 +109,11 @@ export default function EventsPage() {
 
   const getStatusColor = (status: string) => {
     switch (status.toLowerCase()) {
-      case 'upcoming': return 'default';
-      case 'planning': return 'secondary';
-      case 'completed': return 'outline';
-      case 'cancelled': return 'destructive';
-      default: return 'default';
+      case 'upcoming': return 'primary';
+      case 'planning': return 'neutral';
+      case 'completed': return 'neutral';
+      case 'cancelled': return 'danger';
+      default: return 'primary';
     }
   };
 
@@ -380,7 +380,7 @@ export default function EventsPage() {
                       <span className="text-xs text-muted-foreground">{event.organizer}</span>
                     </div>
                     
-                    <Badge variant="outline" className="text-xs">
+                    <Badge variant="neutral" className="text-xs">
                       {event.category}
                     </Badge>
                   </div>

@@ -478,7 +478,7 @@ export default function PreferencesPage() {
                       <div className="space-y-0.5">
                         <Label className="flex items-center gap-2">
                           Weekly Digest
-                          <Badge variant="secondary" className="text-xs">Weekly</Badge>
+                          <Badge variant="neutral" className="text-xs">Weekly</Badge>
                         </Label>
                         <p className="text-sm text-muted-foreground">Summary of weekly analytics</p>
                       </div>
@@ -489,7 +489,7 @@ export default function PreferencesPage() {
                       <div className="space-y-0.5">
                         <Label className="flex items-center gap-2">
                           Monthly Report
-                          <Badge variant="secondary" className="text-xs">Monthly</Badge>
+                          <Badge variant="neutral" className="text-xs">Monthly</Badge>
                         </Label>
                         <p className="text-sm text-muted-foreground">Comprehensive monthly analytics report</p>
                       </div>

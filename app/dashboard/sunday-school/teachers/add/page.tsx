@@ -336,7 +336,7 @@ export default function AddTeacherPage() {
                   {formData.qualifications.length > 0 && (
                     <div className="flex flex-wrap gap-2 mt-2">
                       {formData.qualifications.map((qualification, index) => (
-                        <Badge key={index} variant="secondary" className="flex items-center space-x-1">
+                        <Badge key={index} variant="neutral" className="flex items-center space-x-1">
                           <span>{qualification}</span>
                           <button
                             type="button"

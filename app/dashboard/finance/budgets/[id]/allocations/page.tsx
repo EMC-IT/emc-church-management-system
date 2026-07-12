@@ -339,7 +339,7 @@ export default function BudgetAllocationsPage() {
                       </div>
                     </TableCell>
                     <TableCell>
-                      <Badge variant="outline">{allocation.type}</Badge>
+                      <Badge variant="neutral">{allocation.type}</Badge>
                     </TableCell>
                     <TableCell>₵{allocation.allocated.toLocaleString()}</TableCell>
                     <TableCell>₵{allocation.spent.toLocaleString()}</TableCell>
@@ -355,7 +355,7 @@ export default function BudgetAllocationsPage() {
                     <TableCell className="text-sm">{allocation.responsible}</TableCell>
                     <TableCell>
                       <Badge 
-                        variant={allocation.status === 'Active' ? 'default' : 'secondary'}
+                        variant={allocation.status === 'Active' ? 'primary' : 'neutral'}
                       >
                         {allocation.status}
                       </Badge>

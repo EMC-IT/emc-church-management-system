@@ -95,11 +95,11 @@ export default function EventDetailsPage() {
 
   const getStatusColor = (status: string) => {
     switch (status.toLowerCase()) {
-      case 'upcoming': return 'default';
-      case 'ongoing': return 'secondary';
-      case 'completed': return 'outline';
-      case 'cancelled': return 'destructive';
-      default: return 'default';
+      case 'upcoming': return 'primary';
+      case 'ongoing': return 'neutral';
+      case 'completed': return 'neutral';
+      case 'cancelled': return 'danger';
+      default: return 'primary';
     }
   };
 
@@ -176,7 +176,7 @@ export default function EventDetailsPage() {
                 <Badge variant={getStatusColor(event.status)}>
                   {event.status}
                 </Badge>
-                <Badge variant="outline">
+                <Badge variant="neutral">
                   {event.category}
                 </Badge>
               </div>
@@ -418,7 +418,7 @@ export default function EventDetailsPage() {
                       </div>
                       <div className="flex items-center gap-1">
                         {getStatusIcon(registration.status)}
-                        <Badge variant={registration.status === 'Confirmed' ? 'default' : 'secondary'}>
+                        <Badge variant={registration.status === 'Confirmed' ? 'primary' : 'neutral'}>
                           {registration.status}
                         </Badge>
                       </div>
@@ -459,7 +459,7 @@ export default function EventDetailsPage() {
                       </div>
                     </div>
                     
-                    <Badge variant={attendee.status === 'Present' ? 'default' : 'secondary'}>
+                    <Badge variant={attendee.status === 'Present' ? 'primary' : 'neutral'}>
                       {attendee.status}
                     </Badge>
                   </div>
@@ -488,7 +488,7 @@ export default function EventDetailsPage() {
                       <p className="font-medium">{group.name}</p>
                       <p className="text-sm text-muted-foreground">{group.role}</p>
                     </div>
-                    <Badge variant="outline">{group.role}</Badge>
+                    <Badge variant="neutral">{group.role}</Badge>
                   </div>
                 </CardContent>
               </Card>

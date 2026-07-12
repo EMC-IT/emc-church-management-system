@@ -564,7 +564,7 @@ export default function AnalyticsPage() {
                       <span className="text-sm text-muted-foreground">
                         {dept.members} members
                       </span>
-                      <Badge variant={dept.engagement >= 90 ? 'default' : dept.engagement >= 80 ? 'secondary' : 'destructive'}>
+                      <Badge variant={dept.engagement >= 90 ? 'primary' : dept.engagement >= 80 ? 'neutral' : 'danger'}>
                         {dept.engagement}%
                       </Badge>
                     </div>

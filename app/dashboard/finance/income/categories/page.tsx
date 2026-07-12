@@ -217,7 +217,7 @@ export default function IncomeCategoriesPage() {
       header: 'Records',
       cell: ({ row }) => (
         <div className="text-center">
-          <Badge variant="outline">
+          <Badge variant="neutral">
             {row.getValue('recordCount')} records
           </Badge>
         </div>
@@ -241,7 +241,7 @@ export default function IncomeCategoriesPage() {
       cell: ({ row }) => {
         const isActive = row.getValue('isActive') as boolean;
         return (
-          <Badge variant={isActive ? 'default' : 'secondary'}>
+          <Badge variant={isActive ? 'primary' : 'neutral'}>
             {isActive ? 'Active' : 'Inactive'}
           </Badge>
         );

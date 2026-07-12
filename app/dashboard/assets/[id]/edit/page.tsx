@@ -483,7 +483,7 @@ export default function EditAssetPage() {
                     {form.watch('tags') && form.watch('tags')!.length > 0 && (
                       <div className="flex flex-wrap gap-2">
                         {form.watch('tags')!.map((tag) => (
-                          <Badge key={tag} variant="secondary" className="cursor-pointer" onClick={() => handleRemoveTag(tag)}>
+                          <Badge key={tag} variant="neutral" className="cursor-pointer" onClick={() => handleRemoveTag(tag)}>
                             {tag}
                             <X className="ml-1 h-3 w-3" />
                           </Badge>

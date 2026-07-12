@@ -291,7 +291,7 @@ export default function ExpenseCategoriesPage() {
         const category = row.original as ExpenseCategory;
         return (
           <Badge 
-            variant={category.isActive ? 'default' : 'secondary'}
+            variant={category.isActive ? 'primary' : 'neutral'}
             className={category.isActive ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}
           >
             {category.isActive ? 'Active' : 'Inactive'}

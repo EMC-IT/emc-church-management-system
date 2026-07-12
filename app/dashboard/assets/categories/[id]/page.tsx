@@ -153,32 +153,32 @@ export default function CategoryDetailsPage() {
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'Active':
-        return <Badge variant="default" className="bg-brand-success">Active</Badge>;
+        return <Badge variant="primary" className="bg-brand-success">Active</Badge>;
       case 'Maintenance':
-        return <Badge variant="secondary">Maintenance</Badge>;
+        return <Badge variant="neutral">Maintenance</Badge>;
       case 'Retired':
-        return <Badge variant="outline">Retired</Badge>;
+        return <Badge variant="neutral">Retired</Badge>;
       case 'Disposed':
-        return <Badge variant="destructive">Disposed</Badge>;
+        return <Badge variant="danger">Disposed</Badge>;
       default:
-        return <Badge variant="outline">{status}</Badge>;
+        return <Badge variant="neutral">{status}</Badge>;
     }
   };
 
   const getConditionBadge = (condition: string) => {
     switch (condition) {
       case 'Excellent':
-        return <Badge variant="default" className="bg-brand-success">Excellent</Badge>;
+        return <Badge variant="primary" className="bg-brand-success">Excellent</Badge>;
       case 'Good':
-        return <Badge variant="default" className="bg-brand-secondary">Good</Badge>;
+        return <Badge variant="primary" className="bg-brand-secondary">Good</Badge>;
       case 'Fair':
-        return <Badge variant="secondary">Fair</Badge>;
+        return <Badge variant="neutral">Fair</Badge>;
       case 'Poor':
-        return <Badge variant="destructive">Poor</Badge>;
+        return <Badge variant="danger">Poor</Badge>;
       case 'Damaged':
-        return <Badge variant="destructive">Damaged</Badge>;
+        return <Badge variant="danger">Damaged</Badge>;
       default:
-        return <Badge variant="outline">{condition}</Badge>;
+        return <Badge variant="neutral">{condition}</Badge>;
     }
   };
 

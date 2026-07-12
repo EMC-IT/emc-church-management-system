@@ -327,7 +327,7 @@ export default function MaterialsPage() {
                   <div className="space-y-2">
                     <div className="flex items-center justify-between text-sm">
                       <span>Type:</span>
-                      <Badge variant="outline">{material.type}</Badge>
+                      <Badge variant="neutral">{material.type}</Badge>
                     </div>
                     
                     <div className="flex items-center justify-between text-sm">

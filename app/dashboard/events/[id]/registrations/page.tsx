@@ -166,11 +166,11 @@ export default function RegistrationsPage() {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'Confirmed': return 'default';
-      case 'Pending': return 'secondary';
-      case 'Waitlisted': return 'outline';
-      case 'Cancelled': return 'destructive';
-      default: return 'outline';
+      case 'Confirmed': return 'primary';
+      case 'Pending': return 'neutral';
+      case 'Waitlisted': return 'neutral';
+      case 'Cancelled': return 'danger';
+      default: return 'neutral';
     }
   };
 
@@ -592,7 +592,7 @@ export default function RegistrationsPage() {
                     </div>
                     
                     <div className="w-32">
-                      <Badge variant="outline" className="text-xs">
+                      <Badge variant="neutral" className="text-xs">
                         {registration.group}
                       </Badge>
                     </div>

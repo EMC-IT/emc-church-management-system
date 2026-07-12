@@ -363,7 +363,7 @@ export default function AddStudentsToClassPage() {
                   {filteredStudents.length} students available
                 </span>
                 {selectedStudents.size > 0 && (
-                  <Badge variant="secondary">
+                  <Badge variant="neutral">
                     {selectedStudents.size} selected
                   </Badge>
                 )}
@@ -445,9 +445,9 @@ export default function AddStudentsToClassPage() {
                     <div className="flex-1 space-y-1">
                       <div className="flex items-center space-x-2">
                         <h4 className="font-medium">{student.name}</h4>
-                        <Badge variant="outline">Age {student.age}</Badge>
+                        <Badge variant="neutral">Age {student.age}</Badge>
                         {!canSelect && !isSelected && (
-                          <Badge variant="destructive" className="text-xs">
+                          <Badge variant="danger" className="text-xs">
                             <AlertCircle className="h-3 w-3 mr-1" />
                             Capacity Full
                           </Badge>

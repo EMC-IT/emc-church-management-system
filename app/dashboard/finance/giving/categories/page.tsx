@@ -251,7 +251,7 @@ export default function GivingCategoriesPage() {
       cell: ({ row }) => {
         const isActive = row.getValue('isActive') as boolean;
         return (
-          <Badge variant={isActive ? 'default' : 'secondary'}>
+          <Badge variant={isActive ? 'primary' : 'neutral'}>
             {isActive ? 'Active' : 'Inactive'}
           </Badge>
         );

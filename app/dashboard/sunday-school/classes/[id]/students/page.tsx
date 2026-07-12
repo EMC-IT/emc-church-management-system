@@ -330,7 +330,7 @@ export default function ClassStudentsPage() {
                       <div className="space-y-1">
                         <div className="flex items-center space-x-2">
                           <h4 className="font-medium">{student.name}</h4>
-                          <Badge variant="outline">Age {student.age}</Badge>
+                          <Badge variant="neutral">Age {student.age}</Badge>
                         </div>
                         
                         <div className="flex items-center space-x-4 text-sm text-muted-foreground">

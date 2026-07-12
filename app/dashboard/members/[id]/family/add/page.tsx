@@ -546,9 +546,6 @@ export default function AddFamilyMemberPage() {
         <Card className="md:col-span-1">
           <CardHeader>
             <CardTitle>Family Member Preview</CardTitle>
-            <CardDescription>
-              Preview of how the family member will appear
-            </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="text-center">

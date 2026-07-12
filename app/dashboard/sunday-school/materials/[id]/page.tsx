@@ -377,7 +377,7 @@ export default function MaterialDetailsPage() {
               <div className="space-y-3">
                 <div className="flex justify-between">
                   <span className="text-sm font-medium">Type:</span>
-                  <Badge variant="outline">{material.type}</Badge>
+                  <Badge variant="neutral">{material.type}</Badge>
                 </div>
                 
                 <div className="flex justify-between">
@@ -425,7 +425,7 @@ export default function MaterialDetailsPage() {
                   </div>
                   <div className="flex flex-wrap gap-1">
                     {material.tags.map((tag, index) => (
-                      <Badge key={index} variant="secondary" className="text-xs">
+                      <Badge key={index} variant="neutral" className="text-xs">
                         {tag}
                       </Badge>
                     ))}
