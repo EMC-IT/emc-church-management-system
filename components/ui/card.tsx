@@ -38,6 +38,7 @@ const CardTitle = React.forwardRef<
   <div
     ref={ref}
     data-slot="card-title"
+    data-stat-title={className?.split(/\s+/).includes("text-sm") ? "" : undefined}
     className={cn(
       "text-2xl font-semibold leading-none tracking-tight",
       className
