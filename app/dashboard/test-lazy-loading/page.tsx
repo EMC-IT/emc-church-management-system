@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { PageHeader } from '@/components/ui/page-header';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Badge } from '@/components/ui/badge';
+import { StatusBadge } from '@/components/ui/status-badge';
 import { Separator } from '@/components/ui/separator';
 
 // Import all lazy loading components
@@ -160,9 +160,7 @@ export default function TestLazyLoadingPage() {
                             <h4 className="font-medium">{item.name}</h4>
                             <p className="text-sm text-muted-foreground">{item.description}</p>
                           </div>
-                          <Badge variant={item.status === 'active' ? 'primary' : 'neutral'}>
-                            {item.status}
-                          </Badge>
+                          <StatusBadge status={item.status} />
                         </div>
                       </CardContent>
                     </Card>

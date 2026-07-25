@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { PageHeader } from '@/components/ui/page-header';
 import { StatCard } from '@/components/ui/stat-card';
-import { Badge } from '@/components/ui/badge';
+import { StatusBadge } from '@/components/ui/status-badge';
 import { Checkbox } from '@/components/ui/checkbox';
 import { 
   Select,
@@ -217,15 +217,6 @@ export default function GroupAttendancePage() {
     const presentRecords = memberRecords.filter(a => a.status === 'present');
     
     return memberRecords.length > 0 ? Math.round((presentRecords.length / memberRecords.length) * 100) : 0;
-  };
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'present': return 'bg-green-100 text-green-800';
-      case 'absent': return 'bg-red-100 text-red-800';
-      case 'excused': return 'bg-yellow-100 text-yellow-800';
-      default: return 'bg-gray-100 text-gray-800';
-    }
   };
 
   const getStatusIcon = (status: string) => {
@@ -568,9 +559,7 @@ export default function GroupAttendancePage() {
                       <TableCell>
                         <div className="flex items-center space-x-2">
                           {getStatusIcon(record.status)}
-                          <Badge className={getStatusColor(record.status)}>
-                            {record.status}
-                          </Badge>
+                          <StatusBadge status={record.status} />
                         </div>
                       </TableCell>
                       <TableCell>

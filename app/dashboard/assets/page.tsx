@@ -23,6 +23,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { DataTable } from '@/components/ui/data-table';
 import { Badge } from '@/components/ui/badge';
+import { StatusBadge } from '@/components/ui/status-badge';
 import { LazySection } from '@/components/ui/lazy-section';
 import { Skeleton } from '@/components/ui/skeleton';
 import { PageHeader } from '@/components/ui/page-header';
@@ -214,37 +215,9 @@ export default function AssetsOverviewPage() {
     }).format(amount);
   };
 
-  const getStatusBadge = (status: AssetStatus) => {
-    switch (status) {
-      case AssetStatus.ACTIVE:
-        return <Badge variant="primary" className="bg-brand-success">Active</Badge>;
-      case AssetStatus.MAINTENANCE:
-        return <Badge variant="neutral" className="bg-brand-accent">Maintenance</Badge>;
-      case AssetStatus.RETIRED:
-        return <Badge variant="neutral">Retired</Badge>;
-      case AssetStatus.DAMAGED:
-        return <Badge variant="danger">Damaged</Badge>;
-      default:
-        return <Badge variant="neutral">{status}</Badge>;
-    }
-  };
+  const getStatusBadge = (status: AssetStatus) => <StatusBadge status={status} />;
 
-  const getConditionBadge = (condition: AssetCondition) => {
-    switch (condition) {
-      case AssetCondition.EXCELLENT:
-        return <Badge variant="primary" className="bg-brand-success">Excellent</Badge>;
-      case AssetCondition.GOOD:
-        return <Badge variant="primary" className="bg-brand-secondary">Good</Badge>;
-      case AssetCondition.FAIR:
-        return <Badge variant="neutral">Fair</Badge>;
-      case AssetCondition.POOR:
-        return <Badge variant="danger">Poor</Badge>;
-      case AssetCondition.DAMAGED:
-        return <Badge variant="danger">Damaged</Badge>;
-      default:
-        return <Badge variant="neutral">{condition}</Badge>;
-    }
-  };
+  const getConditionBadge = (condition: AssetCondition) => <StatusBadge status={condition} />;
 
   const getCategoryIcon = (category: AssetCategory) => {
     switch (category) {

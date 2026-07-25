@@ -10,7 +10,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Badge } from '@/components/ui/badge';
+import { StatusBadge } from '@/components/ui/status-badge';
 import { DataTable } from '@/components/ui/data-table';
 import { PageHeader } from '@/components/ui/page-header';
 import { useToast } from '@/hooks/use-toast';
@@ -276,7 +276,7 @@ export default function LinkFamilyMemberPage() {
       header: 'Status',
       cell: ({ row }) => {
         const status = row.getValue('membershipStatus') as string;
-        return <Badge variant={status === 'Active' ? 'primary' : 'neutral'}>{status}</Badge>;
+        return <StatusBadge status={status} />;
       },
     },
     {

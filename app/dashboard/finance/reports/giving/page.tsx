@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { PageHeader } from '@/components/ui/page-header';
 import { StatCard } from '@/components/ui/stat-card';
-import { Badge } from '@/components/ui/badge';
+import { GivingFrequencyBadge } from '@/components/ui/finance-badges';
 import { 
   Select,
   SelectContent,
@@ -100,16 +100,6 @@ export default function GivingReportsPage() {
   const router = useRouter();
   const [selectedPeriod, setSelectedPeriod] = useState('current-year');
   const [activeTab, setActiveTab] = useState('overview');
-
-  const getFrequencyColor = (frequency: string) => {
-    switch (frequency.toLowerCase()) {
-      case 'weekly': return 'bg-green-500/10 text-green-600';
-      case 'monthly': return 'bg-blue-500/10 text-blue-600';
-      case 'quarterly': return 'bg-orange-500/10 text-orange-600';
-      case 'annual': return 'bg-purple-500/10 text-purple-600';
-      default: return 'bg-gray-500/10 text-gray-600';
-    }
-  };
 
   // Chart configurations
   const categoryChartConfig = {
@@ -260,9 +250,7 @@ export default function GivingReportsPage() {
                       <div>
                         <p className="font-medium">{giver.name}</p>
                         <div className="flex items-center space-x-2 mt-1">
-                          <Badge variant="neutral" className={getFrequencyColor(giver.frequency)}>
-                            {giver.frequency}
-                          </Badge>
+                          <GivingFrequencyBadge frequency={giver.frequency} />
                           <span className="text-xs text-muted-foreground">
                             {giver.categories.join(', ')}
                           </span>

@@ -44,17 +44,17 @@ const initialFilters: FilterState = {
 };
 
 const statusOptions = [
-  { value: 'new', label: 'New', color: 'bg-blue-100 text-blue-800' },
-  { value: 'in-progress', label: 'In Progress', color: 'bg-yellow-100 text-yellow-800' },
-  { value: 'answered', label: 'Answered', color: 'bg-green-100 text-green-800' },
-  { value: 'closed', label: 'Closed', color: 'bg-gray-100 text-gray-800' },
+  { value: 'new', label: 'New' },
+  { value: 'in-progress', label: 'In Progress' },
+  { value: 'answered', label: 'Answered' },
+  { value: 'closed', label: 'Closed' },
 ];
 
 const priorityOptions = [
-  { value: 'low', label: 'Low', color: 'bg-gray-100 text-gray-800' },
-  { value: 'medium', label: 'Medium', color: 'bg-blue-100 text-blue-800' },
-  { value: 'high', label: 'High', color: 'bg-orange-100 text-orange-800' },
-  { value: 'urgent', label: 'Urgent', color: 'bg-red-100 text-red-800' },
+  { value: 'low', label: 'Low' },
+  { value: 'medium', label: 'Medium' },
+  { value: 'high', label: 'High' },
+  { value: 'urgent', label: 'Urgent' },
 ];
 
 export function AdvancedFilters({ onFilterChange, categories = [], prayerTeams = [] }: AdvancedFiltersProps) {
@@ -131,7 +131,7 @@ export function AdvancedFilters({ onFilterChange, categories = [], prayerTeams =
                   variant={filters.status.includes(option.value) ? "primary" : "neutral"}
                   className={cn(
                     "cursor-pointer hover:opacity-80",
-                    filters.status.includes(option.value) && "bg-brand-primary hover:bg-brand-primary/90"
+                    filters.status.includes(option.value) && "bg-brand-primary text-white hover:bg-brand-primary/90"
                   )}
                   onClick={() => toggleArrayFilter('status', option.value)}
                 >
@@ -154,7 +154,7 @@ export function AdvancedFilters({ onFilterChange, categories = [], prayerTeams =
                   variant={filters.priority.includes(option.value) ? "primary" : "neutral"}
                   className={cn(
                     "cursor-pointer hover:opacity-80",
-                    filters.priority.includes(option.value) && "bg-brand-primary hover:bg-brand-primary/90"
+                    filters.priority.includes(option.value) && "bg-brand-primary text-white hover:bg-brand-primary/90"
                   )}
                   onClick={() => toggleArrayFilter('priority', option.value)}
                 >
@@ -178,7 +178,7 @@ export function AdvancedFilters({ onFilterChange, categories = [], prayerTeams =
                     variant={filters.category.includes(category.id) ? "primary" : "neutral"}
                     className={cn(
                       "cursor-pointer hover:opacity-80",
-                      filters.category.includes(category.id) && "bg-brand-primary hover:bg-brand-primary/90"
+                      filters.category.includes(category.id) && "bg-brand-primary text-white hover:bg-brand-primary/90"
                     )}
                     onClick={() => toggleArrayFilter('category', category.id)}
                   >

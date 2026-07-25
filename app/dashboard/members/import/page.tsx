@@ -314,7 +314,7 @@ export default function ImportMembersPage() {
       cell: ({ row }) => {
         const data = row.original;
         if (data.status === 'valid') {
-          return <Badge variant="primary" className="bg-green-500">Valid</Badge>;
+          return <Badge variant="success">Valid</Badge>;
         } else if (data.status === 'invalid') {
           return <Badge variant="danger">Invalid</Badge>;
         } else {

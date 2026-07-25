@@ -9,7 +9,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { PageHeader } from '@/components/ui/page-header';
 import { StatCard } from '@/components/ui/stat-card';
-import { Badge } from '@/components/ui/badge';
+import { StatusBadge } from '@/components/ui/status-badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import {
   ArrowLeft,
@@ -509,9 +509,7 @@ export default function EventCategoriesPage() {
                       </div>
                       <div>
                         <h3 className="font-semibold">{category.name}</h3>
-                        <Badge variant={category.isActive ? 'primary' : 'neutral'}>
-                          {category.isActive ? 'Active' : 'Inactive'}
-                        </Badge>
+                        <StatusBadge status={category.isActive ? 'active' : 'inactive'} />
                       </div>
                     </div>
                     

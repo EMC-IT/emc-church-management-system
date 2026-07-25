@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { PageHeader } from '@/components/ui/page-header';
 import { StatCard } from '@/components/ui/stat-card';
-import { Badge } from '@/components/ui/badge';
+import { StatusBadge } from '@/components/ui/status-badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { 
@@ -125,15 +125,6 @@ export default function ClassDetailsPage() {
     );
   }
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'Active': return 'bg-brand-success';
-      case 'Inactive': return 'bg-yellow-500';
-      case 'Archived': return 'bg-gray-500';
-      default: return 'bg-gray-500';
-    }
-  };
-
   const getAttendanceRate = () => {
     if (recentAttendance.length === 0) return 0;
     const presentCount = recentAttendance.filter(a => a.status === 'Present').length;
@@ -196,7 +187,7 @@ export default function ClassDetailsPage() {
         />
         <StatCard
           title="Status"
-          value={<Badge className={getStatusColor(classData.status)}>{classData.status}</Badge>}
+          value={<StatusBadge status={classData.status} />}
           icon={Clock}
           accent="accent"
         />
@@ -442,12 +433,7 @@ export default function ClassDetailsPage() {
                           </p>
                         </div>
                       </div>
-                      <Badge 
-                        variant={record.status === 'Present' ? 'primary' : 'neutral'}
-                        className={record.status === 'Present' ? 'bg-brand-success' : ''}
-                      >
-                        {record.status}
-                      </Badge>
+                      <StatusBadge status={record.status} />
                     </div>
                   ))}
                   

@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { PageHeader } from '@/components/ui/page-header';
 import { StatCard } from '@/components/ui/stat-card';
 import { Badge } from '@/components/ui/badge';
+import { StatusBadge } from '@/components/ui/status-badge';
 import { 
   Select,
   SelectContent,
@@ -159,16 +160,6 @@ export default function ComparisonReportsPage() {
 
   const getGrowthIcon = (growth: number) => {
     return growth >= 0 ? <ArrowUpRight className="h-4 w-4" /> : <ArrowDownRight className="h-4 w-4" />;
-  };
-
-  const getStatusBadge = (status: string) => {
-    switch (status.toLowerCase()) {
-      case 'excellent': return 'primary';
-      case 'good': return 'neutral';
-      case 'fair': return 'neutral';
-      case 'poor': return 'danger';
-      default: return 'neutral';
-    }
   };
 
   const getPerformanceColor = (value: number, target: number) => {
@@ -504,9 +495,7 @@ export default function ComparisonReportsPage() {
                         <p className={`font-bold ${getGrowthColor(metric.value)}`}>
                           {metric.value >= 0 ? '+' : ''}{metric.value.toFixed(1)}%
                         </p>
-                        <Badge variant={getStatusBadge(metric.status)}>
-                          {metric.status}
-                        </Badge>
+                        <StatusBadge status={metric.status} />
                       </div>
                     </div>
                   ))}

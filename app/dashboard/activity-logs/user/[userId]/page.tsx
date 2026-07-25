@@ -7,7 +7,8 @@ import { PageHeader } from '@/components/ui/page-header';
 import { ChartHeader } from '@/components/ui/chart-header';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge';
+import { ActionBadge } from '@/components/ui/category-badges';
+import { StatusBadge } from '@/components/ui/status-badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
   Select,
@@ -414,31 +415,6 @@ export default function UserActivityHistoryPage() {
     setTimeout(() => setLoading(false), 1000);
   };
 
-  const getActionBadge = (action: string) => {
-    const colors: Record<string, string> = {
-      CREATE: 'bg-green-100 text-green-800',
-      UPDATE: 'bg-blue-100 text-blue-800',
-      DELETE: 'bg-red-100 text-red-800',
-      VIEW: 'bg-gray-100 text-gray-800',
-      LOGIN: 'bg-purple-100 text-purple-800',
-      LOGOUT: 'bg-purple-100 text-purple-800',
-      EXPORT: 'bg-yellow-100 text-yellow-800',
-      APPROVE: 'bg-green-100 text-green-800',
-      REJECT: 'bg-red-100 text-red-800',
-    };
-    return colors[action] || 'bg-gray-100 text-gray-800';
-  };
-
-  const getSeverityBadge = (severity: string) => {
-    const colors: Record<string, string> = {
-      LOW: 'bg-gray-100 text-gray-800',
-      MEDIUM: 'bg-blue-100 text-blue-800',
-      HIGH: 'bg-orange-100 text-orange-800',
-      CRITICAL: 'bg-red-100 text-red-800',
-    };
-    return colors[severity] || 'bg-gray-100 text-gray-800';
-  };
-
   const getStatusIcon = (status: string) => {
     switch (status) {
       case 'SUCCESS':
@@ -516,13 +492,7 @@ export default function UserActivityHistoryPage() {
                 </div>
               </div>
             </div>
-            <Badge className={
-              userProfile.status === 'Active' ? 'bg-green-100 text-green-800' :
-              userProfile.status === 'Inactive' ? 'bg-gray-100 text-gray-800' :
-              'bg-red-100 text-red-800'
-            }>
-              {userProfile.status}
-            </Badge>
+            <StatusBadge status={userProfile.status} />
           </div>
         </CardContent>
       </Card>
@@ -762,9 +732,7 @@ export default function UserActivityHistoryPage() {
                       <TableCell>{getStatusIcon(log.status)}</TableCell>
                       <TableCell>
                         <div className="space-y-1">
-                          <Badge className={getActionBadge(log.action)}>
-                            {log.action}
-                          </Badge>
+                          <ActionBadge action={log.action} />
                           <p className="text-sm">{log.actionDescription}</p>
                         </div>
                       </TableCell>
@@ -788,9 +756,7 @@ export default function UserActivityHistoryPage() {
                         </div>
                       </TableCell>
                       <TableCell>
-                        <Badge className={getSeverityBadge(log.severity)}>
-                          {log.severity}
-                        </Badge>
+                        <StatusBadge status={log.severity} />
                       </TableCell>
                       <TableCell className="text-right">
                         <Button
@@ -825,7 +791,7 @@ export default function UserActivityHistoryPage() {
                 <div className="bg-muted/50 rounded-lg p-4">
                   <h4 className="font-semibold mb-2">Action</h4>
                   <div className="flex items-center gap-2 mb-2">
-                    <Badge className={getActionBadge(selectedLog.action)}>{selectedLog.action}</Badge>
+                    <ActionBadge action={selectedLog.action} />
                     {getStatusIcon(selectedLog.status)}
                   </div>
                   <p className="text-sm">{selectedLog.actionDescription}</p>

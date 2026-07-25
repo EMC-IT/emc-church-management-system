@@ -7,7 +7,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { PageHeader } from '@/components/ui/page-header';
-import { Badge } from '@/components/ui/badge';
+import { DepartmentRoleBadge } from '@/components/ui/category-badges';
+import { StatusBadge } from '@/components/ui/status-badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
 import {
@@ -139,25 +140,6 @@ export default function DepartmentMembersPage() {
     }
   };
 
-  const getRoleBadgeColor = (role: string) => {
-    switch (role) {
-      case DepartmentRoleType.HEAD: return 'bg-blue-100 text-blue-800';
-      case DepartmentRoleType.ASSISTANT_HEAD: return 'bg-green-100 text-green-800';
-      case DepartmentRoleType.SECRETARY: return 'bg-purple-100 text-purple-800';
-      case DepartmentRoleType.TREASURER: return 'bg-orange-100 text-orange-800';
-      case DepartmentRoleType.COORDINATOR: return 'bg-yellow-100 text-yellow-800';
-      case DepartmentRoleType.MEMBER: return 'bg-gray-100 text-gray-800';
-      default: return 'bg-gray-100 text-gray-800';
-    }
-  };
-
-  const getStatusBadgeColor = (status: string) => {
-    switch (status) {
-      case 'active': return 'bg-green-100 text-green-800';
-      case 'inactive': return 'bg-red-100 text-red-800';
-      default: return 'bg-gray-100 text-gray-800';
-    }
-  };
 
   if (loading) {
     return (
@@ -337,12 +319,10 @@ export default function DepartmentMembersPage() {
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-1">
                         <h3 className="font-semibold">{member.memberName}</h3>
-                        <Badge className={getRoleBadgeColor(member.roles.length > 0 ? member.roles[0].roleType : 'member')}>
-                          {member.roles.length > 0 ? member.roles[0].roleType : 'member'}
-                        </Badge>
-                        <Badge className={getStatusBadgeColor(member.isActive ? 'active' : 'inactive')}>
-                          {member.isActive ? 'active' : 'inactive'}
-                        </Badge>
+                        <DepartmentRoleBadge
+                          role={member.roles.length > 0 ? member.roles[0].roleType : 'member'}
+                        />
+                        <StatusBadge status={member.isActive ? 'active' : 'inactive'} />
                       </div>
                       
                       <div className="flex items-center gap-4 text-sm text-muted-foreground">

@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { PageHeader } from '@/components/ui/page-header';
 import { StatCard } from '@/components/ui/stat-card';
 import { Badge } from '@/components/ui/badge';
+import { StatusBadge } from '@/components/ui/status-badge';
 import { 
   Select,
   SelectContent,
@@ -261,15 +262,6 @@ export default function ReportsPage() {
   const [selectedPeriod, setSelectedPeriod] = useState('current-quarter');
   const [activeTab, setActiveTab] = useState('overview');
 
-  const getStatusColor = (status: string) => {
-    switch (status.toLowerCase()) {
-      case 'on track': return 'primary';
-      case 'over budget': return 'danger';
-      case 'under budget': return 'neutral';
-      default: return 'primary';
-    }
-  };
-
   const getReportTypeColor = (type: string) => {
     switch (type.toLowerCase()) {
       case 'summary': return 'primary';
@@ -496,9 +488,7 @@ export default function ReportsPage() {
                             <span className="text-sm text-muted-foreground">
                               ₵{dept.spent.toLocaleString()} / ₵{dept.budget.toLocaleString()}
                             </span>
-                            <Badge variant={getStatusColor(dept.status)}>
-                              {dept.status}
-                            </Badge>
+                            <StatusBadge status={dept.status} />
                           </div>
                         </div>
                       </div>

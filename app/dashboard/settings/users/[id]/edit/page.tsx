@@ -16,7 +16,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Badge } from '@/components/ui/badge';
+import { StatusBadge } from '@/components/ui/status-badge';
 import { Separator } from '@/components/ui/separator';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { useToast } from '@/hooks/use-toast';
@@ -207,9 +207,7 @@ export default function EditUserPage() {
           </Button>
           <PageHeader title="Edit User" />
         </div>
-        <Badge variant={watchStatus === 'active' ? 'primary' : 'neutral'}>
-          {watchStatus}
-        </Badge>
+        <StatusBadge status={watchStatus} />
       </div>
 
       <Form {...form}>

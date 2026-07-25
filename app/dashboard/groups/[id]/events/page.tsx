@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { PageHeader } from '@/components/ui/page-header';
 import { StatCard } from '@/components/ui/stat-card';
-import { Badge } from '@/components/ui/badge';
+import { StatusBadge } from '@/components/ui/status-badge';
 import { 
   Select,
   SelectContent,
@@ -145,16 +145,6 @@ export default function GroupEventsPage() {
     }
   };
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'Upcoming': return 'bg-blue-100 text-blue-800';
-      case 'Ongoing': return 'bg-green-100 text-green-800';
-      case 'Completed': return 'bg-gray-100 text-gray-800';
-      case 'Cancelled': return 'bg-red-100 text-red-800';
-      default: return 'bg-gray-100 text-gray-800';
-    }
-  };
-
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-US', {
       weekday: 'short',
@@ -271,9 +261,7 @@ export default function GroupEventsPage() {
                       <div className="flex-1 space-y-3">
                         <div className="flex items-center space-x-2">
                           <h4 className="font-semibold text-lg">{event.title}</h4>
-                          <Badge className={getStatusColor(event.status)}>
-                            {event.status}
-                          </Badge>
+                          <StatusBadge status={event.status} />
                         </div>
                         
                         <p className="text-muted-foreground">{event.description}</p>

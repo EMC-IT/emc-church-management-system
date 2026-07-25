@@ -9,6 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { PageHeader } from '@/components/ui/page-header';
 import { StatCard } from '@/components/ui/stat-card';
 import { Badge } from '@/components/ui/badge';
+import { StatusBadge } from '@/components/ui/status-badge';
 import { Progress } from '@/components/ui/progress';
 import { 
   Select,
@@ -54,7 +55,7 @@ import {
   Tag,
   FileText,
   Users,
-  ArrowRight,
+  ChevronRight,
   Eye
 } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, BarChart, Bar } from 'recharts';
@@ -151,31 +152,23 @@ const departmentSpending = [
 const quickActions = [
   {
     title: 'Create Budget',
-    description: 'Set up new budget',
     href: '/dashboard/finance/budgets/add',
-    icon: Plus,
-    color: 'bg-brand-primary'
+    icon: Plus
   },
   {
     title: 'Manage Categories',
-    description: 'Budget categories',
     href: '/dashboard/finance/budgets/categories',
-    icon: Tag,
-    color: 'bg-brand-secondary'
+    icon: Tag
   },
   {
     title: 'View Reports',
-    description: 'Budget analytics',
     href: '/dashboard/finance/budgets/reports',
-    icon: BarChart3,
-    color: 'bg-brand-accent'
+    icon: BarChart3
   },
   {
     title: 'Allocate Funds',
-    description: 'Manage allocations',
     href: '/dashboard/finance/budgets/allocations',
-    icon: Users,
-    color: 'bg-brand-success'
+    icon: Users
   }
 ];
 
@@ -204,23 +197,6 @@ export default function BudgetsPage() {
     return matchesSearch && matchesStatus;
   });
 
-  const getStatusColor = (status: string) => {
-    switch (status.toLowerCase()) {
-      case 'active': return 'primary';
-      case 'completed': return 'neutral';
-      case 'exceeded': return 'danger';
-      case 'draft': return 'neutral';
-      default: return 'primary';
-    }
-  };
-
-  const getStatusIcon = (status: string) => {
-    switch (status.toLowerCase()) {
-      case 'active': return <CheckCircle className="h-4 w-4" />;
-      case 'exceeded': return <AlertTriangle className="h-4 w-4" />;
-      default: return null;
-    }
-  };
 
   const getUtilizationColor = (percentage: number) => {
     if (percentage > 100) return 'text-red-600';
@@ -303,24 +279,16 @@ export default function BudgetsPage() {
         <div className="space-y-4">
           <h2 className="text-xl font-semibold">Quick Actions</h2>
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-            {quickActions.map((action, index) => (
-              <Card key={index} className="group hover:shadow-md transition-shadow cursor-pointer">
-                <Link href={action.href} className="block p-4">
-                  <div className="flex items-center space-x-3">
-                    <div className={`p-2 rounded-lg ${action.color}`}>
-                      <action.icon className="h-5 w-5 text-white" />
-                    </div>
-                    <div className="flex-1">
-                      <h3 className="font-medium group-hover:text-brand-primary transition-colors">
-                        {action.title}
-                      </h3>
-                      <p className="text-sm text-muted-foreground">
-                        {action.description}
-                      </p>
-                    </div>
-                  </div>
-                </Link>
-              </Card>
+            {quickActions.map((action) => (
+              <Link
+                key={action.title}
+                href={action.href}
+                className="group flex items-center gap-4 rounded-lg border bg-background px-4 py-3 transition-colors hover:border-foreground/30 hover:bg-muted/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 active:bg-muted"
+              >
+                <action.icon className="h-5 w-5 text-foreground" />
+                <span className="flex-1 font-semibold">{action.title}</span>
+                <ChevronRight className="h-5 w-5 text-muted-foreground transition-transform group-hover:translate-x-1 group-hover:text-foreground" />
+              </Link>
             ))}
           </div>
         </div>
@@ -494,10 +462,7 @@ export default function BudgetsPage() {
                       </div>
                     </TableCell>
                     <TableCell>
-                      <Badge variant={getStatusColor(budget.status)} className="flex items-center space-x-1 w-fit">
-                        {getStatusIcon(budget.status)}
-                        <span>{budget.status}</span>
-                      </Badge>
+                      <StatusBadge status={budget.status} showIcon />
                     </TableCell>
                     <TableCell>{budget.owner}</TableCell>
                     <TableCell onClick={(e) => e.stopPropagation()}>

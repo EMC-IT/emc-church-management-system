@@ -8,6 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { PageHeader } from '@/components/ui/page-header';
 import { StatCard } from '@/components/ui/stat-card';
 import { Badge } from '@/components/ui/badge';
+import { EventGroupRoleBadge } from '@/components/ui/category-badges';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -216,17 +217,6 @@ export default function EventGroupsPage() {
       case 'Pending': return <AlertCircle className="h-4 w-4 text-yellow-500" />;
       case 'Declined': return <AlertCircle className="h-4 w-4 text-red-500" />;
       default: return <AlertCircle className="h-4 w-4 text-gray-500" />;
-    }
-  };
-
-  const getRoleColor = (role: string) => {
-    switch (role) {
-      case 'Leading': return 'bg-blue-100 text-blue-800';
-      case 'Supporting': return 'bg-green-100 text-green-800';
-      case 'Technical': return 'bg-purple-100 text-purple-800';
-      case 'Assisting': return 'bg-yellow-100 text-yellow-800';
-      case 'Coordinating': return 'bg-red-100 text-red-800';
-      default: return 'bg-gray-100 text-gray-800';
     }
   };
 
@@ -538,9 +528,7 @@ export default function EventGroupsPage() {
                         <div className="flex-1">
                           <div className="flex items-center gap-2 mb-2">
                             <h3 className="font-semibold">{groupData.name}</h3>
-                            <Badge className={getRoleColor(linkedGroup.role)}>
-                              {linkedGroup.role}
-                            </Badge>
+                            <EventGroupRoleBadge role={linkedGroup.role} />
                             <div className="flex items-center gap-1">
                               {getStatusIcon(linkedGroup.status)}
                               <Badge variant={getStatusColor(linkedGroup.status)}>

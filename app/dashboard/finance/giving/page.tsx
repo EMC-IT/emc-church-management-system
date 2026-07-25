@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { PageHeader } from '@/components/ui/page-header';
 import { StatCard } from '@/components/ui/stat-card';
 import { Badge } from '@/components/ui/badge';
+import { StatusBadge } from '@/components/ui/status-badge';
 import { DataTable } from '@/components/ui/data-table';
 import { SearchInput } from '@/components/ui/search-input';
 import { LazySection } from '@/components/ui/lazy-section';
@@ -21,10 +22,10 @@ import {
   Heart,
   PieChart,
   FileText,
-  ArrowRight
+  ArrowRight,
+  ChevronRight
 } from 'lucide-react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 import { useToast } from '@/hooks/use-toast';
 import { givingService } from '@/services';
 import { Giving, GivingType, GivingCategory, GivingStatus } from '@/lib/types';
@@ -106,31 +107,23 @@ const mockRecentGiving: Giving[] = [
 const quickActions = [
   {
     title: 'Categories',
-    description: 'Manage giving categories',
     icon: PieChart,
-    href: '/dashboard/finance/giving/categories',
-    color: 'bg-blue-500'
+    href: '/dashboard/finance/giving/categories'
   },
   {
     title: 'Pledges',
-    description: 'Track member pledges',
     icon: Target,
-    href: '/dashboard/finance/giving/pledges',
-    color: 'bg-green-500'
+    href: '/dashboard/finance/giving/pledges'
   },
   {
     title: 'Donations',
-    description: 'Record donations',
     icon: Heart,
-    href: '/dashboard/finance/giving/donations',
-    color: 'bg-purple-500'
+    href: '/dashboard/finance/giving/donations'
   },
   {
     title: 'Reports',
-    description: 'View giving reports',
     icon: FileText,
-    href: '/dashboard/finance/giving/reports',
-    color: 'bg-orange-500'
+    href: '/dashboard/finance/giving/reports'
   }
 ];
 
@@ -139,7 +132,6 @@ export default function GivingOverviewPage() {
   const [recentGiving, setRecentGiving] = useState<Giving[]>(mockRecentGiving);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const router = useRouter();
   const { toast } = useToast();
 
   useEffect(() => {
@@ -193,18 +185,7 @@ export default function GivingOverviewPage() {
     }
   };
 
-  const getStatusBadge = (status: GivingStatus) => {
-    switch (status) {
-      case GivingStatus.COMPLETED:
-        return <Badge variant="primary" className="bg-green-100 text-green-800">Completed</Badge>;
-      case GivingStatus.PENDING:
-        return <Badge variant="neutral">Pending</Badge>;
-      case GivingStatus.FAILED:
-        return <Badge variant="danger">Failed</Badge>;
-      default:
-        return <Badge variant="neutral">{status}</Badge>;
-    }
-  };
+  const getStatusBadge = (status: GivingStatus) => <StatusBadge status={status} />;
 
   const columns: ColumnDef<Giving>[] = [
     {
@@ -356,20 +337,15 @@ export default function GivingOverviewPage() {
         {quickActions.map((action) => {
           const IconComponent = action.icon;
           return (
-            <Card key={action.title} className="hover:shadow-md transition-shadow cursor-pointer" onClick={() => router.push(action.href)}>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">{action.title}</CardTitle>
-                <div className={`p-2 rounded-md ${action.color}`}>
-                  <IconComponent className="h-4 w-4 text-white" />
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-muted-foreground">Manage</span>
-                  <ArrowRight className="h-4 w-4 text-muted-foreground" />
-                </div>
-              </CardContent>
-            </Card>
+            <Link
+              key={action.title}
+              href={action.href}
+              className="group flex items-center gap-4 rounded-lg border bg-background px-4 py-3 transition-colors hover:border-foreground/30 hover:bg-muted/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 active:bg-muted"
+            >
+              <IconComponent className="h-5 w-5 text-foreground" />
+              <span className="flex-1 font-semibold">{action.title}</span>
+              <ChevronRight className="h-5 w-5 text-muted-foreground transition-transform group-hover:translate-x-1 group-hover:text-foreground" />
+            </Link>
           );
         })}
       </LazySection>

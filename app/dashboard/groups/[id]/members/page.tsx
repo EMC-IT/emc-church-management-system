@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { PageHeader } from '@/components/ui/page-header';
-import { Badge } from '@/components/ui/badge';
+import { StatusBadge } from '@/components/ui/status-badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { 
   Select,
@@ -167,9 +167,6 @@ export default function GroupMembersPage() {
     return <IconComponent className="h-4 w-4" />;
   };
 
-  const getStatusColor = (status: string) => {
-    return status === 'Active' ? 'bg-brand-success' : 'bg-yellow-500';
-  };
 
   if (loading) {
     return (
@@ -329,9 +326,7 @@ export default function GroupMembersPage() {
                       <div className="space-y-1">
                         <div className="flex items-center space-x-2">
                           <h4 className="font-medium">{member.memberName}</h4>
-                          <Badge className={getStatusColor(member.status)}>
-                            {member.status}
-                          </Badge>
+                          <StatusBadge status={member.status} />
                         </div>
                         
                         <div className="flex items-center space-x-4 text-sm text-muted-foreground">

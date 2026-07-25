@@ -17,7 +17,8 @@ import {
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
+import { GivingTypeBadge } from '@/components/ui/finance-badges';
+import { StatusBadge } from '@/components/ui/status-badge';
 import { Separator } from '@/components/ui/separator';
 import { LazySection } from '@/components/ui/lazy-section';
 import { DeleteDialog, useDeleteDialog } from '@/components/ui/delete-dialog';
@@ -112,20 +113,7 @@ export default function CategoryDetailsPage() {
     }).format(amount);
   };
 
-  const getTypeBadge = (type: string) => {
-    switch (type) {
-      case 'Tithe':
-        return <Badge variant="primary" className="bg-brand-primary">Tithe</Badge>;
-      case 'Offering':
-        return <Badge variant="primary" className="bg-brand-secondary">Offering</Badge>;
-      case 'First Fruits':
-        return <Badge variant="primary" className="bg-brand-accent">First Fruits</Badge>;
-      case 'Special Offering':
-        return <Badge variant="primary" className="bg-brand-success">Special</Badge>;
-      default:
-        return <Badge variant="neutral">{type}</Badge>;
-    }
-  };
+  const getTypeBadge = (type: string) => <GivingTypeBadge type={type} />;
 
   const handleDelete = async () => {
     try {
@@ -264,9 +252,7 @@ export default function CategoryDetailsPage() {
 
                 <div className="flex items-center justify-between">
                   <span className="text-sm font-medium text-muted-foreground">Status</span>
-                  <Badge variant={category.isActive ? 'primary' : 'neutral'}>
-                    {category.isActive ? 'Active' : 'Inactive'}
-                  </Badge>
+                  <StatusBadge status={category.isActive ? 'active' : 'inactive'} />
                 </div>
 
                 <Separator />

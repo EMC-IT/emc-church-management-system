@@ -1,10 +1,9 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
+import { StatusBadge } from '@/components/ui/status-badge';
 import { DataTable } from '@/components/ui/data-table';
 import { PageHeader } from '@/components/ui/page-header';
 import { StatCard } from '@/components/ui/stat-card';
@@ -28,7 +27,8 @@ import {
   Download,
   BarChart3,
   PieChart,
-  Activity
+  Activity,
+  ChevronRight
 } from 'lucide-react';
 import Link from 'next/link';
 import { ColumnDef } from '@tanstack/react-table';
@@ -40,7 +40,6 @@ export default function FinanceOverviewPage() {
   const [recentTithes, setRecentTithes] = useState<TitheOffering[]>([]);
   const [recentExpenses, setRecentExpenses] = useState<Expense[]>([]);
   const [loading, setLoading] = useState(true);
-  const router = useRouter();
   const { toast } = useToast();
 
   // Load finance data
@@ -131,17 +130,7 @@ export default function FinanceOverviewPage() {
       header: 'Status',
       cell: ({ row }) => {
         const donation = row.original;
-        const statusColors = {
-          'Confirmed': 'bg-green-500',
-          'Pending': 'bg-yellow-500',
-          'Rejected': 'bg-red-500',
-          'Refunded': 'bg-gray-500'
-        };
-        return (
-          <Badge className={statusColors[donation.status]}>
-            {donation.status}
-          </Badge>
-        );
+        return <StatusBadge status={donation.status} />;
       },
     },
   ];
@@ -192,18 +181,7 @@ export default function FinanceOverviewPage() {
       header: 'Status',
       cell: ({ row }) => {
         const expense = row.original;
-        const statusColors = {
-          'Paid': 'bg-green-500',
-          'Pending': 'bg-yellow-500',
-          'Approved': 'bg-blue-500',
-          'Rejected': 'bg-red-500',
-          'Cancelled': 'bg-gray-500'
-        };
-        return (
-          <Badge className={statusColors[expense.status]}>
-            {expense.status}
-          </Badge>
-        );
+        return <StatusBadge status={expense.status} />;
       },
     },
   ];
@@ -280,57 +258,41 @@ export default function FinanceOverviewPage() {
 
       {/* Quick Actions */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => router.push('/dashboard/finance/giving')}>
-          <CardContent className="p-6">
-            <div className="flex items-center space-x-4">
-              <div className="p-2 bg-blue-100 rounded-lg">
-                <Receipt className="h-6 w-6 text-blue-600" />
-              </div>
-              <div>
-                <h3 className="font-semibold">Giving</h3>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+        <Link
+          href="/dashboard/finance/giving"
+          className="group flex items-center gap-4 rounded-lg border bg-background px-4 py-3 transition-colors hover:border-foreground/30 hover:bg-muted/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 active:bg-muted"
+        >
+          <Receipt className="h-5 w-5 text-foreground" />
+          <span className="flex-1 font-semibold">Giving</span>
+          <ChevronRight className="h-5 w-5 text-muted-foreground transition-transform group-hover:translate-x-1 group-hover:text-foreground" />
+        </Link>
 
-        <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => router.push('/dashboard/finance/tithes-offerings')}>
-          <CardContent className="p-6">
-            <div className="flex items-center space-x-4">
-              <div className="p-2 bg-green-100 rounded-lg">
-                <Heart className="h-6 w-6 text-green-600" />
-              </div>
-              <div>
-                <h3 className="font-semibold">Tithes & Offerings</h3>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+        <Link
+          href="/dashboard/finance/tithes-offerings"
+          className="group flex items-center gap-4 rounded-lg border bg-background px-4 py-3 transition-colors hover:border-foreground/30 hover:bg-muted/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 active:bg-muted"
+        >
+          <Heart className="h-5 w-5 text-foreground" />
+          <span className="flex-1 font-semibold">Tithes & Offerings</span>
+          <ChevronRight className="h-5 w-5 text-muted-foreground transition-transform group-hover:translate-x-1 group-hover:text-foreground" />
+        </Link>
 
-        <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => router.push('/dashboard/finance/expenses')}>
-          <CardContent className="p-6">
-            <div className="flex items-center space-x-4">
-              <div className="p-2 bg-red-100 rounded-lg">
-                <CreditCard className="h-6 w-6 text-red-600" />
-              </div>
-              <div>
-                <h3 className="font-semibold">Expenses</h3>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+        <Link
+          href="/dashboard/finance/expenses"
+          className="group flex items-center gap-4 rounded-lg border bg-background px-4 py-3 transition-colors hover:border-foreground/30 hover:bg-muted/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 active:bg-muted"
+        >
+          <CreditCard className="h-5 w-5 text-foreground" />
+          <span className="flex-1 font-semibold">Expenses</span>
+          <ChevronRight className="h-5 w-5 text-muted-foreground transition-transform group-hover:translate-x-1 group-hover:text-foreground" />
+        </Link>
 
-        <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => router.push('/dashboard/finance/budgets')}>
-          <CardContent className="p-6">
-            <div className="flex items-center space-x-4">
-              <div className="p-2 bg-purple-100 rounded-lg">
-                <Building className="h-6 w-6 text-purple-600" />
-              </div>
-              <div>
-                <h3 className="font-semibold">Budgets</h3>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+        <Link
+          href="/dashboard/finance/budgets"
+          className="group flex items-center gap-4 rounded-lg border bg-background px-4 py-3 transition-colors hover:border-foreground/30 hover:bg-muted/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 active:bg-muted"
+        >
+          <Building className="h-5 w-5 text-foreground" />
+          <span className="flex-1 font-semibold">Budgets</span>
+          <ChevronRight className="h-5 w-5 text-muted-foreground transition-transform group-hover:translate-x-1 group-hover:text-foreground" />
+        </Link>
       </div>
 
       {/* Charts and Analytics */}

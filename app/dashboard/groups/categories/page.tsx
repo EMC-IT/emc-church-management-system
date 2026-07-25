@@ -10,6 +10,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { PageHeader } from '@/components/ui/page-header';
 import { StatCard } from '@/components/ui/stat-card';
 import { Badge } from '@/components/ui/badge';
+import { StatusBadge } from '@/components/ui/status-badge';
 import {
   Dialog,
   DialogContent,
@@ -399,9 +400,7 @@ export default function GroupCategoriesPage() {
                     
                     <div className="flex items-center justify-between text-sm">
                       <span>Status</span>
-                      <Badge className={category.isActive ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}>
-                        {category.isActive ? 'Active' : 'Inactive'}
-                      </Badge>
+                      <StatusBadge status={category.isActive ? 'active' : 'inactive'} />
                     </div>
                     
 

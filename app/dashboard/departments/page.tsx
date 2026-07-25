@@ -138,11 +138,6 @@ export default function DepartmentsPage() {
     }
   };
 
-  const getCategoryBadgeColor = (categoryId?: string) => {
-    const category = categories.find(cat => cat.id === categoryId);
-    return category?.color || '#6B7280';
-  };
-
   const columns = [
     {
       accessorKey: 'name',

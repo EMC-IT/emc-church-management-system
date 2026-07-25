@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { PageHeader } from '@/components/ui/page-header';
 import { StatCard } from '@/components/ui/stat-card';
-import { Badge } from '@/components/ui/badge';
+import { StatusBadge } from '@/components/ui/status-badge';
 import { 
   Select,
   SelectContent,
@@ -213,25 +213,6 @@ export default function AssetReportsPage() {
   const [selectedPeriod, setSelectedPeriod] = useState('current-year');
   const [activeTab, setActiveTab] = useState('overview');
 
-  const getConditionColor = (condition: string) => {
-    switch (condition.toLowerCase()) {
-      case 'excellent': return 'text-green-600';
-      case 'good': return 'text-blue-600';
-      case 'fair': return 'text-orange-600';
-      case 'poor': return 'text-red-600';
-      default: return 'text-gray-600';
-    }
-  };
-
-  const getConditionBadge = (condition: string) => {
-    switch (condition.toLowerCase()) {
-      case 'excellent': return 'primary';
-      case 'good': return 'neutral';
-      case 'fair': return 'neutral';
-      case 'poor': return 'danger';
-      default: return 'neutral';
-    }
-  };
 
   const getPriorityIcon = (priority: string) => {
     switch (priority) {
@@ -414,9 +395,7 @@ export default function AssetReportsPage() {
                       </div>
                       <div className="text-right">
                         <p className="font-semibold text-sm">₵{asset.currentValue.toLocaleString()}</p>
-                        <Badge variant={getConditionBadge(asset.condition)} className="text-xs">
-                          {asset.condition}
-                        </Badge>
+                        <StatusBadge status={asset.condition} size="sm" />
                       </div>
                     </div>
                   ))}

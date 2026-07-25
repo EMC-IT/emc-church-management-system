@@ -8,6 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { PageHeader } from '@/components/ui/page-header';
 import { StatCard } from '@/components/ui/stat-card';
 import { Badge } from '@/components/ui/badge';
+import { StatusBadge } from '@/components/ui/status-badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Progress } from '@/components/ui/progress';
 import {
@@ -104,19 +105,6 @@ export default function ClassesPage() {
 
   const handleManageStudents = (classId: string) => {
     router.push(`/dashboard/sunday-school/classes/${classId}/students`);
-  };
-
-  const getStatusColor = (status: ClassStatus) => {
-    switch (status) {
-      case ClassStatus.ACTIVE:
-        return 'bg-brand-success';
-      case ClassStatus.INACTIVE:
-        return 'bg-yellow-500';
-      case ClassStatus.SUSPENDED:
-        return 'bg-red-500';
-      default:
-        return 'bg-gray-500';
-    }
   };
 
   const getAttendanceColor = (rate: number) => {
@@ -305,12 +293,7 @@ export default function ClassesPage() {
                       <span className="text-xs text-muted-foreground">{cls.teacher.name}</span>
                     </div>
                     
-                    <Badge 
-                      variant={cls.status === ClassStatus.ACTIVE ? 'primary' : 'neutral'}
-                      className={cls.status === ClassStatus.ACTIVE ? getStatusColor(cls.status) : ''}
-                    >
-                      {cls.status}
-                    </Badge>
+                    <StatusBadge status={cls.status} />
                   </div>
                   
                   <Button 

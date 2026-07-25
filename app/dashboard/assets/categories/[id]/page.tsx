@@ -19,7 +19,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { DataTable } from '@/components/ui/data-table';
-import { Badge } from '@/components/ui/badge';
+import { StatusBadge } from '@/components/ui/status-badge';
 import { LazySection } from '@/components/ui/lazy-section';
 import { Skeleton } from '@/components/ui/skeleton';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
@@ -150,37 +150,9 @@ export default function CategoryDetailsPage() {
     }).format(amount);
   };
 
-  const getStatusBadge = (status: string) => {
-    switch (status) {
-      case 'Active':
-        return <Badge variant="primary" className="bg-brand-success">Active</Badge>;
-      case 'Maintenance':
-        return <Badge variant="neutral">Maintenance</Badge>;
-      case 'Retired':
-        return <Badge variant="neutral">Retired</Badge>;
-      case 'Disposed':
-        return <Badge variant="danger">Disposed</Badge>;
-      default:
-        return <Badge variant="neutral">{status}</Badge>;
-    }
-  };
+  const getStatusBadge = (status: string) => <StatusBadge status={status} />;
 
-  const getConditionBadge = (condition: string) => {
-    switch (condition) {
-      case 'Excellent':
-        return <Badge variant="primary" className="bg-brand-success">Excellent</Badge>;
-      case 'Good':
-        return <Badge variant="primary" className="bg-brand-secondary">Good</Badge>;
-      case 'Fair':
-        return <Badge variant="neutral">Fair</Badge>;
-      case 'Poor':
-        return <Badge variant="danger">Poor</Badge>;
-      case 'Damaged':
-        return <Badge variant="danger">Damaged</Badge>;
-      default:
-        return <Badge variant="neutral">{condition}</Badge>;
-    }
-  };
+  const getConditionBadge = (condition: string) => <StatusBadge status={condition} />;
 
   const columns: ColumnDef<Asset>[] = [
     {

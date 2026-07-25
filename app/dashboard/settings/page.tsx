@@ -12,6 +12,7 @@ import { PageHeader } from '@/components/ui/page-header';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Switch } from '@/components/ui/switch';
 import { Badge } from '@/components/ui/badge';
+import { StatusBadge } from '@/components/ui/status-badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { 
   Select,
@@ -438,9 +439,7 @@ export default function SettingsPage() {
                         <Badge variant="neutral">{user.role}</Badge>
                       </TableCell>
                       <TableCell>
-                        <Badge variant={user.status === 'Active' ? 'primary' : 'neutral'}>
-                          {user.status}
-                        </Badge>
+                        <StatusBadge status={user.status} />
                       </TableCell>
                       <TableCell>{user.lastLogin}</TableCell>
                       <TableCell>

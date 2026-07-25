@@ -5,6 +5,8 @@ import { useParams, useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { GivingCategoryBadge } from '@/components/ui/finance-badges';
+import { StatusBadge } from '@/components/ui/status-badge';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
@@ -188,56 +190,9 @@ export default function DonationDetailsPage() {
     }).format(amount);
   };
 
-  const getStatusBadge = (status: GivingStatus) => {
-    switch (status) {
-      case GivingStatus.COMPLETED:
-        return (
-          <Badge variant="primary" className="bg-green-100 text-green-800">
-            <CheckCircle className="mr-1 h-3 w-3" />
-            Completed
-          </Badge>
-        );
-      case GivingStatus.PENDING:
-        return (
-          <Badge variant="neutral">
-            <Clock className="mr-1 h-3 w-3" />
-            Pending
-          </Badge>
-        );
-      case GivingStatus.FAILED:
-        return (
-          <Badge variant="danger">
-            <AlertCircle className="mr-1 h-3 w-3" />
-            Failed
-          </Badge>
-        );
-      default:
-        return <Badge variant="neutral">{status}</Badge>;
-    }
-  };
+  const getStatusBadge = (status: GivingStatus) => <StatusBadge status={status} showIcon />;
 
-  const getCategoryBadge = (category: GivingCategory) => {
-    const colors = {
-      [GivingCategory.GENERAL]: 'bg-gray-100 text-gray-800',
-      [GivingCategory.BUILDING_FUND]: 'bg-orange-100 text-orange-800',
-      [GivingCategory.MISSIONARY]: 'bg-purple-100 text-purple-800',
-      [GivingCategory.YOUTH]: 'bg-pink-100 text-pink-800',
-      [GivingCategory.CHILDREN]: 'bg-blue-100 text-blue-800',
-      [GivingCategory.MUSIC]: 'bg-green-100 text-green-800',
-      [GivingCategory.OUTREACH]: 'bg-indigo-100 text-indigo-800',
-      [GivingCategory.CHARITY]: 'bg-red-100 text-red-800',
-      [GivingCategory.EDUCATION]: 'bg-yellow-100 text-yellow-800',
-      [GivingCategory.MEDICAL]: 'bg-teal-100 text-teal-800',
-      [GivingCategory.DISASTER_RELIEF]: 'bg-rose-100 text-rose-800',
-      [GivingCategory.OTHER]: 'bg-slate-100 text-slate-800',
-    };
-    
-    return (
-      <Badge className={colors[category] || 'bg-gray-100 text-gray-800'}>
-        {category.replace('_', ' ')}
-      </Badge>
-    );
-  };
+  const getCategoryBadge = (category: GivingCategory) => <GivingCategoryBadge category={category} />;
 
   const getMethodIcon = (method: string) => {
     switch (method) {

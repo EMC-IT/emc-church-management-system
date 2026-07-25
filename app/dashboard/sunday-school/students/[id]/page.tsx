@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { PageHeader } from '@/components/ui/page-header';
 import { StatCard } from '@/components/ui/stat-card';
 import { Badge } from '@/components/ui/badge';
+import { StatusBadge } from '@/components/ui/status-badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -224,9 +225,7 @@ export default function StudentProfilePage() {
                   <div>
                     <h3 className="text-lg font-semibold">{student.name}</h3>
                     <p className="text-muted-foreground">Age {student.age}</p>
-                    <Badge variant={student.status === 'Active' ? 'primary' : 'neutral'}>
-                      {student.status}
-                    </Badge>
+                    <StatusBadge status={student.status} />
                   </div>
                 </div>
                 

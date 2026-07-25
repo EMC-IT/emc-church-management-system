@@ -24,6 +24,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { StatusBadge } from '@/components/ui/status-badge';
 import { DataTable } from '@/components/ui/data-table';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -451,12 +452,7 @@ export default function ExpenseCategoryDetailsPage() {
 
               <div className="space-y-2">
                 <div className="text-sm text-gray-500">Status</div>
-                <Badge
-                  variant={category.isActive ? 'primary' : 'neutral'}
-                  className={category.isActive ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}
-                >
-                  {category.isActive ? 'Active' : 'Inactive'}
-                </Badge>
+                <StatusBadge status={category.isActive ? 'active' : 'inactive'} />
               </div>
 
               <div className="space-y-2">

@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import {
   Plus,
@@ -12,13 +11,15 @@ import {
   ArrowRight,
   Receipt,
   Tag,
-  BarChart3
+  BarChart3,
+  ChevronRight
 } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { DataTable } from '@/components/ui/data-table';
 import { Badge } from '@/components/ui/badge';
+import { StatusBadge } from '@/components/ui/status-badge';
 import { LazySection } from '@/components/ui/lazy-section';
 import { LazyLoader } from '@/components/ui/lazy-loader';
 import { PageHeader } from '@/components/ui/page-header';
@@ -50,31 +51,23 @@ const expenseStats = {
 const quickActions = [
   {
     title: 'Record Expense',
-    description: 'Add new expense entry',
     href: '/dashboard/finance/expenses/add',
-    icon: Plus,
-    color: 'bg-brand-primary'
+    icon: Plus
   },
   {
     title: 'Categories',
-    description: 'Manage expense categories',
     href: '/dashboard/finance/expenses/categories',
-    icon: Tag,
-    color: 'bg-brand-secondary'
+    icon: Tag
   },
   {
     title: 'Reports',
-    description: 'View expense reports',
     href: '/dashboard/finance/expenses/reports',
-    icon: BarChart3,
-    color: 'bg-brand-accent'
+    icon: BarChart3
   },
   {
     title: 'Export Data',
-    description: 'Export expense data',
     href: '/dashboard/finance/expenses/reports?export=true',
-    icon: FileText,
-    color: 'bg-brand-success'
+    icon: FileText
   }
 ];
 
@@ -132,7 +125,6 @@ const recentExpenses = [
 ];
 
 export default function ExpensesOverviewPage() {
-  const router = useRouter();
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -151,18 +143,7 @@ export default function ExpensesOverviewPage() {
     }).format(amount);
   };
 
-  const getStatusBadge = (status: string) => {
-    switch (status) {
-      case 'paid':
-        return <Badge variant="primary" className="bg-brand-success">Paid</Badge>;
-      case 'pending':
-        return <Badge variant="neutral">Pending</Badge>;
-      case 'cancelled':
-        return <Badge variant="danger">Cancelled</Badge>;
-      default:
-        return <Badge variant="neutral">{status}</Badge>;
-    }
-  };
+  const getStatusBadge = (status: string) => <StatusBadge status={status} />;
 
   const columns: ColumnDef<ExpenseRecord>[] = [
     {
@@ -292,23 +273,15 @@ export default function ExpensesOverviewPage() {
         {quickActions.map((action) => {
           const IconComponent = action.icon;
           return (
-            <Card key={action.title} className="hover:shadow-md transition-shadow cursor-pointer" onClick={() => router.push(action.href)}>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <div>
-                  <CardTitle className="text-sm font-medium">{action.title}</CardTitle>
-                  <CardDescription className="text-xs">{action.description}</CardDescription>
-                </div>
-                <div className={`p-2 rounded-md ${action.color}`}>
-                  <IconComponent className="h-4 w-4 text-white" />
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-muted-foreground">Manage</span>
-                  <ArrowRight className="h-4 w-4 text-muted-foreground" />
-                </div>
-              </CardContent>
-            </Card>
+            <Link
+              key={action.title}
+              href={action.href}
+              className="group flex items-center gap-4 rounded-lg border bg-background px-4 py-3 transition-colors hover:border-foreground/30 hover:bg-muted/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 active:bg-muted"
+            >
+              <IconComponent className="h-5 w-5 text-foreground" />
+              <span className="flex-1 font-semibold">{action.title}</span>
+              <ChevronRight className="h-5 w-5 text-muted-foreground transition-transform group-hover:translate-x-1 group-hover:text-foreground" />
+            </Link>
           );
         })}
       </LazySection>

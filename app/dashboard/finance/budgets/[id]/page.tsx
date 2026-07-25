@@ -8,6 +8,7 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { StatusBadge } from '@/components/ui/status-badge';
 import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -168,19 +169,6 @@ export default function BudgetDetailsPage() {
     }
   };
 
-  const getStatusVariant = (status: string) => {
-    switch (status) {
-      case 'Completed':
-        return 'primary';
-      case 'On Track':
-        return 'neutral';
-      case 'Over Budget':
-        return 'danger';
-      default:
-        return 'neutral';
-    }
-  };
-
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -276,9 +264,7 @@ export default function BudgetDetailsPage() {
           </CardHeader>
           <CardContent>
             <div className="flex items-center space-x-2">
-              <Badge variant={budget.status === 'Active' ? 'primary' : 'neutral'}>
-                {budget.status}
-              </Badge>
+              <StatusBadge status={budget.status} />
             </div>
             <p className="text-xs text-muted-foreground mt-1">
               Priority: {budget.priority}
@@ -344,9 +330,7 @@ export default function BudgetDetailsPage() {
                       <TableCell>
                         <div className="flex items-center space-x-2">
                           {getStatusIcon(item.status)}
-                          <Badge variant={getStatusVariant(item.status)}>
-                            {item.status}
-                          </Badge>
+                          <StatusBadge status={item.status} />
                         </div>
                       </TableCell>
                     </TableRow>

@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { PageHeader } from '@/components/ui/page-header';
 import { Badge } from '@/components/ui/badge';
+import { StatusBadge } from '@/components/ui/status-badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 import { DataTable } from '@/components/ui/data-table';
@@ -224,7 +225,7 @@ const attendanceColumns = [
     accessorKey: 'serviceType',
     header: 'Service Type',
     cell: ({ row }: any) => (
-      <Badge variant="neutral" className="bg-blue-50 text-blue-700 border-blue-200">
+      <Badge variant="info">
         {row.getValue('serviceType')}
       </Badge>
     )
@@ -234,22 +235,7 @@ const attendanceColumns = [
     header: 'Status',
     cell: ({ row }: any) => {
       const status = row.getValue('status') as string;
-      const statusConfig = {
-        'Present': { className: 'bg-green-100 text-green-800 border-green-200', icon: CheckCircle },
-        'Absent': { className: 'bg-red-100 text-red-800 border-red-200', icon: XCircle },
-        'Late': { className: 'bg-yellow-100 text-yellow-800 border-yellow-200', icon: Clock },
-        'Excused': { className: 'bg-blue-100 text-blue-800 border-blue-200', icon: UserCheck }
-      };
-      
-      const config = statusConfig[status as keyof typeof statusConfig] || statusConfig['Present'];
-      const Icon = config.icon;
-      
-      return (
-        <Badge variant="neutral" className={config.className}>
-          <Icon className="h-3 w-3 mr-1" />
-          {status}
-        </Badge>
-      );
+      return <StatusBadge status={status} showIcon />;
     }
   },
   {
@@ -522,7 +508,7 @@ export default function MemberAttendanceDetailPage() {
                 <Users className="h-4 w-4" />
                 Group
               </div>
-              <Badge variant="neutral" className="bg-blue-50 text-blue-700 border-blue-200">
+              <Badge variant="info">
                 {memberData.group}
               </Badge>
             </div>

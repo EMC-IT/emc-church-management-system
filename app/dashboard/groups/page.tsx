@@ -8,6 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { PageHeader } from '@/components/ui/page-header';
 import { StatCard } from '@/components/ui/stat-card';
 import { Badge } from '@/components/ui/badge';
+import { StatusBadge } from '@/components/ui/status-badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Progress } from '@/components/ui/progress';
 import { 
@@ -286,9 +287,7 @@ export default function GroupsPage() {
                       <span className="text-xs text-muted-foreground">{group.leader.name}</span>
                     </div>
                     
-                    <Badge variant={group.status === 'Active' ? 'primary' : 'neutral'}>
-                      {group.status}
-                    </Badge>
+                    <StatusBadge status={group.status} />
                   </div>
                 </CardContent>
               </Card>

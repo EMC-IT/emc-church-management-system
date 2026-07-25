@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { PageHeader } from '@/components/ui/page-header';
 import { Badge } from '@/components/ui/badge';
+import { StatusBadge } from '@/components/ui/status-badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 import { DataTable } from '@/components/ui/data-table';
@@ -295,7 +296,7 @@ const memberColumns = [
     accessorKey: 'group',
     header: 'Group',
     cell: ({ row }: any) => (
-      <Badge variant="neutral" className="bg-blue-50 text-blue-700 border-blue-200">
+      <Badge variant="info">
         {row.getValue('group')}
       </Badge>
     )
@@ -350,20 +351,19 @@ const memberColumns = [
     header: 'Status',
     cell: ({ row }: any) => {
       const status = row.getValue('status') as string;
-      const statusConfig = {
-        'Excellent': { className: 'bg-green-100 text-green-800 border-green-200', icon: Award },
-        'Active': { className: 'bg-blue-100 text-blue-800 border-blue-200', icon: UserCheck },
-        'Needs Attention': { className: 'bg-yellow-100 text-yellow-800 border-yellow-200', icon: AlertTriangle }
+      const statusIcons = {
+        'Excellent': Award,
+        'Active': UserCheck,
+        'Needs Attention': AlertTriangle
       };
-      
-      const config = statusConfig[status as keyof typeof statusConfig] || statusConfig['Active'];
-      const Icon = config.icon;
-      
+
+      const Icon = statusIcons[status as keyof typeof statusIcons] ?? UserCheck;
+
       return (
-        <Badge variant="neutral" className={config.className}>
-          <Icon className="h-3 w-3 mr-1" />
+        <StatusBadge status={status}>
+          <Icon className="h-3 w-3" />
           {status}
-        </Badge>
+        </StatusBadge>
       );
     }
   },

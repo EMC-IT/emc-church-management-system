@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { PageHeader } from '@/components/ui/page-header';
 import { StatCard } from '@/components/ui/stat-card';
-import { Badge } from '@/components/ui/badge';
+import { StatusBadge } from '@/components/ui/status-badge';
 import { 
   Select,
   SelectContent,
@@ -95,16 +95,6 @@ export default function ExpenseReportsPage() {
   const router = useRouter();
   const [selectedPeriod, setSelectedPeriod] = useState('current-year');
   const [activeTab, setActiveTab] = useState('overview');
-
-  const getStatusColor = (status: string) => {
-    switch (status.toLowerCase()) {
-      case 'on track': return 'primary';
-      case 'near limit': return 'danger';
-      case 'under budget': return 'neutral';
-      case 'over budget': return 'danger';
-      default: return 'primary';
-    }
-  };
 
   const getVarianceColor = (variance: number) => {
     return variance >= 0 ? 'text-red-600' : 'text-green-600';
@@ -369,9 +359,7 @@ export default function ExpenseReportsPage() {
                       </TableCell>
                       <TableCell>{dept.percentage.toFixed(1)}%</TableCell>
                       <TableCell>
-                        <Badge variant={getStatusColor(dept.status)}>
-                          {dept.status}
-                        </Badge>
+                        <StatusBadge status={dept.status} />
                       </TableCell>
                     </TableRow>
                   ))}

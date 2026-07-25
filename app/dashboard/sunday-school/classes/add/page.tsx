@@ -400,9 +400,6 @@ export default function AddClassPage() {
                   <Target className="h-5 w-5" />
                   <span>Curriculum & Objectives</span>
                 </CardTitle>
-                <CardDescription>
-                  Define the curriculum and learning objectives (optional)
-                </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2">

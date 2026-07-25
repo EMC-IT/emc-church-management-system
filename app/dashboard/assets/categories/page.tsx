@@ -20,7 +20,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge';
+import { StatusBadge } from '@/components/ui/status-badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -206,20 +206,7 @@ export default function CategoriesPage() {
     });
   };
 
-  const getConditionBadge = (condition: string) => {
-    switch (condition.toLowerCase()) {
-      case 'excellent':
-        return <Badge className="bg-brand-success">Excellent</Badge>;
-      case 'good':
-        return <Badge className="bg-brand-secondary">Good</Badge>;
-      case 'fair':
-        return <Badge variant="neutral">Fair</Badge>;
-      case 'poor':
-        return <Badge variant="danger">Poor</Badge>;
-      default:
-        return <Badge variant="neutral">{condition}</Badge>;
-    }
-  };
+  const getConditionBadge = (condition: string) => <StatusBadge status={condition} />;
 
   const handleDelete = async (categoryId: string) => {
     if (confirm('Are you sure you want to delete this category? This action cannot be undone.')) {
@@ -386,9 +373,7 @@ export default function CategoriesPage() {
                       <p className="text-sm text-muted-foreground">{category.description}</p>
                     </div>
                     <div className="flex items-center space-x-2">
-                      <Badge variant={category.isActive ? 'primary' : 'neutral'}>
-                        {category.isActive ? 'Active' : 'Inactive'}
-                      </Badge>
+                      <StatusBadge status={category.isActive ? 'active' : 'inactive'} />
                       {getConditionBadge(category.averageCondition)}
                     </div>
                   </div>

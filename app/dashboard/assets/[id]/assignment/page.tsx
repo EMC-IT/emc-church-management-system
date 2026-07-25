@@ -30,7 +30,8 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import { Badge } from '@/components/ui/badge';
+import { Badge, type BadgeVariant } from '@/components/ui/badge';
+import { StatusBadge } from '@/components/ui/status-badge';
 import { Separator } from '@/components/ui/separator';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -247,52 +248,24 @@ export default function AssignmentPage() {
     });
   };
 
-  const getStatusBadge = (status: string) => {
-    switch (status) {
-      case 'active':
-        return <Badge className="bg-brand-success">Active</Badge>;
-      case 'returned':
-        return <Badge variant="neutral">Returned</Badge>;
-      case 'overdue':
-        return <Badge variant="danger">Overdue</Badge>;
-      case 'cancelled':
-        return <Badge variant="neutral">Cancelled</Badge>;
-      default:
-        return <Badge variant="neutral">{status}</Badge>;
-    }
+  const getStatusBadge = (status: string) => <StatusBadge status={status} />;
+
+  // Assignee type is a category, not a state, so it keeps its own mapping —
+  // but onto design-system variants rather than raw colours.
+  const assigneeTypeVariants: Record<string, BadgeVariant> = {
+    department: 'primary',
+    group: 'info',
+    person: 'warning',
+    location: 'neutral',
   };
 
-  const getTypeBadge = (type: string) => {
-    switch (type) {
-      case 'department':
-        return <Badge className="bg-brand-primary">Department</Badge>;
-      case 'group':
-        return <Badge className="bg-brand-secondary">Group</Badge>;
-      case 'person':
-        return <Badge className="bg-brand-accent">Person</Badge>;
-      case 'location':
-        return <Badge variant="neutral">Location</Badge>;
-      default:
-        return <Badge variant="neutral">{type}</Badge>;
-    }
-  };
+  const getTypeBadge = (type: string) => (
+    <Badge variant={assigneeTypeVariants[type] ?? 'neutral'} className="capitalize">
+      {type.replace(/_/g, ' ')}
+    </Badge>
+  );
 
-  const getConditionBadge = (condition: AssetCondition) => {
-    switch (condition) {
-      case AssetCondition.EXCELLENT:
-        return <Badge className="bg-brand-success">Excellent</Badge>;
-      case AssetCondition.GOOD:
-        return <Badge className="bg-brand-secondary">Good</Badge>;
-      case AssetCondition.FAIR:
-        return <Badge variant="neutral">Fair</Badge>;
-      case AssetCondition.POOR:
-        return <Badge variant="danger">Poor</Badge>;
-      case AssetCondition.DAMAGED:
-        return <Badge variant="danger">Damaged</Badge>;
-      default:
-        return <Badge variant="neutral">{condition}</Badge>;
-    }
-  };
+  const getConditionBadge = (condition: AssetCondition) => <StatusBadge status={condition} />;
 
   const onSubmit = async (data: AssignmentFormValues) => {
     try {

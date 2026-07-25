@@ -7,7 +7,7 @@ import Link from 'next/link';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
+import { StatusBadge } from '@/components/ui/status-badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Progress } from '@/components/ui/progress';
@@ -149,19 +149,6 @@ export default function CategoryDetailsPage() {
     }, 500);
   }, [params.id]);
 
-  const getStatusVariant = (status: string) => {
-    switch (status) {
-      case 'Active':
-        return 'primary';
-      case 'Completed':
-        return 'neutral';
-      case 'On Hold':
-        return 'neutral';
-      default:
-        return 'neutral';
-    }
-  };
-
   const averageUtilization = budgets.reduce((sum, budget) => sum + budget.utilization, 0) / budgets.length;
   const activeBudgets = budgets.filter(budget => budget.status === 'Active').length;
   const completedBudgets = budgets.filter(budget => budget.status === 'Completed').length;
@@ -201,9 +188,7 @@ export default function CategoryDetailsPage() {
                 style={{ backgroundColor: category.color }}
               ></div>
               <h1 className="text-2xl font-bold tracking-tight">{category.name}</h1>
-              <Badge variant={category.status === 'Active' ? 'primary' : 'neutral'}>
-                {category.status}
-              </Badge>
+              <StatusBadge status={category.status} />
             </div>
             <p className="text-muted-foreground">{category.description}</p>
           </div>
@@ -345,9 +330,7 @@ export default function CategoryDetailsPage() {
                       </TableCell>
                       <TableCell className="text-sm">{budget.owner}</TableCell>
                       <TableCell>
-                        <Badge variant={getStatusVariant(budget.status)}>
-                          {budget.status}
-                        </Badge>
+                        <StatusBadge status={budget.status} />
                       </TableCell>
                     </TableRow>
                   ))}
@@ -428,9 +411,7 @@ export default function CategoryDetailsPage() {
                   </div>
                   <div>
                     <Label className="text-sm font-medium text-muted-foreground">Status</Label>
-                    <Badge variant={category.status === 'Active' ? 'primary' : 'neutral'}>
-                      {category.status}
-                    </Badge>
+                    <StatusBadge status={category.status} />
                   </div>
                   <div>
                     <Label className="text-sm font-medium text-muted-foreground">Color</Label>

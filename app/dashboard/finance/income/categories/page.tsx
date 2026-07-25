@@ -32,6 +32,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
+import { StatusBadge } from '@/components/ui/status-badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
@@ -243,9 +244,7 @@ export default function IncomeCategoriesPage() {
       cell: ({ row }) => {
         const isActive = row.getValue('isActive') as boolean;
         return (
-          <Badge variant={isActive ? 'primary' : 'neutral'}>
-            {isActive ? 'Active' : 'Inactive'}
-          </Badge>
+          <StatusBadge status={isActive ? 'active' : 'inactive'} />
         );
       }
     },

@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { PageHeader } from '@/components/ui/page-header';
 import { Badge } from '@/components/ui/badge';
+import { DepartmentRoleBadge } from '@/components/ui/category-badges';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
 import {
@@ -162,17 +163,6 @@ export default function DepartmentRolesPage() {
       case 'treasurer': return <BadgeCent className="h-5 w-5 text-orange-600" />;
       case 'coordinator': return <Users className="h-5 w-5 text-yellow-600" />;
       default: return <User className="h-5 w-5 text-gray-600" />;
-    }
-  };
-
-  const getRoleBadgeColor = (roleType: string) => {
-    switch (roleType) {
-      case 'head': return 'bg-blue-100 text-blue-800';
-      case 'assistant_head': return 'bg-green-100 text-green-800';
-      case 'secretary': return 'bg-purple-100 text-purple-800';
-      case 'treasurer': return 'bg-orange-100 text-orange-800';
-      case 'coordinator': return 'bg-yellow-100 text-yellow-800';
-      default: return 'bg-gray-100 text-gray-800';
     }
   };
 
@@ -333,9 +323,7 @@ export default function DepartmentRolesPage() {
                     <div>
                       <CardTitle className="flex items-center gap-2">
                         {role.title}
-                        <Badge className={getRoleBadgeColor(role.roleType)}>
-                          {role.roleType}
-                        </Badge>
+                        <DepartmentRoleBadge role={role.roleType} />
                       </CardTitle>
                       <CardDescription>{role.description}</CardDescription>
                     </div>

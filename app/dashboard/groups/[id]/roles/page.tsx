@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { PageHeader } from '@/components/ui/page-header';
 import { Badge } from '@/components/ui/badge';
+import { PermissionBadge } from '@/components/ui/category-badges';
 import { 
   Select,
   SelectContent,
@@ -157,16 +158,6 @@ export default function GroupRolesPage() {
     return members.filter(member => member.role === roleName);
   };
 
-  const getPermissionBadgeColor = (permission: string) => {
-    if (permission.includes('manage') || permission.includes('admin')) {
-      return 'bg-red-100 text-red-800';
-    }
-    if (permission.includes('edit') || permission.includes('create')) {
-      return 'bg-yellow-100 text-yellow-800';
-    }
-    return 'bg-blue-100 text-blue-800';
-  };
-
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
@@ -311,13 +302,7 @@ export default function GroupRolesPage() {
                             <h5 className="text-sm font-medium">Permissions:</h5>
                             <div className="flex flex-wrap gap-2">
                               {role.permissions.map((permission, index) => (
-                                <Badge 
-                                  key={index} 
-                                  variant="neutral"
-                                  className={`text-xs ${getPermissionBadgeColor(permission)}`}
-                                >
-                                  {permission.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}
-                                </Badge>
+                                <PermissionBadge key={index} permission={permission} />
                               ))}
                             </div>
                           </div>

@@ -17,7 +17,8 @@ import {
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { DataTable } from '@/components/ui/data-table';
-import { Badge } from '@/components/ui/badge';
+import { GivingTypeBadge } from '@/components/ui/finance-badges';
+import { StatusBadge } from '@/components/ui/status-badge';
 import { LazySection } from '@/components/ui/lazy-section';
 import { DeleteDialog, useDeleteDialog } from '@/components/ui/delete-dialog';
 import {
@@ -136,20 +137,7 @@ export default function TitheOfferingCategoriesPage() {
     }).format(amount);
   };
 
-  const getTypeBadge = (type: string) => {
-    switch (type) {
-      case 'Tithe':
-        return <Badge variant="primary" className="bg-brand-primary">Tithe</Badge>;
-      case 'Offering':
-        return <Badge variant="primary" className="bg-brand-secondary">Offering</Badge>;
-      case 'First Fruits':
-        return <Badge variant="primary" className="bg-brand-accent">First Fruits</Badge>;
-      case 'Special Offering':
-        return <Badge variant="primary" className="bg-brand-success">Special</Badge>;
-      default:
-        return <Badge variant="neutral">{type}</Badge>;
-    }
-  };
+  const getTypeBadge = (type: string) => <GivingTypeBadge type={type} />;
 
   const handleDelete = async () => {
     try {
@@ -221,9 +209,7 @@ export default function TitheOfferingCategoriesPage() {
       cell: ({ row }) => {
         const isActive = row.getValue('isActive') as boolean;
         return (
-          <Badge variant={isActive ? 'primary' : 'neutral'}>
-            {isActive ? 'Active' : 'Inactive'}
-          </Badge>
+          <StatusBadge status={isActive ? 'active' : 'inactive'} />
         );
       },
     },

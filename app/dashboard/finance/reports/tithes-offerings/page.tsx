@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { PageHeader } from '@/components/ui/page-header';
 import { StatCard } from '@/components/ui/stat-card';
-import { Badge } from '@/components/ui/badge';
+import { StatusBadge } from '@/components/ui/status-badge';
 import { 
   Select,
   SelectContent,
@@ -113,15 +113,6 @@ export default function TithesOfferingsReportsPage() {
     if (consistency >= 80) return 'text-blue-600';
     if (consistency >= 60) return 'text-orange-600';
     return 'text-red-600';
-  };
-
-  const getStatusBadge = (status: string) => {
-    switch (status.toLowerCase()) {
-      case 'faithful': return 'primary';
-      case 'consistent': return 'neutral';
-      case 'regular': return 'neutral';
-      default: return 'danger';
-    }
   };
 
   // Chart configurations
@@ -418,9 +409,7 @@ export default function TithesOfferingsReportsPage() {
                       <TableCell>₵{tither.totalTithes.toLocaleString()}</TableCell>
                       <TableCell>₵{tither.avgMonthly.toLocaleString()}</TableCell>
                       <TableCell>
-                        <Badge variant={getStatusBadge(tither.status)}>
-                          {tither.status}
-                        </Badge>
+                        <StatusBadge status={tither.status} />
                       </TableCell>
                     </TableRow>
                   ))}

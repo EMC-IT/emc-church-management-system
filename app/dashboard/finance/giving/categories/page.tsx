@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { StatusBadge } from '@/components/ui/status-badge';
 import { DataTable } from '@/components/ui/data-table';
 import { SearchInput } from '@/components/ui/search-input';
 import { LazySection } from '@/components/ui/lazy-section';
@@ -253,9 +254,7 @@ export default function GivingCategoriesPage() {
       cell: ({ row }) => {
         const isActive = row.getValue('isActive') as boolean;
         return (
-          <Badge variant={isActive ? 'primary' : 'neutral'}>
-            {isActive ? 'Active' : 'Inactive'}
-          </Badge>
+          <StatusBadge status={isActive ? 'active' : 'inactive'} />
         );
       },
     },

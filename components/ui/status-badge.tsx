@@ -1,6 +1,7 @@
 import * as React from 'react';
 import {
   AlertCircle,
+  AlertTriangle,
   Archive,
   CheckCircle,
   Clock,
@@ -40,10 +41,15 @@ const statusIcons: Partial<Record<KnownStatus, LucideIcon>> = {
   confirmed: CheckCircle,
   delivered: CheckCircle,
   paid: CheckCircle,
+  present: CheckCircle,
   verified: CheckCircle,
+  absent: XCircle,
+  excused: Info,
   pending: Clock,
   late: Clock,
   overdue: AlertCircle,
+  exceeded: AlertTriangle,
+  over_budget: AlertTriangle,
   failed: XCircle,
   error: XCircle,
   cancelled: XCircle,

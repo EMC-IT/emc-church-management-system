@@ -6,7 +6,7 @@ import { ArrowLeft, BarChart3, Download, TrendingUp, TrendingDown, Calendar, Fil
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
+import { StatusBadge } from '@/components/ui/status-badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -178,19 +178,6 @@ export default function BudgetReportsPage() {
     if (variance > 0) return 'text-red-600';
     if (variance < 0) return 'text-green-600';
     return 'text-gray-600';
-  };
-
-  const getStatusVariant = (status: string) => {
-    switch (status) {
-      case 'On Track':
-        return 'primary';
-      case 'Under Budget':
-        return 'neutral';
-      case 'Over Budget':
-        return 'danger';
-      default:
-        return 'neutral';
-    }
   };
 
   const getTrendIcon = (trend: string) => {
@@ -510,9 +497,7 @@ export default function BudgetReportsPage() {
                         {dept.variance > 0 ? '+' : ''}₵{Math.abs(dept.variance).toLocaleString()}
                       </TableCell>
                       <TableCell>
-                        <Badge variant={getStatusVariant(dept.status)}>
-                          {dept.status}
-                        </Badge>
+                        <StatusBadge status={dept.status} />
                       </TableCell>
                     </TableRow>
                   ))}

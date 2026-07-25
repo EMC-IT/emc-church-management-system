@@ -5,6 +5,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { StatusBadge } from '@/components/ui/status-badge';
 import { DataTable } from '@/components/ui/data-table';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -198,18 +199,7 @@ export default function CategoryDetailsPage() {
     }
   };
 
-  const getStatusBadge = (status: GivingStatus) => {
-    switch (status) {
-      case GivingStatus.COMPLETED:
-        return <Badge variant="primary" className="bg-green-100 text-green-800">Completed</Badge>;
-      case GivingStatus.PENDING:
-        return <Badge variant="neutral">Pending</Badge>;
-      case GivingStatus.FAILED:
-        return <Badge variant="danger">Failed</Badge>;
-      default:
-        return <Badge variant="neutral">{status}</Badge>;
-    }
-  };
+  const getStatusBadge = (status: GivingStatus) => <StatusBadge status={status} />;
 
   const columns: ColumnDef<Giving>[] = [
     {
@@ -394,9 +384,7 @@ export default function CategoryDetailsPage() {
                     </div>
                   ) : (
                     <div className="p-2">
-                      <Badge variant={category.isActive ? 'primary' : 'neutral'}>
-                        {category.isActive ? 'Active' : 'Inactive'}
-                      </Badge>
+                      <StatusBadge status={category.isActive ? 'active' : 'inactive'} />
                     </div>
                   )}
                 </div>

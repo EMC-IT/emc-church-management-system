@@ -7,6 +7,7 @@ import { ArrowLeft, BarChart3, Download, TrendingUp, TrendingDown, AlertTriangle
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { StatusBadge } from '@/components/ui/status-badge';
 import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -168,19 +169,6 @@ export default function BudgetReportsPage() {
     if (variance > 0) return <TrendingUp className="h-4 w-4 text-red-600" />;
     if (variance < 0) return <TrendingDown className="h-4 w-4 text-green-600" />;
     return <AlertTriangle className="h-4 w-4 text-gray-600" />;
-  };
-
-  const getStatusVariant = (status: string) => {
-    switch (status) {
-      case 'On Target':
-        return 'primary';
-      case 'Under Budget':
-        return 'neutral';
-      case 'Over Budget':
-        return 'danger';
-      default:
-        return 'neutral';
-    }
   };
 
   const totalVariance = mockBudgetInfo.totalSpent - mockBudgetInfo.totalBudget;
@@ -471,9 +459,7 @@ export default function BudgetReportsPage() {
                         {category.variancePercent > 0 ? '+' : ''}{category.variancePercent.toFixed(1)}%
                       </TableCell>
                       <TableCell>
-                        <Badge variant={getStatusVariant(category.status)}>
-                          {category.status}
-                        </Badge>
+                        <StatusBadge status={category.status} />
                       </TableCell>
                     </TableRow>
                   ))}

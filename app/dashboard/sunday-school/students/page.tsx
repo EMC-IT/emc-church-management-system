@@ -8,6 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { PageHeader } from '@/components/ui/page-header';
 import { StatCard } from '@/components/ui/stat-card';
 import { Badge } from '@/components/ui/badge';
+import { StatusBadge } from '@/components/ui/status-badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
   Select,
@@ -267,9 +268,7 @@ export default function StudentsPage() {
                     
                     <div className="flex items-center justify-between text-sm">
                       <span>Status:</span>
-                      <Badge variant={student.status === 'Active' ? 'primary' : 'neutral'}>
-                        {student.status}
-                      </Badge>
+                      <StatusBadge status={student.status} />
                     </div>
                     
                     <div className="flex items-center justify-between text-sm">
@@ -279,9 +278,7 @@ export default function StudentsPage() {
                   </div>
                   
                   <div className="flex items-center justify-between pt-4 border-t mt-4">
-                    <Badge variant={student.status === 'Active' ? 'primary' : 'neutral'}>
-                      {student.status}
-                    </Badge>
+                    <StatusBadge status={student.status} />
                     <Button 
                       variant="outline" 
                       size="sm"

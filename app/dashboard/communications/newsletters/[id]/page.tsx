@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { PageHeader } from '@/components/ui/page-header';
 import { Badge } from '@/components/ui/badge';
+import { StatusBadge } from '@/components/ui/status-badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Separator } from '@/components/ui/separator';
 import { Progress } from '@/components/ui/progress';
@@ -550,7 +551,7 @@ export default function NewsletterDetailPage() {
                         <Users className="h-4 w-4 text-muted-foreground" />
                         <span>{group}</span>
                       </div>
-                      <Badge variant="neutral">Active</Badge>
+                      <StatusBadge status="active" />
                     </div>
                   ))}
                 </div>

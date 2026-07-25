@@ -8,7 +8,7 @@ import * as z from 'zod';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { PageHeader } from '@/components/ui/page-header';
-import { Badge } from '@/components/ui/badge';
+import { StatusBadge } from '@/components/ui/status-badge';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
@@ -281,21 +281,6 @@ export default function TakeAttendancePage() {
         return <AlertCircle className="h-4 w-4 text-blue-600" />;
       default:
         return <XCircle className="h-4 w-4 text-gray-400" />;
-    }
-  };
-
-  const getStatusColor = (status: AttendanceStatus) => {
-    switch (status) {
-      case AttendanceStatus.PRESENT:
-        return 'bg-green-100 text-green-800 border-green-200';
-      case AttendanceStatus.LATE:
-        return 'bg-yellow-100 text-yellow-800 border-yellow-200';
-      case AttendanceStatus.ABSENT:
-        return 'bg-red-100 text-red-800 border-red-200';
-      case AttendanceStatus.EXCUSED:
-        return 'bg-blue-100 text-blue-800 border-blue-200';
-      default:
-        return 'bg-gray-100 text-gray-800 border-gray-200';
     }
   };
 
@@ -689,10 +674,10 @@ export default function TakeAttendancePage() {
                     </div>
 
                     <div className="flex items-center space-x-2">
-                      <Badge variant="neutral" className={getStatusColor(member.status)}>
+                      <StatusBadge status={member.status}>
                         {getStatusIcon(member.status)}
-                        <span className="ml-1 capitalize">{member.status}</span>
-                      </Badge>
+                        <span className="capitalize">{member.status}</span>
+                      </StatusBadge>
                       
                       <div className="flex space-x-1">
                         <Button

@@ -24,6 +24,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Badge } from '@/components/ui/badge';
+import { StatusBadge } from '@/components/ui/status-badge';
 import { Separator } from '@/components/ui/separator';
 import { Switch } from '@/components/ui/switch';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -690,11 +691,7 @@ export default function EditCategoryPage() {
                   </p>
                   <div className="flex items-center space-x-2 mt-2">
                     <Badge variant="neutral">{form.watch('code') || 'CODE'}</Badge>
-                    {form.watch('isActive') ? (
-                      <Badge className="bg-brand-success">Active</Badge>
-                    ) : (
-                      <Badge variant="neutral">Inactive</Badge>
-                    )}
+                    <StatusBadge status={form.watch('isActive') ? 'active' : 'inactive'} />
                     {category.assetCount > 0 && (
                       <Badge variant="neutral">{category.assetCount} assets</Badge>
                     )}

@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { PageHeader } from '@/components/ui/page-header';
 import { StatCard } from '@/components/ui/stat-card';
-import { Badge } from '@/components/ui/badge';
+import { StatusBadge } from '@/components/ui/status-badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
   Select,
@@ -247,16 +247,7 @@ export default function TeachersPage() {
     }
   };
 
-  const getStatusBadge = (status: TeacherStatus) => {
-    switch (status) {
-      case TeacherStatus.ACTIVE:
-        return <Badge variant="success">Active</Badge>;
-      case TeacherStatus.INACTIVE:
-        return <Badge variant="neutral">Inactive</Badge>;
-      default:
-        return <Badge variant="neutral">Unknown</Badge>;
-    }
-  };
+  const getStatusBadge = (status: TeacherStatus) => <StatusBadge status={status} />;
 
   const columns = [
     {

@@ -3,7 +3,8 @@
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
+import { GivingCategoryBadge, PaymentMethodBadge } from '@/components/ui/finance-badges';
+import { StatusBadge } from '@/components/ui/status-badge';
 import { DataTable } from '@/components/ui/data-table';
 import { DeleteDialog, useDeleteDialog } from '@/components/ui/delete-dialog';
 import { LazySection } from '@/components/ui/lazy-section';
@@ -246,49 +247,11 @@ export default function DonationsPage() {
     }).format(amount);
   };
 
-  const getCategoryBadge = (category: GivingCategory) => {
-    const colors = {
-      [GivingCategory.GENERAL]: 'bg-gray-100 text-gray-800',
-      [GivingCategory.BUILDING_FUND]: 'bg-orange-100 text-orange-800',
-      [GivingCategory.MISSIONARY]: 'bg-purple-100 text-purple-800',
-      [GivingCategory.YOUTH]: 'bg-pink-100 text-pink-800',
-      [GivingCategory.CHILDREN]: 'bg-blue-100 text-blue-800',
-      [GivingCategory.MUSIC]: 'bg-green-100 text-green-800',
-      [GivingCategory.OUTREACH]: 'bg-indigo-100 text-indigo-800',
-      [GivingCategory.CHARITY]: 'bg-red-100 text-red-800',
-      [GivingCategory.EDUCATION]: 'bg-yellow-100 text-yellow-800',
-      [GivingCategory.MEDICAL]: 'bg-teal-100 text-teal-800',
-      [GivingCategory.DISASTER_RELIEF]: 'bg-rose-100 text-rose-800',
-      [GivingCategory.OTHER]: 'bg-slate-100 text-slate-800',
-    };
-    
-    return (
-      <Badge className={colors[category] || 'bg-gray-100 text-gray-800'}>
-        {category.replace('_', ' ')}
-      </Badge>
-    );
-  };
+  const getCategoryBadge = (category: GivingCategory) => <GivingCategoryBadge category={category} />;
 
-  const getStatusBadge = (status: GivingStatus) => {
-    switch (status) {
-      case GivingStatus.COMPLETED:
-        return <Badge variant="primary" className="bg-green-100 text-green-800">Completed</Badge>;
-      case GivingStatus.PENDING:
-        return <Badge variant="neutral">Pending</Badge>;
-      case GivingStatus.FAILED:
-        return <Badge variant="danger">Failed</Badge>;
-      default:
-        return <Badge variant="neutral">{status}</Badge>;
-    }
-  };
+  const getStatusBadge = (status: GivingStatus) => <StatusBadge status={status} />;
 
-  const getMethodBadge = (method: string) => {
-    return (
-      <Badge variant="neutral" className="capitalize">
-        {method.replace('_', ' ')}
-      </Badge>
-    );
-  };
+  const getMethodBadge = (method: string) => <PaymentMethodBadge method={method} />;
 
   const columns: ColumnDef<Giving>[] = [
     {

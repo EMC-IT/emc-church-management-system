@@ -318,9 +318,15 @@ export default function GroupReportsPage() {
                     </TableCell>
                     <TableCell>{item.member?.role}</TableCell>
                     <TableCell>
-                      <Badge className={item.attendanceRate >= 80 ? 'bg-green-100 text-green-800' : 
-                                     item.attendanceRate >= 60 ? 'bg-yellow-100 text-yellow-800' : 
-                                     'bg-red-100 text-red-800'}>
+                      <Badge
+                        variant={
+                          item.attendanceRate >= 80
+                            ? 'success'
+                            : item.attendanceRate >= 60
+                              ? 'warning'
+                              : 'danger'
+                        }
+                      >
                         {item.attendanceRate}%
                       </Badge>
                     </TableCell>

@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { PageHeader } from '@/components/ui/page-header';
 import { Badge } from '@/components/ui/badge';
+import { StatusBadge } from '@/components/ui/status-badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 import { DataTable } from '@/components/ui/data-table';
@@ -164,7 +165,7 @@ const attendanceColumns = [
     accessorKey: 'serviceType',
     header: 'Service Type',
     cell: ({ row }: any) => (
-      <Badge variant="neutral" className="bg-blue-50 text-blue-700 border-blue-200">
+      <Badge variant="info">
         {row.getValue('serviceType')}
       </Badge>
     )
@@ -202,42 +203,8 @@ const attendanceColumns = [
     header: 'Status',
     cell: ({ row }: any) => {
       const status = row.getValue('status') as AttendanceStatus;
-      const statusConfig = {
-        [AttendanceStatus.PRESENT]: { 
-          label: 'Present', 
-          className: 'bg-green-100 text-green-800 border-green-200',
-          icon: UserCheck
-        },
-        [AttendanceStatus.LATE]: { 
-          label: 'Late', 
-          className: 'bg-yellow-100 text-yellow-800 border-yellow-200',
-          icon: Clock
-        },
-        [AttendanceStatus.ABSENT]: { 
-          label: 'Absent', 
-          className: 'bg-red-100 text-red-800 border-red-200',
-          icon: UserX
-        },
-        [AttendanceStatus.EXCUSED]: { 
-          label: 'Excused', 
-          className: 'bg-blue-100 text-blue-800 border-blue-200',
-          icon: AlertCircle
-        },
-        [AttendanceStatus.PARTIAL]: { 
-          label: 'Partial', 
-          className: 'bg-orange-100 text-orange-800 border-orange-200',
-          icon: Clock
-        }
-      };
-      
-      const config = statusConfig[status] || statusConfig[AttendanceStatus.ABSENT];
-      const Icon = config.icon;
-      
       return (
-        <Badge variant="neutral" className={config.className}>
-          <Icon className="h-3 w-3 mr-1" />
-          {config.label}
-        </Badge>
+        <StatusBadge status={status} showIcon />
       );
     }
   },

@@ -682,7 +682,7 @@ export default function AttendanceReportsPage() {
                         </div>
                       </div>
                       <Progress value={member.rate} className="w-24" />
-                      <Badge className="bg-brand-primary/10 text-brand-primary border-brand-primary/20">
+                      <Badge variant="primary">
                         <UserCheck className="h-3 w-3 mr-1" />
                         Top Performer
                       </Badge>

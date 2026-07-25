@@ -16,6 +16,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { LazySection } from '@/components/ui/lazy-section';
 import { toast } from 'sonner';
+import { StatusBadge } from '@/components/ui/status-badge';
 import { cn } from '@/lib/utils';
 
 // Category form validation schema
@@ -297,14 +298,10 @@ export default function AddExpenseCategoryPage() {
                   )}
                   <div className="flex items-center justify-between text-xs text-gray-500">
                     <span>Status:</span>
-                    <span className={cn(
-                      'px-2 py-1 rounded-full text-xs font-medium',
-                      form.watch('isActive') 
-                        ? 'bg-green-100 text-green-800' 
-                        : 'bg-gray-100 text-gray-800'
-                    )}>
-                      {form.watch('isActive') ? 'Active' : 'Inactive'}
-                    </span>
+                    <StatusBadge
+                      size="sm"
+                      status={form.watch('isActive') ? 'active' : 'inactive'}
+                    />
                   </div>
                 </div>
 

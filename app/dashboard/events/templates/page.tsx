@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { PageHeader } from '@/components/ui/page-header';
 import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge';
+import { EventCategoryBadge } from '@/components/ui/category-badges';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -207,18 +207,6 @@ export default function EventTemplatesPage() {
 
 
 
-  const getCategoryColor = (category: string) => {
-    switch (category.toLowerCase()) {
-      case 'worship': return 'bg-blue-100 text-blue-800';
-      case 'study': return 'bg-green-100 text-green-800';
-      case 'conference': return 'bg-purple-100 text-purple-800';
-      case 'outreach': return 'bg-orange-100 text-orange-800';
-      case 'social': return 'bg-pink-100 text-pink-800';
-      case 'training': return 'bg-yellow-100 text-yellow-800';
-      default: return 'bg-gray-100 text-gray-800';
-    }
-  };
-
   return (
     <div className="space-y-6">
       {/* Back Navigation */}
@@ -375,9 +363,7 @@ export default function EventTemplatesPage() {
               <div className="flex items-start justify-between">
                 <div className="space-y-1">
                   <CardTitle className="text-lg">{template.name}</CardTitle>
-                  <Badge className={getCategoryColor(template.category)}>
-                    {template.category}
-                  </Badge>
+                  <EventCategoryBadge category={template.category} />
                 </div>
                 <div className="flex space-x-1">
                   <Button 
@@ -578,9 +564,7 @@ export default function EventTemplatesPage() {
                 </div>
                 <div>
                   <label className="text-sm font-medium text-muted-foreground">Category</label>
-                  <Badge className={getCategoryColor(selectedTemplate.category)}>
-                    {selectedTemplate.category}
-                  </Badge>
+                  <EventCategoryBadge category={selectedTemplate.category} />
                 </div>
               </div>
               

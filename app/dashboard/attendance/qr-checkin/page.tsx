@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { PageHeader } from '@/components/ui/page-header';
 import { Badge } from '@/components/ui/badge';
+import { StatusBadge } from '@/components/ui/status-badge';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -317,7 +318,7 @@ export default function QRCheckinPage() {
               {/* Session Info */}
               <div className="text-center space-y-2">
                 <div className="flex items-center justify-center gap-2">
-                  <Badge variant="neutral" className="bg-green-50 text-green-700 border-green-200">
+                  <Badge variant="primary">
                     <CheckCircle2 className="h-3 w-3 mr-1" />
                     Active Session
                   </Badge>
@@ -383,15 +384,11 @@ export default function QRCheckinPage() {
                           </div>
                         </div>
                       </div>
-                      <Badge 
-                        variant="neutral" 
-                        className={checkin.status === AttendanceStatus.PRESENT 
-                          ? 'bg-green-50 text-green-700 border-green-200' 
-                          : 'bg-yellow-50 text-yellow-700 border-yellow-200'
-                        }
+                      <StatusBadge
+                        status={checkin.status === AttendanceStatus.PRESENT ? 'present' : 'late'}
                       >
                         {checkin.status === AttendanceStatus.PRESENT ? 'On Time' : 'Late'}
-                      </Badge>
+                      </StatusBadge>
                     </div>
                   );
                 })

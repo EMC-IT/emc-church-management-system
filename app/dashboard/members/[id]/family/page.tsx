@@ -7,7 +7,7 @@ import { PageHeader } from '@/components/ui/page-header';
 import { StatCard } from '@/components/ui/stat-card';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Badge } from '@/components/ui/badge';
+import { StatusBadge } from '@/components/ui/status-badge';
 import { DataTable } from '@/components/ui/data-table';
 import { useToast } from '@/hooks/use-toast';
 import { membersService } from '@/services';
@@ -237,7 +237,7 @@ export default function FamilyPage() {
       header: 'Status',
       cell: ({ row }) => {
         const status = row.getValue('membershipStatus') as string;
-        return <Badge variant={status === 'Active' ? 'primary' : 'neutral'}>{status}</Badge>;
+        return <StatusBadge status={status} />;
       },
     },
     {

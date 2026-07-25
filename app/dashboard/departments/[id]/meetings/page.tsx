@@ -7,7 +7,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { PageHeader } from '@/components/ui/page-header';
-import { Badge } from '@/components/ui/badge';
+import { Badge, type BadgeVariant } from '@/components/ui/badge';
+import { StatusBadge } from '@/components/ui/status-badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
 import {
@@ -179,23 +180,16 @@ export default function DepartmentMeetingsPage() {
     }
   };
 
-  const getStatusBadgeColor = (status: string) => {
-    switch (status) {
-      case 'scheduled': return 'bg-blue-100 text-blue-800';
-      case 'completed': return 'bg-green-100 text-green-800';
-      case 'cancelled': return 'bg-red-100 text-red-800';
-      default: return 'bg-gray-100 text-gray-800';
-    }
+  // Meeting type is a category, not a state, so it keeps its own mapping —
+  // but onto design-system variants rather than raw colours.
+  const meetingTypeVariants: Record<string, BadgeVariant> = {
+    regular: 'neutral',
+    special: 'primary',
+    emergency: 'danger',
   };
 
-  const getTypeBadgeColor = (type: string) => {
-    switch (type) {
-      case 'regular': return 'bg-gray-100 text-gray-800';
-      case 'special': return 'bg-purple-100 text-purple-800';
-      case 'emergency': return 'bg-red-100 text-red-800';
-      default: return 'bg-gray-100 text-gray-800';
-    }
-  };
+  const getTypeBadgeVariant = (type: string): BadgeVariant =>
+    meetingTypeVariants[type] ?? 'neutral';
 
   const formatDateTime = (meeting: DepartmentMeeting) => {
     const date = new Date(meeting.date);
@@ -410,14 +404,12 @@ export default function DepartmentMeetingsPage() {
                       <div>
                         <CardTitle className="flex items-center gap-2">
                           {meeting.title}
-                          <Badge className={getStatusBadgeColor(meeting.status)}>
-                            {meeting.status}
-                          </Badge>
-                          <Badge className={getTypeBadgeColor(meeting.type)}>
+                          <StatusBadge status={meeting.status} />
+                          <Badge variant={getTypeBadgeVariant(meeting.type)} className="capitalize">
                             {meeting.type}
                           </Badge>
                           {upcoming && (
-                            <Badge className="bg-orange-100 text-orange-800">
+                            <Badge variant="info">
                               Upcoming
                             </Badge>
                           )}

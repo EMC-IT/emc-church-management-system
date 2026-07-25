@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { PageHeader } from '@/components/ui/page-header';
 import { StatCard } from '@/components/ui/stat-card';
 import { Badge } from '@/components/ui/badge';
+import { StatusBadge } from '@/components/ui/status-badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -138,14 +139,6 @@ export default function GroupDetailsPage() {
     return 'text-destructive';
   };
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'Active': return 'bg-brand-success';
-      case 'Inactive': return 'bg-yellow-500';
-      case 'Archived': return 'bg-gray-500';
-      default: return 'bg-gray-500';
-    }
-  };
 
   return (
     <div className="space-y-6">
@@ -209,7 +202,7 @@ export default function GroupDetailsPage() {
 
         <StatCard
           title="Status"
-          value={<Badge className={getStatusColor(group.status)}>{group.status}</Badge>}
+          value={<StatusBadge status={group.status} />}
           icon={Settings}
           accent="accent"
           description="Current status"
@@ -244,9 +237,7 @@ export default function GroupDetailsPage() {
                     <div>
                       <Label className="text-sm font-medium text-muted-foreground">Status</Label>
                       <p className="mt-1">
-                        <Badge className={getStatusColor(group.status)}>
-                          {group.status}
-                        </Badge>
+                        <StatusBadge status={group.status} />
                       </p>
                     </div>
                   </div>
@@ -415,9 +406,7 @@ export default function GroupDetailsPage() {
                         Joined {new Date(member.joinedAt).toLocaleDateString()}
                       </p>
                     </div>
-                    <Badge variant={member.status === 'Active' ? 'primary' : 'neutral'}>
-                      {member.status}
-                    </Badge>
+                    <StatusBadge status={member.status} />
                   </div>
                 </CardContent>
               </Card>

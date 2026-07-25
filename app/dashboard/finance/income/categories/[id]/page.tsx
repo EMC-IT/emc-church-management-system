@@ -31,7 +31,7 @@ import {
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
+import { StatusBadge } from '@/components/ui/status-badge';
 import { Separator } from '@/components/ui/separator';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
@@ -160,18 +160,7 @@ export default function IncomeCategoryDetailsPage() {
     }).format(amount);
   };
 
-  const getStatusBadge = (status: string) => {
-    switch (status) {
-      case 'received':
-        return <Badge variant="primary" className="bg-brand-success">Received</Badge>;
-      case 'pending':
-        return <Badge variant="neutral">Pending</Badge>;
-      case 'cancelled':
-        return <Badge variant="danger">Cancelled</Badge>;
-      default:
-        return <Badge variant="neutral">{status}</Badge>;
-    }
-  };
+  const getStatusBadge = (status: string) => <StatusBadge status={status} />;
 
   const handleDelete = async () => {
     setDeleting(true);
@@ -426,9 +415,7 @@ export default function IncomeCategoryDetailsPage() {
                 <FileText className="mr-2 h-5 w-5" />
                 Category Information
               </span>
-              <Badge variant={category.isActive ? 'primary' : 'neutral'}>
-                {category.isActive ? 'Active' : 'Inactive'}
-              </Badge>
+              <StatusBadge status={category.isActive ? 'active' : 'inactive'} />
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">

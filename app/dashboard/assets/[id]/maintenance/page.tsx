@@ -31,7 +31,8 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import { Badge } from '@/components/ui/badge';
+import { Badge, type BadgeVariant } from '@/components/ui/badge';
+import { StatusBadge } from '@/components/ui/status-badge';
 import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
@@ -285,50 +286,24 @@ export default function MaintenancePage() {
     });
   };
 
-  const getStatusBadge = (status: string) => {
-    switch (status) {
-      case 'completed':
-        return <Badge className="bg-brand-success">Completed</Badge>;
-      case 'in_progress':
-        return <Badge className="bg-brand-secondary">In Progress</Badge>;
-      case 'scheduled':
-        return <Badge className="bg-brand-accent">Scheduled</Badge>;
-      case 'cancelled':
-        return <Badge variant="danger">Cancelled</Badge>;
-      default:
-        return <Badge variant="neutral">{status}</Badge>;
-    }
+  const getStatusBadge = (status: string) => <StatusBadge status={status} />;
+
+  const getPriorityBadge = (priority: string) => <StatusBadge status={priority} />;
+
+  // Maintenance type is a category, not a state, so it keeps its own mapping —
+  // but onto design-system variants rather than raw colours.
+  const maintenanceTypeVariants: Record<string, BadgeVariant> = {
+    preventive: 'success',
+    corrective: 'info',
+    emergency: 'danger',
+    upgrade: 'primary',
   };
 
-  const getPriorityBadge = (priority: string) => {
-    switch (priority) {
-      case 'critical':
-        return <Badge variant="danger">Critical</Badge>;
-      case 'high':
-        return <Badge className="bg-red-500">High</Badge>;
-      case 'medium':
-        return <Badge className="bg-brand-accent">Medium</Badge>;
-      case 'low':
-        return <Badge variant="neutral">Low</Badge>;
-      default:
-        return <Badge variant="neutral">{priority}</Badge>;
-    }
-  };
-
-  const getTypeBadge = (type: string) => {
-    switch (type) {
-      case 'preventive':
-        return <Badge className="bg-brand-success">Preventive</Badge>;
-      case 'corrective':
-        return <Badge className="bg-brand-secondary">Corrective</Badge>;
-      case 'emergency':
-        return <Badge variant="danger">Emergency</Badge>;
-      case 'upgrade':
-        return <Badge className="bg-brand-primary">Upgrade</Badge>;
-      default:
-        return <Badge variant="neutral">{type}</Badge>;
-    }
-  };
+  const getTypeBadge = (type: string) => (
+    <Badge variant={maintenanceTypeVariants[type] ?? 'neutral'} className="capitalize">
+      {type.replace(/_/g, ' ')}
+    </Badge>
+  );
 
   const onSubmit = async (data: MaintenanceFormValues) => {
     try {

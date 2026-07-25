@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { PageHeader } from '@/components/ui/page-header';
 import { StatCard } from '@/components/ui/stat-card';
-import { Badge } from '@/components/ui/badge';
+import { StatusBadge } from '@/components/ui/status-badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Calendar } from '@/components/ui/calendar';
@@ -236,6 +236,7 @@ export default function ClassAttendancePage() {
     return { total, present, absent, late, excused };
   };
 
+  // Solid fill for the selected state of the status toggle buttons (not a badge).
   const getStatusColor = (status: AttendanceStatus) => {
     switch (status) {
       case AttendanceStatus.PRESENT: return 'bg-brand-success';
@@ -531,10 +532,10 @@ export default function ClassAttendancePage() {
                       </div>
                       
                       <div className="flex items-center space-x-2">
-                        <Badge className={getStatusColor(record.status)}>
+                        <StatusBadge status={record.status}>
                           {getStatusIcon(record.status)}
-                          <span className="ml-1">{record.status}</span>
-                        </Badge>
+                          <span>{record.status}</span>
+                        </StatusBadge>
                         {record.notes && (
                           <div className="text-xs text-muted-foreground max-w-xs truncate">
                             {record.notes}

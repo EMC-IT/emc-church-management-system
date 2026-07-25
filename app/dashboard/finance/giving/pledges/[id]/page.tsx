@@ -5,6 +5,8 @@ import { useParams, useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { PaymentMethodBadge } from '@/components/ui/finance-badges';
+import { StatusBadge } from '@/components/ui/status-badge';
 import { DataTable } from '@/components/ui/data-table';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -255,26 +257,9 @@ export default function PledgeDetailsPage() {
     }).format(amount);
   };
 
-  const getStatusBadge = (status: GivingStatus) => {
-    switch (status) {
-      case GivingStatus.COMPLETED:
-        return <Badge variant="primary" className="bg-green-100 text-green-800">Completed</Badge>;
-      case GivingStatus.PENDING:
-        return <Badge variant="neutral">Pending</Badge>;
-      case GivingStatus.FAILED:
-        return <Badge variant="danger">Failed</Badge>;
-      default:
-        return <Badge variant="neutral">{status}</Badge>;
-    }
-  };
+  const getStatusBadge = (status: GivingStatus) => <StatusBadge status={status} />;
 
-  const getMethodBadge = (method: string) => {
-    return (
-      <Badge variant="neutral" className="capitalize">
-        {method.replace('_', ' ')}
-      </Badge>
-    );
-  };
+  const getMethodBadge = (method: string) => <PaymentMethodBadge method={method} />;
 
   const columns: ColumnDef<PaymentRecord>[] = [
     {

@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { PageHeader } from '@/components/ui/page-header';
 import { StatCard } from '@/components/ui/stat-card';
-import { Badge } from '@/components/ui/badge';
+import { StatusBadge } from '@/components/ui/status-badge';
 import { 
   Select,
   SelectContent,
@@ -215,16 +215,6 @@ export default function BudgetReportsPage() {
   const [selectedPeriod, setSelectedPeriod] = useState('current-year');
   const [activeTab, setActiveTab] = useState('overview');
 
-  const getStatusColor = (status: string) => {
-    switch (status.toLowerCase()) {
-      case 'on track': return 'primary';
-      case 'near limit': return 'danger';
-      case 'over budget': return 'danger';
-      case 'under budget': return 'neutral';
-      default: return 'primary';
-    }
-  };
-
   const getVarianceColor = (variance: number) => {
     return variance >= 0 ? 'text-red-600' : 'text-green-600';
   };
@@ -431,9 +421,7 @@ export default function BudgetReportsPage() {
                       </TableCell>
                       <TableCell>{category.percentage.toFixed(1)}%</TableCell>
                       <TableCell>
-                        <Badge variant={getStatusColor(category.status)}>
-                          {category.status}
-                        </Badge>
+                        <StatusBadge status={category.status} />
                       </TableCell>
                     </TableRow>
                   ))}
@@ -472,9 +460,7 @@ export default function BudgetReportsPage() {
                       </TableCell>
                       <TableCell>{dept.utilization.toFixed(1)}%</TableCell>
                       <TableCell>
-                        <Badge variant={getStatusColor(dept.status)}>
-                          {dept.status}
-                        </Badge>
+                        <StatusBadge status={dept.status} />
                       </TableCell>
                       <TableCell className="text-sm text-muted-foreground">
                         {dept.monthsLeft} months left
