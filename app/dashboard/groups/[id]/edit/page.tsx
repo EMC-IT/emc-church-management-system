@@ -4,10 +4,9 @@ import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Label as UILabel } from '@/components/ui/label';
+import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { PageHeader } from '@/components/ui/page-header';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { 
   Select,
   SelectContent,
@@ -15,20 +14,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { 
-  ArrowLeft,
-  Save,
-  Loader2,
-  Users,
-  MapPin,
-  Calendar,
-  User,
-  Trash2
-} from 'lucide-react';
+import { ArrowLeft, Save, Loader2, Trash2 } from 'lucide-react';
 import { groupsService } from '@/services';
 import { Group, GroupFormData } from '@/lib/types/groups';
 import { toast } from 'sonner';
-
 import {
   AlertDialog,
   AlertDialogAction,
@@ -78,7 +67,6 @@ export default function EditGroupPage() {
   const loadGroup = async () => {
     try {
       const response = await groupsService.getGroup(groupId);
-      
       if (response.success && response.data) {
         const groupData = response.data;
         setGroup(groupData);
@@ -96,15 +84,13 @@ export default function EditGroupPage() {
         toast.error('Group not found');
         router.push('/dashboard/groups');
       }
-    } catch (error) {
+    } catch {
       toast.error('Failed to load group');
       router.push('/dashboard/groups');
     } finally {
       setLoading(false);
     }
   };
-
-
 
   const handleInputChange = (field: string, value: any) => {
     if (field.startsWith('leader.')) {
@@ -127,7 +113,6 @@ export default function EditGroupPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Basic validation
     if (!formData.name.trim()) {
       toast.error('Group name is required');
       return;
@@ -143,23 +128,16 @@ export default function EditGroupPage() {
       return;
     }
     
-    if (!formData.leader.email.trim()) {
-      toast.error('Group leader email is required');
-      return;
-    }
-    
     setSaving(true);
-    
     try {
       const response = await groupsService.updateGroup(groupId, formData);
-      
       if (response.success) {
         toast.success('Group updated successfully');
         router.push(`/dashboard/groups/${groupId}`);
       } else {
         toast.error(response.message || 'Failed to update group');
       }
-    } catch (error) {
+    } catch {
       toast.error('Failed to update group');
     } finally {
       setSaving(false);
@@ -168,31 +146,25 @@ export default function EditGroupPage() {
 
   const handleDelete = async () => {
     setDeleting(true);
-    
     try {
       const response = await groupsService.deleteGroup(groupId);
-      
       if (response.success) {
         toast.success('Group deleted successfully');
         router.push('/dashboard/groups');
       } else {
         toast.error(response.message || 'Failed to delete group');
       }
-    } catch (error) {
+    } catch {
       toast.error('Failed to delete group');
     } finally {
       setDeleting(false);
     }
   };
 
-  const handleCancel = () => {
-    router.push(`/dashboard/groups/${groupId}`);
-  };
-
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
-        <Loader2 className="h-8 w-8 animate-spin" />
+        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
       </div>
     );
   }
@@ -201,9 +173,8 @@ export default function EditGroupPage() {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
         <div className="text-center">
-          <h2 className="text-2xl font-bold">Group Not Found</h2>
-          <p className="text-muted-foreground mt-2">The group you're trying to edit doesn't exist.</p>
-          <Button onClick={() => router.push('/dashboard/groups')} className="mt-4">
+          <h2 className="text-xl font-bold">Group Not Found</h2>
+          <Button onClick={() => router.push('/dashboard/groups')} size="sm" className="mt-4">
             Back to Groups
           </Button>
         </div>
@@ -212,307 +183,234 @@ export default function EditGroupPage() {
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center gap-2">
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={handleCancel}
-          className="h-8 w-8"
-        >
-          <ArrowLeft className="h-4 w-4" />
-        </Button>
-        <PageHeader title="Edit Group" />
+    <div className="space-y-6 max-w-4xl mx-auto">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-4">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => router.push(`/dashboard/groups/${groupId}`)}
+            className="text-muted-foreground hover:text-foreground"
+          >
+            <ArrowLeft className="h-4 w-4 mr-1.5" />
+            Back
+          </Button>
+          <h1 className="font-heading text-2xl font-bold tracking-tight">Edit Group</h1>
+        </div>
+
+        <AlertDialog>
+          <AlertDialogTrigger asChild>
+            <Button variant="outline" size="sm" className="text-destructive hover:text-destructive border-destructive/30 hover:border-destructive">
+              <Trash2 className="h-4 w-4 mr-1.5" />
+              Delete
+            </Button>
+          </AlertDialogTrigger>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Delete Group</AlertDialogTitle>
+              <AlertDialogDescription>
+                Are you sure you want to delete &quot;{group.name}&quot;? This action cannot be undone and will remove all group records.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel disabled={deleting}>Cancel</AlertDialogCancel>
+              <AlertDialogAction
+                onClick={handleDelete}
+                disabled={deleting}
+                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              >
+                {deleting ? 'Deleting...' : 'Delete Group'}
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
-        <div className="grid gap-6 lg:grid-cols-3">
-          {/* Main Form */}
-          <div className="lg:col-span-2 space-y-6">
-            {/* Basic Information */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center space-x-2">
-                  <Users className="h-5 w-5" />
-                  <span>Basic Information</span>
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid gap-4 md:grid-cols-2">
-                  <div className="space-y-2">
-                    <UILabel htmlFor="name">Group Name *</UILabel>
-                    <Input
-                      id="name"
-                      value={formData.name}
-                      onChange={(e) => handleInputChange('name', e.target.value)}
-                      placeholder="Enter group name"
-                      required
-                    />
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <UILabel htmlFor="category">Category *</UILabel>
-                    <Select
-                      value={formData.category}
-                      onValueChange={(value) => handleInputChange('category', value)}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select category" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {categories.map((category) => (
-                          <SelectItem key={category} value={category}>
-                            {category}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-                
-                <div className="space-y-2">
-                  <UILabel htmlFor="description">Description</UILabel>
-                  <Textarea
-                    id="description"
-                    value={formData.description}
-                    onChange={(e) => handleInputChange('description', e.target.value)}
-                    placeholder="Enter group description"
-                    rows={3}
-                  />
-                </div>
-                
-                <div className="grid gap-4 md:grid-cols-2">
-                  <div className="space-y-2">
-                    <UILabel htmlFor="maxMembers">Maximum Members</UILabel>
-                    <Input
-                      id="maxMembers"
-                      type="number"
-                      value={formData.maxMembers}
-                      onChange={(e) => handleInputChange('maxMembers', parseInt(e.target.value) || 0)}
-                      placeholder="Enter maximum members"
-                      min="1"
-                    />
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <UILabel htmlFor="status">Status</UILabel>
-                    <Select
-                      value={formData.status}
-                      onValueChange={(value) => handleInputChange('status', value)}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select status" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {statusOptions.map((status) => (
-                          <SelectItem key={status} value={status}>
-                            {status}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Meeting Details */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center space-x-2">
-                  <Calendar className="h-5 w-5" />
-                  <span>Meeting Details</span>
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid gap-4 md:grid-cols-2">
-                  <div className="space-y-2">
-                    <UILabel htmlFor="meetingSchedule">Meeting Schedule</UILabel>
-                    <Input
-                      id="meetingSchedule"
-                      value={formData.meetingSchedule}
-                      onChange={(e) => handleInputChange('meetingSchedule', e.target.value)}
-                      placeholder="e.g., Fridays 6:00 PM"
-                    />
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <UILabel htmlFor="location">Location</UILabel>
-                    <Input
-                      id="location"
-                      value={formData.location}
-                      onChange={(e) => handleInputChange('location', e.target.value)}
-                      placeholder="e.g., Youth Center"
-                    />
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Group Leader */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center space-x-2">
-                  <User className="h-5 w-5" />
-                  <span>Group Leader</span>
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid gap-4 md:grid-cols-2">
-                  <div className="space-y-2">
-                    <UILabel htmlFor="leaderName">Leader Name *</UILabel>
-                    <Input
-                      id="leaderName"
-                      value={formData.leader.name}
-                      onChange={(e) => handleInputChange('leader.name', e.target.value)}
-                      placeholder="Enter leader name"
-                      required
-                    />
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <UILabel htmlFor="leaderEmail">Leader Email *</UILabel>
-                    <Input
-                      id="leaderEmail"
-                      type="email"
-                      value={formData.leader.email}
-                      onChange={(e) => handleInputChange('leader.email', e.target.value)}
-                      placeholder="Enter leader email"
-                      required
-                    />
-                  </div>
-                </div>
-                
-                <div className="space-y-2">
-                  <UILabel htmlFor="leaderPhone">Leader Phone</UILabel>
-                  <Input
-                    id="leaderPhone"
-                    value={formData.leader.phone}
-                    onChange={(e) => handleInputChange('leader.phone', e.target.value)}
-                    placeholder="Enter leader phone number"
-                  />
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Sidebar */}
-          <div className="space-y-6">
-            {/* Actions */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Actions</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                <Button
-                  type="submit"
-                  disabled={saving}
-                  className="w-full bg-brand-primary hover:bg-brand-primary/90"
+        {/* Basic Information */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base font-semibold">Basic Information</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div className="space-y-2">
+                <Label htmlFor="name">Group Name *</Label>
+                <Input
+                  id="name"
+                  value={formData.name}
+                  onChange={(e) => handleInputChange('name', e.target.value)}
+                  placeholder="Enter group name"
+                  required
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="category">Category *</Label>
+                <Select
+                  value={formData.category}
+                  onValueChange={(value) => handleInputChange('category', value)}
                 >
-                  {saving ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Saving...
-                    </>
-                  ) : (
-                    <>
-                      <Save className="mr-2 h-4 w-4" />
-                      Save Changes
-                    </>
-                  )}
-                </Button>
-                
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={handleCancel}
-                  disabled={saving}
-                  className="w-full"
+                  <SelectTrigger id="category">
+                    <SelectValue placeholder="Select category" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {categories.map((category) => (
+                      <SelectItem key={category} value={category}>
+                        {category}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="description">Description</Label>
+              <Textarea
+                id="description"
+                value={formData.description}
+                onChange={(e) => handleInputChange('description', e.target.value)}
+                placeholder="Group purpose and details..."
+                rows={3}
+              />
+            </div>
+            
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div className="space-y-2">
+                <Label htmlFor="maxMembers">Maximum Capacity</Label>
+                <Input
+                  id="maxMembers"
+                  type="number"
+                  value={formData.maxMembers}
+                  onChange={(e) => handleInputChange('maxMembers', parseInt(e.target.value) || 0)}
+                  placeholder="50"
+                  min="1"
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="status">Status</Label>
+                <Select
+                  value={formData.status}
+                  onValueChange={(value) => handleInputChange('status', value)}
                 >
-                  Cancel
-                </Button>
-              </CardContent>
-            </Card>
+                  <SelectTrigger id="status">
+                    <SelectValue placeholder="Select status" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {statusOptions.map((status) => (
+                      <SelectItem key={status} value={status}>
+                        {status}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
 
-            {/* Group Info */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Group Information</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3 text-sm">
-                <div>
-                  <UILabel className="text-muted-foreground">Current Members</UILabel>
-                  <p className="font-medium">{group.members} of {group.maxMembers}</p>
-                </div>
-                
-                <div>
-                  <UILabel className="text-muted-foreground">Engagement Rate</UILabel>
-                  <p className="font-medium">{group.engagement}%</p>
-                </div>
-                
-                <div>
-                  <UILabel className="text-muted-foreground">Created</UILabel>
-                  <p className="font-medium">{new Date(group.createdAt).toLocaleDateString()}</p>
-                </div>
-                
-                <div>
-                  <UILabel className="text-muted-foreground">Last Updated</UILabel>
-                  <p className="font-medium">{new Date(group.updatedAt).toLocaleDateString()}</p>
-                </div>
-              </CardContent>
-            </Card>
+        {/* Meeting Details */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base font-semibold">Meeting Schedule & Location</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div className="space-y-2">
+                <Label htmlFor="meetingSchedule">Meeting Schedule</Label>
+                <Input
+                  id="meetingSchedule"
+                  value={formData.meetingSchedule}
+                  onChange={(e) => handleInputChange('meetingSchedule', e.target.value)}
+                  placeholder="e.g., Fridays 6:00 PM"
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="location">Location</Label>
+                <Input
+                  id="location"
+                  value={formData.location}
+                  onChange={(e) => handleInputChange('location', e.target.value)}
+                  placeholder="e.g., Youth Center"
+                />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
 
-            {/* Danger Zone */}
-            <Card className="border-destructive">
-              <CardHeader>
-                <CardTitle className="text-destructive">Danger Zone</CardTitle>
-                <CardDescription>
-                  Irreversible and destructive actions
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <AlertDialog>
-                  <AlertDialogTrigger asChild>
-                    <Button 
-                      variant="destructive" 
-                      className="w-full"
-                      disabled={deleting}
-                    >
-                      {deleting ? (
-                        <>
-                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                          Deleting...
-                        </>
-                      ) : (
-                        <>
-                          <Trash2 className="mr-2 h-4 w-4" />
-                          Delete Group
-                        </>
-                      )}
-                    </Button>
-                  </AlertDialogTrigger>
-                  <AlertDialogContent>
-                    <AlertDialogHeader>
-                      <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-                      <AlertDialogDescription>
-                        This action cannot be undone. This will permanently delete the group
-                        "{group.name}" and remove all associated data including members, events, and attendance records.
-                      </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                      <AlertDialogCancel>Cancel</AlertDialogCancel>
-                      <AlertDialogAction
-                        onClick={handleDelete}
-                        className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                      >
-                        Delete Group
-                      </AlertDialogAction>
-                    </AlertDialogFooter>
-                  </AlertDialogContent>
-                </AlertDialog>
-              </CardContent>
-            </Card>
-          </div>
+        {/* Group Leader */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base font-semibold">Group Leader</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div className="space-y-2">
+                <Label htmlFor="leaderName">Leader Name *</Label>
+                <Input
+                  id="leaderName"
+                  value={formData.leader.name}
+                  onChange={(e) => handleInputChange('leader.name', e.target.value)}
+                  placeholder="Leader full name"
+                  required
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="leaderEmail">Leader Email *</Label>
+                <Input
+                  id="leaderEmail"
+                  type="email"
+                  value={formData.leader.email}
+                  onChange={(e) => handleInputChange('leader.email', e.target.value)}
+                  placeholder="leader@church.com"
+                  required
+                />
+              </div>
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="leaderPhone">Leader Phone</Label>
+              <Input
+                id="leaderPhone"
+                value={formData.leader.phone}
+                onChange={(e) => handleInputChange('leader.phone', e.target.value)}
+                placeholder="+233 24 123 4567"
+              />
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Actions */}
+        <div className="flex justify-end gap-3 pt-2">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => router.push(`/dashboard/groups/${groupId}`)}
+            disabled={saving}
+          >
+            Cancel
+          </Button>
+          <Button
+            type="submit"
+            disabled={saving}
+          >
+            {saving ? (
+              <>
+                <Loader2 className="mr-1.5 h-4 w-4 animate-spin" />
+                Saving...
+              </>
+            ) : (
+              <>
+                <Save className="mr-1.5 h-4 w-4" />
+                Save Changes
+              </>
+            )}
+          </Button>
         </div>
       </form>
     </div>

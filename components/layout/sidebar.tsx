@@ -17,7 +17,6 @@ import {
   BadgeCent,
   MessageSquare,
   Calendar,
-  BookOpen,
   UsersRound,
   BarChart3,
   Settings,
@@ -27,27 +26,48 @@ import {
   Heart,
   Wallet,
   FileText,
-  Shield,
   GraduationCap,
   Building2,
   HandCoins,
   Package,
   Activity,
+  type LucideIcon,
 } from "lucide-react";
 
-const navigation = [
+interface NavItem {
+  name: string;
+  href: string;
+  icon: LucideIcon;
+  permission?: string | null;
+  exact?: boolean;
+}
+
+interface NavSection {
+  title?: string;
+  items: NavItem[];
+}
+
+const navSections: NavSection[] = [
   {
-    name: "Dashboard",
-    href: "/dashboard",
-    icon: LayoutDashboard,
-    permission: null,
+    items: [
+      {
+        name: "Dashboard",
+        href: "/dashboard",
+        icon: LayoutDashboard,
+        permission: null,
+        exact: true,
+      },
+    ],
   },
   {
-    name: "Members",
-    href: "/dashboard/members",
-    icon: Users,
-    permission: PERMISSIONS.VIEW_MEMBERS,
-    children: [
+    title: "PEOPLE",
+    items: [
+      {
+        name: "Members",
+        href: "/dashboard/members",
+        icon: Users,
+        permission: PERMISSIONS.VIEW_MEMBERS,
+      },
       {
         name: "Attendance",
         href: "/dashboard/attendance",
@@ -61,12 +81,6 @@ const navigation = [
         permission: PERMISSIONS.VIEW_MEMBERS,
       },
       {
-        name: "Sunday School",
-        href: "/dashboard/sunday-school",
-        icon: GraduationCap,
-        permission: PERMISSIONS.VIEW_MEMBERS,
-      },
-      {
         name: "Departments",
         href: "/dashboard/departments",
         icon: Building2,
@@ -75,92 +89,119 @@ const navigation = [
     ],
   },
   {
-    name: "Assets",
-    href: "/dashboard/assets",
-    icon: Package,
-    permission: PERMISSIONS.VIEW_FINANCE,
+    title: "MINISTRY",
+    items: [
+      {
+        name: "Sunday School",
+        href: "/dashboard/sunday-school",
+        icon: GraduationCap,
+        permission: PERMISSIONS.VIEW_MEMBERS,
+      },
+      {
+        name: "Prayer Requests",
+        href: "/dashboard/prayer-requests",
+        icon: Heart,
+        permission: PERMISSIONS.VIEW_MEMBERS,
+      },
+      {
+        name: "Events",
+        href: "/dashboard/events",
+        icon: Calendar,
+        permission: PERMISSIONS.MANAGE_EVENTS,
+      },
+    ],
   },
-
   {
-    name: "Finance",
-    href: "/dashboard/finance",
-    icon: Wallet,
-    permission: PERMISSIONS.VIEW_FINANCE,
-    children: [
+    title: "FINANCE",
+    items: [
       {
         name: "Giving",
         href: "/dashboard/finance/giving",
         icon: HandCoins,
+        permission: PERMISSIONS.VIEW_FINANCE,
       },
       {
         name: "Income",
         href: "/dashboard/finance/income",
         icon: BadgeCent,
+        permission: PERMISSIONS.VIEW_FINANCE,
       },
       {
         name: "Expenses",
         href: "/dashboard/finance/expenses",
         icon: FileText,
+        permission: PERMISSIONS.VIEW_FINANCE,
       },
       {
         name: "Tithes & Offerings",
         href: "/dashboard/finance/tithes-offerings",
         icon: Heart,
+        permission: PERMISSIONS.VIEW_FINANCE,
       },
       {
         name: "Budgets",
         href: "/dashboard/finance/budgets",
-        icon: FileText,
+        icon: Wallet,
+        permission: PERMISSIONS.VIEW_FINANCE,
       },
       {
         name: "Reports",
         href: "/dashboard/finance/reports",
         icon: BarChart3,
+        permission: PERMISSIONS.VIEW_REPORTS,
       },
     ],
   },
-  
   {
-    name: "Communications",
-    href: "/dashboard/communications",
-    icon: MessageSquare,
-    permission: PERMISSIONS.SEND_SMS,
+    title: "OPERATIONS",
+    items: [
+      {
+        name: "Assets",
+        href: "/dashboard/assets",
+        icon: Package,
+        permission: PERMISSIONS.VIEW_FINANCE,
+      },
+      {
+        name: "Communications",
+        href: "/dashboard/communications",
+        icon: MessageSquare,
+        permission: PERMISSIONS.SEND_SMS,
+      },
+    ],
   },
   {
-    name: "Events",
-    href: "/dashboard/events",
-    icon: Calendar,
-    permission: PERMISSIONS.MANAGE_EVENTS,
+    title: "INSIGHTS",
+    items: [
+      {
+        name: "Analytics",
+        href: "/dashboard/analytics",
+        icon: BarChart3,
+        permission: PERMISSIONS.VIEW_REPORTS,
+      },
+      {
+        name: "Activity Logs",
+        href: "/dashboard/activity-logs",
+        icon: Activity,
+        permission: PERMISSIONS.MANAGE_ROLES,
+      },
+    ],
   },
   {
-    name: "Prayer Requests",
-    href: "/dashboard/prayer-requests",
-    icon: Heart,
-    permission: PERMISSIONS.VIEW_MEMBERS,
-  },
-  {
-    name: "Analytics",
-    href: "/dashboard/analytics",
-    icon: BarChart3,
-    permission: PERMISSIONS.VIEW_REPORTS,
-  },
-  {
-    name: "Activity Logs",
-    href: "/dashboard/activity-logs",
-    icon: Activity,
-    permission: PERMISSIONS.MANAGE_ROLES,
-  },
-  {
-    name: "Profile",
-    href: "/dashboard/profile",
-    icon: User,
-    permission: null,
-  },
-  {
-    name: "Settings",
-    href: "/dashboard/settings",
-    icon: Settings,
-    permission: PERMISSIONS.MANAGE_ROLES,
+    title: "ACCOUNT",
+    items: [
+      {
+        name: "Profile",
+        href: "/dashboard/profile",
+        icon: User,
+        permission: null,
+      },
+      {
+        name: "Settings",
+        href: "/dashboard/settings",
+        icon: Settings,
+        permission: PERMISSIONS.MANAGE_ROLES,
+      },
+    ],
   },
 ];
 
@@ -169,31 +210,41 @@ export default function Sidebar() {
   const pathname = usePathname();
   const { hasPermission } = useAuth();
 
-  const filteredNavigation = navigation.filter(
-    (item) => !item.permission || hasPermission(item.permission)
-  );
+  const isItemActive = (href: string, exact?: boolean) => {
+    if (exact || href === "/dashboard") {
+      return pathname === href;
+    }
+    return pathname === href || pathname.startsWith(href + "/");
+  };
 
   return (
-    <div
+    <aside
       className={cn(
         "bg-card border-r border-border flex flex-col transition-all duration-300 h-screen",
         isCollapsed ? "w-16" : "w-64"
       )}
     >
-      <div className="p-4 flex items-center justify-between flex-shrink-0">
+      {/* Brand Header */}
+      <div className="p-4 flex items-center justify-between flex-shrink-0 h-16 border-b border-border">
         {!isCollapsed && (
-          <div className="flex items-center space-x-2">
-            <Church className="h-8 w-8 text-brand-primary" />
-            <span className="text-xl font-bold text-brand-primary">
+          <Link href="/dashboard" className="flex items-center space-x-2.5">
+            <Church className="h-7 w-7 text-primary" />
+            <span className="font-heading text-xl font-bold tracking-tight text-primary">
               ChurchMS
             </span>
+          </Link>
+        )}
+        {isCollapsed && (
+          <div className="mx-auto">
+            <Church className="h-6 w-6 text-primary" />
           </div>
         )}
         <Button
           variant="ghost"
           size="icon"
           onClick={() => setIsCollapsed(!isCollapsed)}
-          className="ml-auto"
+          className={cn("h-8 w-8 text-muted-foreground hover:text-foreground", !isCollapsed && "ml-auto")}
+          aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
         >
           {isCollapsed ? (
             <ChevronRight className="h-4 w-4" />
@@ -203,49 +254,54 @@ export default function Sidebar() {
         </Button>
       </div>
 
-      <Separator className="flex-shrink-0" />
+      {/* Navigation Links with ScrollArea */}
+      <ScrollArea className="flex-1 px-3 py-3 h-full">
+        <nav className="space-y-4">
+          {navSections.map((section, idx) => {
+            const visibleItems = section.items.filter(
+              (item) => !item.permission || hasPermission(item.permission)
+            );
 
-      <ScrollArea className="flex-1 px-3 py-4 h-full">
-        <nav className="space-y-2">
-          {filteredNavigation.map((item) => (
-            <div key={item.name}>
-              <Link
-                href={item.href}
-                className={cn(
-                  "flex items-center space-x-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors",
-                  pathname === item.href
-                    ? "bg-brand-primary text-white"
-                    : "text-muted-foreground hover:text-foreground hover:bg-muted",
-                  isCollapsed && "justify-center"
+            if (visibleItems.length === 0) return null;
+
+            return (
+              <div key={section.title || `section-${idx}`} className="space-y-1">
+                {section.title && !isCollapsed && (
+                  <div className="px-3 pt-2 pb-1 text-[11px] font-bold tracking-wider text-muted-foreground/70 uppercase select-none">
+                    {section.title}
+                  </div>
                 )}
-              >
-                <item.icon className="h-5 w-5 flex-shrink-0" />
-                {!isCollapsed && <span>{item.name}</span>}
-              </Link>
+                {section.title && isCollapsed && idx > 0 && (
+                  <Separator className="my-2" />
+                )}
 
-              {item.children && !isCollapsed && (
-                <div className="ml-6 mt-2 space-y-1">
-                  {item.children.map((child) => (
-                    <Link
-                      key={child.name}
-                      href={child.href}
-                      className={cn(
-                        "flex items-center space-x-3 px-3 py-2 rounded-lg text-sm transition-colors",
-                        pathname === child.href
-                          ? "bg-brand-primary/10 text-brand-primary"
-                          : "text-muted-foreground hover:text-foreground hover:bg-muted"
-                      )}
-                    >
-                      <child.icon className="h-4 w-4" />
-                      <span>{child.name}</span>
-                    </Link>
-                  ))}
+                <div className="space-y-0.5">
+                  {visibleItems.map((item) => {
+                    const active = isItemActive(item.href, item.exact);
+                    return (
+                      <Link
+                        key={item.href + item.name}
+                        href={item.href}
+                        title={isCollapsed ? item.name : undefined}
+                        className={cn(
+                          "flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors",
+                          active
+                            ? "bg-primary text-primary-foreground font-semibold shadow-xs"
+                            : "text-muted-foreground hover:text-foreground hover:bg-muted",
+                          isCollapsed && "justify-center px-2"
+                        )}
+                      >
+                        <item.icon className="h-4 w-4 flex-shrink-0" />
+                        {!isCollapsed && <span className="truncate">{item.name}</span>}
+                      </Link>
+                    );
+                  })}
                 </div>
-              )}
-            </div>
-          ))}
+              </div>
+            );
+          })}
         </nav>
       </ScrollArea>
-    </div>
+    </aside>
   );
 }

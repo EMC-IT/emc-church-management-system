@@ -1,33 +1,42 @@
 'use client';
 
+import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { PageHeader } from '@/components/ui/page-header';
-import { ChartHeader } from '@/components/ui/chart-header';
 import { StatCard } from '@/components/ui/stat-card';
 import { Badge } from '@/components/ui/badge';
+import { StatusBadge } from '@/components/ui/status-badge';
 import { Button } from '@/components/ui/button';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { CurrencyDisplay } from '@/components/ui/currency-display';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import {
   ChartContainer,
   ChartTooltip,
   ChartTooltipContent,
-  ChartLegend,
-  ChartLegendContent,
   type ChartConfig,
 } from '@/components/ui/chart';
 import {
   Users,
   UserCheck,
-  BadgeCent,
+  HandCoins,
   Calendar,
   Plus,
-  Mail,
   MapPin,
-  ActivitySquare,
+  Clock,
+  ArrowRight,
+  UserPlus,
+  Receipt,
+  CalendarPlus,
+  CheckSquare
 } from 'lucide-react';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, BarChart, Bar, PieChart, Pie, Cell, Label, ComposedChart } from 'recharts';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, BarChart, Bar } from 'recharts';
 
+// Attendance trend data
 const attendanceData = [
   { month: 'Jan', attendance: 245 },
   { month: 'Feb', attendance: 280 },
@@ -37,6 +46,7 @@ const attendanceData = [
   { month: 'Jun', attendance: 365 },
 ];
 
+// Giving trend data
 const givingData = [
   { month: 'Jan', amount: 12500 },
   { month: 'Feb', amount: 15800 },
@@ -46,191 +56,154 @@ const givingData = [
   { month: 'Jun', amount: 24500 },
 ];
 
+// Recent members list
 const recentMembers = [
-  { id: '1', name: 'John Smith', email: 'john@example.com', joinDate: '2024-01-15', status: 'New' },
-  { id: '2', name: 'Mary Johnson', email: 'mary@example.com', joinDate: '2024-01-10', status: 'Active' },
-  { id: '3', name: 'David Brown', email: 'david@example.com', joinDate: '2024-01-05', status: 'New' },
+  { id: '1', name: 'John Smith', email: 'john@example.com', joinDate: '2024-01-15', status: 'new' },
+  { id: '2', name: 'Mary Johnson', email: 'mary@example.com', joinDate: '2024-01-10', status: 'active' },
+  { id: '3', name: 'David Brown', email: 'david@example.com', joinDate: '2024-01-05', status: 'new' },
+  { id: '4', name: 'Grace Asante', email: 'grace.asante@example.com', joinDate: '2024-01-02', status: 'active' },
 ];
 
+// Upcoming events list
 const upcomingEvents = [
-  { id: '1', title: 'Sunday Service', date: '2024-01-21', time: '10:00 AM', location: 'Main Sanctuary' },
-  { id: '2', title: 'Bible Study', date: '2024-01-22', time: '7:00 PM', location: 'Fellowship Hall' },
-  { id: '3', title: 'Youth Meeting', date: '2024-01-23', time: '6:00 PM', location: 'Youth Room' },
+  { id: '1', title: 'Sunday Worship Service', date: 'Jan 21, 2024', time: '10:00 AM', location: 'Main Sanctuary' },
+  { id: '2', title: 'Midweek Bible Study', date: 'Jan 24, 2024', time: '07:00 PM', location: 'Fellowship Hall' },
+  { id: '3', title: 'Youth Ministry Meeting', date: 'Jan 27, 2024', time: '04:00 PM', location: 'Youth Chapel' },
+  { id: '4', title: 'Leadership Council Session', date: 'Jan 28, 2024', time: '06:00 PM', location: 'Conference Room' },
 ];
 
 // Chart Configurations
 const attendanceChartConfig = {
   attendance: {
     label: 'Attendance',
-    color: 'hsl(var(--chart-2))',
+    color: 'hsl(var(--primary))',
   },
 } satisfies ChartConfig;
 
 const givingChartConfig = {
   amount: {
-    label: 'Amount',
-    color: 'hsl(var(--chart-1))',
-  },
-} satisfies ChartConfig;
-
-// Additional data for new charts
-const eventsData = [
-  { month: 'Jan', events: 8, attendees: 520 },
-  { month: 'Feb', events: 12, attendees: 680 },
-  { month: 'Mar', events: 10, attendees: 590 },
-  { month: 'Apr', events: 15, attendees: 820 },
-  { month: 'May', events: 14, attendees: 750 },
-  { month: 'Jun', events: 18, attendees: 980 },
-];
-
-const eventsChartConfig = {
-  events: {
-    label: 'Events',
-    color: 'hsl(var(--chart-3))',
-  },
-  attendees: {
-    label: 'Attendees',
-    color: 'hsl(var(--chart-4))',
-  },
-} satisfies ChartConfig;
-
-const groupsData = [
-  { name: 'Youth', members: 85, active: 78 },
-  { name: "Women's", members: 65, active: 60 },
-  { name: "Men's", members: 48, active: 42 },
-  { name: "Children's", members: 92, active: 88 },
-  { name: 'Worship', members: 35, active: 32 },
-  { name: 'Prayer', members: 28, active: 27 },
-];
-
-const groupsChartConfig = {
-  members: {
-    label: 'Total Members',
-    color: 'hsl(var(--chart-1))',
-  },
-  active: {
-    label: 'Active Members',
-    color: 'hsl(var(--chart-3))',
-  },
-} satisfies ChartConfig;
-
-const departmentsData = [
-  { name: 'Worship', value: 25, color: 'hsl(var(--chart-1))' },
-  { name: 'Youth', value: 85, color: 'hsl(var(--chart-2))' },
-  { name: "Women's", value: 45, color: 'hsl(var(--chart-3))' },
-  { name: "Men's", value: 32, color: 'hsl(var(--chart-4))' },
-  { name: "Children's", value: 65, color: 'hsl(var(--chart-5))'},
-];
-
-const departmentsChartConfig = {
-  value: {
-    label: 'Members',
-  },
-} satisfies ChartConfig;
-
-const prayerRequestsData = [
-  { category: 'Health', count: 45 },
-  { category: 'Family', count: 32 },
-  { category: 'Finance', count: 28 },
-  { category: 'Guidance', count: 38 },
-  { category: 'Salvation', count: 22 },
-  { category: 'Other', count: 15 },
-];
-
-const prayerChartConfig = {
-  count: {
-    label: 'Requests',
-    color: 'hsl(var(--chart-5))',
+    label: 'Giving',
+    color: 'hsl(var(--primary))',
   },
 } satisfies ChartConfig;
 
 export default function DashboardPage() {
   return (
     <div className="space-y-6">
-      <PageHeader
-        title="Dashboard"
-        description="Overview of today's church activity"
-        actions={
-          <Button className="bg-brand-primary hover:bg-brand-primary/90">
-            <Plus className="mr-2 h-4 w-4" />
-            Quick Add
-          </Button>
-        }
-      />
+      {/* Page Header */}
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h1 className="font-heading text-2xl font-bold tracking-tight">Dashboard</h1>
+        </div>
 
-      {/* Stats Cards */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <div className="flex items-center gap-2">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button size="sm">
+                <Plus className="mr-1.5 h-4 w-4" />
+                Quick Add
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-48">
+              <DropdownMenuItem asChild>
+                <Link href="/dashboard/members/add" className="cursor-pointer">
+                  <UserPlus className="mr-2 h-4 w-4" />
+                  <span>Add Member</span>
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link href="/dashboard/finance/giving/add" className="cursor-pointer">
+                  <Receipt className="mr-2 h-4 w-4" />
+                  <span>Record Giving</span>
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link href="/dashboard/events/add" className="cursor-pointer">
+                  <CalendarPlus className="mr-2 h-4 w-4" />
+                  <span>Create Event</span>
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link href="/dashboard/attendance/take" className="cursor-pointer">
+                  <CheckSquare className="mr-2 h-4 w-4" />
+                  <span>Take Attendance</span>
+                </Link>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+      </div>
+
+      {/* Key Metrics / Stat Cards */}
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard
           title="Total Members"
           value="1,234"
           icon={Users}
-          accent="primary"
-          trend={{ value: '+12% from last month', direction: 'up' }}
+          trend={{ value: "+12% from last month", direction: "up" }}
         />
         <StatCard
           title="Today's Attendance"
           value="365"
           icon={UserCheck}
-          accent="secondary"
-          trend={{ value: '+8% from last week', direction: 'up' }}
+          trend={{ value: "+8% from last week", direction: "up" }}
         />
         <StatCard
           title="This Month's Giving"
           value={<CurrencyDisplay amount={24500} />}
-          icon={BadgeCent}
-          accent="success"
-          trend={{ value: '+15% from last month', direction: 'up' }}
+          icon={HandCoins}
+          trend={{ value: "+15% from last month", direction: "up" }}
         />
         <StatCard
           title="Upcoming Events"
           value="8"
           icon={Calendar}
-          accent="accent"
-          description="This week"
+          description="Scheduled this month"
         />
       </div>
 
-      {/* Charts */}
-      <div className="grid gap-4 md:grid-cols-2">
-        <Card className="hover:shadow-md transition-shadow">
-          <CardHeader>
-            <ChartHeader title="Attendance Trend" badge="+8.2%" tone="secondary" />
+      {/* Primary Analytics Charts */}
+      <div className="grid gap-6 md:grid-cols-2">
+        {/* Attendance Trend */}
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="text-base font-semibold">Attendance Trend</CardTitle>
+            <Badge variant="primary" size="sm">+8.2%</Badge>
           </CardHeader>
           <CardContent>
-            <ChartContainer config={attendanceChartConfig} className="h-[300px] w-full">
-              <LineChart data={attendanceData} margin={{ left: 12, right: 12 }}>
-                <CartesianGrid vertical={false} strokeDasharray="3 3" className="stroke-muted" />
+            <ChartContainer config={attendanceChartConfig} className="h-[280px] w-full">
+              <LineChart data={attendanceData} margin={{ top: 10, left: 10, right: 10, bottom: 0 }}>
+                <CartesianGrid vertical={false} strokeDasharray="3 3" className="stroke-border" />
                 <XAxis
                   dataKey="month"
                   tickLine={false}
                   axisLine={false}
                   tickMargin={8}
-                  className="text-xs"
+                  className="text-xs text-muted-foreground"
                 />
                 <YAxis
                   tickLine={false}
                   axisLine={false}
                   tickMargin={8}
-                  className="text-xs"
+                  className="text-xs text-muted-foreground"
                 />
                 <ChartTooltip 
-                  cursor={{ stroke: 'hsl(var(--muted))', strokeWidth: 1 }}
+                  cursor={{ stroke: 'hsl(var(--border))', strokeWidth: 1 }}
                   content={<ChartTooltipContent indicator="line" />} 
                 />
                 <Line
                   dataKey="attendance"
                   type="monotone"
-                  stroke="hsl(var(--chart-2))"
+                  stroke="hsl(var(--primary))"
                   strokeWidth={2.5}
                   dot={{
-                    fill: "hsl(var(--chart-2))",
+                    fill: "hsl(var(--primary))",
                     strokeWidth: 2,
-                    r: 4,
+                    r: 3.5,
                   }}
                   activeDot={{
-                    r: 6,
-                    fill: "hsl(var(--chart-2))",
-                    strokeWidth: 2,
+                    r: 5,
+                    fill: "hsl(var(--primary))",
                   }}
                 />
               </LineChart>
@@ -238,271 +211,115 @@ export default function DashboardPage() {
           </CardContent>
         </Card>
 
-        <Card className="hover:shadow-md transition-shadow">
-          <CardHeader>
-            <ChartHeader title="Giving Trend" badge="+15.3%" tone="success" />
+        {/* Giving Trend */}
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="text-base font-semibold">Giving Trend</CardTitle>
+            <Badge variant="success" size="sm">+15.3%</Badge>
           </CardHeader>
           <CardContent>
-            <ChartContainer config={givingChartConfig} className="h-[300px] w-full">
-              <BarChart data={givingData} margin={{ left: 12, right: 12 }}>
-                <CartesianGrid vertical={false} strokeDasharray="3 3" className="stroke-muted" />
+            <ChartContainer config={givingChartConfig} className="h-[280px] w-full">
+              <BarChart data={givingData} margin={{ top: 10, left: 10, right: 10, bottom: 0 }}>
+                <CartesianGrid vertical={false} strokeDasharray="3 3" className="stroke-border" />
                 <XAxis
                   dataKey="month"
                   tickLine={false}
                   tickMargin={10}
                   axisLine={false}
-                  className="text-xs"
+                  className="text-xs text-muted-foreground"
                 />
                 <YAxis
                   tickLine={false}
                   axisLine={false}
                   tickMargin={8}
-                  tickFormatter={(value) => `$${value / 1000}k`}
-                  className="text-xs"
+                  tickFormatter={(value) => `${value / 1000}k`}
+                  className="text-xs text-muted-foreground"
                 />
                 <ChartTooltip
-                  cursor={{ fill: 'hsl(var(--muted))', opacity: 0.2 }}
+                  cursor={{ fill: 'hsl(var(--muted))', opacity: 0.4 }}
                   content={<ChartTooltipContent indicator="dashed" />}
                 />
                 <Bar
                   dataKey="amount"
-                  fill="hsl(var(--chart-1))"
-                  radius={[8, 8, 0, 0]}
-                />
-              </BarChart>
-            </ChartContainer>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Additional Charts - 4 Column Grid */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        {/* Events Trend */}
-        <Card className="hover:shadow-md transition-shadow lg:col-span-2">
-          <CardHeader>
-            <ChartHeader title="Events" badge="Last 6 Months" />
-          </CardHeader>
-          <CardContent>
-            <ChartContainer config={eventsChartConfig} className="h-[250px] w-full">
-              <ComposedChart data={eventsData} margin={{ left: 12, right: 12 }}>
-                <CartesianGrid vertical={false} strokeDasharray="3 3" className="stroke-muted" />
-                <XAxis
-                  dataKey="month"
-                  tickLine={false}
-                  axisLine={false}
-                  tickMargin={8}
-                  className="text-xs"
-                />
-                <YAxis
-                  yAxisId="left"
-                  tickLine={false}
-                  axisLine={false}
-                  tickMargin={8}
-                  className="text-xs"
-                />
-                <YAxis
-                  yAxisId="right"
-                  orientation="right"
-                  tickLine={false}
-                  axisLine={false}
-                  tickMargin={8}
-                  className="text-xs"
-                />
-                <ChartTooltip 
-                  cursor={false}
-                  content={<ChartTooltipContent indicator="line" />} 
-                />
-                <ChartLegend content={<ChartLegendContent />} />
-                <Bar
-                  yAxisId="left"
-                  dataKey="events"
-                  fill="hsl(var(--chart-3))"
+                  fill="hsl(var(--primary))"
                   radius={[4, 4, 0, 0]}
                 />
-                <Line
-                  yAxisId="right"
-                  dataKey="attendees"
-                  type="monotone"
-                  stroke="hsl(var(--chart-4))"
-                  strokeWidth={2}
-                  dot={{ fill: "hsl(var(--chart-4))", r: 3 }}
-                />
-              </ComposedChart>
-            </ChartContainer>
-          </CardContent>
-        </Card>
-
-        {/* Departments Distribution */}
-        <Card className="hover:shadow-md transition-shadow">
-          <CardHeader>
-            <CardTitle>Departments</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <ChartContainer config={departmentsChartConfig} className="mx-auto aspect-square max-h-[250px]">
-              <PieChart>
-                <ChartTooltip
-                  cursor={false}
-                  content={<ChartTooltipContent hideLabel />}
-                />
-                <Pie
-                  data={departmentsData}
-                  dataKey="value"
-                  nameKey="name"
-                  innerRadius={50}
-                  strokeWidth={5}
-                >
-                  {departmentsData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={entry.color} />
-                  ))}
-                  <Label
-                    content={({ viewBox }) => {
-                      if (viewBox && "cx" in viewBox && "cy" in viewBox) {
-                        const total = departmentsData.reduce((a, b) => a + b.value, 0);
-                        return (
-                          <text
-                            x={viewBox.cx}
-                            y={viewBox.cy}
-                            textAnchor="middle"
-                            dominantBaseline="middle"
-                          >
-                            <tspan
-                              x={viewBox.cx}
-                              y={viewBox.cy}
-                              className="fill-foreground text-2xl font-bold"
-                            >
-                              {total}
-                            </tspan>
-                            <tspan
-                              x={viewBox.cx}
-                              y={(viewBox.cy || 0) + 20}
-                              className="fill-muted-foreground text-xs"
-                            >
-                              Total
-                            </tspan>
-                          </text>
-                        );
-                      }
-                    }}
-                  />
-                </Pie>
-              </PieChart>
-            </ChartContainer>
-          </CardContent>
-        </Card>
-
-        {/* Prayer Requests */}
-        <Card className="hover:shadow-md transition-shadow">
-          <CardHeader>
-            <CardTitle>Prayer Requests</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <ChartContainer config={prayerChartConfig} className="h-[250px] w-full">
-              <BarChart data={prayerRequestsData} layout="horizontal" margin={{ left: 12, right: 12 }}>
-                <CartesianGrid horizontal={false} strokeDasharray="3 3" className="stroke-muted" />
-                <XAxis type="number" tickLine={false} axisLine={false} className="text-xs" />
-                <YAxis 
-                  dataKey="category" 
-                  type="category" 
-                  tickLine={false} 
-                  axisLine={false}
-                  width={60}
-                  className="text-xs"
-                />
-                <ChartTooltip
-                  cursor={false}
-                  content={<ChartTooltipContent indicator="line" />}
-                />
-                <Bar
-                  dataKey="count"
-                  fill="hsl(var(--chart-5))"
-                  radius={[0, 4, 4, 0]}
-                />
               </BarChart>
             </ChartContainer>
           </CardContent>
         </Card>
       </div>
 
-      {/* Groups Activity Chart */}
-      <Card className="hover:shadow-md transition-shadow">
-        <CardHeader>
-          <ChartHeader title="Groups Activity" badge="86% Active" tone="primary" />
-        </CardHeader>
-        <CardContent>
-          <ChartContainer config={groupsChartConfig} className="h-[300px] w-full">
-            <BarChart data={groupsData} margin={{ left: 12, right: 12 }}>
-              <CartesianGrid vertical={false} strokeDasharray="3 3" className="stroke-muted" />
-              <XAxis
-                dataKey="name"
-                tickLine={false}
-                tickMargin={10}
-                axisLine={false}
-                className="text-xs"
-              />
-              <YAxis
-                tickLine={false}
-                axisLine={false}
-                tickMargin={8}
-                className="text-xs"
-              />
-              <ChartTooltip
-                cursor={{ fill: 'hsl(var(--muted))', opacity: 0.2 }}
-                content={<ChartTooltipContent indicator="dashed" />}
-              />
-              <ChartLegend content={<ChartLegendContent />} />
-              <Bar dataKey="members" fill="hsl(var(--chart-1))" radius={[4, 4, 0, 0]} />
-              <Bar dataKey="active" fill="hsl(var(--chart-3))" radius={[4, 4, 0, 0]} />
-            </BarChart>
-          </ChartContainer>
-        </CardContent>
-      </Card>
-
-      {/* Recent Activity */}
-      <div className="grid gap-4 md:grid-cols-2">
+      {/* Operational Highlights: Recent Members & Upcoming Events */}
+      <div className="grid gap-6 md:grid-cols-2">
+        {/* Recent Members */}
         <Card>
-          <CardHeader>
-            <CardTitle>Recent Members</CardTitle>
+          <CardHeader className="flex flex-row items-center justify-between pb-3">
+            <CardTitle className="text-base font-semibold">Recent Members</CardTitle>
+            <Button variant="ghost" size="sm" asChild className="text-xs text-muted-foreground hover:text-foreground">
+              <Link href="/dashboard/members">
+                View All
+                <ArrowRight className="ml-1 h-3 w-3" />
+              </Link>
+            </Button>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
+            <div className="divide-y divide-border">
               {recentMembers.map((member) => (
-                <div key={member.id} className="flex items-center justify-between">
-                  <div className="flex items-center space-x-3">
+                <div key={member.id} className="flex items-center justify-between py-3 first:pt-0 last:pb-0">
+                  <div className="flex items-center gap-3">
                     <Avatar className="h-8 w-8">
-                      <AvatarFallback>{member.name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
+                      <AvatarFallback className="bg-primary/10 text-primary text-xs font-semibold">
+                        {member.name.split(' ').map(n => n[0]).join('')}
+                      </AvatarFallback>
                     </Avatar>
                     <div>
-                      <p className="text-sm font-medium">{member.name}</p>
+                      <p className="text-sm font-medium text-foreground">{member.name}</p>
                       <p className="text-xs text-muted-foreground">{member.email}</p>
                     </div>
                   </div>
-                  <Badge variant={member.status === 'New' ? 'primary' : 'neutral'}>
-                    {member.status}
-                  </Badge>
+                  <div className="flex items-center gap-3">
+                    <span className="text-xs text-muted-foreground hidden sm:inline-block">
+                      {member.joinDate}
+                    </span>
+                    <StatusBadge status={member.status} size="sm" />
+                  </div>
                 </div>
               ))}
             </div>
           </CardContent>
         </Card>
 
+        {/* Upcoming Events */}
         <Card>
-          <CardHeader>
-            <CardTitle>Upcoming Events</CardTitle>
+          <CardHeader className="flex flex-row items-center justify-between pb-3">
+            <CardTitle className="text-base font-semibold">Upcoming Events</CardTitle>
+            <Button variant="ghost" size="sm" asChild className="text-xs text-muted-foreground hover:text-foreground">
+              <Link href="/dashboard/events">
+                View Calendar
+                <ArrowRight className="ml-1 h-3 w-3" />
+              </Link>
+            </Button>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
+            <div className="divide-y divide-border">
               {upcomingEvents.map((event) => (
-                <div key={event.id} className="flex items-center justify-between">
+                <div key={event.id} className="flex items-center justify-between py-3 first:pt-0 last:pb-0">
                   <div className="space-y-1">
-                    <p className="text-sm font-medium">{event.title}</p>
-                    <div className="flex items-center space-x-2 text-xs text-muted-foreground">
-                      <Calendar className="h-3 w-3" />
-                      <span>{event.date}</span>
-                      <span>{event.time}</span>
-                    </div>
-                    <div className="flex items-center space-x-2 text-xs text-muted-foreground">
-                      <MapPin className="h-3 w-3" />
-                      <span>{event.location}</span>
+                    <p className="text-sm font-medium text-foreground">{event.title}</p>
+                    <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
+                      <div className="flex items-center gap-1">
+                        <Calendar className="h-3 w-3" />
+                        <span>{event.date}</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <Clock className="h-3 w-3" />
+                        <span>{event.time}</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <MapPin className="h-3 w-3" />
+                        <span>{event.location}</span>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -511,100 +328,6 @@ export default function DashboardPage() {
           </CardContent>
         </Card>
       </div>
-
-      {/* Activity Summary */}
-      <Card className="border-l-4 border-l-brand-primary">
-        <CardHeader>
-          <div className="flex items-center gap-2">
-            <div className="p-2 bg-brand-primary/10 rounded-lg">
-              <ActivitySquare className="h-5 w-5 text-brand-primary" />
-            </div>
-            <CardTitle>Today's Activity</CardTitle>
-          </div>
-        </CardHeader>
-        <CardContent>
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-            <div className="flex items-center justify-between p-4 rounded-lg bg-gradient-to-br from-brand-primary/10 to-brand-primary/5 border border-brand-primary/20">
-              <div>
-                <p className="text-sm text-muted-foreground">New Members</p>
-                <p className="text-2xl font-bold text-brand-primary">3</p>
-              </div>
-              <Users className="h-8 w-8 text-brand-primary/40" />
-            </div>
-            
-            <div className="flex items-center justify-between p-4 rounded-lg bg-gradient-to-br from-brand-secondary/10 to-brand-secondary/5 border border-brand-secondary/20">
-              <div>
-                <p className="text-sm text-muted-foreground">Services Today</p>
-                <p className="text-2xl font-bold text-brand-secondary">2</p>
-              </div>
-              <Calendar className="h-8 w-8 text-brand-secondary/40" />
-            </div>
-            
-            <div className="flex items-center justify-between p-4 rounded-lg bg-gradient-to-br from-brand-success/10 to-brand-success/5 border border-brand-success/20">
-              <div>
-                <p className="text-sm text-muted-foreground">Donations</p>
-                <p className="text-2xl font-bold text-brand-success">12</p>
-              </div>
-              <BadgeCent className="h-8 w-8 text-brand-success/40" />
-            </div>
-            
-            <div className="flex items-center justify-between p-4 rounded-lg bg-gradient-to-br from-brand-accent/10 to-brand-accent/5 border border-brand-accent/20">
-              <div>
-                <p className="text-sm text-muted-foreground">Prayer Requests</p>
-                <p className="text-2xl font-bold text-brand-accent">8</p>
-              </div>
-              <Mail className="h-8 w-8 text-brand-accent/40" />
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Quick Actions */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Quick Actions</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-            <Button 
-              variant="outline" 
-              className="h-24 flex flex-col items-center justify-center gap-2 hover:bg-brand-primary/5 hover:border-brand-primary transition-colors group"
-            >
-              <div className="p-2 bg-brand-primary/10 rounded-lg group-hover:bg-brand-primary/20 transition-colors">
-                <Users className="h-5 w-5 text-brand-primary" />
-              </div>
-              <span className="font-medium">Add Member</span>
-            </Button>
-            <Button 
-              variant="outline" 
-              className="h-24 flex flex-col items-center justify-center gap-2 hover:bg-brand-secondary/5 hover:border-brand-secondary transition-colors group"
-            >
-              <div className="p-2 bg-brand-secondary/10 rounded-lg group-hover:bg-brand-secondary/20 transition-colors">
-                <UserCheck className="h-5 w-5 text-brand-secondary" />
-              </div>
-              <span className="font-medium">Take Attendance</span>
-            </Button>
-            <Button 
-              variant="outline" 
-              className="h-24 flex flex-col items-center justify-center gap-2 hover:bg-brand-success/5 hover:border-brand-success transition-colors group"
-            >
-              <div className="p-2 bg-brand-success/10 rounded-lg group-hover:bg-brand-success/20 transition-colors">
-                <BadgeCent className="h-5 w-5 text-brand-success" />
-              </div>
-              <span className="font-medium">Record Donation</span>
-            </Button>
-            <Button 
-              variant="outline" 
-              className="h-24 flex flex-col items-center justify-center gap-2 hover:bg-brand-accent/5 hover:border-brand-accent transition-colors group"
-            >
-              <div className="p-2 bg-brand-accent/10 rounded-lg group-hover:bg-brand-accent/20 transition-colors">
-                <Calendar className="h-5 w-5 text-brand-accent" />
-              </div>
-              <span className="font-medium">Create Event</span>
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
     </div>
   );
 }

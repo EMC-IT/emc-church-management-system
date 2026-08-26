@@ -4,10 +4,9 @@ import { useState, useEffect } from 'react';
 import { useRouter, useParams, useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Label as UILabel } from '@/components/ui/label';
+import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { PageHeader } from '@/components/ui/page-header';
 import { 
   Select,
   SelectContent,
@@ -15,21 +14,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Switch } from '@/components/ui/switch';
-import { 
-  ArrowLeft,
-  Calendar,
-  MapPin,
-  Users,
-  Clock,
-  Save,
-  Loader2,
-  AlertCircle
-} from 'lucide-react';
+import { ArrowLeft, Save, Loader2 } from 'lucide-react';
 import { groupsService } from '@/services';
-import { Group, GroupEvent, GroupEventFormData } from '@/lib/types/groups';
+import { Group, GroupEventFormData } from '@/lib/types/groups';
 import { toast } from 'sonner';
-
 
 const eventTypes = [
   'Meeting',
@@ -41,7 +29,6 @@ const eventTypes = [
   'Training',
   'Social Event',
   'Workshop',
-  'Conference',
   'Other'
 ];
 
@@ -63,12 +50,12 @@ export default function AddGroupEventPage() {
   const [formData, setFormData] = useState<GroupEventFormData>({
     title: '',
     description: '',
-    type: '',
+    type: 'Meeting',
     startDate: '',
     endDate: '',
     location: '',
     maxAttendees: 50,
-    registrationRequired: true,
+    registrationRequired: false,
     registrationDeadline: '',
     status: 'Upcoming',
     notes: ''
@@ -84,13 +71,11 @@ export default function AddGroupEventPage() {
     try {
       setLoading(true);
       
-      // Load group details
       const groupResponse = await groupsService.getGroup(groupId);
       if (groupResponse.success && groupResponse.data) {
         setGroup(groupResponse.data);
       }
       
-      // If editing, load event data
       if (isEditing && editEventId) {
         const eventResponse = await groupsService.getGroupEvent(editEventId);
         if (eventResponse.success && eventResponse.data) {
@@ -111,8 +96,8 @@ export default function AddGroupEventPage() {
           });
         }
       }
-    } catch (error) {
-      toast.error('Failed to load data');
+    } catch {
+      toast.error('Failed to load event data');
     } finally {
       setLoading(false);
     }
@@ -120,8 +105,6 @@ export default function AddGroupEventPage() {
 
   const handleInputChange = (field: keyof GroupEventFormData, value: any) => {
     setFormData(prev => ({ ...prev, [field]: value }));
-    
-    // Clear error when user starts typing
     if (errors[field]) {
       setErrors(prev => ({ ...prev, [field]: '' }));
     }
@@ -129,52 +112,10 @@ export default function AddGroupEventPage() {
 
   const validateForm = (): boolean => {
     const newErrors: Record<string, string> = {};
-    
-    if (!formData.title.trim()) {
-      newErrors.title = 'Event title is required';
-    }
-    
-    if (!formData.description.trim()) {
-      newErrors.description = 'Event description is required';
-    }
-    
-    if (!formData.type) {
-      newErrors.type = 'Event type is required';
-    }
-    
-    if (!formData.startDate) {
-      newErrors.startDate = 'Start date and time is required';
-    }
-    
-    if (!formData.endDate) {
-      newErrors.endDate = 'End date and time is required';
-    }
-    
-    if (formData.startDate && formData.endDate) {
-      const startDate = new Date(formData.startDate);
-      const endDate = new Date(formData.endDate);
-      
-      if (endDate <= startDate) {
-        newErrors.endDate = 'End date must be after start date';
-      }
-    }
-    
-    if (!formData.location.trim()) {
-      newErrors.location = 'Location is required';
-    }
-    
-    if (formData.maxAttendees < 1) {
-      newErrors.maxAttendees = 'Maximum attendees must be at least 1';
-    }
-    
-    if (formData.registrationRequired && formData.registrationDeadline) {
-      const deadline = new Date(formData.registrationDeadline);
-      const startDate = new Date(formData.startDate);
-      
-      if (deadline >= startDate) {
-        newErrors.registrationDeadline = 'Registration deadline must be before event start';
-      }
-    }
+    if (!formData.title.trim()) newErrors.title = 'Title is required';
+    if (!formData.startDate) newErrors.startDate = 'Start date/time is required';
+    if (!formData.endDate) newErrors.endDate = 'End date/time is required';
+    if (!formData.location.trim()) newErrors.location = 'Location is required';
     
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -182,26 +123,18 @@ export default function AddGroupEventPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    if (!validateForm()) {
-      toast.error('Please fix the errors in the form');
-      return;
-    }
+    if (!validateForm()) return;
     
     setSubmitting(true);
-    
     try {
       const eventData = {
         ...formData,
         groupId,
         startDate: new Date(formData.startDate).toISOString(),
         endDate: new Date(formData.endDate).toISOString(),
-        registrationDeadline: formData.registrationDeadline ? 
-          new Date(formData.registrationDeadline).toISOString() : undefined
       };
       
       let response;
-      
       if (isEditing && editEventId) {
         response = await groupsService.updateGroupEvent(editEventId, eventData);
       } else {
@@ -212,326 +145,177 @@ export default function AddGroupEventPage() {
         toast.success(`Event ${isEditing ? 'updated' : 'created'} successfully`);
         router.push(`/dashboard/groups/${groupId}/events`);
       } else {
-        toast.error(response.message || `Failed to ${isEditing ? 'update' : 'create'} event`);
+        toast.error(response.message || 'Failed to save event');
       }
-    } catch (error) {
-      toast.error(`Failed to ${isEditing ? 'update' : 'create'} event`);
+    } catch {
+      toast.error('Failed to save event');
     } finally {
       setSubmitting(false);
     }
   };
 
-  const handleBack = () => {
-    router.push(`/dashboard/groups/${groupId}/events`);
-  };
-
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
-        <Loader2 className="h-8 w-8 animate-spin" />
+        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
       </div>
     );
   }
 
-
-
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 max-w-4xl mx-auto">
       {/* Header */}
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-4">
         <Button
           variant="ghost"
-          size="icon"
-          onClick={handleBack}
-          className="h-8 w-8"
+          size="sm"
+          onClick={() => router.push(`/dashboard/groups/${groupId}/events`)}
+          className="text-muted-foreground hover:text-foreground"
         >
-          <ArrowLeft className="h-4 w-4" />
+          <ArrowLeft className="h-4 w-4 mr-1.5" />
+          Back
         </Button>
-        <div className="flex-1">
-          <PageHeader
-            title={isEditing ? 'Edit Event' : 'Create New Event'}
-            description={`${isEditing ? 'Update event details' : 'Create a new event for'} ${group?.name}`}
-          />
-        </div>
+        <h1 className="font-heading text-2xl font-bold tracking-tight">
+          {isEditing ? 'Edit Event' : 'Create Event'}
+        </h1>
       </div>
 
-      {/* Form */}
       <form onSubmit={handleSubmit} className="space-y-6">
-        <div className="grid gap-6 lg:grid-cols-3">
-          {/* Main Event Details */}
-          <div className="lg:col-span-2 space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center space-x-2">
-                  <Calendar className="h-5 w-5" />
-                  <span>Event Details</span>
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid gap-4 md:grid-cols-2">
-                  <div className="md:col-span-2">
-                    <UILabel htmlFor="title">Event Title *</UILabel>
-                    <Input
-                      id="title"
-                      value={formData.title}
-                      onChange={(e) => handleInputChange('title', e.target.value)}
-                      placeholder="Enter event title"
-                      className={errors.title ? 'border-destructive' : ''}
-                    />
-                    {errors.title && (
-                      <p className="text-sm text-destructive mt-1 flex items-center">
-                        <AlertCircle className="h-4 w-4 mr-1" />
-                        {errors.title}
-                      </p>
-                    )}
-                  </div>
-                  
-                  <div>
-                    <UILabel htmlFor="type">Event Type *</UILabel>
-                    <Select value={formData.type} onValueChange={(value) => handleInputChange('type', value)}>
-                      <SelectTrigger className={errors.type ? 'border-destructive' : ''}>
-                        <SelectValue placeholder="Select event type" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {eventTypes.map((type) => (
-                          <SelectItem key={type} value={type}>
-                            {type}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    {errors.type && (
-                      <p className="text-sm text-destructive mt-1 flex items-center">
-                        <AlertCircle className="h-4 w-4 mr-1" />
-                        {errors.type}
-                      </p>
-                    )}
-                  </div>
-                  
-                  <div>
-                    <UILabel htmlFor="status">Status</UILabel>
-                    <Select value={formData.status} onValueChange={(value) => handleInputChange('status', value)}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select status" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {statusOptions.map((status) => (
-                          <SelectItem key={status} value={status}>
-                            {status}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  
-                  <div className="md:col-span-2">
-                    <UILabel htmlFor="description">Description *</UILabel>
-                    <Textarea
-                      id="description"
-                      value={formData.description}
-                      onChange={(e) => handleInputChange('description', e.target.value)}
-                      placeholder="Describe the event"
-                      rows={3}
-                      className={errors.description ? 'border-destructive' : ''}
-                    />
-                    {errors.description && (
-                      <p className="text-sm text-destructive mt-1 flex items-center">
-                        <AlertCircle className="h-4 w-4 mr-1" />
-                        {errors.description}
-                      </p>
-                    )}
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base font-semibold">Event Information</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div className="sm:col-span-2 space-y-2">
+                <Label htmlFor="title">Event Title *</Label>
+                <Input
+                  id="title"
+                  value={formData.title}
+                  onChange={(e) => handleInputChange('title', e.target.value)}
+                  placeholder="e.g. Monthly Fellowship Meetup"
+                  required
+                />
+                {errors.title && <p className="text-xs text-destructive">{errors.title}</p>}
+              </div>
 
-            {/* Date & Time */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center space-x-2">
-                  <Clock className="h-5 w-5" />
-                  <span>Date & Time</span>
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid gap-4 md:grid-cols-2">
-                  <div>
-                    <UILabel htmlFor="startDate">Start Date & Time *</UILabel>
-                    <Input
-                      id="startDate"
-                      type="datetime-local"
-                      value={formData.startDate}
-                      onChange={(e) => handleInputChange('startDate', e.target.value)}
-                      className={errors.startDate ? 'border-destructive' : ''}
-                    />
-                    {errors.startDate && (
-                      <p className="text-sm text-destructive mt-1 flex items-center">
-                        <AlertCircle className="h-4 w-4 mr-1" />
-                        {errors.startDate}
-                      </p>
-                    )}
-                  </div>
-                  
-                  <div>
-                    <UILabel htmlFor="endDate">End Date & Time *</UILabel>
-                    <Input
-                      id="endDate"
-                      type="datetime-local"
-                      value={formData.endDate}
-                      onChange={(e) => handleInputChange('endDate', e.target.value)}
-                      className={errors.endDate ? 'border-destructive' : ''}
-                    />
-                    {errors.endDate && (
-                      <p className="text-sm text-destructive mt-1 flex items-center">
-                        <AlertCircle className="h-4 w-4 mr-1" />
-                        {errors.endDate}
-                      </p>
-                    )}
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+              <div className="space-y-2">
+                <Label htmlFor="type">Event Type *</Label>
+                <Select value={formData.type} onValueChange={(val) => handleInputChange('type', val)}>
+                  <SelectTrigger id="type">
+                    <SelectValue placeholder="Select type" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {eventTypes.map((t) => (
+                      <SelectItem key={t} value={t}>{t}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
 
-            {/* Location */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center space-x-2">
-                  <MapPin className="h-5 w-5" />
-                  <span>Location</span>
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div>
-                  <UILabel htmlFor="location">Event Location *</UILabel>
-                  <Input
-                    id="location"
-                    value={formData.location}
-                    onChange={(e) => handleInputChange('location', e.target.value)}
-                    placeholder="Enter event location"
-                    className={errors.location ? 'border-destructive' : ''}
-                  />
-                  {errors.location && (
-                    <p className="text-sm text-destructive mt-1 flex items-center">
-                      <AlertCircle className="h-4 w-4 mr-1" />
-                      {errors.location}
-                    </p>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-          </div>
+              <div className="space-y-2">
+                <Label htmlFor="status">Status</Label>
+                <Select value={formData.status} onValueChange={(val) => handleInputChange('status', val)}>
+                  <SelectTrigger id="status">
+                    <SelectValue placeholder="Select status" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {statusOptions.map((s) => (
+                      <SelectItem key={s} value={s}>{s}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
 
-          {/* Registration Settings */}
-          <div className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center space-x-2">
-                  <Users className="h-5 w-5" />
-                  <span>Registration</span>
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div>
-                  <UILabel htmlFor="maxAttendees">Maximum Attendees *</UILabel>
-                  <Input
-                    id="maxAttendees"
-                    type="number"
-                    min="1"
-                    value={formData.maxAttendees}
-                    onChange={(e) => handleInputChange('maxAttendees', parseInt(e.target.value) || 0)}
-                    className={errors.maxAttendees ? 'border-destructive' : ''}
-                  />
-                  {errors.maxAttendees && (
-                    <p className="text-sm text-destructive mt-1 flex items-center">
-                      <AlertCircle className="h-4 w-4 mr-1" />
-                      {errors.maxAttendees}
-                    </p>
-                  )}
-                </div>
-                
-                <div className="flex items-center space-x-2">
-                  <Switch
-                    id="registrationRequired"
-                    checked={formData.registrationRequired}
-                    onCheckedChange={(checked) => handleInputChange('registrationRequired', checked)}
-                  />
-                  <UILabel htmlFor="registrationRequired">Registration Required</UILabel>
-                </div>
-                
-                {formData.registrationRequired && (
-                  <div>
-                    <UILabel htmlFor="registrationDeadline">Registration Deadline</UILabel>
-                    <Input
-                      id="registrationDeadline"
-                      type="datetime-local"
-                      value={formData.registrationDeadline}
-                      onChange={(e) => handleInputChange('registrationDeadline', e.target.value)}
-                      className={errors.registrationDeadline ? 'border-destructive' : ''}
-                    />
-                    {errors.registrationDeadline && (
-                      <p className="text-sm text-destructive mt-1 flex items-center">
-                        <AlertCircle className="h-4 w-4 mr-1" />
-                        {errors.registrationDeadline}
-                      </p>
-                    )}
-                    <p className="text-xs text-muted-foreground mt-1">
-                      Leave empty for no deadline
-                    </p>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-
-            {/* Additional Notes */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Additional Notes</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div>
-                  <UILabel htmlFor="notes">Notes</UILabel>
-                  <Textarea
-                    id="notes"
-                    value={formData.notes}
-                    onChange={(e) => handleInputChange('notes', e.target.value)}
-                    placeholder="Additional notes or instructions"
-                    rows={4}
-                  />
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Action Buttons */}
-            <div className="flex space-x-4">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={handleBack}
-                className="flex-1"
-                disabled={submitting}
-              >
-                Cancel
-              </Button>
-              
-              <Button
-                type="submit"
-                className="flex-1 bg-brand-primary hover:bg-brand-primary/90"
-                disabled={submitting}
-              >
-                {submitting ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    {isEditing ? 'Updating...' : 'Creating...'}
-                  </>
-                ) : (
-                  <>
-                    <Save className="mr-2 h-4 w-4" />
-                    {isEditing ? 'Update Event' : 'Create Event'}
-                  </>
-                )}
-              </Button>
+              <div className="sm:col-span-2 space-y-2">
+                <Label htmlFor="description">Description</Label>
+                <Textarea
+                  id="description"
+                  value={formData.description}
+                  onChange={(e) => handleInputChange('description', e.target.value)}
+                  placeholder="Event details and agenda..."
+                  rows={3}
+                />
+              </div>
             </div>
-          </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base font-semibold">Date & Location</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div className="space-y-2">
+                <Label htmlFor="startDate">Start Date & Time *</Label>
+                <Input
+                  id="startDate"
+                  type="datetime-local"
+                  value={formData.startDate}
+                  onChange={(e) => handleInputChange('startDate', e.target.value)}
+                  required
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="endDate">End Date & Time *</Label>
+                <Input
+                  id="endDate"
+                  type="datetime-local"
+                  value={formData.endDate}
+                  onChange={(e) => handleInputChange('endDate', e.target.value)}
+                  required
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="location">Location / Venue *</Label>
+                <Input
+                  id="location"
+                  value={formData.location}
+                  onChange={(e) => handleInputChange('location', e.target.value)}
+                  placeholder="e.g. Main Sanctuary"
+                  required
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="maxAttendees">Expected / Max Attendees</Label>
+                <Input
+                  id="maxAttendees"
+                  type="number"
+                  value={formData.maxAttendees}
+                  onChange={(e) => handleInputChange('maxAttendees', parseInt(e.target.value) || 0)}
+                  min="1"
+                />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <div className="flex justify-end gap-3 pt-2">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => router.push(`/dashboard/groups/${groupId}/events`)}
+            disabled={submitting}
+          >
+            Cancel
+          </Button>
+          <Button type="submit" disabled={submitting}>
+            {submitting ? (
+              <>
+                <Loader2 className="mr-1.5 h-4 w-4 animate-spin" />
+                Saving...
+              </>
+            ) : (
+              <>
+                <Save className="mr-1.5 h-4 w-4" />
+                {isEditing ? 'Save Changes' : 'Create Event'}
+              </>
+            )}
+          </Button>
         </div>
       </form>
     </div>

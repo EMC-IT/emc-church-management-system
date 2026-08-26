@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import React, { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
@@ -7,10 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { StatCard } from '@/components/ui/stat-card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-
 import { StatusBadge } from '@/components/ui/status-badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -23,20 +20,16 @@ import {
 } from '@/components/ui/alert-dialog';
 import {
   ArrowLeft,
-  Edit,
   Trash2,
   Users,
   Calendar,
   MapPin,
-  BadgeCent,
   TrendingUp,
   Clock,
   UserCheck,
   CalendarDays,
-  BarChart3,
-  Settings,
-  Plus,
-  FileText
+  FolderTree,
+  Loader2
 } from 'lucide-react';
 import { Department, DepartmentStats } from '@/lib/types/departments';
 import { departmentsService } from '@/services/departments-service';
@@ -51,8 +44,6 @@ export default function DepartmentDetailsPage() {
   const [stats, setStats] = useState<DepartmentStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-
-
 
   useEffect(() => {
     if (departmentId) {
@@ -69,10 +60,10 @@ export default function DepartmentDetailsPage() {
       if (response.success && response.data) {
         setDepartment(response.data);
       } else {
-        toast.error(response.message);
+        toast.error(response.message || 'Department not found');
         router.push('/dashboard/departments');
       }
-    } catch (error) {
+    } catch {
       toast.error('Failed to load department');
       router.push('/dashboard/departments');
     } finally {
@@ -102,56 +93,28 @@ export default function DepartmentDetailsPage() {
       } else {
         toast.error(response.message);
       }
-    } catch (error) {
+    } catch {
       toast.error('Failed to delete department');
     } finally {
       setDeleteDialogOpen(false);
     }
   };
 
-  const getStatusColor = (status: string) => {
-    switch (status.toLowerCase()) {
-      case 'active':
-        return 'primary';
-      case 'inactive':
-        return 'neutral';
-      default:
-        return 'primary';
-    }
-  };
-
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-GH', {
-      style: 'currency',
-      currency: 'GHS',
-      minimumFractionDigits: 0
-    }).format(amount);
-  };
-
   if (loading) {
     return (
-      <div className="space-y-6">
-        <div className="h-8 bg-muted animate-pulse rounded" />
-        <div className="h-32 bg-muted animate-pulse rounded" />
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-          {[...Array(4)].map((_, i) => (
-            <div key={i} className="h-24 bg-muted animate-pulse rounded" />
-          ))}
-        </div>
+      <div className="flex items-center justify-center min-h-[400px]">
+        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
       </div>
     );
   }
 
   if (!department) {
     return (
-    <div className="space-y-6">
-        <div className="text-center py-12">
-          <h2 className="text-2xl font-bold">Department Not Found</h2>
-          <p className="text-muted-foreground mt-2">The requested department could not be found.</p>
-          <Button asChild className="mt-4">
-            <Link href="/dashboard/departments">Back to Departments</Link>
-          </Button>
-        </div>
+      <div className="text-center py-12 space-y-4">
+        <h2 className="text-xl font-semibold">Department Not Found</h2>
+        <Button onClick={() => router.push('/dashboard/departments')} variant="outline">
+          Back to Departments
+        </Button>
       </div>
     );
   }
@@ -159,131 +122,96 @@ export default function DepartmentDetailsPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-start justify-between">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-4">
-          <Button variant="outline" size="icon" onClick={() => router.back()}>
-            <ArrowLeft className="h-4 w-4" />
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => router.push('/dashboard/departments')}
+            className="text-muted-foreground hover:text-foreground"
+          >
+            <ArrowLeft className="h-4 w-4 mr-1.5" />
+            Back
           </Button>
-          <div className="flex items-center gap-4">
-            <Avatar className="h-16 w-16">
-              <AvatarFallback className="bg-brand-primary text-white text-lg">
-                {department.name.substring(0, 2).toUpperCase()}
-              </AvatarFallback>
-            </Avatar>
-            <div>
-              <div className="flex items-center gap-2 mb-1">
-                <h1 className="text-3xl font-bold">{department.name}</h1>
-                <StatusBadge 
-                  status={(department.status || 'active').toLowerCase() as any} 
-                  variant={getStatusColor(department.status || 'active')}
-                />
-              </div>
-              <p className="text-muted-foreground">{department.description}</p>
-              {department.category && (
-                <Badge 
-                  variant="neutral" 
-                  className="mt-2"
-                  style={{ 
-                    borderColor: department.category.color,
-                    color: department.category.color,
-                    backgroundColor: `${department.category.color}10`
-                  }}
-                >
-                  {department.category.name}
-                </Badge>
-              )}
-            </div>
+          <div className="flex items-center gap-3">
+            <h1 className="font-heading text-2xl font-bold tracking-tight">{department.name}</h1>
+            <StatusBadge status={(department.status || 'active').toLowerCase() as any} size="sm" />
           </div>
         </div>
+
         <div className="flex items-center gap-2">
-          <Button variant="outline">
-            <Edit className="mr-2 h-4 w-4" />
-            Edit
-          </Button>
-          <Button 
-            variant="outline" 
+          <Button
+            variant="outline"
+            size="sm"
             className="text-destructive hover:text-destructive"
             onClick={() => setDeleteDialogOpen(true)}
           >
-            <Trash2 className="mr-2 h-4 w-4" />
+            <Trash2 className="mr-1.5 h-4 w-4" />
             Delete
           </Button>
         </div>
       </div>
 
       {/* Stats Cards */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard
           title="Total Members"
           value={stats?.totalMembers || 0}
           icon={Users}
-          accent="primary"
           description={`${stats?.activeMembers || 0} active members`}
         />
         <StatCard
           title="Attendance Rate"
           value={`${stats?.attendanceRate || 0}%`}
           icon={TrendingUp}
-          accent="secondary"
           description="Average meeting attendance"
         />
         <StatCard
           title="Total Meetings"
           value={stats?.totalMeetings || 0}
           icon={Calendar}
-          accent="success"
-          description="Meetings held this year"
+          description="Meetings recorded"
         />
         <StatCard
-          title="Budget Status"
-          value={department.budget ? formatCurrency(department.budget) : 'N/A'}
-          icon={BadgeCent}
-          accent="accent"
-          description={stats?.spentBudget ? `${formatCurrency(stats.spentBudget)} spent` : 'No budget set'}
+          title="Leader"
+          value={department.leader}
+          icon={UserCheck}
+          description="Department Head"
         />
       </div>
 
-      {/* Department Information */}
+      {/* Department Information & Schedule */}
       <div className="grid gap-6 md:grid-cols-2">
-        {/* Basic Information */}
         <Card>
-          <CardHeader>
-            <CardTitle>Department Information</CardTitle>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-base font-semibold">General Information</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex items-center gap-3">
-              <UserCheck className="h-5 w-5 text-muted-foreground" />
-              <div>
-                <p className="font-medium">Department Leader</p>
-                <p className="text-sm text-muted-foreground">{department.leader}</p>
-              </div>
+          <CardContent className="space-y-4 text-sm">
+            <div>
+              <span className="text-xs text-muted-foreground block">Description</span>
+              <p className="text-foreground mt-0.5">{department.description}</p>
             </div>
-            
-            {department.departmentType && (
-              <div className="flex items-center gap-3">
-                <Settings className="h-5 w-5 text-muted-foreground" />
-                <div>
-                  <p className="font-medium">Department Type</p>
-                  <p className="text-sm text-muted-foreground">{department.departmentType}</p>
-                </div>
-              </div>
-            )}
-            
-            {department.location && (
-              <div className="flex items-center gap-3">
-                <MapPin className="h-5 w-5 text-muted-foreground" />
-                <div>
-                  <p className="font-medium">Primary Location</p>
-                  <p className="text-sm text-muted-foreground">{department.location}</p>
-                </div>
-              </div>
-            )}
-            
-            <div className="flex items-center gap-3">
-              <Calendar className="h-5 w-5 text-muted-foreground" />
+
+            <div className="grid grid-cols-2 gap-4 pt-2 border-t border-border">
               <div>
-                <p className="font-medium">Created</p>
-                <p className="text-sm text-muted-foreground">
+                <span className="text-xs text-muted-foreground block">Leader</span>
+                <p className="font-medium text-foreground">{department.leader}</p>
+              </div>
+              {department.departmentType && (
+                <div>
+                  <span className="text-xs text-muted-foreground block">Type</span>
+                  <p className="font-medium text-foreground">{department.departmentType}</p>
+                </div>
+              )}
+              {department.location && (
+                <div>
+                  <span className="text-xs text-muted-foreground block">Location</span>
+                  <p className="font-medium text-foreground">{department.location}</p>
+                </div>
+              )}
+              <div>
+                <span className="text-xs text-muted-foreground block">Created</span>
+                <p className="font-medium text-foreground">
                   {new Date(department.createdAt).toLocaleDateString()}
                 </p>
               </div>
@@ -291,142 +219,67 @@ export default function DepartmentDetailsPage() {
           </CardContent>
         </Card>
 
-        {/* Meeting Schedule */}
         <Card>
-          <CardHeader>
-            <CardTitle>Meeting Schedule</CardTitle>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-base font-semibold">Meeting Schedule</CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="space-y-4 text-sm">
             {department.meetingSchedule ? (
-              <div className="space-y-4">
-                <div className="flex items-center gap-3">
-                  <CalendarDays className="h-5 w-5 text-muted-foreground" />
-                  <div>
-                    <p className="font-medium">Day & Frequency</p>
-                    <p className="text-sm text-muted-foreground">
-                      {department.meetingSchedule.dayOfWeek}s ({department.meetingSchedule.frequency})
-                    </p>
-                  </div>
+              <div className="space-y-3">
+                <div className="flex items-center gap-2">
+                  <CalendarDays className="h-4 w-4 text-muted-foreground" />
+                  <span className="font-medium text-foreground">
+                    {department.meetingSchedule.dayOfWeek}s ({department.meetingSchedule.frequency})
+                  </span>
                 </div>
-                <div className="flex items-center gap-3">
-                  <Clock className="h-5 w-5 text-muted-foreground" />
-                  <div>
-                    <p className="font-medium">Time</p>
-                    <p className="text-sm text-muted-foreground">
-                      {department.meetingSchedule.startTime} - {department.meetingSchedule.endTime}
-                    </p>
-                  </div>
+                <div className="flex items-center gap-2">
+                  <Clock className="h-4 w-4 text-muted-foreground" />
+                  <span className="text-muted-foreground">
+                    {department.meetingSchedule.startTime} - {department.meetingSchedule.endTime}
+                  </span>
                 </div>
                 {department.location && (
-                  <div className="flex items-center gap-3">
-                    <MapPin className="h-5 w-5 text-muted-foreground" />
-                    <div>
-                      <p className="font-medium">Location</p>
-                      <p className="text-sm text-muted-foreground">{department.location}</p>
-                    </div>
+                  <div className="flex items-center gap-2">
+                    <MapPin className="h-4 w-4 text-muted-foreground" />
+                    <span className="text-muted-foreground">{department.location}</span>
                   </div>
                 )}
               </div>
             ) : (
-              <div className="text-center py-8">
-                <Calendar className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                <p className="text-muted-foreground">No regular meeting schedule set</p>
-                <Button variant="outline" size="sm" className="mt-2">
-                  <Plus className="mr-2 h-4 w-4" />
-                  Set Schedule
-                </Button>
-              </div>
+              <p className="text-xs text-muted-foreground py-4">No regular meeting schedule set.</p>
             )}
           </CardContent>
         </Card>
       </div>
 
-      {/* Quick Actions */}
+      {/* Quick Navigation Shortcuts */}
       <Card>
-        <CardHeader>
-          <CardTitle>Quick Actions</CardTitle>
+        <CardHeader className="pb-3">
+          <CardTitle className="text-base font-semibold">Management</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-            <Button asChild variant="outline" className="h-20 flex-col">
+          <div className="grid gap-3 sm:grid-cols-3">
+            <Button asChild variant="outline" className="h-16 flex-col justify-center items-center">
               <Link href={`/dashboard/departments/${departmentId}/members`}>
-                <Users className="h-6 w-6 mb-2" />
-                Manage Members
+                <Users className="h-5 w-5 mb-1" />
+                <span className="text-xs font-medium">Members</span>
               </Link>
             </Button>
-            <Button asChild variant="outline" className="h-20 flex-col">
+            <Button asChild variant="outline" className="h-16 flex-col justify-center items-center">
               <Link href={`/dashboard/departments/${departmentId}/roles`}>
-                <UserCheck className="h-6 w-6 mb-2" />
-                Department Roles
+                <UserCheck className="h-5 w-5 mb-1" />
+                <span className="text-xs font-medium">Roles</span>
               </Link>
             </Button>
-            <Button asChild variant="outline" className="h-20 flex-col">
+            <Button asChild variant="outline" className="h-16 flex-col justify-center items-center">
               <Link href={`/dashboard/departments/${departmentId}/meetings`}>
-                <Calendar className="h-6 w-6 mb-2" />
-                Meetings
-              </Link>
-            </Button>
-            <Button asChild variant="outline" className="h-20 flex-col">
-              <Link href={`/dashboard/departments/${departmentId}/events`}>
-                <CalendarDays className="h-6 w-6 mb-2" />
-                Events
-              </Link>
-            </Button>
-            <Button asChild variant="outline" className="h-20 flex-col">
-              <Link href={`/dashboard/departments/${departmentId}/attendance`}>
-                <BarChart3 className="h-6 w-6 mb-2" />
-                Attendance
-              </Link>
-            </Button>
-            <Button asChild variant="outline" className="h-20 flex-col">
-              <Link href={`/dashboard/departments/${departmentId}/reports`}>
-                <FileText className="h-6 w-6 mb-2" />
-                Reports
+                <Calendar className="h-5 w-5 mb-1" />
+                <span className="text-xs font-medium">Meetings</span>
               </Link>
             </Button>
           </div>
         </CardContent>
       </Card>
-
-      {/* Recent Activity */}
-      {stats && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Recent Activity</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              <div className="flex items-center gap-3 p-3 border rounded-lg">
-                <Calendar className="h-5 w-5 text-blue-500" />
-                <div className="flex-1">
-                  <p className="font-medium">Upcoming Meetings</p>
-                  <p className="text-sm text-muted-foreground">
-                    {department.stats?.upcomingMeetings || 0} meetings scheduled
-                  </p>
-                </div>
-              </div>
-              <div className="flex items-center gap-3 p-3 border rounded-lg">
-                <CalendarDays className="h-5 w-5 text-green-500" />
-                <div className="flex-1">
-                  <p className="font-medium">Upcoming Events</p>
-                  <p className="text-sm text-muted-foreground">
-                    {department.stats?.upcomingEvents || 0} events planned
-                  </p>
-                </div>
-              </div>
-              <div className="flex items-center gap-3 p-3 border rounded-lg">
-                <TrendingUp className="h-5 w-5 text-orange-500" />
-                <div className="flex-1">
-                  <p className="font-medium">Average Attendance</p>
-                  <p className="text-sm text-muted-foreground">
-                    {stats.averageAttendance}% attendance rate
-                  </p>
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      )}
 
       {/* Delete Confirmation Dialog */}
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
@@ -434,8 +287,7 @@ export default function DepartmentDetailsPage() {
           <AlertDialogHeader>
             <AlertDialogTitle>Delete Department</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to delete "{department.name}"? This action cannot be undone.
-              All associated data including members, meetings, events, and reports will be permanently removed.
+              Are you sure you want to delete &quot;{department.name}&quot;? All associated records will be removed.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

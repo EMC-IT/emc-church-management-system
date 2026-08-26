@@ -1,33 +1,18 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useRouter, useParams } from 'next/navigation';
+import { useRouter, useParams, useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Label as UILabel } from '@/components/ui/label';
+import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { PageHeader } from '@/components/ui/page-header';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Switch } from '@/components/ui/switch';
-import { 
-  ArrowLeft,
-  Save,
-  Loader2,
-  Shield,
-  Users,
-  Settings,
-  Eye,
-  Edit,
-  Trash2,
-  UserPlus,
-  Calendar,
-  BarChart3
-} from 'lucide-react';
+import { ArrowLeft, Save, Loader2 } from 'lucide-react';
 import { groupsService } from '@/services';
-import { Group, GroupRole, GroupRoleFormData } from '@/lib/types/groups';
+import { Group, GroupRoleFormData } from '@/lib/types/groups';
 import { toast } from 'sonner';
-
 
 const availablePermissions = [
   {
@@ -60,20 +45,16 @@ const availablePermissions = [
       { id: 'view_reports', name: 'View Reports', description: 'Access group reports and analytics' },
       { id: 'export_data', name: 'Export Data', description: 'Export group data and reports' }
     ]
-  },
-  {
-    category: 'Communication',
-    permissions: [
-      { id: 'send_messages', name: 'Send Messages', description: 'Send messages to group members' },
-      { id: 'manage_announcements', name: 'Manage Announcements', description: 'Create and manage group announcements' }
-    ]
   }
 ];
 
 export default function AddGroupRolePage() {
   const router = useRouter();
   const params = useParams();
+  const searchParams = useSearchParams();
   const groupId = params.id as string;
+  const editRoleId = searchParams.get('edit');
+  const isEditing = !!editRoleId;
   
   const [group, setGroup] = useState<Group | null>(null);
   const [loading, setLoading] = useState(true);
@@ -89,27 +70,36 @@ export default function AddGroupRolePage() {
     if (groupId) {
       loadGroup();
     }
-  }, [groupId]);
+  }, [groupId, editRoleId]);
 
   const loadGroup = async () => {
     try {
+      setLoading(true);
       const response = await groupsService.getGroup(groupId);
-      
       if (response.success && response.data) {
         setGroup(response.data);
-      } else {
-        toast.error('Group not found');
-        router.push('/dashboard/groups');
       }
-    } catch (error) {
-      toast.error('Failed to load group');
-      router.push('/dashboard/groups');
+      
+      if (isEditing && editRoleId) {
+        const rolesResponse = await groupsService.getGroupRoles(groupId);
+        if (rolesResponse.success && rolesResponse.data) {
+          const role = rolesResponse.data.find(r => r.id === editRoleId);
+          if (role) {
+            setFormData({
+              name: role.name,
+              description: role.description,
+              permissions: role.permissions,
+              isDefault: role.isDefault || false
+            });
+          }
+        }
+      }
+    } catch {
+      toast.error('Failed to load role data');
     } finally {
       setLoading(false);
     }
   };
-
-
 
   const handleInputChange = (field: string, value: any) => {
     setFormData(prev => ({
@@ -129,7 +119,6 @@ export default function AddGroupRolePage() {
 
   const handleSelectAllInCategory = (categoryPermissions: any[], checked: boolean) => {
     const permissionIds = categoryPermissions.map(p => p.id);
-    
     setFormData(prev => ({
       ...prev,
       permissions: checked
@@ -141,14 +130,8 @@ export default function AddGroupRolePage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Basic validation
     if (!formData.name.trim()) {
       toast.error('Role name is required');
-      return;
-    }
-    
-    if (!formData.description.trim()) {
-      toast.error('Role description is required');
       return;
     }
     
@@ -158,279 +141,182 @@ export default function AddGroupRolePage() {
     }
     
     setSaving(true);
-    
     try {
-      const response = await groupsService.createGroupRole(groupId, formData);
+      const response = isEditing && editRoleId
+        ? await groupsService.updateGroupRole(editRoleId, formData)
+        : await groupsService.createGroupRole(groupId, formData);
       
       if (response.success) {
-        toast.success('Role created successfully');
+        toast.success(`Role ${isEditing ? 'updated' : 'created'} successfully`);
         router.push(`/dashboard/groups/${groupId}/roles`);
       } else {
-        toast.error(response.message || 'Failed to create role');
+        toast.error(response.message || 'Failed to save role');
       }
-    } catch (error) {
-      toast.error('Failed to create role');
+    } catch {
+      toast.error('Failed to save role');
     } finally {
       setSaving(false);
     }
   };
 
-  const handleCancel = () => {
-    router.push(`/dashboard/groups/${groupId}/roles`);
-  };
-
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
-        <Loader2 className="h-8 w-8 animate-spin" />
+        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
       </div>
     );
   }
 
-  const getCategoryIcon = (category: string) => {
-    switch (category) {
-      case 'Group Management': return <Settings className="h-4 w-4" />;
-      case 'Member Management': return <Users className="h-4 w-4" />;
-      case 'Event Management': return <Calendar className="h-4 w-4" />;
-      case 'Reports & Analytics': return <BarChart3 className="h-4 w-4" />;
-      case 'Communication': return <UserPlus className="h-4 w-4" />;
-      default: return <Shield className="h-4 w-4" />;
-    }
-  };
-
   return (
-    <div className="space-y-6">
-      <div className="flex items-center gap-2">
+    <div className="space-y-6 max-w-4xl mx-auto">
+      {/* Header */}
+      <div className="flex items-center gap-4">
         <Button
           variant="ghost"
-          size="icon"
-          onClick={handleCancel}
-          className="h-8 w-8"
+          size="sm"
+          onClick={() => router.push(`/dashboard/groups/${groupId}/roles`)}
+          className="text-muted-foreground hover:text-foreground"
         >
-          <ArrowLeft className="h-4 w-4" />
+          <ArrowLeft className="h-4 w-4 mr-1.5" />
+          Back
         </Button>
-        <PageHeader title="Create Group Role" description={`For ${group?.name}`} />
+        <h1 className="font-heading text-2xl font-bold tracking-tight">
+          {isEditing ? 'Edit Role' : 'Create Group Role'}
+        </h1>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
-        <div className="grid gap-6 lg:grid-cols-3">
-          {/* Main Form */}
-          <div className="lg:col-span-2 space-y-6">
-            {/* Basic Information */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center space-x-2">
-                  <Shield className="h-5 w-5" />
-                  <span>Role Information</span>
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="name">Role Name *</Label>
-                  <Input
-                    id="name"
-                    value={formData.name}
-                    onChange={(e) => handleInputChange('name', e.target.value)}
-                    placeholder="e.g., Treasurer, Secretary, Assistant Leader"
-                    required
-                  />
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="description">Description *</Label>
-                  <Textarea
-                    id="description"
-                    value={formData.description}
-                    onChange={(e) => handleInputChange('description', e.target.value)}
-                    placeholder="Describe the responsibilities and purpose of this role"
-                    rows={3}
-                    required
-                  />
-                </div>
-                
-                <div className="flex items-center space-x-2">
-                  <Switch
-                    id="isDefault"
-                    checked={formData.isDefault}
-                    onCheckedChange={(checked) => handleInputChange('isDefault', checked)}
-                  />
-                  <Label htmlFor="isDefault" className="text-sm">
-                    Set as default role for new members
-                  </Label>
-                </div>
-              </CardContent>
-            </Card>
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base font-semibold">Role Information</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="name">Role Name *</Label>
+              <Input
+                id="name"
+                value={formData.name}
+                onChange={(e) => handleInputChange('name', e.target.value)}
+                placeholder="e.g. Treasurer, Coordinator, Secretary"
+                required
+              />
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="description">Description</Label>
+              <Textarea
+                id="description"
+                value={formData.description}
+                onChange={(e) => handleInputChange('description', e.target.value)}
+                placeholder="Role responsibilities and scope..."
+                rows={3}
+              />
+            </div>
+            
+            <div className="flex items-center space-x-2 pt-2">
+              <Switch
+                id="isDefault"
+                checked={formData.isDefault}
+                onCheckedChange={(checked) => handleInputChange('isDefault', checked)}
+              />
+              <Label htmlFor="isDefault" className="text-xs text-muted-foreground cursor-pointer">
+                Set as default role for new members joining this group
+              </Label>
+            </div>
+          </CardContent>
+        </Card>
 
-            {/* Permissions */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center space-x-2">
-                  <Eye className="h-5 w-5" />
-                  <span>Permissions</span>
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                {availablePermissions.map((category) => {
-                  const categoryPermissionIds = category.permissions.map(p => p.id);
-                  const selectedInCategory = categoryPermissionIds.filter(id => 
-                    formData.permissions.includes(id)
-                  ).length;
-                  const allSelected = selectedInCategory === categoryPermissionIds.length;
-                  const someSelected = selectedInCategory > 0 && selectedInCategory < categoryPermissionIds.length;
-                  
-                  return (
-                    <div key={category.category} className="space-y-3">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center space-x-2">
-                          {getCategoryIcon(category.category)}
-                          <h4 className="font-medium">{category.category}</h4>
-                        </div>
-                        
-                        <div className="flex items-center space-x-2">
-                          <Checkbox
-                            checked={allSelected}
-                            ref={(el) => {
-                              if (el) {
-                                const input = el.querySelector('input');
-                                if (input) input.indeterminate = someSelected;
-                              }
-                            }}
-                            onCheckedChange={(checked) => 
-                              handleSelectAllInCategory(category.permissions, checked as boolean)
-                            }
-                          />
-                          <Label className="text-sm text-muted-foreground">
-                            Select All
-                          </Label>
-                        </div>
-                      </div>
-                      
-                      <div className="grid gap-3 md:grid-cols-1 pl-6">
-                        {category.permissions.map((permission) => (
-                          <div key={permission.id} className="flex items-start space-x-3">
-                            <Checkbox
-                              id={permission.id}
-                              checked={formData.permissions.includes(permission.id)}
-                              onCheckedChange={(checked) => 
-                                handlePermissionToggle(permission.id, checked as boolean)
-                              }
-                            />
-                            <div className="space-y-1">
-                              <Label 
-                                htmlFor={permission.id} 
-                                className="text-sm font-medium cursor-pointer"
-                              >
-                                {permission.name}
-                              </Label>
-                              <p className="text-xs text-muted-foreground">
-                                {permission.description}
-                              </p>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
+        {/* Permissions */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base font-semibold">Permissions</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            {availablePermissions.map((category) => {
+              const categoryPermissionIds = category.permissions.map(p => p.id);
+              const selectedInCategory = categoryPermissionIds.filter(id => 
+                formData.permissions.includes(id)
+              ).length;
+              const allSelected = selectedInCategory === categoryPermissionIds.length;
+              
+              return (
+                <div key={category.category} className="space-y-3 pb-4 border-b border-border last:border-b-0 last:pb-0">
+                  <div className="flex items-center justify-between">
+                    <h4 className="font-semibold text-sm text-foreground">{category.category}</h4>
+                    
+                    <div className="flex items-center space-x-2">
+                      <Checkbox
+                        id={`all-${category.category}`}
+                        checked={allSelected}
+                        onCheckedChange={(checked) => 
+                          handleSelectAllInCategory(category.permissions, checked as boolean)
+                        }
+                      />
+                      <label 
+                        htmlFor={`all-${category.category}`}
+                        className="text-xs text-muted-foreground cursor-pointer"
+                      >
+                        Select All
+                      </label>
                     </div>
-                  );
-                })}
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Sidebar */}
-          <div className="space-y-6">
-            {/* Actions */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Actions</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                <Button
-                  type="submit"
-                  disabled={saving}
-                  className="w-full bg-brand-primary hover:bg-brand-primary/90"
-                >
-                  {saving ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Creating...
-                    </>
-                  ) : (
-                    <>
-                      <Save className="mr-2 h-4 w-4" />
-                      Create Role
-                    </>
-                  )}
-                </Button>
-                
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={handleCancel}
-                  disabled={saving}
-                  className="w-full"
-                >
-                  Cancel
-                </Button>
-              </CardContent>
-            </Card>
-
-            {/* Permission Summary */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Permission Summary</CardTitle>
-                <CardDescription>
-                  {formData.permissions.length} permission(s) selected
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                {formData.permissions.length > 0 ? (
-                  <div className="space-y-2">
-                    {availablePermissions.map((category) => {
-                      const selectedInCategory = category.permissions.filter(p => 
-                        formData.permissions.includes(p.id)
-                      );
-                      
-                      if (selectedInCategory.length === 0) return null;
-                      
-                      return (
-                        <div key={category.category} className="space-y-1">
-                          <h5 className="text-sm font-medium">{category.category}</h5>
-                          <ul className="text-xs text-muted-foreground space-y-1 pl-3">
-                            {selectedInCategory.map((permission) => (
-                              <li key={permission.id}>• {permission.name}</li>
-                            ))}
-                          </ul>
-                        </div>
-                      );
-                    })}
                   </div>
-                ) : (
-                  <p className="text-sm text-muted-foreground">
-                    No permissions selected yet
-                  </p>
-                )}
-              </CardContent>
-            </Card>
+                  
+                  <div className="grid gap-2.5 sm:grid-cols-2">
+                    {category.permissions.map((permission) => (
+                      <div key={permission.id} className="flex items-start space-x-2.5 p-2 rounded-md hover:bg-muted/40 transition-colors">
+                        <Checkbox
+                          id={permission.id}
+                          checked={formData.permissions.includes(permission.id)}
+                          onCheckedChange={(checked) => 
+                            handlePermissionToggle(permission.id, checked as boolean)
+                          }
+                          className="mt-0.5"
+                        />
+                        <div className="space-y-0.5">
+                          <label 
+                            htmlFor={permission.id} 
+                            className="text-xs font-medium text-foreground cursor-pointer block"
+                          >
+                            {permission.name}
+                          </label>
+                          <p className="text-[11px] text-muted-foreground">
+                            {permission.description}
+                          </p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              );
+            })}
+          </CardContent>
+        </Card>
 
-            {/* Tips */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Tips</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-2 text-sm text-muted-foreground">
-                <p>• Choose a descriptive name that reflects the role's purpose</p>
-                <p>• Grant only necessary permissions for security</p>
-                <p>• Default roles are automatically assigned to new members</p>
-                <p>• You can modify permissions later if needed</p>
-              </CardContent>
-            </Card>
-          </div>
+        {/* Actions */}
+        <div className="flex justify-end gap-3 pt-2">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => router.push(`/dashboard/groups/${groupId}/roles`)}
+            disabled={saving}
+          >
+            Cancel
+          </Button>
+          <Button type="submit" disabled={saving}>
+            {saving ? (
+              <>
+                <Loader2 className="mr-1.5 h-4 w-4 animate-spin" />
+                Saving...
+              </>
+            ) : (
+              <>
+                <Save className="mr-1.5 h-4 w-4" />
+                {isEditing ? 'Save Changes' : 'Create Role'}
+              </>
+            )}
+          </Button>
         </div>
       </form>
     </div>
   );
-}
-
-function Label({ children, className, htmlFor }: { children: React.ReactNode; className?: string; htmlFor?: string }) {
-  return <label className={className} htmlFor={htmlFor}>{children}</label>;
 }

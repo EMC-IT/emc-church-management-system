@@ -223,7 +223,7 @@ export default function BudgetReportsPage() {
         >
           <ArrowLeft className="h-4 w-4" />
         </Button>
-        
+
         <div className="flex items-center gap-3 flex-1">
           <div className="p-2 bg-brand-primary/10 rounded-lg">
             <BarChart3 className="h-6 w-6 text-brand-primary" />
@@ -272,9 +272,6 @@ export default function BudgetReportsPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{totalBudgets}</div>
-            <p className="text-xs text-muted-foreground">
-              Across all departments
-            </p>
           </CardContent>
         </Card>
 
@@ -285,9 +282,6 @@ export default function BudgetReportsPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">₵{totalAllocated.toLocaleString()}</div>
-            <p className="text-xs text-muted-foreground">
-              {selectedYear} budget allocation
-            </p>
           </CardContent>
         </Card>
 
@@ -298,9 +292,6 @@ export default function BudgetReportsPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">₵{totalSpent.toLocaleString()}</div>
-            <p className="text-xs text-muted-foreground">
-              {overallUtilization.toFixed(1)}% utilization
-            </p>
           </CardContent>
         </Card>
 
@@ -311,9 +302,6 @@ export default function BudgetReportsPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">₵{(totalAllocated - totalSpent).toLocaleString()}</div>
-            <p className="text-xs text-muted-foreground">
-              {(100 - overallUtilization).toFixed(1)}% remaining
-            </p>
           </CardContent>
         </Card>
       </div>
@@ -342,22 +330,22 @@ export default function BudgetReportsPage() {
                     <YAxis tickLine={false} axisLine={false} tickMargin={8} className="text-xs" />
                     <ChartTooltip cursor={{ stroke: 'hsl(var(--muted))', strokeWidth: 1 }} content={<ChartTooltipContent indicator="line" />} />
                     <ChartLegend content={<ChartLegendContent />} />
-                    <Area 
-                      type="monotone" 
-                      dataKey="budget" 
-                      stackId="1" 
-                      stroke="hsl(var(--chart-1))" 
-                      fill="hsl(var(--chart-1))" 
+                    <Area
+                      type="monotone"
+                      dataKey="budget"
+                      stackId="1"
+                      stroke="hsl(var(--chart-1))"
+                      fill="hsl(var(--chart-1))"
                       fillOpacity={0.6}
                       strokeWidth={2}
                       name="Budget"
                     />
-                    <Area 
-                      type="monotone" 
-                      dataKey="spent" 
-                      stackId="2" 
-                      stroke="hsl(var(--chart-2))" 
-                      fill="hsl(var(--chart-2))" 
+                    <Area
+                      type="monotone"
+                      dataKey="spent"
+                      stackId="2"
+                      stroke="hsl(var(--chart-2))"
+                      fill="hsl(var(--chart-2))"
                       fillOpacity={0.6}
                       strokeWidth={2}
                       name="Actual"
@@ -436,10 +424,10 @@ export default function BudgetReportsPage() {
                   <TableBody>
                     {yearlyComparison.map((year, index) => {
                       const previousYear = yearlyComparison[index - 1];
-                      const growth = previousYear 
+                      const growth = previousYear
                         ? ((year.totalBudget - previousYear.totalBudget) / previousYear.totalBudget) * 100
                         : 0;
-                      
+
                       return (
                         <TableRow key={year.year}>
                           <TableCell className="font-medium">{year.year}</TableCell>
@@ -449,9 +437,8 @@ export default function BudgetReportsPage() {
                           <TableCell>{year.utilization.toFixed(1)}%</TableCell>
                           <TableCell>
                             {index > 0 && (
-                              <div className={`flex items-center gap-1 ${
-                                growth > 0 ? 'text-green-600' : 'text-red-600'
-                              }`}>
+                              <div className={`flex items-center gap-1 ${growth > 0 ? 'text-green-600' : 'text-red-600'
+                                }`}>
                                 {growth > 0 ? <TrendingUp className="h-4 w-4" /> : <TrendingDown className="h-4 w-4" />}
                                 {Math.abs(growth).toFixed(1)}%
                               </div>
@@ -519,7 +506,7 @@ export default function BudgetReportsPage() {
                     <div key={index} className="space-y-2">
                       <div className="flex justify-between items-center">
                         <div className="flex items-center gap-2">
-                          <div 
+                          <div
                             className="w-4 h-4 rounded-full"
                             style={{ backgroundColor: category.color }}
                           ></div>
@@ -531,9 +518,9 @@ export default function BudgetReportsPage() {
                         </div>
                       </div>
                       <div className="w-full bg-gray-200 rounded-full h-2">
-                        <div 
+                        <div
                           className="h-2 rounded-full"
-                          style={{ 
+                          style={{
                             backgroundColor: category.color,
                             width: `${category.percentage}%`
                           }}
@@ -560,9 +547,8 @@ export default function BudgetReportsPage() {
                 <CardContent>
                   <div className="space-y-2">
                     <div className="text-3xl font-bold">{metric.current}%</div>
-                    <div className={`text-sm flex items-center gap-1 ${
-                      metric.change > 0 ? 'text-green-600' : 'text-red-600'
-                    }`}>
+                    <div className={`text-sm flex items-center gap-1 ${metric.change > 0 ? 'text-green-600' : 'text-red-600'
+                      }`}>
                       {metric.change > 0 ? '+' : ''}{metric.change}% from previous period
                     </div>
                     <p className="text-sm text-muted-foreground">{metric.description}</p>

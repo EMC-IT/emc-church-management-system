@@ -4,28 +4,23 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Label as UILabel } from '@/components/ui/label';
+import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { PageHeader } from '@/components/ui/page-header';
 import { StatCard } from '@/components/ui/stat-card';
 import { Badge } from '@/components/ui/badge';
 import { StatusBadge } from '@/components/ui/status-badge';
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from '@/components/ui/dialog';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import {
@@ -49,14 +44,11 @@ import {
   Users,
   TrendingUp,
   Folder,
-  Save,
   Loader2,
-  AlertCircle
 } from 'lucide-react';
 import { groupsService } from '@/services';
 import { GroupCategory } from '@/lib/types/groups';
 import { toast } from 'sonner';
-
 
 interface CategoryFormData {
   name: string;
@@ -66,23 +58,14 @@ interface CategoryFormData {
 }
 
 const predefinedColors = [
-  '#2E8DB0', // Brand Primary
-  '#28ACD1', // Brand Secondary
-  '#C49831', // Brand Accent
-  '#A5CF5D', // Brand Success
-  '#FF6B6B', // Red
-  '#4ECDC4', // Teal
-  '#45B7D1', // Light Blue
-  '#96CEB4', // Mint
-  '#FFEAA7', // Yellow
-  '#DDA0DD', // Plum
-  '#98D8C8', // Mint Green
-  '#F7DC6F'  // Light Yellow
+  'hsl(var(--primary))',
+  'hsl(var(--muted-foreground))',
+  'hsl(var(--destructive))',
+  'hsl(var(--border))',
 ];
 
 export default function GroupCategoriesPage() {
   const router = useRouter();
-  
   const [categories, setCategories] = useState<GroupCategory[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
@@ -108,11 +91,10 @@ export default function GroupCategoriesPage() {
     try {
       setLoading(true);
       const response = await groupsService.getGroupCategories();
-      
       if (response.success && response.data) {
         setCategories(response.data);
       }
-    } catch (error) {
+    } catch {
       toast.error('Failed to load categories');
     } finally {
       setLoading(false);
@@ -123,10 +105,6 @@ export default function GroupCategoriesPage() {
     category.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     category.description.toLowerCase().includes(searchTerm.toLowerCase())
   );
-
-  const handleBack = () => {
-    router.push('/dashboard/groups');
-  };
 
   const handleAddCategory = () => {
     setFormData({
@@ -144,7 +122,7 @@ export default function GroupCategoriesPage() {
     setFormData({
       name: category.name,
       description: category.description,
-      color: category.color,
+      color: category.color || predefinedColors[0],
       isActive: category.isActive ?? true
     });
     setEditingCategory(category);
@@ -152,419 +130,244 @@ export default function GroupCategoriesPage() {
     setShowAddDialog(true);
   };
 
-  const handleInputChange = (field: keyof CategoryFormData, value: any) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
-    
-    // Clear error when user starts typing
-    if (errors[field]) {
-      setErrors(prev => ({ ...prev, [field]: '' }));
-    }
-  };
-
-  const validateForm = (): boolean => {
-    const newErrors: Record<string, string> = {};
-    
-    if (!formData.name.trim()) {
-      newErrors.name = 'Category name is required';
-    } else if (formData.name.length < 2) {
-      newErrors.name = 'Category name must be at least 2 characters';
-    }
-    
-    if (!formData.description.trim()) {
-      newErrors.description = 'Category description is required';
-    }
-    
-    // Check for duplicate names (excluding current category when editing)
-    const existingCategory = categories.find(cat => 
-      cat.name.toLowerCase() === formData.name.toLowerCase() && 
-      cat.id !== editingCategory?.id
-    );
-    
-    if (existingCategory) {
-      newErrors.name = 'A category with this name already exists';
-    }
-    
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    if (!validateForm()) {
-      toast.error('Please fix the errors in the form');
+    if (!formData.name.trim()) {
+      setErrors({ name: 'Category name is required' });
       return;
     }
-    
+
     setSubmitting(true);
-    
     try {
-      let response;
-      
       if (editingCategory) {
-        response = await groupsService.updateGroupCategory(editingCategory.id, formData);
+        const response = await groupsService.updateGroupCategory(editingCategory.id, formData);
+        if (response.success) {
+          toast.success('Category updated');
+          setShowAddDialog(false);
+          loadCategories();
+        }
       } else {
-        response = await groupsService.createGroupCategory(formData);
+        const response = await groupsService.createGroupCategory(formData);
+        if (response.success) {
+          toast.success('Category created');
+          setShowAddDialog(false);
+          loadCategories();
+        }
       }
-      
-      if (response.success) {
-        toast.success(`Category ${editingCategory ? 'updated' : 'created'} successfully`);
-        setShowAddDialog(false);
-        loadCategories();
-      } else {
-        toast.error(response.message || `Failed to ${editingCategory ? 'update' : 'create'} category`);
-      }
-    } catch (error) {
-      toast.error(`Failed to ${editingCategory ? 'update' : 'create'} category`);
+    } catch {
+      toast.error('Failed to save category');
     } finally {
       setSubmitting(false);
     }
   };
 
-  const handleDeleteCategory = async () => {
+  const handleDelete = async () => {
     if (!categoryToDelete) return;
-    
     setDeleting(true);
-    
     try {
       const response = await groupsService.deleteGroupCategory(categoryToDelete.id);
-      
       if (response.success) {
-        toast.success('Category deleted successfully');
-        setCategories(prev => prev.filter(c => c.id !== categoryToDelete.id));
+        toast.success('Category deleted');
         setCategoryToDelete(null);
-      } else {
-        toast.error(response.message || 'Failed to delete category');
+        loadCategories();
       }
-    } catch (error) {
+    } catch {
       toast.error('Failed to delete category');
     } finally {
       setDeleting(false);
     }
   };
 
-  const getCategoryStats = () => {
-    const totalCategories = categories.length;
-    const activeCategories = categories.filter(c => c.isActive).length;
-    const totalGroups = 0; // TODO: Calculate from groups data when needed
-    const averageGroupsPerCategory = totalCategories > 0 ? Math.round(totalGroups / totalCategories) : 0;
-    
-    return {
-      totalCategories,
-      activeCategories,
-      totalGroups,
-      averageGroupsPerCategory
-    };
-  };
+  const totalCategories = categories.length;
+  const activeCategories = categories.filter(c => c.isActive !== false).length;
 
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
-        <Loader2 className="h-8 w-8 animate-spin" />
+        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
       </div>
     );
   }
 
-
-
-  const stats = getCategoryStats();
-
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center gap-2">
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={handleBack}
-          className="h-8 w-8"
-        >
-          <ArrowLeft className="h-4 w-4" />
-        </Button>
-        <div className="flex-1">
-          <PageHeader
-            title="Group Categories"
-            actions={
-              <Button onClick={handleAddCategory} className="bg-brand-primary hover:bg-brand-primary/90">
-                <Plus className="mr-2 h-4 w-4" />
-                Add Category
-              </Button>
-            }
-          />
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex items-center gap-4">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => router.push('/dashboard/groups')}
+            className="text-muted-foreground hover:text-foreground"
+          >
+            <ArrowLeft className="h-4 w-4 mr-1.5" />
+            Back
+          </Button>
+          <h1 className="font-heading text-2xl font-bold tracking-tight">Group Categories</h1>
         </div>
+
+        <Button onClick={handleAddCategory} size="sm">
+          <Plus className="mr-1.5 h-4 w-4" />
+          Add Category
+        </Button>
       </div>
 
       {/* Stats Cards */}
-      <div className="grid gap-4 md:grid-cols-4">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard
           title="Total Categories"
-          value={stats.totalCategories}
+          value={totalCategories}
           icon={Folder}
-          accent="primary"
-          description="All categories"
         />
-
         <StatCard
           title="Active Categories"
-          value={stats.activeCategories}
+          value={activeCategories}
           icon={Tag}
-          accent="secondary"
-          description="Currently active"
         />
-
         <StatCard
-          title="Total Groups"
-          value={stats.totalGroups}
+          title="Inactive Categories"
+          value={totalCategories - activeCategories}
           icon={Users}
-          accent="success"
-          description="Across all categories"
         />
-
         <StatCard
-          title="Avg. Groups"
-          value={stats.averageGroupsPerCategory}
+          title="Coverage"
+          value={totalCategories > 0 ? `${Math.round((activeCategories / totalCategories) * 100)}%` : '0%'}
           icon={TrendingUp}
-          accent="accent"
-          description="Per category"
+          description="Active ratio"
         />
       </div>
 
-      {/* Categories Management */}
+      {/* Directory */}
       <Card>
-        <CardHeader>
-          <CardTitle>Category Management</CardTitle>
+        <CardHeader className="pb-3">
+          <CardTitle className="text-base font-semibold">Categories ({filteredCategories.length})</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="flex items-center space-x-4 mb-6">
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="Search categories..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10"
-              />
-            </div>
+          <div className="relative mb-4">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Search categories..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-9 max-w-sm"
+            />
           </div>
 
-          {/* Categories Grid */}
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {filteredCategories.map((category) => (
-              <Card key={category.id} className="hover:shadow-md transition-shadow">
-                <CardContent className="pt-6">
-                  <div className="flex items-start justify-between mb-4">
-                    <div className="flex items-center space-x-3">
-                      <div 
-                        className="w-4 h-4 rounded-full" 
-                        style={{ backgroundColor: category.color }}
-                      />
-                      <div>
-                        <h4 className="font-semibold">{category.name}</h4>
-                        <p className="text-sm text-muted-foreground">{category.description}</p>
-                      </div>
-                    </div>
-                    
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon">
-                          <MoreHorizontal className="h-4 w-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                        <DropdownMenuSeparator />
-                        
-                        <DropdownMenuItem onClick={() => handleEditCategory(category)}>
-                          <Edit className="mr-2 h-4 w-4" />
-                          Edit Category
-                        </DropdownMenuItem>
-                        
-                        <DropdownMenuSeparator />
-                        
-                        <DropdownMenuItem
-                          onClick={() => setCategoryToDelete(category)}
-                          className="text-destructive focus:text-destructive"
-                        >
-                          <Trash2 className="mr-2 h-4 w-4" />
-                          Delete Category
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
+              <Card key={category.id} className="p-4 space-y-3">
+                <div className="flex items-start justify-between">
+                  <div className="flex items-center gap-2">
+                    <div 
+                      className="w-3 h-3 rounded-full shrink-0" 
+                      style={{ backgroundColor: category.color || 'hsl(var(--primary))' }}
+                    />
+                    <h4 className="font-semibold text-sm text-foreground">{category.name}</h4>
                   </div>
                   
-                  <div className="space-y-3">
-                    <div className="flex items-center justify-between text-sm">
-                      <span>Groups in category</span>
-                      <Badge variant="neutral">0</Badge>
-                    </div>
-                    
-                    <div className="flex items-center justify-between text-sm">
-                      <span>Status</span>
-                      <StatusBadge status={category.isActive ? 'active' : 'inactive'} />
-                    </div>
-                    
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" size="sm" className="h-7 w-7 p-0">
+                        <MoreHorizontal className="h-3.5 w-3.5" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem onClick={() => handleEditCategory(category)}>
+                        <Edit className="mr-2 h-4 w-4" />
+                        Edit
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        onClick={() => setCategoryToDelete(category)}
+                        className="text-destructive focus:text-destructive"
+                      >
+                        <Trash2 className="mr-2 h-4 w-4" />
+                        Delete
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
 
-                  </div>
-                </CardContent>
+                <p className="text-xs text-muted-foreground line-clamp-2 min-h-[32px]">
+                  {category.description || 'No description provided.'}
+                </p>
+
+                <div className="flex items-center justify-between pt-2 border-t border-border text-xs">
+                  <span className="text-muted-foreground">{category.name}</span>
+                  <StatusBadge status={category.isActive !== false ? 'active' : 'inactive'} size="sm" />
+                </div>
               </Card>
             ))}
           </div>
-          
-          {filteredCategories.length === 0 && (
-            <div className="text-center py-8">
-              <Folder className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-              <h3 className="text-lg font-medium">No categories found</h3>
-              <p className="text-muted-foreground mb-4">
-                {searchTerm
-                  ? 'Try adjusting your search terms'
-                  : 'Create your first group category'
-                }
-              </p>
-              {!searchTerm && (
-                <Button onClick={handleAddCategory}>
-                  <Plus className="mr-2 h-4 w-4" />
-                  Create First Category
-                </Button>
-              )}
-            </div>
-          )}
         </CardContent>
       </Card>
 
-      {/* Add/Edit Category Dialog */}
+      {/* Add/Edit Dialog */}
       <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>
-              {editingCategory ? 'Edit Category' : 'Add New Category'}
+            <DialogTitle className="text-base font-semibold">
+              {editingCategory ? 'Edit Category' : 'Add Category'}
             </DialogTitle>
-            <DialogDescription>
-              {editingCategory ? 'Update the category details' : 'Create a new group category'}
-            </DialogDescription>
           </DialogHeader>
           
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <UILabel htmlFor="name">Category Name *</UILabel>
+          <form onSubmit={handleSubmit} className="space-y-4 pt-2">
+            <div className="space-y-2">
+              <Label htmlFor="cat-name">Category Name *</Label>
               <Input
-                id="name"
+                id="cat-name"
                 value={formData.name}
-                onChange={(e) => handleInputChange('name', e.target.value)}
-                placeholder="Enter category name"
-                className={errors.name ? 'border-destructive' : ''}
+                onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+                placeholder="e.g. Fellowship"
+                required
               />
-              {errors.name && (
-                <p className="text-sm text-destructive mt-1 flex items-center">
-                  <AlertCircle className="h-4 w-4 mr-1" />
-                  {errors.name}
-                </p>
-              )}
+              {errors.name && <p className="text-xs text-destructive">{errors.name}</p>}
             </div>
-            
-            <div>
-              <UILabel htmlFor="description">Description *</UILabel>
+
+            <div className="space-y-2">
+              <Label htmlFor="cat-desc">Description</Label>
               <Textarea
-                id="description"
+                id="cat-desc"
                 value={formData.description}
-                onChange={(e) => handleInputChange('description', e.target.value)}
-                placeholder="Describe this category"
+                onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
+                placeholder="Category details..."
                 rows={3}
-                className={errors.description ? 'border-destructive' : ''}
               />
-              {errors.description && (
-                <p className="text-sm text-destructive mt-1 flex items-center">
-                  <AlertCircle className="h-4 w-4 mr-1" />
-                  {errors.description}
-                </p>
-              )}
             </div>
-            
-            <div>
-              <UILabel>Category Color</UILabel>
-              <div className="grid grid-cols-6 gap-2 mt-2">
-                {predefinedColors.map((color) => (
-                  <button
-                    key={color}
-                    type="button"
-                    onClick={() => handleInputChange('color', color)}
-                    className={`w-8 h-8 rounded-full border-2 transition-all ${
-                      formData.color === color ? 'border-gray-900 scale-110' : 'border-gray-300'
-                    }`}
-                    style={{ backgroundColor: color }}
-                  />
-                ))}
-              </div>
-            </div>
-            
-            <div className="flex items-center space-x-2">
-              <input
-                type="checkbox"
-                id="isActive"
-                checked={formData.isActive}
-                onChange={(e) => handleInputChange('isActive', e.target.checked)}
-                className="rounded"
-              />
-              <UILabel htmlFor="isActive">Active category</UILabel>
-            </div>
+
+            <DialogFooter className="pt-2">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setShowAddDialog(false)}
+                disabled={submitting}
+              >
+                Cancel
+              </Button>
+              <Button type="submit" disabled={submitting}>
+                {submitting ? 'Saving...' : editingCategory ? 'Save Changes' : 'Create'}
+              </Button>
+            </DialogFooter>
           </form>
-          
-          <DialogFooter>
-            <Button 
-              type="button" 
-              variant="outline" 
-              onClick={() => setShowAddDialog(false)}
-              disabled={submitting}
-            >
-              Cancel
-            </Button>
-            <Button 
-              onClick={handleSubmit} 
-              disabled={submitting}
-              className="bg-brand-primary hover:bg-brand-primary/90"
-            >
-              {submitting ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  {editingCategory ? 'Updating...' : 'Creating...'}
-                </>
-              ) : (
-                <>
-                  <Save className="mr-2 h-4 w-4" />
-                  {editingCategory ? 'Update Category' : 'Create Category'}
-                </>
-              )}
-            </Button>
-          </DialogFooter>
         </DialogContent>
       </Dialog>
 
-      {/* Delete Confirmation Dialog */}
-      <AlertDialog open={!!categoryToDelete} onOpenChange={() => setCategoryToDelete(null)}>
+      {/* Delete Confirmation */}
+      <AlertDialog open={!!categoryToDelete} onOpenChange={(open) => !open && setCategoryToDelete(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Delete Category</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to delete the category "{categoryToDelete?.name}"?
-              This action cannot be undone. Groups in this category will need to be reassigned.
+              Are you sure you want to delete &quot;{categoryToDelete?.name}&quot;? This action cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={deleting}>
-              Cancel
-            </AlertDialogCancel>
+            <AlertDialogCancel disabled={deleting}>Cancel</AlertDialogCancel>
             <AlertDialogAction
-              onClick={handleDeleteCategory}
+              onClick={handleDelete}
               disabled={deleting}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
-              {deleting ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Deleting...
-                </>
-              ) : (
-                'Delete Category'
-              )}
+              {deleting ? 'Deleting...' : 'Delete'}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

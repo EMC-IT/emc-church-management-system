@@ -1,14 +1,14 @@
-"use client";
+'use client';
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { PageHeader } from '@/components/ui/page-header';
 import { StatCard } from '@/components/ui/stat-card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { DataTable } from '@/components/ui/data-table';
 import { StatusBadge } from '@/components/ui/status-badge';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
   Select,
   SelectContent,
@@ -34,16 +34,15 @@ import {
 } from '@/components/ui/alert-dialog';
 import {
   Plus,
-  Filter,
   MoreHorizontal,
   Eye,
-  Edit,
   Trash2,
   Users,
   Calendar,
   TrendingUp,
   Building2,
-  Settings
+  FolderTree,
+  Edit
 } from 'lucide-react';
 import { Department, DepartmentCategory } from '@/lib/types/departments';
 import { departmentsService } from '@/services/departments-service';
@@ -79,13 +78,13 @@ export default function DepartmentsPage() {
         categoryId: selectedCategory !== 'all' ? selectedCategory : undefined,
         status: selectedStatus !== 'all' ? selectedStatus as 'Active' | 'Inactive' : undefined
       });
-      
+
       if (response.success && response.data) {
         setDepartments(response.data);
       } else {
         toast.error(response.message);
       }
-    } catch (error) {
+    } catch {
       toast.error('Failed to load departments');
     } finally {
       setLoading(false);
@@ -105,7 +104,7 @@ export default function DepartmentsPage() {
 
   const handleDeleteDepartment = async () => {
     if (!departmentToDelete) return;
-    
+
     try {
       const response = await departmentsService.deleteDepartment(departmentToDelete.id);
       if (response.success) {
@@ -114,7 +113,7 @@ export default function DepartmentsPage() {
       } else {
         toast.error(response.message);
       }
-    } catch (error) {
+    } catch {
       toast.error('Failed to delete department');
     } finally {
       setDeleteDialogOpen(false);
@@ -127,17 +126,6 @@ export default function DepartmentsPage() {
     setDeleteDialogOpen(true);
   };
 
-  const getStatusColor = (status: string) => {
-    switch (status.toLowerCase()) {
-      case 'active':
-        return 'primary';
-      case 'inactive':
-        return 'neutral';
-      default:
-        return 'primary';
-    }
-  };
-
   const columns = [
     {
       accessorKey: 'name',
@@ -146,18 +134,13 @@ export default function DepartmentsPage() {
         const department = row.original as Department;
         return (
           <div className="flex items-center space-x-3">
-            <Avatar className="h-10 w-10">
-              <AvatarFallback className="bg-brand-primary text-white">
-                {department.name.substring(0, 2).toUpperCase()}
-              </AvatarFallback>
-            </Avatar>
+            <div className="h-9 w-9 rounded-full bg-primary/10 flex items-center justify-center font-semibold text-xs text-primary shrink-0">
+              {department.name.substring(0, 2).toUpperCase()}
+            </div>
             <div>
-              <div className="font-medium">{department.name}</div>
-              <div className="text-sm text-muted-foreground">
-                {department.description.length > 50 
-                  ? `${department.description.substring(0, 50)}...` 
-                  : department.description
-                }
+              <div className="font-medium text-sm text-foreground">{department.name}</div>
+              <div className="text-xs text-muted-foreground truncate max-w-xs">
+                {department.description}
               </div>
             </div>
           </div>
@@ -170,19 +153,10 @@ export default function DepartmentsPage() {
       cell: ({ row }: { row: any }) => {
         const department = row.original as Department;
         const category = categories.find(cat => cat.id === department.categoryId);
-        return category ? (
-          <Badge 
-            variant="neutral" 
-            style={{ 
-              borderColor: category.color,
-              color: category.color,
-              backgroundColor: `${category.color}10`
-            }}
-          >
-            {category.name}
+        return (
+          <Badge variant="neutral" size="sm">
+            {category ? category.name : 'Uncategorized'}
           </Badge>
-        ) : (
-          <Badge variant="neutral">Uncategorized</Badge>
         );
       },
     },
@@ -192,14 +166,7 @@ export default function DepartmentsPage() {
       cell: ({ row }: { row: any }) => {
         const department = row.original as Department;
         return (
-          <div className="flex items-center space-x-2">
-            <Avatar className="h-8 w-8">
-              <AvatarFallback className="bg-muted">
-                {department.leader.split(' ').map(n => n[0]).join('').toUpperCase()}
-              </AvatarFallback>
-            </Avatar>
-            <span className="font-medium">{department.leader}</span>
-          </div>
+          <span className="text-sm text-foreground font-medium">{department.leader}</span>
         );
       },
     },
@@ -209,28 +176,27 @@ export default function DepartmentsPage() {
       cell: ({ row }: { row: any }) => {
         const department = row.original as Department;
         return (
-          <div className="flex items-center space-x-1">
-            <Users className="h-4 w-4 text-muted-foreground" />
-            <span>{department.stats?.totalMembers || 0}</span>
-            <span className="text-muted-foreground">({department.stats?.activeMembers || 0} active)</span>
+          <div className="text-sm">
+            <span className="font-medium text-foreground">{department.stats?.totalMembers || 0}</span>
+            <span className="text-xs text-muted-foreground ml-1">({department.stats?.activeMembers || 0} active)</span>
           </div>
         );
       },
     },
     {
       accessorKey: 'meetingSchedule',
-      header: 'Meeting Schedule',
+      header: 'Schedule',
       cell: ({ row }: { row: any }) => {
         const department = row.original as Department;
         return department.meetingSchedule ? (
-          <div className="text-sm">
-            <div className="font-medium">{department.meetingSchedule.dayOfWeek}s</div>
+          <div className="text-xs">
+            <div className="font-medium text-foreground">{department.meetingSchedule.dayOfWeek}s</div>
             <div className="text-muted-foreground">
               {department.meetingSchedule.startTime} - {department.meetingSchedule.endTime}
             </div>
           </div>
         ) : (
-          <span className="text-muted-foreground">Not scheduled</span>
+          <span className="text-xs text-muted-foreground">Not scheduled</span>
         );
       },
     },
@@ -240,10 +206,7 @@ export default function DepartmentsPage() {
       cell: ({ row }: { row: any }) => {
         const department = row.original as Department;
         return (
-          <StatusBadge 
-            status={(department.status || 'active').toLowerCase() as any} 
-            variant={getStatusColor(department.status || 'active')}
-          />
+          <StatusBadge status={(department.status || 'active').toLowerCase() as any} size="sm" />
         );
       },
     },
@@ -255,7 +218,7 @@ export default function DepartmentsPage() {
         return (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="h-8 w-8 p-0">
+              <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
                 <MoreHorizontal className="h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
@@ -278,14 +241,8 @@ export default function DepartmentsPage() {
                   Meetings
                 </Link>
               </DropdownMenuItem>
-              <DropdownMenuItem asChild>
-                <Link href={`/dashboard/departments/${department.id}/reports`}>
-                  <TrendingUp className="mr-2 h-4 w-4" />
-                  Reports
-                </Link>
-              </DropdownMenuItem>
-              <DropdownMenuItem 
-                className="text-destructive"
+              <DropdownMenuItem
+                className="text-destructive focus:text-destructive"
                 onClick={() => openDeleteDialog(department)}
               >
                 <Trash2 className="mr-2 h-4 w-4" />
@@ -300,78 +257,65 @@ export default function DepartmentsPage() {
 
   const totalMembers = departments.reduce((sum, dept) => sum + (dept.stats?.totalMembers || 0), 0);
   const activeDepartments = departments.filter(dept => dept.status === 'Active').length;
-  const averageAttendance = departments.length > 0 
+  const averageAttendance = departments.length > 0
     ? Math.round(departments.reduce((sum, dept) => sum + (dept.stats?.averageAttendance || 0), 0) / departments.length)
     : 0;
 
   return (
     <div className="space-y-6">
-      <PageHeader
-        title="Departments"
-        actions={
-          <div className="flex items-center gap-2">
-            <Button variant="outline" asChild>
-              <Link href="/dashboard/departments/categories">
-                <Settings className="mr-2 h-4 w-4" />
-                Categories
-              </Link>
-            </Button>
-            <Button asChild>
-              <Link href="/dashboard/departments/add">
-                <Plus className="mr-2 h-4 w-4" />
-                Add Department
-              </Link>
-            </Button>
-          </div>
-        }
-      />
+      {/* Header */}
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <h1 className="font-heading text-2xl font-bold tracking-tight">Departments</h1>
+
+        <div className="flex items-center gap-2 flex-wrap">
+          <Button variant="outline" size="sm" asChild>
+            <Link href="/dashboard/departments/categories">
+              <FolderTree className="mr-1.5 h-4 w-4" />
+              Categories
+            </Link>
+          </Button>
+          <Button size="sm" asChild>
+            <Link href="/dashboard/departments/add">
+              <Plus className="mr-1.5 h-4 w-4" />
+              Add Department
+            </Link>
+          </Button>
+        </div>
+      </div>
 
       {/* Stats Cards */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard
           title="Total Departments"
           value={departments.length}
           icon={Building2}
-          accent="primary"
-          description={`${activeDepartments} active departments`}
         />
         <StatCard
           title="Total Members"
           value={totalMembers}
           icon={Users}
-          accent="secondary"
-          description="Across all departments"
         />
         <StatCard
           title="Average Attendance"
           value={`${averageAttendance}%`}
           icon={TrendingUp}
-          accent="success"
-          description="Department meetings"
         />
         <StatCard
-          title="Categories"
-          value={categories.length}
-          icon={Filter}
-          accent="accent"
-          description="Department categories"
+          title="Active Rate"
+          value={`${departments.length > 0 ? Math.round((activeDepartments / departments.length) * 100) : 0}%`}
+          icon={Building2}
         />
       </div>
 
-      {/* Departments Table */}
-      <DataTable
-        columns={columns}
-        data={departments}
-        recordLabel="department"
-        searchValue={searchTerm}
-        onSearchChange={setSearchTerm}
-        searchPlaceholder="Search departments..."
-        loading={loading}
-        pagination={true}
-        toolbarContent={
-          <>
+      {/* Departments Directory Table */}
+      <Card>
+        <CardHeader className="pb-3">
+          <CardTitle className="text-base font-semibold">Directory ({departments.length})</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="flex flex-col sm:flex-row gap-3 mb-6">
             <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-              <SelectTrigger className="h-10 w-full sm:w-48">
+              <SelectTrigger className="w-full sm:w-48">
                 <SelectValue placeholder="All Categories" />
               </SelectTrigger>
               <SelectContent>
@@ -383,8 +327,9 @@ export default function DepartmentsPage() {
                 ))}
               </SelectContent>
             </Select>
+
             <Select value={selectedStatus} onValueChange={setSelectedStatus}>
-              <SelectTrigger className="h-10 w-full sm:w-40">
+              <SelectTrigger className="w-full sm:w-44">
                 <SelectValue placeholder="All Status" />
               </SelectTrigger>
               <SelectContent>
@@ -393,9 +338,20 @@ export default function DepartmentsPage() {
                 <SelectItem value="Inactive">Inactive</SelectItem>
               </SelectContent>
             </Select>
-          </>
-        }
-      />
+          </div>
+
+          <DataTable
+            columns={columns}
+            data={departments}
+            recordLabel="department"
+            searchValue={searchTerm}
+            onSearchChange={setSearchTerm}
+            searchKey="name"
+            searchPlaceholder="Search departments..."
+            loading={loading}
+          />
+        </CardContent>
+      </Card>
 
       {/* Delete Confirmation Dialog */}
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
@@ -403,17 +359,16 @@ export default function DepartmentsPage() {
           <AlertDialogHeader>
             <AlertDialogTitle>Delete Department</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to delete "{departmentToDelete?.name}"? This action cannot be undone.
-              All associated data including members, meetings, and events will be removed.
+              Are you sure you want to delete &quot;{departmentToDelete?.name}&quot;? This action cannot be undone and will remove all department data.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction 
+            <AlertDialogAction
               onClick={handleDeleteDepartment}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
-              Delete
+              Delete Department
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

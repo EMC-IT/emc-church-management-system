@@ -4,11 +4,10 @@ import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { PageHeader } from '@/components/ui/page-header';
 import { StatCard } from '@/components/ui/stat-card';
 import { Badge } from '@/components/ui/badge';
 import { StatusBadge } from '@/components/ui/status-badge';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { 
@@ -26,11 +25,9 @@ import {
   CalendarDays,
   Loader2
 } from 'lucide-react';
-import Link from 'next/link';
 import { groupsService } from '@/services';
 import { Group, GroupMember, GroupEvent } from '@/lib/types/groups';
 import { toast } from 'sonner';
-
 
 export default function GroupDetailsPage() {
   const router = useRouter();
@@ -53,7 +50,6 @@ export default function GroupDetailsPage() {
     try {
       setLoading(true);
       
-      // Load group details
       const groupResponse = await groupsService.getGroup(groupId);
       if (groupResponse.success && groupResponse.data) {
         setGroup(groupResponse.data);
@@ -63,56 +59,26 @@ export default function GroupDetailsPage() {
         return;
       }
       
-      // Load group members
       const membersResponse = await groupsService.getGroupMembers(groupId);
       if (membersResponse.success && membersResponse.data) {
         setMembers(membersResponse.data);
       }
       
-      // Load group events
       const eventsResponse = await groupsService.getGroupEvents(groupId);
       if (eventsResponse.success && eventsResponse.data) {
         setEvents(eventsResponse.data);
       }
-    } catch (error) {
+    } catch {
       toast.error('Failed to load group data');
     } finally {
       setLoading(false);
     }
   };
 
-  const handleBack = () => {
-    router.push('/dashboard/groups');
-  };
-
-  const handleEdit = () => {
-    router.push(`/dashboard/groups/${groupId}/edit`);
-  };
-
-  const handleManageMembers = () => {
-    router.push(`/dashboard/groups/${groupId}/members`);
-  };
-
-  const handleManageRoles = () => {
-    router.push(`/dashboard/groups/${groupId}/roles`);
-  };
-
-  const handleManageEvents = () => {
-    router.push(`/dashboard/groups/${groupId}/events`);
-  };
-
-  const handleViewReports = () => {
-    router.push(`/dashboard/groups/${groupId}/reports`);
-  };
-
-  const handleViewAttendance = () => {
-    router.push(`/dashboard/groups/${groupId}/attendance`);
-  };
-
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
-        <Loader2 className="h-8 w-8 animate-spin" />
+        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
       </div>
     );
   }
@@ -121,9 +87,9 @@ export default function GroupDetailsPage() {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
         <div className="text-center">
-          <h2 className="text-2xl font-bold">Group Not Found</h2>
-          <p className="text-muted-foreground mt-2">The group you're looking for doesn't exist.</p>
-          <Button onClick={handleBack} className="mt-4">
+          <h2 className="text-xl font-bold">Group Not Found</h2>
+          <p className="text-sm text-muted-foreground mt-1">The group you are looking for does not exist.</p>
+          <Button onClick={() => router.push('/dashboard/groups')} size="sm" className="mt-4">
             Back to Groups
           </Button>
         </div>
@@ -131,111 +97,85 @@ export default function GroupDetailsPage() {
     );
   }
 
-  
-
-  const getEngagementColor = (engagement: number) => {
-    if (engagement >= 90) return 'text-brand-success';
-    if (engagement >= 75) return 'text-brand-secondary';
-    return 'text-destructive';
-  };
-
-
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center gap-2">
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={handleBack}
-          className="h-8 w-8"
-        >
-          <ArrowLeft className="h-4 w-4" />
-        </Button>
-        <div className="flex-1">
-          <PageHeader
-            title={group.name}
-            description={group.description}
-            actions={
-              <Button variant="outline" onClick={handleEdit}>
-                <Edit className="mr-2 h-4 w-4" />
-                Edit Group
-              </Button>
-            }
-          />
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex items-center gap-4">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => router.push('/dashboard/groups')}
+            className="text-muted-foreground hover:text-foreground"
+          >
+            <ArrowLeft className="h-4 w-4 mr-1.5" />
+            Back
+          </Button>
+          <div>
+            <h1 className="font-heading text-2xl font-bold tracking-tight">{group.name}</h1>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-2">
+          <Button variant="outline" size="sm" onClick={() => router.push(`/dashboard/groups/${groupId}/edit`)}>
+            <Edit className="mr-1.5 h-4 w-4" />
+            Edit Group
+          </Button>
         </div>
       </div>
 
-      {/* Group Overview Cards */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      {/* Overview Cards */}
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard
           title="Members"
-          value={group.members}
+          value={`${group.members} / ${group.maxMembers}`}
           icon={Users}
-          accent="primary"
-          description={
-            <>
-              <p>of {group.maxMembers} maximum</p>
-              <Progress
-                value={(group.members / group.maxMembers) * 100}
-                className="mt-2 h-2"
-              />
-            </>
-          }
+          description={`${Math.round((group.members / group.maxMembers) * 100)}% capacity`}
         />
-
         <StatCard
           title="Engagement"
-          value={<span className={getEngagementColor(group.engagement)}>{group.engagement}%</span>}
+          value={`${group.engagement}%`}
           icon={TrendingUp}
-          accent="secondary"
-          description="Average participation"
         />
-
         <StatCard
-          title="Events"
+          title="Upcoming Events"
           value={events.length}
           icon={CalendarDays}
-          accent="success"
-          description="Upcoming events"
         />
-
         <StatCard
           title="Status"
           value={<StatusBadge status={group.status} />}
           icon={Settings}
-          accent="accent"
-          description="Current status"
         />
       </div>
 
-      {/* Main Content */}
+      {/* Main Content Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
-        <TabsList>
+        <TabsList className="grid w-full grid-cols-3 max-w-sm">
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="members">Members ({members.length})</TabsTrigger>
           <TabsTrigger value="events">Events ({events.length})</TabsTrigger>
         </TabsList>
         
-        <TabsContent value="overview" className="space-y-4">
+        {/* Overview */}
+        <TabsContent value="overview" className="space-y-6">
           <div className="grid gap-6 lg:grid-cols-3">
-            {/* Group Information */}
             <div className="lg:col-span-2 space-y-6">
               <Card>
                 <CardHeader>
-                  <CardTitle>Group Information</CardTitle>
+                  <CardTitle className="text-base font-semibold">Group Details</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  <div className="grid gap-4 md:grid-cols-2">
+                  <div className="grid gap-4 sm:grid-cols-2">
                     <div>
-                      <Label className="text-sm font-medium text-muted-foreground">Category</Label>
+                      <span className="text-xs text-muted-foreground">Category</span>
                       <p className="mt-1">
                         <Badge variant="neutral">{group.category}</Badge>
                       </p>
                     </div>
                     
                     <div>
-                      <Label className="text-sm font-medium text-muted-foreground">Status</Label>
+                      <span className="text-xs text-muted-foreground">Status</span>
                       <p className="mt-1">
                         <StatusBadge status={group.status} />
                       </p>
@@ -243,24 +183,24 @@ export default function GroupDetailsPage() {
                   </div>
                   
                   <div>
-                    <Label className="text-sm font-medium text-muted-foreground">Description</Label>
-                    <p className="mt-1">{group.description}</p>
+                    <span className="text-xs text-muted-foreground">Description</span>
+                    <p className="text-sm text-foreground mt-1">{group.description || 'No description provided.'}</p>
                   </div>
                   
-                  <div className="grid gap-4 md:grid-cols-2">
-                    <div className="flex items-center space-x-2">
+                  <div className="grid gap-4 sm:grid-cols-2 pt-2 border-t border-border">
+                    <div className="flex items-center space-x-2 text-sm">
                       <Calendar className="h-4 w-4 text-muted-foreground" />
                       <div>
-                        <Label className="text-sm font-medium text-muted-foreground">Meeting Schedule</Label>
-                        <p className="text-sm">{group.meetingSchedule}</p>
+                        <span className="text-xs text-muted-foreground block">Schedule</span>
+                        <span className="text-foreground">{group.meetingSchedule || 'Not set'}</span>
                       </div>
                     </div>
                     
-                    <div className="flex items-center space-x-2">
+                    <div className="flex items-center space-x-2 text-sm">
                       <MapPin className="h-4 w-4 text-muted-foreground" />
                       <div>
-                        <Label className="text-sm font-medium text-muted-foreground">Location</Label>
-                        <p className="text-sm">{group.location}</p>
+                        <span className="text-xs text-muted-foreground block">Location</span>
+                        <span className="text-foreground">{group.location || 'Not set'}</span>
                       </div>
                     </div>
                   </div>
@@ -270,14 +210,14 @@ export default function GroupDetailsPage() {
               {/* Quick Actions */}
               <Card>
                 <CardHeader>
-                  <CardTitle>Quick Actions</CardTitle>
+                  <CardTitle className="text-base font-semibold">Management Shortcuts</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="grid gap-3 md:grid-cols-2">
+                  <div className="grid gap-3 sm:grid-cols-2">
                     <Button 
                       variant="outline" 
-                      onClick={handleManageMembers}
-                      className="justify-start"
+                      onClick={() => router.push(`/dashboard/groups/${groupId}/members`)}
+                      className="justify-start text-sm"
                     >
                       <UserPlus className="mr-2 h-4 w-4" />
                       Manage Members
@@ -285,8 +225,8 @@ export default function GroupDetailsPage() {
                     
                     <Button 
                       variant="outline" 
-                      onClick={handleManageRoles}
-                      className="justify-start"
+                      onClick={() => router.push(`/dashboard/groups/${groupId}/roles`)}
+                      className="justify-start text-sm"
                     >
                       <Settings className="mr-2 h-4 w-4" />
                       Manage Roles
@@ -294,8 +234,8 @@ export default function GroupDetailsPage() {
                     
                     <Button 
                       variant="outline" 
-                      onClick={handleManageEvents}
-                      className="justify-start"
+                      onClick={() => router.push(`/dashboard/groups/${groupId}/events`)}
+                      className="justify-start text-sm"
                     >
                       <CalendarDays className="mr-2 h-4 w-4" />
                       Manage Events
@@ -303,8 +243,8 @@ export default function GroupDetailsPage() {
                     
                     <Button 
                       variant="outline" 
-                      onClick={handleViewReports}
-                      className="justify-start"
+                      onClick={() => router.push(`/dashboard/groups/${groupId}/reports`)}
+                      className="justify-start text-sm"
                     >
                       <BarChart3 className="mr-2 h-4 w-4" />
                       View Reports
@@ -316,32 +256,29 @@ export default function GroupDetailsPage() {
             
             {/* Sidebar */}
             <div className="space-y-6">
-              {/* Group Leader */}
               <Card>
                 <CardHeader>
-                  <CardTitle>Group Leader</CardTitle>
+                  <CardTitle className="text-base font-semibold">Group Leader</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="flex items-start space-x-3">
-                    <Avatar className="h-12 w-12">
-                      <AvatarFallback>
+                    <Avatar className="h-10 w-10">
+                      <AvatarFallback className="bg-primary/10 text-primary font-medium text-xs">
                         {group.leader.name.split(' ').map(n => n[0]).join('')}
                       </AvatarFallback>
                     </Avatar>
-                    <div className="flex-1 space-y-2">
-                      <div>
-                        <p className="font-medium">{group.leader.name}</p>
-                      </div>
+                    <div className="flex-1 space-y-1">
+                      <p className="font-medium text-sm text-foreground">{group.leader.name}</p>
                       
-                      <div className="space-y-1">
-                        <div className="flex items-center space-x-2 text-sm text-muted-foreground">
-                          <Mail className="h-3 w-3" />
-                          <span>{group.leader.email}</span>
+                      <div className="space-y-1 text-xs text-muted-foreground pt-1">
+                        <div className="flex items-center space-x-2">
+                          <Mail className="h-3.5 w-3.5" />
+                          <span className="truncate">{group.leader.email}</span>
                         </div>
                         
                         {group.leader.phone && (
-                          <div className="flex items-center space-x-2 text-sm text-muted-foreground">
-                            <Phone className="h-3 w-3" />
+                          <div className="flex items-center space-x-2">
+                            <Phone className="h-3.5 w-3.5" />
                             <span>{group.leader.phone}</span>
                           </div>
                         )}
@@ -351,25 +288,22 @@ export default function GroupDetailsPage() {
                 </CardContent>
               </Card>
               
-              {/* Recent Activity */}
               <Card>
                 <CardHeader>
-                  <CardTitle>Recent Activity</CardTitle>
+                  <CardTitle className="text-base font-semibold">Timeline</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="space-y-3 text-sm">
-                    <div className="flex items-center space-x-2">
-                      <div className="h-2 w-2 bg-brand-primary rounded-full" />
-                      <span>Group created</span>
-                      <span className="text-muted-foreground ml-auto">
+                  <div className="space-y-2.5 text-xs">
+                    <div className="flex items-center justify-between text-muted-foreground">
+                      <span>Created</span>
+                      <span className="font-medium text-foreground">
                         {new Date(group.createdAt).toLocaleDateString()}
                       </span>
                     </div>
                     
-                    <div className="flex items-center space-x-2">
-                      <div className="h-2 w-2 bg-brand-secondary rounded-full" />
-                      <span>Last updated</span>
-                      <span className="text-muted-foreground ml-auto">
+                    <div className="flex items-center justify-between text-muted-foreground">
+                      <span>Last Updated</span>
+                      <span className="font-medium text-foreground">
                         {new Date(group.updatedAt).toLocaleDateString()}
                       </span>
                     </div>
@@ -380,114 +314,91 @@ export default function GroupDetailsPage() {
           </div>
         </TabsContent>
         
+        {/* Members */}
         <TabsContent value="members" className="space-y-4">
           <div className="flex items-center justify-between">
-            <h3 className="text-lg font-medium">Group Members</h3>
-            <Button onClick={handleManageMembers}>
-              <UserPlus className="mr-2 h-4 w-4" />
+            <h3 className="text-base font-semibold">Members ({members.length})</h3>
+            <Button size="sm" onClick={() => router.push(`/dashboard/groups/${groupId}/members`)}>
+              <UserPlus className="mr-1.5 h-4 w-4" />
               Manage Members
             </Button>
           </div>
           
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {members.map((member) => (
-              <Card key={member.id}>
-                <CardContent className="pt-6">
-                  <div className="flex items-center space-x-3">
-                    <Avatar>
-                      <AvatarFallback>
-                        {member.memberName.split(' ').map(n => n[0]).join('')}
-                      </AvatarFallback>
-                    </Avatar>
-                    <div className="flex-1">
-                      <p className="font-medium">{member.memberName}</p>
-                      <p className="text-sm text-muted-foreground">{member.role}</p>
-                      <p className="text-xs text-muted-foreground">
-                        Joined {new Date(member.joinedAt).toLocaleDateString()}
-                      </p>
-                    </div>
-                    <StatusBadge status={member.status} />
+              <Card key={member.id} className="p-4">
+                <div className="flex items-center space-x-3">
+                  <Avatar className="h-9 w-9">
+                    <AvatarFallback className="text-xs bg-primary/10 text-primary font-medium">
+                      {member.memberName.split(' ').map(n => n[0]).join('')}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-medium text-sm text-foreground truncate">{member.memberName}</p>
+                    <p className="text-xs text-muted-foreground">{member.role}</p>
                   </div>
-                </CardContent>
+                  <StatusBadge status={member.status} size="sm" />
+                </div>
               </Card>
             ))}
           </div>
           
           {members.length === 0 && (
-            <div className="text-center py-8">
-              <Users className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-              <h3 className="text-lg font-medium">No members yet</h3>
-              <p className="text-muted-foreground mb-4">Start adding members to this group</p>
-              <Button onClick={handleManageMembers}>
-                <UserPlus className="mr-2 h-4 w-4" />
-                Add Members
-              </Button>
+            <div className="text-center py-8 border rounded-lg bg-card text-muted-foreground text-sm">
+              No members enrolled yet.
             </div>
           )}
         </TabsContent>
         
+        {/* Events */}
         <TabsContent value="events" className="space-y-4">
           <div className="flex items-center justify-between">
-            <h3 className="text-lg font-medium">Group Events</h3>
-            <Button onClick={handleManageEvents}>
-              <CalendarDays className="mr-2 h-4 w-4" />
+            <h3 className="text-base font-semibold">Events ({events.length})</h3>
+            <Button size="sm" onClick={() => router.push(`/dashboard/groups/${groupId}/events`)}>
+              <CalendarDays className="mr-1.5 h-4 w-4" />
               Manage Events
             </Button>
           </div>
           
-          <div className="space-y-4">
+          <div className="space-y-3">
             {events.map((event) => (
-              <Card key={event.id}>
-                <CardContent className="pt-6">
-                  <div className="flex items-start justify-between">
-                    <div className="space-y-2">
-                      <h4 className="font-medium">{event.title}</h4>
-                      <p className="text-sm text-muted-foreground">{event.description}</p>
-                      
-                      <div className="flex items-center space-x-4 text-sm text-muted-foreground">
-                        <div className="flex items-center space-x-1">
-                          <Calendar className="h-3 w-3" />
-                          <span>{new Date(event.startDate).toLocaleDateString()}</span>
-                        </div>
-                        
-                        <div className="flex items-center space-x-1">
-                          <MapPin className="h-3 w-3" />
-                          <span>{event.location}</span>
-                        </div>
-                        
-                        <div className="flex items-center space-x-1">
-                          <Users className="h-3 w-3" />
-                          <span>{event.registeredAttendees}/{event.maxAttendees}</span>
-                        </div>
+              <Card key={event.id} className="p-4">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                  <div className="space-y-1">
+                    <h4 className="font-medium text-sm text-foreground">{event.title}</h4>
+                    <p className="text-xs text-muted-foreground">{event.description}</p>
+                    
+                    <div className="flex items-center gap-4 text-xs text-muted-foreground pt-1">
+                      <div className="flex items-center space-x-1">
+                        <Calendar className="h-3 w-3" />
+                        <span>{new Date(event.startDate).toLocaleDateString()}</span>
+                      </div>
+                      <div className="flex items-center space-x-1">
+                        <MapPin className="h-3 w-3" />
+                        <span>{event.location}</span>
+                      </div>
+                      <div className="flex items-center space-x-1">
+                        <Users className="h-3 w-3" />
+                        <span>{event.registeredAttendees}/{event.maxAttendees}</span>
                       </div>
                     </div>
-                    
-                    <Badge variant={event.status === 'Upcoming' ? 'primary' : 'neutral'}>
-                      {event.status}
-                    </Badge>
                   </div>
-                </CardContent>
+                  
+                  <Badge variant={event.status === 'Upcoming' ? 'primary' : 'neutral'} size="sm">
+                    {event.status}
+                  </Badge>
+                </div>
               </Card>
             ))}
           </div>
           
           {events.length === 0 && (
-            <div className="text-center py-8">
-              <CalendarDays className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-              <h3 className="text-lg font-medium">No events scheduled</h3>
-              <p className="text-muted-foreground mb-4">Create events for this group</p>
-              <Button onClick={handleManageEvents}>
-                <CalendarDays className="mr-2 h-4 w-4" />
-                Create Event
-              </Button>
+            <div className="text-center py-8 border rounded-lg bg-card text-muted-foreground text-sm">
+              No events scheduled yet.
             </div>
           )}
         </TabsContent>
       </Tabs>
     </div>
   );
-}
-
-function Label({ children, className }: { children: React.ReactNode; className?: string }) {
-  return <label className={className}>{children}</label>;
 }

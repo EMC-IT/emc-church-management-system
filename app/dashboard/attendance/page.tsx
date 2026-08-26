@@ -1,44 +1,30 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { PageHeader } from '@/components/ui/page-header';
-import { ChartHeader } from '@/components/ui/chart-header';
 import { StatCard } from '@/components/ui/stat-card';
 import { Badge } from '@/components/ui/badge';
 import { StatusBadge } from '@/components/ui/status-badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-
 import { DataTable } from '@/components/ui/data-table';
-import { Progress } from '@/components/ui/progress';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { 
   Users, 
   UserCheck, 
-  UserX, 
   Clock, 
-  TrendingUp, 
-  TrendingDown, 
   Plus, 
   Download, 
-  Filter,
   CalendarIcon,
-  BarChart3,
-  PieChart,
-  QrCode
+  QrCode,
 } from 'lucide-react';
 import { format } from 'date-fns';
-import { cn } from '@/lib/utils';
 import {
   ChartContainer,
   ChartTooltip,
   ChartTooltipContent,
-  ChartLegend,
-  ChartLegendContent,
   type ChartConfig,
 } from '@/components/ui/chart';
 import { 
@@ -47,19 +33,13 @@ import {
   XAxis, 
   YAxis, 
   CartesianGrid, 
-  PieChart as RechartsPieChart,
-  Pie,
-  Cell,
-  LineChart,
-  Line,
-  Area,
-  AreaChart,
-  Label
+  AreaChart, 
+  Area 
 } from 'recharts';
-import { attendanceService, MOCK_ATTENDANCE_RECORDS, MOCK_ATTENDANCE_SESSIONS } from '@/services/attendance-service';
-import { AttendanceStatus, ServiceType } from '@/lib/types';
+import { attendanceService, MOCK_ATTENDANCE_RECORDS } from '@/services/attendance-service';
+import { AttendanceStatus } from '@/lib/types';
 
-// Mock data for charts and statistics
+// Mock data for statistics
 const attendanceOverviewStats = {
   totalMembers: 450,
   presentToday: 387,
@@ -71,47 +51,34 @@ const attendanceOverviewStats = {
 };
 
 const weeklyAttendanceData = [
-  { day: 'Mon', attendance: 45, rate: 85 },
-  { day: 'Tue', attendance: 32, rate: 78 },
-  { day: 'Wed', attendance: 98, rate: 82 },
-  { day: 'Thu', attendance: 28, rate: 75 },
-  { day: 'Fri', attendance: 38, rate: 84 },
-  { day: 'Sat', attendance: 65, rate: 88 },
-  { day: 'Sun', attendance: 387, rate: 86 }
-];
-
-const serviceTypeData = [
-  { name: 'Sunday Service', value: 387, color: '#2E8DB0' },
-  { name: 'Bible Study', value: 98, color: '#28ACD1' },
-  { name: 'Prayer Meeting', value: 38, color: '#C49831' },
-  { name: 'Youth Service', value: 72, color: '#A5CF5D' }
+  { day: 'Mon', attendance: 45 },
+  { day: 'Tue', attendance: 32 },
+  { day: 'Wed', attendance: 98 },
+  { day: 'Thu', attendance: 28 },
+  { day: 'Fri', attendance: 38 },
+  { day: 'Sat', attendance: 65 },
+  { day: 'Sun', attendance: 387 }
 ];
 
 const monthlyTrendData = [
-  { month: 'Jan', attendance: 380, rate: 84 },
-  { month: 'Feb', attendance: 395, rate: 88 },
-  { month: 'Mar', attendance: 375, rate: 83 },
-  { month: 'Apr', attendance: 387, rate: 86 }
+  { month: 'Jan', attendance: 380 },
+  { month: 'Feb', attendance: 395 },
+  { month: 'Mar', attendance: 375 },
+  { month: 'Apr', attendance: 387 }
 ];
 
 // Chart Configurations
 const weeklyChartConfig = {
   attendance: {
     label: 'Attendance',
-    color: 'hsl(var(--chart-1))',
-  },
-} satisfies ChartConfig;
-
-const serviceTypeChartConfig = {
-  value: {
-    label: 'Members',
+    color: 'hsl(var(--primary))',
   },
 } satisfies ChartConfig;
 
 const monthlyChartConfig = {
   attendance: {
     label: 'Attendance',
-    color: 'hsl(var(--chart-1))',
+    color: 'hsl(var(--primary))',
   },
 } satisfies ChartConfig;
 
@@ -123,14 +90,12 @@ const attendanceColumns = [
       const member = row.original.member;
       return (
         <div className="flex items-center space-x-3">
-          <div className="h-8 w-8 rounded-full bg-brand-primary/10 flex items-center justify-center">
-            <span className="text-sm font-medium text-brand-primary">
-              {member.name.split(' ').map((n: string) => n[0]).join('')}
-            </span>
+          <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center font-medium text-xs text-primary">
+            {member.name.split(' ').map((n: string) => n[0]).join('')}
           </div>
           <div>
-            <div className="font-medium">{member.name}</div>
-            <div className="text-sm text-muted-foreground">{member.department}</div>
+            <div className="font-medium text-foreground">{member.name}</div>
+            <div className="text-xs text-muted-foreground">{member.department}</div>
           </div>
         </div>
       );
@@ -140,7 +105,7 @@ const attendanceColumns = [
     accessorKey: 'serviceType',
     header: 'Service Type',
     cell: ({ row }: any) => (
-      <Badge variant="info">
+      <Badge variant="neutral" size="sm">
         {row.getValue('serviceType')}
       </Badge>
     )
@@ -148,19 +113,27 @@ const attendanceColumns = [
   {
     accessorKey: 'serviceDate',
     header: 'Date',
-    cell: ({ row }: any) => format(new Date(row.getValue('serviceDate')), 'MMM dd, yyyy')
+    cell: ({ row }: any) => (
+      <span className="text-sm text-muted-foreground">
+        {format(new Date(row.getValue('serviceDate')), 'MMM dd, yyyy')}
+      </span>
+    )
   },
   {
     accessorKey: 'checkInTime',
     header: 'Check In',
-    cell: ({ row }: any) => row.getValue('checkInTime') || 'N/A'
+    cell: ({ row }: any) => (
+      <span className="text-sm text-muted-foreground">
+        {row.getValue('checkInTime') || '—'}
+      </span>
+    )
   },
   {
     accessorKey: 'status',
     header: 'Status',
     cell: ({ row }: any) => {
       const status = row.getValue('status') as AttendanceStatus;
-      return <StatusBadge status={status} />;
+      return <StatusBadge status={status} size="sm" />;
     }
   }
 ];
@@ -171,8 +144,7 @@ export default function AttendancePage() {
   const [selectedService, setSelectedService] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [attendanceData, setAttendanceData] = useState(MOCK_ATTENDANCE_RECORDS);
-  const [sessionsData, setSessionsData] = useState(MOCK_ATTENDANCE_SESSIONS);
+  const [attendanceData] = useState(MOCK_ATTENDANCE_RECORDS);
 
   const filteredAttendance = attendanceData.filter(record => {
     const matchesSearch = record.member.name.toLowerCase().includes(searchTerm.toLowerCase());
@@ -183,10 +155,6 @@ export default function AttendancePage() {
 
   const handleTakeAttendance = () => {
     router.push('/dashboard/attendance/take');
-  };
-
-  const handleViewReports = () => {
-    router.push('/dashboard/attendance/reports');
   };
 
   const handleQRCheckin = () => {
@@ -216,39 +184,33 @@ export default function AttendancePage() {
 
   return (
     <div className="space-y-6">
+      {/* Header */}
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <h1 className="font-heading text-2xl font-bold tracking-tight">Attendance</h1>
 
-
-      <PageHeader
-        title="Attendance Overview"
-        actions={
-          <div className="flex flex-col sm:flex-row gap-2">
-            <Button onClick={handleTakeAttendance} className="bg-brand-primary hover:bg-brand-primary/90">
-              <Plus className="h-4 w-4 mr-2" />
-              Take Attendance
-            </Button>
-            <Button variant="outline" onClick={handleQRCheckin} className="border-brand-primary text-brand-primary hover:bg-brand-primary hover:text-white">
-              <QrCode className="h-4 w-4 mr-2" />
-              QR Check-in
-            </Button>
-            <Button variant="outline" onClick={handleViewReports}>
-              <BarChart3 className="h-4 w-4 mr-2" />
-              View Reports
-            </Button>
-            <Button variant="outline" onClick={handleExportData} disabled={isLoading}>
-              <Download className="h-4 w-4 mr-2" />
-              Export Data
-            </Button>
-          </div>
-        }
-      />
+        <div className="flex items-center gap-2 flex-wrap">
+          <Button onClick={handleTakeAttendance} size="sm">
+            <Plus className="h-4 w-4 mr-1.5" />
+            Take Attendance
+          </Button>
+          <Button variant="outline" onClick={handleQRCheckin} size="sm">
+            <QrCode className="h-4 w-4 mr-1.5" />
+            QR Check-in
+          </Button>
+          <Button variant="outline" onClick={handleExportData} disabled={isLoading} size="sm">
+            <Download className="h-4 w-4 mr-1.5" />
+            Export Data
+          </Button>
+        </div>
+      </div>
 
       {/* Stats Cards */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard
           title="Total Members"
           value={attendanceOverviewStats.totalMembers}
           icon={Users}
-          description="Active church members"
+          description="Active registry"
         />
         <StatCard
           title="Present Today"
@@ -256,216 +218,112 @@ export default function AttendancePage() {
           icon={UserCheck}
           trend={{ value: `+${attendanceOverviewStats.weeklyTrend}% from last week`, direction: 'up' }}
         />
-        <Card className="hover:shadow-md transition-shadow">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Attendance Rate</CardTitle>
-            <div className="p-2 bg-muted rounded-lg">
-              <TrendingUp className="h-4 w-4 text-muted-foreground" />
-            </div>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{attendanceOverviewStats.attendanceRate}%</div>
-            <Progress value={attendanceOverviewStats.attendanceRate} className="mt-2" />
-            <p className="text-xs text-muted-foreground mt-1">
-              Monthly average: {attendanceOverviewStats.monthlyAverage}%
-            </p>
-          </CardContent>
-        </Card>
+        <StatCard
+          title="Attendance Rate"
+          value={`${attendanceOverviewStats.attendanceRate}%`}
+          icon={UserCheck}
+          description={`Monthly avg: ${attendanceOverviewStats.monthlyAverage}%`}
+        />
         <StatCard
           title="Late Arrivals"
           value={attendanceOverviewStats.lateToday}
           icon={Clock}
-          description={`${Math.round((attendanceOverviewStats.lateToday / attendanceOverviewStats.presentToday) * 100)}% of attendees`}
+          description={`${Math.round((attendanceOverviewStats.lateToday / attendanceOverviewStats.presentToday) * 100)}% of present`}
         />
       </div>
 
-      {/* Charts and Analytics */}
-      <div className="grid gap-6 lg:grid-cols-2">
+      {/* Analytics Charts */}
+      <div className="grid gap-6 md:grid-cols-2">
         {/* Weekly Attendance Trend */}
-        <Card className="hover:shadow-md transition-shadow">
-          <CardHeader>
-            <ChartHeader
-              title={
-                <span className="flex items-center gap-2">
-                  <BarChart3 className="h-5 w-5 text-brand-primary" />
-                  Weekly Attendance Trend
-                </span>
-              }
-              badge="This Week"
-              tone="primary"
-            />
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="text-base font-semibold">Weekly Attendance</CardTitle>
+            <Badge variant="primary" size="sm">This Week</Badge>
           </CardHeader>
           <CardContent>
-            <ChartContainer config={weeklyChartConfig} className="h-[300px] w-full">
-              <BarChart data={weeklyAttendanceData} margin={{ left: 12, right: 12 }}>
-                <CartesianGrid vertical={false} strokeDasharray="3 3" className="stroke-muted" />
+            <ChartContainer config={weeklyChartConfig} className="h-[260px] w-full">
+              <BarChart data={weeklyAttendanceData} margin={{ top: 10, left: 10, right: 10, bottom: 0 }}>
+                <CartesianGrid vertical={false} strokeDasharray="3 3" className="stroke-border" />
                 <XAxis
                   dataKey="day"
                   tickLine={false}
                   tickMargin={10}
                   axisLine={false}
-                  className="text-xs"
+                  className="text-xs text-muted-foreground"
                 />
                 <YAxis
                   tickLine={false}
                   axisLine={false}
                   tickMargin={8}
-                  className="text-xs"
+                  className="text-xs text-muted-foreground"
                 />
                 <ChartTooltip
-                  cursor={{ fill: 'hsl(var(--muted))', opacity: 0.2 }}
+                  cursor={{ fill: 'hsl(var(--muted))', opacity: 0.3 }}
                   content={<ChartTooltipContent indicator="dashed" />}
                 />
                 <Bar 
                   dataKey="attendance" 
-                  fill="hsl(var(--chart-1))" 
-                  radius={[8, 8, 0, 0]} 
+                  fill="hsl(var(--primary))" 
+                  radius={[4, 4, 0, 0]} 
                 />
               </BarChart>
             </ChartContainer>
           </CardContent>
         </Card>
 
-        {/* Service Type Distribution */}
-        <Card className="hover:shadow-md transition-shadow">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <PieChart className="h-5 w-5 text-brand-primary" />
-              Service Type Distribution
-            </CardTitle>
+        {/* Monthly Attendance Trend */}
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="text-base font-semibold">Monthly Attendance Trend</CardTitle>
+            <Badge variant="success" size="sm">+3.2%</Badge>
           </CardHeader>
           <CardContent>
-            <ChartContainer config={serviceTypeChartConfig} className="mx-auto aspect-square max-h-[300px]">
-              <RechartsPieChart>
-                <ChartTooltip
-                  cursor={false}
-                  content={<ChartTooltipContent hideLabel />}
+            <ChartContainer config={monthlyChartConfig} className="h-[260px] w-full">
+              <AreaChart data={monthlyTrendData} margin={{ top: 10, left: 10, right: 10, bottom: 0 }}>
+                <CartesianGrid vertical={false} strokeDasharray="3 3" className="stroke-border" />
+                <XAxis
+                  dataKey="month"
+                  tickLine={false}
+                  axisLine={false}
+                  tickMargin={8}
+                  className="text-xs text-muted-foreground"
                 />
-                <Pie
-                  data={serviceTypeData}
-                  cx="50%"
-                  cy="50%"
-                  innerRadius={60}
-                  outerRadius={100}
-                  paddingAngle={5}
-                  dataKey="value"
-                  strokeWidth={5}
-                >
-                  {serviceTypeData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={entry.color} />
-                  ))}
-                  <Label
-                    content={({ viewBox }) => {
-                      if (viewBox && "cx" in viewBox && "cy" in viewBox) {
-                        const total = serviceTypeData.reduce((a, b) => a + b.value, 0);
-                        return (
-                          <text
-                            x={viewBox.cx}
-                            y={viewBox.cy}
-                            textAnchor="middle"
-                            dominantBaseline="middle"
-                          >
-                            <tspan
-                              x={viewBox.cx}
-                              y={viewBox.cy}
-                              className="fill-foreground text-3xl font-bold"
-                            >
-                              {total}
-                            </tspan>
-                            <tspan
-                              x={viewBox.cx}
-                              y={(viewBox.cy || 0) + 24}
-                              className="fill-muted-foreground"
-                            >
-                              Total
-                            </tspan>
-                          </text>
-                        );
-                      }
-                    }}
-                  />
-                </Pie>
-              </RechartsPieChart>
+                <YAxis
+                  tickLine={false}
+                  axisLine={false}
+                  tickMargin={8}
+                  className="text-xs text-muted-foreground"
+                />
+                <ChartTooltip 
+                  cursor={{ stroke: 'hsl(var(--border))', strokeWidth: 1 }}
+                  content={<ChartTooltipContent indicator="line" />} 
+                />
+                <defs>
+                  <linearGradient id="fillAttendance" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.4} />
+                    <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0.05} />
+                  </linearGradient>
+                </defs>
+                <Area
+                  dataKey="attendance"
+                  type="monotone"
+                  fill="url(#fillAttendance)"
+                  stroke="hsl(var(--primary))"
+                  strokeWidth={2}
+                />
+              </AreaChart>
             </ChartContainer>
-            <div className="grid grid-cols-2 gap-2 mt-4">
-              {serviceTypeData.map((item, index) => (
-                <div key={index} className="flex items-center gap-2">
-                  <div 
-                    className="w-3 h-3 rounded-full" 
-                    style={{ backgroundColor: item.color }}
-                  />
-                  <span className="text-sm">{item.name}</span>
-                  <span className="text-sm font-medium ml-auto">{item.value}</span>
-                </div>
-              ))}
-            </div>
           </CardContent>
         </Card>
       </div>
 
-      {/* Monthly Trend */}
-      <Card className="hover:shadow-md transition-shadow">
-        <CardHeader>
-          <ChartHeader
-            title={
-              <span className="flex items-center gap-2">
-                <TrendingUp className="h-5 w-5 text-brand-primary" />
-                Monthly Attendance Trend
-              </span>
-            }
-            badge="+3.2% Growth"
-            tone="success"
-          />
-        </CardHeader>
-        <CardContent>
-          <ChartContainer config={monthlyChartConfig} className="h-[300px] w-full">
-            <AreaChart data={monthlyTrendData} margin={{ left: 12, right: 12 }}>
-              <CartesianGrid vertical={false} strokeDasharray="3 3" className="stroke-muted" />
-              <XAxis
-                dataKey="month"
-                tickLine={false}
-                axisLine={false}
-                tickMargin={8}
-                className="text-xs"
-              />
-              <YAxis
-                tickLine={false}
-                axisLine={false}
-                tickMargin={8}
-                className="text-xs"
-              />
-              <ChartTooltip 
-                cursor={{ stroke: 'hsl(var(--muted))', strokeWidth: 1 }}
-                content={<ChartTooltipContent indicator="line" />} 
-              />
-              <defs>
-                <linearGradient id="fillAttendance" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="hsl(var(--chart-1))" stopOpacity={0.8} />
-                  <stop offset="95%" stopColor="hsl(var(--chart-1))" stopOpacity={0.1} />
-                </linearGradient>
-              </defs>
-              <Area
-                dataKey="attendance"
-                type="natural"
-                fill="url(#fillAttendance)"
-                fillOpacity={0.4}
-                stroke="hsl(var(--chart-1))"
-                strokeWidth={2.5}
-                stackId="a"
-              />
-            </AreaChart>
-          </ChartContainer>
-        </CardContent>
-      </Card>
-
-      {/* Recent Attendance */}
+      {/* Attendance Records Table */}
       <Card>
-        <CardHeader>
-          <CardTitle>Recent Attendance Records</CardTitle>
+        <CardHeader className="pb-3">
+          <CardTitle className="text-base font-semibold">Attendance Records</CardTitle>
         </CardHeader>
         <CardContent>
-          {/* Filters */}
-          <div className="flex flex-col sm:flex-row gap-4 mb-6">
+          <div className="flex flex-col sm:flex-row gap-3 mb-4">
             <Select value={selectedService} onValueChange={setSelectedService}>
               <SelectTrigger className="w-full sm:w-48">
                 <SelectValue placeholder="Service type" />
@@ -478,14 +336,15 @@ export default function AttendancePage() {
                 <SelectItem value="Youth Service">Youth Service</SelectItem>
               </SelectContent>
             </Select>
+
             <Popover>
               <PopoverTrigger asChild>
-                <Button variant="outline" className="w-full sm:w-48">
+                <Button variant="outline" className="w-full sm:w-48 font-normal">
                   <CalendarIcon className="mr-2 h-4 w-4" />
                   {format(selectedDate, 'MMM dd, yyyy')}
                 </Button>
               </PopoverTrigger>
-              <PopoverContent className="w-auto p-0" align="end">
+              <PopoverContent className="w-auto p-0" align="start">
                 <Calendar
                   mode="single"
                   selected={selectedDate}
@@ -507,36 +366,6 @@ export default function AttendancePage() {
           />
         </CardContent>
       </Card>
-
-      {/* Quick Actions */}
-      <div className="grid gap-4 md:grid-cols-3">
-        <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => router.push('/dashboard/attendance/take')}>
-          <CardHeader className="text-center">
-            <div className="mx-auto h-12 w-12 rounded-full bg-brand-primary/10 flex items-center justify-center mb-2">
-              <Plus className="h-6 w-6 text-brand-primary" />
-            </div>
-            <CardTitle className="text-lg">Take Attendance</CardTitle>
-          </CardHeader>
-        </Card>
-
-        <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => router.push('/dashboard/attendance/history')}>
-          <CardHeader className="text-center">
-            <div className="mx-auto h-12 w-12 rounded-full bg-brand-secondary/10 flex items-center justify-center mb-2">
-              <Clock className="h-6 w-6 text-brand-secondary" />
-            </div>
-            <CardTitle className="text-lg">View History</CardTitle>
-          </CardHeader>
-        </Card>
-
-        <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => router.push('/dashboard/attendance/reports')}>
-          <CardHeader className="text-center">
-            <div className="mx-auto h-12 w-12 rounded-full bg-brand-accent/10 flex items-center justify-center mb-2">
-              <BarChart3 className="h-6 w-6 text-brand-accent" />
-            </div>
-            <CardTitle className="text-lg">Generate Reports</CardTitle>
-          </CardHeader>
-        </Card>
-      </div>
     </div>
   );
 }

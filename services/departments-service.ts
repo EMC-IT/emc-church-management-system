@@ -687,6 +687,53 @@ class DepartmentsService {
     }
   }
 
+  async updateCategory(categoryId: string, categoryData: Partial<DepartmentCategoryFormData>): Promise<ApiResponse<DepartmentCategory>> {
+    try {
+      await delay(400);
+      const index = MOCK_CATEGORIES.findIndex(cat => cat.id === categoryId);
+      if (index === -1) {
+        return { success: false, data: undefined, message: 'Category not found' };
+      }
+      
+      MOCK_CATEGORIES[index] = {
+        ...MOCK_CATEGORIES[index],
+        ...categoryData,
+        updatedAt: new Date().toISOString()
+      };
+
+      return {
+        success: true,
+        data: MOCK_CATEGORIES[index],
+        message: 'Category updated successfully'
+      };
+    } catch (error: any) {
+      return {
+        success: false,
+        data: undefined,
+        message: 'Failed to update category'
+      };
+    }
+  }
+
+  async deleteCategory(categoryId: string): Promise<ApiResponse<void>> {
+    try {
+      await delay(300);
+      const index = MOCK_CATEGORIES.findIndex(cat => cat.id === categoryId);
+      if (index !== -1) {
+        MOCK_CATEGORIES.splice(index, 1);
+      }
+      return {
+        success: true,
+        message: 'Category deleted successfully'
+      };
+    } catch (error: any) {
+      return {
+        success: false,
+        message: 'Failed to delete category'
+      };
+    }
+  }
+
   // Department Members
   async getDepartmentMembers(departmentId: string): Promise<ApiResponse<DepartmentMember[]>> {
     try {

@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
@@ -6,22 +6,17 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { PageHeader } from '@/components/ui/page-header';
 import { StatCard } from '@/components/ui/stat-card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
-
-import { DataTable } from '@/components/ui/data-table';
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from '@/components/ui/dialog';
 import {
   Form,
@@ -31,13 +26,6 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -60,56 +48,23 @@ import {
   Edit,
   Trash2,
   MoreHorizontal,
-  Tag,
-  Palette,
-  Save,
-  Building2
+  FolderTree,
+  Building2,
+  Loader2,
+  Search
 } from 'lucide-react';
 import { DepartmentCategory, DepartmentCategoryFormData } from '@/lib/types/departments';
 import { departmentsService } from '@/services/departments-service';
 import { toast } from 'sonner';
 
-
-
 const categoryFormSchema = z.object({
   name: z.string().min(2, 'Category name must be at least 2 characters'),
   description: z.string().min(5, 'Description must be at least 5 characters'),
-  color: z.string().min(4, 'Please select a color'),
-  icon: z.string().min(1, 'Please select an icon'),
+  color: z.string().default('hsl(var(--primary))'),
+  icon: z.string().default('Building2'),
 });
 
 type CategoryFormValues = z.infer<typeof categoryFormSchema>;
-
-const PREDEFINED_COLORS = [
-  { name: 'Blue', value: '#2E8DB0' },
-  { name: 'Light Blue', value: '#28ACD1' },
-  { name: 'Gold', value: '#C49831' },
-  { name: 'Green', value: '#A5CF5D' },
-  { name: 'Purple', value: '#8B5CF6' },
-  { name: 'Pink', value: '#EC4899' },
-  { name: 'Orange', value: '#F97316' },
-  { name: 'Red', value: '#EF4444' },
-  { name: 'Teal', value: '#14B8A6' },
-  { name: 'Indigo', value: '#6366F1' },
-];
-
-const AVAILABLE_ICONS = [
-  'Music',
-  'Settings',
-  'Heart',
-  'Monitor',
-  'Users',
-  'Book',
-  'Mic',
-  'Camera',
-  'Headphones',
-  'Globe',
-  'Shield',
-  'Star',
-  'Zap',
-  'Target',
-  'Award'
-];
 
 export default function DepartmentCategoriesPage() {
   const router = useRouter();
@@ -120,14 +75,15 @@ export default function DepartmentCategoriesPage() {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [categoryToDelete, setCategoryToDelete] = useState<DepartmentCategory | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
 
   const form = useForm<CategoryFormValues>({
     resolver: zodResolver(categoryFormSchema),
     defaultValues: {
       name: '',
       description: '',
-      color: '',
-      icon: '',
+      color: 'hsl(var(--primary))',
+      icon: 'Building2',
     },
   });
 
@@ -139,66 +95,65 @@ export default function DepartmentCategoriesPage() {
     try {
       setLoading(true);
       const response = await departmentsService.getCategories();
-      
       if (response.success && response.data) {
         setCategories(response.data);
       } else {
         toast.error(response.message);
       }
-    } catch (error) {
+    } catch {
       toast.error('Failed to load categories');
     } finally {
       setLoading(false);
     }
   };
 
-  const onSubmit = async (values: CategoryFormValues) => {
+  const handleCreateOrUpdate = async (values: CategoryFormValues) => {
     try {
       setSubmitting(true);
-      
       const categoryData: DepartmentCategoryFormData = {
         name: values.name,
         description: values.description,
-        color: values.color,
-        icon: values.icon,
+        color: values.color || 'hsl(var(--primary))',
+        icon: values.icon || 'Building2'
       };
-      
-      const response = await departmentsService.createCategory(categoryData);
-      
-      if (response.success) {
-        toast.success('Category created successfully');
-        setDialogOpen(false);
-        form.reset();
-        loadCategories();
+
+      if (editingCategory) {
+        const response = await departmentsService.updateCategory(editingCategory.id, categoryData);
+        if (response.success) {
+          toast.success('Category updated successfully');
+          loadCategories();
+          closeDialog();
+        } else {
+          toast.error(response.message);
+        }
       } else {
-        toast.error(response.message);
+        const response = await departmentsService.createCategory(categoryData);
+        if (response.success) {
+          toast.success('Category created successfully');
+          loadCategories();
+          closeDialog();
+        } else {
+          toast.error(response.message);
+        }
       }
-    } catch (error) {
-      toast.error('Failed to create category');
+    } catch {
+      toast.error('Failed to save category');
     } finally {
       setSubmitting(false);
     }
   };
 
-  const handleEditCategory = (category: DepartmentCategory) => {
-    setEditingCategory(category);
-    form.reset({
-      name: category.name,
-      description: category.description,
-      color: category.color,
-      icon: category.icon,
-    });
-    setDialogOpen(true);
-  };
-
   const handleDeleteCategory = async () => {
     if (!categoryToDelete) return;
-    
     try {
-      // In a real app, you would call the delete API
-      toast.success('Category deleted successfully');
-      loadCategories();
-    } catch (error) {
+      const response = await departmentsService.deleteCategory(categoryToDelete.id);
+      if (response.success) {
+        toast.success('Category deleted successfully');
+        loadCategories();
+      } else {
+        toast.error(response.message);
+      }
+    } catch {
       toast.error('Failed to delete category');
     } finally {
       setDeleteDialogOpen(false);
@@ -206,314 +161,236 @@ export default function DepartmentCategoriesPage() {
     }
   };
 
-  const openDeleteDialog = (category: DepartmentCategory) => {
-    setCategoryToDelete(category);
-    setDeleteDialogOpen(true);
+  const openCreateDialog = () => {
+    setEditingCategory(null);
+    form.reset({
+      name: '',
+      description: '',
+      color: 'hsl(var(--primary))',
+      icon: 'Building2',
+    });
+    setDialogOpen(true);
   };
 
-  const handleDialogClose = () => {
+  const openEditDialog = (category: DepartmentCategory) => {
+    setEditingCategory(category);
+    form.reset({
+      name: category.name,
+      description: category.description,
+      color: category.color || 'hsl(var(--primary))',
+      icon: category.icon || 'Building2',
+    });
+    setDialogOpen(true);
+  };
+
+  const closeDialog = () => {
     setDialogOpen(false);
     setEditingCategory(null);
     form.reset();
   };
 
-  const columns = [
-    {
-      accessorKey: 'name',
-      header: 'Category',
-      cell: ({ row }: { row: any }) => {
-        const category = row.original as DepartmentCategory;
-        return (
-          <div className="flex items-center space-x-3">
-            <div 
-              className="w-4 h-4 rounded-full"
-              style={{ backgroundColor: category.color }}
-            />
-            <div>
-              <div className="font-medium">{category.name}</div>
-              <div className="text-sm text-muted-foreground">
-                {category.description.length > 50 
-                  ? `${category.description.substring(0, 50)}...` 
-                  : category.description
-                }
-              </div>
-            </div>
-          </div>
-        );
-      },
-    },
-    {
-      accessorKey: 'icon',
-      header: 'Icon',
-      cell: ({ row }: { row: any }) => {
-        const category = row.original as DepartmentCategory;
-        return (
-          <Badge variant="neutral">
-            {category.icon}
-          </Badge>
-        );
-      },
-    },
-    {
-      accessorKey: 'color',
-      header: 'Color',
-      cell: ({ row }: { row: any }) => {
-        const category = row.original as DepartmentCategory;
-        return (
-          <div className="flex items-center space-x-2">
-            <div 
-              className="w-6 h-6 rounded border"
-              style={{ backgroundColor: category.color }}
-            />
-            <span className="text-sm font-mono">{category.color}</span>
-          </div>
-        );
-      },
-    },
-    {
-      accessorKey: 'createdAt',
-      header: 'Created',
-      cell: ({ row }: { row: any }) => {
-        const category = row.original as DepartmentCategory;
-        return (
-          <span className="text-sm text-muted-foreground">
-            {new Date(category.createdAt).toLocaleDateString()}
-          </span>
-        );
-      },
-    },
-    {
-      id: 'actions',
-      header: 'Actions',
-      cell: ({ row }: { row: any }) => {
-        const category = row.original as DepartmentCategory;
-        return (
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="h-8 w-8 p-0">
-                <MoreHorizontal className="h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={() => handleEditCategory(category)}>
-                <Edit className="mr-2 h-4 w-4" />
-                Edit
-              </DropdownMenuItem>
-              <DropdownMenuItem 
-                className="text-destructive"
-                onClick={() => openDeleteDialog(category)}
-              >
-                <Trash2 className="mr-2 h-4 w-4" />
-                Delete
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        );
-      },
-    },
-  ];
+  const filteredCategories = categories.filter(category =>
+    category.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    category.description.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const activeCategories = categories.filter(c => c.isActive !== false).length;
 
   return (
     <div className="space-y-6">
-
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-4">
-          <Button variant="outline" size="icon" onClick={() => router.back()}>
-            <ArrowLeft className="h-4 w-4" />
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => router.push('/dashboard/departments')}
+            className="text-muted-foreground hover:text-foreground"
+          >
+            <ArrowLeft className="h-4 w-4 mr-1.5" />
+            Back
           </Button>
-          <PageHeader title="Department Categories" />
+          <h1 className="font-heading text-2xl font-bold tracking-tight">
+            Department Categories
+          </h1>
         </div>
-        <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-          <DialogTrigger asChild>
-            <Button>
-              <Plus className="mr-2 h-4 w-4" />
-              Add Category
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="sm:max-w-[500px]">
-            <DialogHeader>
-              <DialogTitle className="flex items-center gap-2">
-                <Tag className="h-5 w-5" />
-                {editingCategory ? 'Edit Category' : 'Add New Category'}
-              </DialogTitle>
-              <DialogDescription>
-                {editingCategory 
-                  ? 'Update the category information below.'
-                  : 'Create a new category to organize your departments.'
-                }
-              </DialogDescription>
-            </DialogHeader>
-            <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-                <FormField
-                  control={form.control}
-                  name="name"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Category Name</FormLabel>
-                      <FormControl>
-                        <Input placeholder="e.g., Music Ministry" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                
-                <FormField
-                  control={form.control}
-                  name="description"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Description</FormLabel>
-                      <FormControl>
-                        <Textarea 
-                          placeholder="Describe this category..."
-                          className="min-h-[80px]"
-                          {...field} 
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                
-                <FormField
-                  control={form.control}
-                  name="color"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Color</FormLabel>
-                      <div className="grid grid-cols-5 gap-2">
-                        {PREDEFINED_COLORS.map((color) => (
-                          <button
-                            key={color.value}
-                            type="button"
-                            className={`w-12 h-12 rounded border-2 transition-all ${
-                              field.value === color.value 
-                                ? 'border-foreground scale-110' 
-                                : 'border-muted hover:border-foreground/50'
-                            }`}
-                            style={{ backgroundColor: color.value }}
-                            onClick={() => field.onChange(color.value)}
-                            title={color.name}
-                          />
-                        ))}
-                      </div>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                
-                <FormField
-                  control={form.control}
-                  name="icon"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Icon</FormLabel>
-                      <Select onValueChange={field.onChange} value={field.value}>
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select an icon" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          {AVAILABLE_ICONS.map((icon) => (
-                            <SelectItem key={icon} value={icon}>
-                              {icon}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                
-                <DialogFooter>
-                  <Button type="button" variant="outline" onClick={handleDialogClose}>
-                    Cancel
-                  </Button>
-                  <Button type="submit" disabled={submitting}>
-                    <Save className="mr-2 h-4 w-4" />
-                    {submitting ? 'Saving...' : editingCategory ? 'Update' : 'Create'}
-                  </Button>
-                </DialogFooter>
-              </form>
-            </Form>
-          </DialogContent>
-        </Dialog>
+
+        <Button size="sm" onClick={openCreateDialog}>
+          <Plus className="mr-1.5 h-4 w-4" />
+          Add Category
+        </Button>
       </div>
 
       {/* Stats */}
-      <div className="grid gap-4 md:grid-cols-3">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         <StatCard
           title="Total Categories"
           value={categories.length}
-          icon={Tag}
-          accent="primary"
-          description="Active categories"
+          icon={FolderTree}
         />
         <StatCard
-          title="Most Used"
-          value="Music Ministry"
+          title="Active Categories"
+          value={activeCategories}
           icon={Building2}
-          accent="secondary"
-          description="3 departments"
         />
         <StatCard
-          title="Color Palette"
-          value={
-            <div className="flex space-x-1">
-              {categories.slice(0, 6).map((category, index) => (
-                <div
-                  key={index}
-                  className="w-4 h-4 rounded-full"
-                  style={{ backgroundColor: category.color }}
-                />
-              ))}
-            </div>
-          }
-          icon={Palette}
-          accent="success"
-          description="Category colors"
+          title="Active Rate"
+          value={categories.length > 0 ? `${Math.round((activeCategories / categories.length) * 100)}%` : '0%'}
+          icon={FolderTree}
         />
       </div>
 
-      {/* Categories Table */}
+      {/* Category Directory */}
       <Card>
-        <CardHeader>
-          <CardTitle>Categories</CardTitle>
+        <CardHeader className="pb-3">
+          <CardTitle className="text-base font-semibold">Categories ({filteredCategories.length})</CardTitle>
         </CardHeader>
         <CardContent>
-          <DataTable
-            columns={columns}
-            data={categories}
-            recordLabel="category"
-            recordLabelPlural="categories"
-            loading={loading}
-            pagination={true}
-          />
+          <div className="relative mb-4">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Search categories..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-9 max-w-sm"
+            />
+          </div>
+
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {filteredCategories.map((category) => (
+              <Card key={category.id} className="p-4 space-y-3">
+                <div className="flex items-start justify-between">
+                  <div className="flex items-center gap-2">
+                    <div className="w-2.5 h-2.5 rounded-full bg-primary shrink-0" />
+                    <h4 className="font-semibold text-sm text-foreground">{category.name}</h4>
+                  </div>
+
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" size="sm" className="h-7 w-7 p-0">
+                        <MoreHorizontal className="h-3.5 w-3.5" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem onClick={() => openEditDialog(category)}>
+                        <Edit className="mr-2 h-4 w-4" />
+                        Edit
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        onClick={() => {
+                          setCategoryToDelete(category);
+                          setDeleteDialogOpen(true);
+                        }}
+                        className="text-destructive focus:text-destructive"
+                      >
+                        <Trash2 className="mr-2 h-4 w-4" />
+                        Delete
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
+
+                <p className="text-xs text-muted-foreground line-clamp-2 min-h-[32px]">
+                  {category.description}
+                </p>
+
+                <div className="flex items-center justify-between pt-2 border-t border-border text-xs">
+                  <span className="text-muted-foreground">
+                    {category.name}
+                  </span>
+                  <Badge variant="neutral" size="sm">Active</Badge>
+                </div>
+              </Card>
+            ))}
+          </div>
+
+          {filteredCategories.length === 0 && !loading && (
+            <div className="text-center py-10 text-muted-foreground text-sm">
+              No categories found.
+            </div>
+          )}
         </CardContent>
       </Card>
 
-      {/* Delete Confirmation Dialog */}
+      {/* Add / Edit Dialog */}
+      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-base font-semibold">
+              {editingCategory ? 'Edit Category' : 'Create Category'}
+            </DialogTitle>
+          </DialogHeader>
+
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(handleCreateOrUpdate)} className="space-y-4">
+              <FormField
+                control={form.control}
+                name="name"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Category Name *</FormLabel>
+                    <FormControl>
+                      <Input placeholder="e.g. Media & Production" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="description"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Description *</FormLabel>
+                    <FormControl>
+                      <Textarea 
+                        placeholder="Purpose and scope of this department category..." 
+                        rows={3}
+                        {...field} 
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <DialogFooter className="pt-2">
+                <Button type="button" variant="outline" onClick={closeDialog} disabled={submitting}>
+                  Cancel
+                </Button>
+                <Button type="submit" disabled={submitting}>
+                  {submitting ? (
+                    <>
+                      <Loader2 className="mr-1.5 h-4 w-4 animate-spin" />
+                      Saving...
+                    </>
+                  ) : (
+                    editingCategory ? 'Save Changes' : 'Create Category'
+                  )}
+                </Button>
+              </DialogFooter>
+            </form>
+          </Form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Confirmation */}
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Delete Category</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to delete "{categoryToDelete?.name}"? This action cannot be undone.
-              Departments using this category will become uncategorized.
+              Are you sure you want to delete &quot;{categoryToDelete?.name}&quot;?
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction 
+            <AlertDialogAction
               onClick={handleDeleteCategory}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
-              Delete
+              Delete Category
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

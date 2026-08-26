@@ -5,9 +5,9 @@ import { useRouter, useParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { PageHeader } from '@/components/ui/page-header';
 import { StatCard } from '@/components/ui/stat-card';
 import { StatusBadge } from '@/components/ui/status-badge';
+import { Progress } from '@/components/ui/progress';
 import { 
   Select,
   SelectContent,
@@ -19,7 +19,6 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
@@ -47,12 +46,10 @@ import {
   CalendarDays,
   UserCheck,
   Loader2,
-  Eye
 } from 'lucide-react';
 import { groupsService } from '@/services';
 import { Group, GroupEvent } from '@/lib/types/groups';
 import { toast } from 'sonner';
-
 
 const statusOptions = ['All', 'Upcoming', 'Ongoing', 'Completed', 'Cancelled'];
 
@@ -79,19 +76,17 @@ export default function GroupEventsPage() {
     try {
       setLoading(true);
       
-      // Load group details
       const groupResponse = await groupsService.getGroup(groupId);
       if (groupResponse.success && groupResponse.data) {
         setGroup(groupResponse.data);
       }
       
-      // Load group events
       const eventsResponse = await groupsService.getGroupEvents(groupId);
       if (eventsResponse.success && eventsResponse.data) {
         setEvents(eventsResponse.data);
       }
-    } catch (error) {
-      toast.error('Failed to load group data');
+    } catch {
+      toast.error('Failed to load group events');
     } finally {
       setLoading(false);
     }
@@ -106,39 +101,19 @@ export default function GroupEventsPage() {
     return matchesSearch && matchesStatus;
   });
 
-  const handleBack = () => {
-    router.push(`/dashboard/groups/${groupId}`);
-  };
-
-  const handleAddEvent = () => {
-    router.push(`/dashboard/groups/${groupId}/events/add`);
-  };
-
-  const handleViewEvent = (eventId: string) => {
-    // For now, we'll show a toast. This could be enhanced with a detailed view
-    toast.info('Event details view coming soon');
-  };
-
-  const handleEditEvent = (eventId: string) => {
-    router.push(`/dashboard/groups/${groupId}/events/add?edit=${eventId}`);
-  };
-
   const handleDeleteEvent = async () => {
     if (!eventToDelete) return;
-    
     setDeletingEvent(true);
-    
     try {
       const response = await groupsService.deleteGroupEvent(eventToDelete.id);
-      
       if (response.success) {
-        toast.success('Event deleted successfully');
+        toast.success('Event deleted');
         setEvents(prev => prev.filter(e => e.id !== eventToDelete.id));
         setEventToDelete(null);
       } else {
         toast.error(response.message || 'Failed to delete event');
       }
-    } catch (error) {
+    } catch {
       toast.error('Failed to delete event');
     } finally {
       setDeletingEvent(false);
@@ -148,7 +123,6 @@ export default function GroupEventsPage() {
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-US', {
       weekday: 'short',
-      year: 'numeric',
       month: 'short',
       day: 'numeric'
     });
@@ -161,81 +135,71 @@ export default function GroupEventsPage() {
     });
   };
 
-  const getEventStats = () => {
-    const upcoming = events.filter(e => e.status === 'Upcoming').length;
-    const completed = events.filter(e => e.status === 'Completed').length;
-    const totalAttendees = events.reduce((sum, e) => sum + e.registeredAttendees, 0);
-    const averageAttendance = events.length > 0 ? Math.round(totalAttendees / events.length) : 0;
-    
-    return { upcoming, completed, totalAttendees, averageAttendance };
-  };
+  const upcoming = events.filter(e => e.status === 'Upcoming').length;
+  const totalAttendees = events.reduce((sum, e) => sum + e.registeredAttendees, 0);
+  const averageAttendance = events.length > 0 ? Math.round(totalAttendees / events.length) : 0;
 
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
-        <Loader2 className="h-8 w-8 animate-spin" />
+        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
       </div>
     );
   }
 
-
-
-  const stats = getEventStats();
-
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center gap-2">
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={handleBack}
-          className="h-8 w-8"
-        >
-          <ArrowLeft className="h-4 w-4" />
-        </Button>
-        <div className="flex-1">
-          <PageHeader
-            title="Group Events"
-            description={`Manage events for ${group?.name}`}
-            actions={
-              <Button onClick={handleAddEvent} className="bg-brand-primary hover:bg-brand-primary/90">
-                <Plus className="mr-2 h-4 w-4" />
-                Create Event
-              </Button>
-            }
-          />
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex items-center gap-4">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => router.push(`/dashboard/groups/${groupId}`)}
+            className="text-muted-foreground hover:text-foreground"
+          >
+            <ArrowLeft className="h-4 w-4 mr-1.5" />
+            Back
+          </Button>
+          <div>
+            <h1 className="font-heading text-2xl font-bold tracking-tight">Group Events</h1>
+          </div>
         </div>
+
+        <Button size="sm" onClick={() => router.push(`/dashboard/groups/${groupId}/events/add`)}>
+          <Plus className="mr-1.5 h-4 w-4" />
+          Create Event
+        </Button>
       </div>
 
       {/* Stats Cards */}
-      <div className="grid gap-4 md:grid-cols-4">
-        <StatCard title="Total Events" value={events.length} icon={CalendarDays} description="All time events" />
-        <StatCard title="Upcoming Events" value={stats.upcoming} icon={Calendar} description="Scheduled events" />
-        <StatCard title="Total Attendees" value={stats.totalAttendees} icon={Users} description="Registered participants" />
-        <StatCard title="Avg. Attendance" value={stats.averageAttendance} icon={UserCheck} description="Per event" />
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <StatCard title="Total Events" value={events.length} icon={CalendarDays} />
+        <StatCard title="Upcoming" value={upcoming} icon={Calendar} />
+        <StatCard title="Total Registrations" value={totalAttendees} icon={Users} />
+        <StatCard title="Avg Attendance" value={averageAttendance} icon={UserCheck} description="Per event" />
       </div>
 
-      {/* Events Management */}
+      {/* Events List */}
       <Card>
-        <CardHeader>
-          <CardTitle>Event Management</CardTitle>
+        <CardHeader className="pb-3">
+          <CardTitle className="text-base font-semibold">Events ({filteredEvents.length})</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="flex items-center space-x-4 mb-6">
+          <div className="flex flex-col sm:flex-row gap-3 mb-6">
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
                 placeholder="Search events..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10"
+                className="pl-9"
               />
             </div>
             
             <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <SelectTrigger className="w-48">
-                <SelectValue placeholder="Filter by status" />
+              <SelectTrigger className="w-full sm:w-44">
+                <SelectValue placeholder="Status" />
               </SelectTrigger>
               <SelectContent>
                 {statusOptions.map((status) => (
@@ -247,90 +211,61 @@ export default function GroupEventsPage() {
             </Select>
           </div>
 
-          {/* Events List */}
-          <div className="space-y-4">
+          <div className="space-y-3">
             {filteredEvents.map((event) => (
-              <Card key={event.id} className="hover:shadow-md transition-shadow">
-                <CardContent className="pt-6">
-                  <div className="flex items-start justify-between">
-                    <div className="flex items-start space-x-4 flex-1">
-                      <div className="flex items-center justify-center w-12 h-12 bg-brand-primary/10 rounded-lg">
-                        <Calendar className="h-6 w-6 text-brand-primary" />
+              <Card key={event.id} className="p-4">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                  <div className="space-y-2 min-w-0 flex-1">
+                    <div className="flex items-center gap-2">
+                      <h4 className="font-semibold text-sm text-foreground truncate">{event.title}</h4>
+                      <StatusBadge status={event.status.toLowerCase()} size="sm" />
+                    </div>
+                    
+                    <p className="text-xs text-muted-foreground line-clamp-1">{event.description}</p>
+                    
+                    <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground pt-0.5">
+                      <div className="flex items-center space-x-1">
+                        <Calendar className="h-3.5 w-3.5 shrink-0" />
+                        <span>{formatDate(event.startDate)}</span>
                       </div>
                       
-                      <div className="flex-1 space-y-3">
-                        <div className="flex items-center space-x-2">
-                          <h4 className="font-semibold text-lg">{event.title}</h4>
-                          <StatusBadge status={event.status} />
-                        </div>
-                        
-                        <p className="text-muted-foreground">{event.description}</p>
-                        
-                        <div className="grid gap-2 md:grid-cols-2 lg:grid-cols-4">
-                          <div className="flex items-center space-x-2 text-sm">
-                            <Calendar className="h-4 w-4 text-muted-foreground" />
-                            <span>{formatDate(event.startDate)}</span>
-                          </div>
-                          
-                          <div className="flex items-center space-x-2 text-sm">
-                            <Clock className="h-4 w-4 text-muted-foreground" />
-                            <span>{formatTime(event.startDate)} - {formatTime(event.endDate)}</span>
-                          </div>
-                          
-                          <div className="flex items-center space-x-2 text-sm">
-                            <MapPin className="h-4 w-4 text-muted-foreground" />
-                            <span>{event.location}</span>
-                          </div>
-                          
-                          <div className="flex items-center space-x-2 text-sm">
-                            <Users className="h-4 w-4 text-muted-foreground" />
-                            <span>{event.registeredAttendees}/{event.maxAttendees} attendees</span>
-                          </div>
-                        </div>
-                        
-                        {/* Attendance Progress */}
-                        <div className="space-y-1">
-                          <div className="flex items-center justify-between text-sm">
-                            <span>Registration Progress</span>
-                            <span>{Math.round((event.registeredAttendees / event.maxAttendees) * 100)}%</span>
-                          </div>
-                          <div className="w-full bg-gray-200 rounded-full h-2">
-                            <div 
-                              className="bg-brand-primary h-2 rounded-full transition-all duration-300" 
-                              style={{ width: `${Math.min((event.registeredAttendees / event.maxAttendees) * 100, 100)}%` }}
-                            />
-                          </div>
-                        </div>
+                      <div className="flex items-center space-x-1">
+                        <Clock className="h-3.5 w-3.5 shrink-0" />
+                        <span>{formatTime(event.startDate)} - {formatTime(event.endDate)}</span>
                       </div>
+                      
+                      <div className="flex items-center space-x-1">
+                        <MapPin className="h-3.5 w-3.5 shrink-0" />
+                        <span>{event.location}</span>
+                      </div>
+                      
+                      <div className="flex items-center space-x-1">
+                        <Users className="h-3.5 w-3.5 shrink-0" />
+                        <span>{event.registeredAttendees}/{event.maxAttendees} registered</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-2 shrink-0">
+                    <div className="w-24 hidden md:block">
+                      <Progress 
+                        value={Math.min((event.registeredAttendees / event.maxAttendees) * 100, 100)} 
+                        className="h-1.5"
+                      />
                     </div>
                     
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon">
+                        <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
                           <MoreHorizontal className="h-4 w-4" />
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
-                        <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                        <DropdownMenuSeparator />
-                        
-                        <DropdownMenuItem onClick={() => handleViewEvent(event.id)}>
-                          <Eye className="mr-2 h-4 w-4" />
-                          View Details
-                        </DropdownMenuItem>
-                        
-                        <DropdownMenuItem onClick={() => handleEditEvent(event.id)}>
+                        <DropdownMenuItem onClick={() => router.push(`/dashboard/groups/${groupId}/events/add?edit=${event.id}`)}>
                           <Edit className="mr-2 h-4 w-4" />
                           Edit Event
                         </DropdownMenuItem>
-                        
-                        <DropdownMenuItem>
-                          <UserCheck className="mr-2 h-4 w-4" />
-                          Manage Attendance
-                        </DropdownMenuItem>
-                        
                         <DropdownMenuSeparator />
-                        
                         <DropdownMenuItem
                           onClick={() => setEventToDelete(event)}
                           className="text-destructive focus:text-destructive"
@@ -341,59 +276,36 @@ export default function GroupEventsPage() {
                       </DropdownMenuContent>
                     </DropdownMenu>
                   </div>
-                </CardContent>
+                </div>
               </Card>
             ))}
           </div>
-          
+
           {filteredEvents.length === 0 && (
-            <div className="text-center py-8">
-              <CalendarDays className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-              <h3 className="text-lg font-medium">No events found</h3>
-              <p className="text-muted-foreground mb-4">
-                {searchTerm || statusFilter !== 'All'
-                  ? 'Try adjusting your filters'
-                  : 'Create your first group event'
-                }
-              </p>
-              {!searchTerm && statusFilter === 'All' && (
-                <Button onClick={handleAddEvent}>
-                  <Plus className="mr-2 h-4 w-4" />
-                  Create First Event
-                </Button>
-              )}
+            <div className="text-center py-10 text-muted-foreground text-sm">
+              No events found.
             </div>
           )}
         </CardContent>
       </Card>
 
-      {/* Delete Confirmation Dialog */}
-      <AlertDialog open={!!eventToDelete} onOpenChange={() => setEventToDelete(null)}>
+      {/* Delete Confirmation */}
+      <AlertDialog open={!!eventToDelete} onOpenChange={(open) => !open && setEventToDelete(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Delete Event</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to delete the event "{eventToDelete?.title}"?
-              This action cannot be undone and will remove all associated registrations and data.
+              Are you sure you want to delete &quot;{eventToDelete?.title}&quot;?
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={deletingEvent}>
-              Cancel
-            </AlertDialogCancel>
+            <AlertDialogCancel disabled={deletingEvent}>Cancel</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleDeleteEvent}
               disabled={deletingEvent}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
-              {deletingEvent ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Deleting...
-                </>
-              ) : (
-                'Delete Event'
-              )}
+              {deletingEvent ? 'Deleting...' : 'Delete Event'}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

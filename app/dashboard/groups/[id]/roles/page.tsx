@@ -5,21 +5,12 @@ import { useRouter, useParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { PageHeader } from '@/components/ui/page-header';
+import { StatCard } from '@/components/ui/stat-card';
 import { Badge } from '@/components/ui/badge';
-import { PermissionBadge } from '@/components/ui/category-badges';
-import { 
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
@@ -43,24 +34,13 @@ import {
   Trash2,
   MoreHorizontal,
   Crown,
-  User,
   Settings,
   Loader2,
-  Eye,
   UserCheck
 } from 'lucide-react';
 import { groupsService } from '@/services';
 import { Group, GroupRole, GroupMember } from '@/lib/types/groups';
 import { toast } from 'sonner';
-
-
-const roleIcons = {
-  'Leader': Crown,
-  'Assistant Leader': Shield,
-  'Member': User,
-  'Treasurer': Settings,
-  'Secretary': Edit
-};
 
 export default function GroupRolesPage() {
   const router = useRouter();
@@ -85,25 +65,22 @@ export default function GroupRolesPage() {
     try {
       setLoading(true);
       
-      // Load group details
       const groupResponse = await groupsService.getGroup(groupId);
       if (groupResponse.success && groupResponse.data) {
         setGroup(groupResponse.data);
       }
       
-      // Load group roles
       const rolesResponse = await groupsService.getGroupRoles(groupId);
       if (rolesResponse.success && rolesResponse.data) {
         setRoles(rolesResponse.data);
       }
       
-      // Load group members
       const membersResponse = await groupsService.getGroupMembers(groupId);
       if (membersResponse.success && membersResponse.data) {
         setMembers(membersResponse.data);
       }
-    } catch (error) {
-      toast.error('Failed to load group data');
+    } catch {
+      toast.error('Failed to load group roles');
     } finally {
       setLoading(false);
     }
@@ -114,44 +91,23 @@ export default function GroupRolesPage() {
     role.description.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const handleBack = () => {
-    router.push(`/dashboard/groups/${groupId}`);
-  };
-
-  const handleAddRole = () => {
-    router.push(`/dashboard/groups/${groupId}/roles/add`);
-  };
-
-  const handleEditRole = (roleId: string) => {
-    // For now, navigate to add page with edit mode (could be enhanced later)
-    router.push(`/dashboard/groups/${groupId}/roles/add?edit=${roleId}`);
-  };
-
   const handleDeleteRole = async () => {
     if (!roleToDelete) return;
-    
     setDeletingRole(true);
-    
     try {
       const response = await groupsService.deleteGroupRole(roleToDelete.id);
-      
       if (response.success) {
-        toast.success('Role deleted successfully');
+        toast.success('Role deleted');
         setRoles(prev => prev.filter(r => r.id !== roleToDelete.id));
         setRoleToDelete(null);
       } else {
         toast.error(response.message || 'Failed to delete role');
       }
-    } catch (error) {
+    } catch {
       toast.error('Failed to delete role');
     } finally {
       setDeletingRole(false);
     }
-  };
-
-  const getRoleIcon = (roleName: string) => {
-    const IconComponent = roleIcons[roleName as keyof typeof roleIcons] || User;
-    return <IconComponent className="h-4 w-4" />;
   };
 
   const getMembersWithRole = (roleName: string) => {
@@ -161,200 +117,111 @@ export default function GroupRolesPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
-        <Loader2 className="h-8 w-8 animate-spin" />
+        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
       </div>
     );
   }
 
-
-
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center gap-2">
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={handleBack}
-          className="h-8 w-8"
-        >
-          <ArrowLeft className="h-4 w-4" />
-        </Button>
-        <div className="flex-1">
-          <PageHeader
-            title="Group Roles"
-            description={`Roles for ${group?.name}`}
-            actions={
-              <Button onClick={handleAddRole} className="bg-brand-primary hover:bg-brand-primary/90">
-                <Plus className="mr-2 h-4 w-4" />
-                Create Role
-              </Button>
-            }
-          />
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex items-center gap-4">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => router.push(`/dashboard/groups/${groupId}`)}
+            className="text-muted-foreground hover:text-foreground"
+          >
+            <ArrowLeft className="h-4 w-4 mr-1.5" />
+            Back
+          </Button>
+          <div>
+            <h1 className="font-heading text-2xl font-bold tracking-tight">Group Roles</h1>
+          </div>
         </div>
+
+        <Button size="sm" onClick={() => router.push(`/dashboard/groups/${groupId}/roles/add`)}>
+          <Plus className="mr-1.5 h-4 w-4" />
+          Create Role
+        </Button>
       </div>
 
       {/* Stats Cards */}
-      <div className="grid gap-4 md:grid-cols-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Roles</CardTitle>
-            <Shield className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{roles.length}</div>
-            <p className="text-xs text-muted-foreground">
-              Defined roles
-            </p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Default Roles</CardTitle>
-            <Settings className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {roles.filter(r => r.isDefault).length}
-            </div>
-            <p className="text-xs text-muted-foreground">
-              System defaults
-            </p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Leadership Roles</CardTitle>
-            <Crown className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {roles.filter(r => r.name.includes('Leader')).length}
-            </div>
-            <p className="text-xs text-muted-foreground">
-              Leadership positions
-            </p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Assigned Members</CardTitle>
-            <UserCheck className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{members.length}</div>
-            <p className="text-xs text-muted-foreground">
-              With roles assigned
-            </p>
-          </CardContent>
-        </Card>
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <StatCard title="Total Roles" value={roles.length} icon={Shield} />
+        <StatCard title="Default Roles" value={roles.filter(r => r.isDefault).length} icon={Settings} />
+        <StatCard title="Leadership Roles" value={roles.filter(r => r.name.includes('Leader')).length} icon={Crown} />
+        <StatCard title="Assigned Members" value={members.length} icon={UserCheck} />
       </div>
 
-      {/* Roles Management */}
+      {/* Roles Directory */}
       <Card>
-        <CardHeader>
-          <CardTitle>Role Management</CardTitle>
+        <CardHeader className="pb-3">
+          <CardTitle className="text-base font-semibold">Roles ({filteredRoles.length})</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="flex items-center space-x-4 mb-6">
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="Search roles..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10"
-              />
-            </div>
+          <div className="relative mb-4">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Search roles..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-9 max-w-sm"
+            />
           </div>
 
-          {/* Roles List */}
-          <div className="space-y-4">
+          <div className="space-y-3">
             {filteredRoles.map((role) => {
               const roleMembers = getMembersWithRole(role.name);
               
               return (
-                <Card key={role.id} className="hover:shadow-md transition-shadow">
-                  <CardContent className="pt-6">
-                    <div className="flex items-start justify-between">
-                      <div className="flex items-start space-x-4 flex-1">
-                        <div className="flex items-center justify-center w-12 h-12 bg-brand-primary/10 rounded-lg">
-                          {getRoleIcon(role.name)}
-                        </div>
-                        
-                        <div className="flex-1 space-y-3">
-                          <div className="flex items-center space-x-2">
-                            <h4 className="font-semibold text-lg">{role.name}</h4>
-                            {role.isDefault && (
-                              <Badge variant="neutral" className="text-xs">
-                                Default
-                              </Badge>
-                            )}
-                          </div>
-                          
-                          <p className="text-muted-foreground">{role.description}</p>
-                          
-                          {/* Permissions */}
-                          <div className="space-y-2">
-                            <h5 className="text-sm font-medium">Permissions:</h5>
-                            <div className="flex flex-wrap gap-2">
-                              {role.permissions.map((permission, index) => (
-                                <PermissionBadge key={index} permission={permission} />
-                              ))}
-                            </div>
-                          </div>
-                          
-                          {/* Assigned Members */}
-                          <div className="space-y-2">
-                            <h5 className="text-sm font-medium">
-                              Assigned Members ({roleMembers.length}):
-                            </h5>
-                            {roleMembers.length > 0 ? (
-                              <div className="flex flex-wrap gap-2">
-                                {roleMembers.slice(0, 5).map((member) => (
-                                  <Badge key={member.id} variant="neutral" className="text-xs">
-                                    {member.memberName}
-                                  </Badge>
-                                ))}
-                                {roleMembers.length > 5 && (
-                                  <Badge variant="neutral" className="text-xs">
-                                    +{roleMembers.length - 5} more
-                                  </Badge>
-                                )}
-                              </div>
-                            ) : (
-                              <p className="text-xs text-muted-foreground">No members assigned</p>
-                            )}
-                          </div>
-                        </div>
+                <Card key={role.id} className="p-4">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="space-y-2 flex-1 min-w-0">
+                      <div className="flex items-center gap-2">
+                        <h4 className="font-semibold text-sm text-foreground">{role.name}</h4>
+                        {role.isDefault && (
+                          <Badge variant="neutral" size="sm">Default</Badge>
+                        )}
                       </div>
                       
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="icon">
-                            <MoreHorizontal className="h-4 w-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                          <DropdownMenuSeparator />
-                          
-                          <DropdownMenuItem onClick={() => handleEditRole(role.id)}>
-                            <Edit className="mr-2 h-4 w-4" />
-                            Edit Role
-                          </DropdownMenuItem>
-                          
-                          <DropdownMenuItem>
-                            <Eye className="mr-2 h-4 w-4" />
-                            View Members
-                          </DropdownMenuItem>
-                          
-                          <DropdownMenuSeparator />
-                          
-                          {!role.isDefault && (
+                      <p className="text-xs text-muted-foreground">{role.description}</p>
+                      
+                      {/* Permissions */}
+                      <div className="flex flex-wrap gap-1.5 pt-1">
+                        {role.permissions.map((permission, index) => (
+                          <Badge key={index} variant="neutral" size="sm" className="text-[10px]">
+                            {permission}
+                          </Badge>
+                        ))}
+                      </div>
+                      
+                      {/* Assigned Members */}
+                      <div className="pt-2 border-t border-border flex items-center gap-2 text-xs text-muted-foreground">
+                        <span>Assigned: {roleMembers.length} member(s)</span>
+                        {roleMembers.length > 0 && (
+                          <span className="text-foreground truncate">
+                            ({roleMembers.slice(0, 3).map(m => m.memberName).join(', ')}{roleMembers.length > 3 ? `, +${roleMembers.length - 3} more` : ''})
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                    
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="sm" className="h-8 w-8 p-0 shrink-0">
+                          <MoreHorizontal className="h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem onClick={() => router.push(`/dashboard/groups/${groupId}/roles/add?edit=${role.id}`)}>
+                          <Edit className="mr-2 h-4 w-4" />
+                          Edit Role
+                        </DropdownMenuItem>
+                        {!role.isDefault && (
+                          <>
+                            <DropdownMenuSeparator />
                             <DropdownMenuItem
                               onClick={() => setRoleToDelete(role)}
                               className="text-destructive focus:text-destructive"
@@ -362,64 +229,41 @@ export default function GroupRolesPage() {
                               <Trash2 className="mr-2 h-4 w-4" />
                               Delete Role
                             </DropdownMenuItem>
-                          )}
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </div>
-                  </CardContent>
+                          </>
+                        )}
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </div>
                 </Card>
               );
             })}
           </div>
-          
+
           {filteredRoles.length === 0 && (
-            <div className="text-center py-8">
-              <Shield className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-              <h3 className="text-lg font-medium">No roles found</h3>
-              <p className="text-muted-foreground mb-4">
-                {searchTerm 
-                  ? 'Try adjusting your search terms'
-                  : 'Create roles to define member permissions'
-                }
-              </p>
-              {!searchTerm && (
-                <Button onClick={handleAddRole}>
-                  <Plus className="mr-2 h-4 w-4" />
-                  Create First Role
-                </Button>
-              )}
+            <div className="text-center py-10 text-muted-foreground text-sm">
+              No roles found.
             </div>
           )}
         </CardContent>
       </Card>
 
-      {/* Delete Confirmation Dialog */}
-      <AlertDialog open={!!roleToDelete} onOpenChange={() => setRoleToDelete(null)}>
+      {/* Delete Confirmation */}
+      <AlertDialog open={!!roleToDelete} onOpenChange={(open) => !open && setRoleToDelete(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Delete Role</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to delete the role "{roleToDelete?.name}"?
-              This action cannot be undone and will affect all members currently assigned to this role.
+              Are you sure you want to delete the &quot;{roleToDelete?.name}&quot; role?
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={deletingRole}>
-              Cancel
-            </AlertDialogCancel>
+            <AlertDialogCancel disabled={deletingRole}>Cancel</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleDeleteRole}
               disabled={deletingRole}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
-              {deletingRole ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Deleting...
-                </>
-              ) : (
-                'Delete Role'
-              )}
+              {deletingRole ? 'Deleting...' : 'Delete Role'}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

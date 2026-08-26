@@ -1,33 +1,30 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { PageHeader } from '@/components/ui/page-header';
+import { StatCard } from '@/components/ui/stat-card';
 import { Badge } from '@/components/ui/badge';
 import { StatusBadge } from '@/components/ui/status-badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-
 import { DataTable } from '@/components/ui/data-table';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { 
   ArrowLeft, 
-  Filter, 
   Download, 
   CalendarIcon,
   Users,
   UserCheck,
   UserX,
   Clock,
-  AlertCircle,
   Eye,
   MoreHorizontal,
   RefreshCw
 } from 'lucide-react';
-import { format, subDays, startOfMonth, endOfMonth } from 'date-fns';
+import { format, startOfMonth, endOfMonth } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { attendanceService, MOCK_ATTENDANCE_RECORDS } from '@/services/attendance-service';
 import { AttendanceStatus, ServiceType, AttendanceSearchParams } from '@/lib/types';
@@ -47,7 +44,6 @@ const EXTENDED_ATTENDANCE_HISTORY = [
     member: {
       id: 'mem_006',
       name: 'Grace Asante',
-      avatar: 'https://trae-api-sg.mchost.guru/api/ide/v1/text_to_image?prompt=professional%20headshot%20of%20a%20young%20african%20woman%20in%20church%20attire&image_size=square',
       phone: '+233 24 678 9012',
       department: 'Children Ministry',
       group: 'Women Fellowship'
@@ -66,7 +62,6 @@ const EXTENDED_ATTENDANCE_HISTORY = [
     member: {
       id: 'mem_007',
       name: 'Emmanuel Osei',
-      avatar: 'https://trae-api-sg.mchost.guru/api/ide/v1/text_to_image?prompt=professional%20headshot%20of%20a%20young%20african%20man%20in%20church%20attire&image_size=square',
       phone: '+233 24 789 0123',
       department: 'Media Ministry',
       group: 'Youth Group'
@@ -86,7 +81,6 @@ const EXTENDED_ATTENDANCE_HISTORY = [
     member: {
       id: 'mem_008',
       name: 'Abena Mensah',
-      avatar: 'https://trae-api-sg.mchost.guru/api/ide/v1/text_to_image?prompt=professional%20headshot%20of%20a%20middle%20aged%20african%20woman%20in%20church%20attire&image_size=square',
       phone: '+233 24 890 1234',
       department: 'Music Ministry',
       group: 'Choir'
@@ -104,7 +98,6 @@ const EXTENDED_ATTENDANCE_HISTORY = [
     member: {
       id: 'mem_001',
       name: 'John Doe',
-      avatar: 'https://trae-api-sg.mchost.guru/api/ide/v1/text_to_image?prompt=professional%20headshot%20of%20a%20young%20african%20man%20in%20church%20attire&image_size=square',
       phone: '+233 24 123 4567',
       department: 'Media Ministry',
       group: 'Youth Group'
@@ -123,7 +116,6 @@ const EXTENDED_ATTENDANCE_HISTORY = [
     member: {
       id: 'mem_002',
       name: 'Jane Smith',
-      avatar: 'https://trae-api-sg.mchost.guru/api/ide/v1/text_to_image?prompt=professional%20headshot%20of%20a%20young%20african%20woman%20in%20church%20attire&image_size=square',
       phone: '+233 24 234 5678',
       department: 'Children Ministry',
       group: 'Women Fellowship'
@@ -138,8 +130,6 @@ const EXTENDED_ATTENDANCE_HISTORY = [
   }
 ];
 
-
-
 const attendanceColumns = [
   {
     accessorKey: 'member.name',
@@ -148,14 +138,12 @@ const attendanceColumns = [
       const member = row.original.member;
       return (
         <div className="flex items-center space-x-3">
-          <div className="h-8 w-8 rounded-full bg-brand-primary/10 flex items-center justify-center">
-            <span className="text-sm font-medium text-brand-primary">
-              {member.name.split(' ').map((n: string) => n[0]).join('')}
-            </span>
+          <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center font-semibold text-xs text-primary">
+            {member.name.split(' ').map((n: string) => n[0]).join('')}
           </div>
           <div>
-            <div className="font-medium">{member.name}</div>
-            <div className="text-sm text-muted-foreground">{member.department}</div>
+            <div className="font-medium text-foreground">{member.name}</div>
+            <div className="text-xs text-muted-foreground">{member.department}</div>
           </div>
         </div>
       );
@@ -165,7 +153,7 @@ const attendanceColumns = [
     accessorKey: 'serviceType',
     header: 'Service Type',
     cell: ({ row }: any) => (
-      <Badge variant="info">
+      <Badge variant="neutral" size="sm">
         {row.getValue('serviceType')}
       </Badge>
     )
@@ -177,8 +165,8 @@ const attendanceColumns = [
       const date = new Date(row.getValue('serviceDate'));
       return (
         <div>
-          <div className="font-medium">{format(date, 'MMM dd, yyyy')}</div>
-          <div className="text-sm text-muted-foreground">{format(date, 'EEEE')}</div>
+          <div className="font-medium text-foreground">{format(date, 'MMM dd, yyyy')}</div>
+          <div className="text-xs text-muted-foreground">{format(date, 'EEEE')}</div>
         </div>
       );
     }
@@ -189,12 +177,9 @@ const attendanceColumns = [
     cell: ({ row }: any) => {
       const checkInTime = row.getValue('checkInTime');
       return checkInTime ? (
-        <div className="flex items-center gap-1">
-          <Clock className="h-3 w-3 text-muted-foreground" />
-          <span>{checkInTime}</span>
-        </div>
+        <span className="text-sm text-muted-foreground">{checkInTime}</span>
       ) : (
-        <span className="text-muted-foreground">N/A</span>
+        <span className="text-sm text-muted-foreground">—</span>
       );
     }
   },
@@ -203,9 +188,7 @@ const attendanceColumns = [
     header: 'Status',
     cell: ({ row }: any) => {
       const status = row.getValue('status') as AttendanceStatus;
-      return (
-        <StatusBadge status={status} showIcon />
-      );
+      return <StatusBadge status={status} size="sm" />;
     }
   },
   {
@@ -214,11 +197,11 @@ const attendanceColumns = [
     cell: ({ row }: any) => {
       const notes = row.getValue('notes');
       return notes ? (
-        <span className="text-sm text-muted-foreground truncate max-w-32" title={notes}>
+        <span className="text-xs text-muted-foreground truncate max-w-32 inline-block" title={notes}>
           {notes}
         </span>
       ) : (
-        <span className="text-muted-foreground">-</span>
+        <span className="text-xs text-muted-foreground">—</span>
       );
     }
   },
@@ -230,7 +213,7 @@ const attendanceColumns = [
       return (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="h-8 w-8 p-0">
+            <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
               <MoreHorizontal className="h-4 w-4" />
             </Button>
           </DropdownMenuTrigger>
@@ -257,10 +240,9 @@ export default function AttendanceHistoryPage() {
     from: startOfMonth(new Date()),
     to: endOfMonth(new Date())
   });
-  const [attendanceData, setAttendanceData] = useState(EXTENDED_ATTENDANCE_HISTORY);
+  const [attendanceData] = useState(EXTENDED_ATTENDANCE_HISTORY);
   const [activeTab, setActiveTab] = useState('all');
 
-  // Filter data based on current filters
   const filteredData = attendanceData.filter(record => {
     const matchesSearch = record.member.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          record.member.department?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -282,7 +264,6 @@ export default function AttendanceHistoryPage() {
     return matchesSearch && matchesService && matchesStatus && matchesDepartment && matchesDateRange && matchesTab;
   });
 
-  // Calculate statistics
   const stats = {
     total: filteredData.length,
     present: filteredData.filter(r => r.status === AttendanceStatus.PRESENT).length,
@@ -322,19 +303,6 @@ export default function AttendanceHistoryPage() {
     }
   };
 
-  const handleRefresh = async () => {
-    setIsLoading(true);
-    try {
-      // Simulate API call to refresh data
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      // In real implementation, fetch fresh data from API
-    } catch (error) {
-      console.error('Refresh failed:', error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   const clearFilters = () => {
     setSearchTerm('');
     setSelectedService('all');
@@ -350,114 +318,69 @@ export default function AttendanceHistoryPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center gap-4">
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => router.back()}
-        >
-          <ArrowLeft className="h-4 w-4 mr-2" />
-          Back
-        </Button>
-        <div className="flex-1">
-          <PageHeader
-            title="Attendance History"
-            actions={
-              <>
-                <Button variant="outline" onClick={handleRefresh} disabled={isLoading}>
-                  <RefreshCw className={cn("h-4 w-4 mr-2", isLoading && "animate-spin")} />
-                  Refresh
-                </Button>
-                <Button variant="outline" onClick={handleExportData} disabled={isLoading}>
-                  <Download className="h-4 w-4 mr-2" />
-                  Export
-                </Button>
-              </>
-            }
-          />
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex items-center gap-4">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => router.back()}
+            className="text-muted-foreground hover:text-foreground"
+          >
+            <ArrowLeft className="h-4 w-4 mr-1.5" />
+            Back
+          </Button>
+          <h1 className="font-heading text-2xl font-bold tracking-tight">
+            Attendance History
+          </h1>
+        </div>
+
+        <div className="flex items-center gap-2">
+          <Button variant="outline" size="sm" onClick={handleExportData} disabled={isLoading}>
+            <Download className="h-4 w-4 mr-1.5" />
+            Export Data
+          </Button>
         </div>
       </div>
 
       {/* Stats Cards */}
-      <div className="grid gap-4 md:grid-cols-5">
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-muted-foreground">Total Records</p>
-                <p className="text-2xl font-bold">{stats.total}</p>
-              </div>
-              <Users className="h-8 w-8 text-muted-foreground" />
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-muted-foreground">Present</p>
-                <p className="text-2xl font-bold text-green-600">{stats.present}</p>
-              </div>
-              <UserCheck className="h-8 w-8 text-green-600" />
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-muted-foreground">Late</p>
-                <p className="text-2xl font-bold text-yellow-600">{stats.late}</p>
-              </div>
-              <Clock className="h-8 w-8 text-yellow-600" />
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-muted-foreground">Absent</p>
-                <p className="text-2xl font-bold text-red-600">{stats.absent}</p>
-              </div>
-              <UserX className="h-8 w-8 text-red-600" />
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-muted-foreground">Rate</p>
-                <p className="text-2xl font-bold text-brand-primary">{attendanceRate}%</p>
-              </div>
-              <div className="w-8 h-8 rounded-full bg-brand-primary/10 flex items-center justify-center">
-                <span className="text-xs font-bold text-brand-primary">%</span>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
+        <StatCard
+          title="Total Records"
+          value={stats.total}
+          icon={Users}
+        />
+        <StatCard
+          title="Present"
+          value={stats.present}
+          icon={UserCheck}
+        />
+        <StatCard
+          title="Late"
+          value={stats.late}
+          icon={Clock}
+        />
+        <StatCard
+          title="Absent"
+          value={stats.absent}
+          icon={UserX}
+        />
+        <StatCard
+          title="Attendance Rate"
+          value={`${attendanceRate}%`}
+          icon={UserCheck}
+        />
       </div>
 
       {/* Filters */}
       <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <CardTitle className="flex items-center gap-2">
-              <Filter className="h-5 w-5" />
-              Filters
-            </CardTitle>
-            <Button variant="outline" size="sm" onClick={clearFilters}>
-              Clear All
-            </Button>
-          </div>
+        <CardHeader className="flex flex-row items-center justify-between pb-3">
+          <CardTitle className="text-base font-semibold">Filter Records</CardTitle>
+          <Button variant="ghost" size="sm" onClick={clearFilters} className="text-xs">
+            Clear Filters
+          </Button>
         </CardHeader>
         <CardContent>
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
             <Select value={selectedService} onValueChange={setSelectedService}>
               <SelectTrigger>
                 <SelectValue placeholder="Service type" />
@@ -502,7 +425,7 @@ export default function AttendanceHistoryPage() {
               <PopoverTrigger asChild>
                 <Button variant="outline" className="justify-start text-left font-normal">
                   <CalendarIcon className="mr-2 h-4 w-4" />
-                  {format(dateRange.from, 'MMM dd')} - {format(dateRange.to, 'MMM dd')}
+                  {format(dateRange.from, 'MMM dd')} - {format(dateRange.to, 'MMM dd, yyyy')}
                 </Button>
               </PopoverTrigger>
               <PopoverContent className="w-auto p-0" align="end">
@@ -525,18 +448,19 @@ export default function AttendanceHistoryPage() {
 
       {/* Attendance Records */}
       <Card>
-        <CardHeader>
-          <CardTitle>Attendance Records ({filteredData.length})</CardTitle>
+        <CardHeader className="pb-3">
+          <CardTitle className="text-base font-semibold">
+            Records ({filteredData.length})
+          </CardTitle>
         </CardHeader>
         <CardContent>
-          {/* Status Tabs */}
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-6">
-            <TabsList className="grid w-full grid-cols-5">
-              <TabsTrigger value="all">All ({stats.total})</TabsTrigger>
-              <TabsTrigger value="present" className="text-green-600">Present ({stats.present})</TabsTrigger>
-              <TabsTrigger value="late" className="text-yellow-600">Late ({stats.late})</TabsTrigger>
-              <TabsTrigger value="absent" className="text-red-600">Absent ({stats.absent})</TabsTrigger>
-              <TabsTrigger value="excused" className="text-blue-600">Excused ({stats.excused})</TabsTrigger>
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-4">
+            <TabsList className="grid w-full grid-cols-5 max-w-lg">
+              <TabsTrigger value="all">All</TabsTrigger>
+              <TabsTrigger value="present">Present</TabsTrigger>
+              <TabsTrigger value="late">Late</TabsTrigger>
+              <TabsTrigger value="absent">Absent</TabsTrigger>
+              <TabsTrigger value="excused">Excused</TabsTrigger>
             </TabsList>
           </Tabs>
 

@@ -4,9 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Label as UILabel } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { PageHeader } from '@/components/ui/page-header';
 import {
   Select,
   SelectContent,
@@ -15,23 +13,21 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { 
   ArrowLeft,
-  Save,
-  Loader2,
   UserPlus,
   Search,
   Users,
   Mail,
-  Phone
+  Phone,
+  Loader2
 } from 'lucide-react';
 import { groupsService, membersService } from '@/services';
 import { Group, GroupRole, GroupMemberFormData } from '@/lib/types/groups';
 import { Member } from '@/lib/types/members';
 import { toast } from 'sonner';
-
 
 export default function AddGroupMemberPage() {
   const router = useRouter();
@@ -57,22 +53,18 @@ export default function AddGroupMemberPage() {
     try {
       setLoading(true);
       
-      // Load group details
       const groupResponse = await groupsService.getGroup(groupId);
       if (groupResponse.success && groupResponse.data) {
         setGroup(groupResponse.data);
       }
       
-      // Load group roles
       const rolesResponse = await groupsService.getGroupRoles(groupId);
       if (rolesResponse.success && rolesResponse.data) {
         setRoles(rolesResponse.data);
       }
       
-      // Load all church members
       const membersResponse = await membersService.getMembers({ limit: 1000 });
       if (membersResponse.data) {
-        // Filter out members who are already in this group
         const groupMembersResponse = await groupsService.getGroupMembers(groupId);
         const existingMemberIds = groupMembersResponse.success && groupMembersResponse.data 
           ? new Set(groupMembersResponse.data.map(gm => gm.memberId))
@@ -83,8 +75,8 @@ export default function AddGroupMemberPage() {
         );
         setAllMembers(availableMembers);
       }
-    } catch (error) {
-      toast.error('Failed to load data');
+    } catch {
+      toast.error('Failed to load members');
     } finally {
       setLoading(false);
     }
@@ -101,14 +93,12 @@ export default function AddGroupMemberPage() {
     const newSelected = new Set(selectedMembers);
     if (checked) {
       newSelected.add(memberId);
-      // Set default role if not already set
       if (!memberRoles[memberId]) {
         const defaultRole = roles.find(r => r.isDefault)?.name || roles[0]?.name || 'Member';
         setMemberRoles(prev => ({ ...prev, [memberId]: defaultRole }));
       }
     } else {
       newSelected.delete(memberId);
-      // Remove role assignment
       setMemberRoles(prev => {
         const updated = { ...prev };
         delete updated[memberId];
@@ -130,15 +120,7 @@ export default function AddGroupMemberPage() {
       return;
     }
     
-    // Check if all selected members have roles assigned
-    const membersWithoutRoles = Array.from(selectedMembers).filter(id => !memberRoles[id]);
-    if (membersWithoutRoles.length > 0) {
-      toast.error('Please assign roles to all selected members');
-      return;
-    }
-    
     setSaving(true);
-    
     try {
       const promises = Array.from(selectedMembers).map(async (memberId) => {
         const member = allMembers.find(m => m.id === memberId);
@@ -149,288 +131,165 @@ export default function AddGroupMemberPage() {
           memberName: `${member.firstName} ${member.lastName}`,
           memberEmail: member.email,
           memberPhone: member.phone || '',
-          role: memberRoles[memberId]
+          role: memberRoles[memberId] || 'Member',
         };
         
         return groupsService.addGroupMember(groupId, memberData);
       });
       
       const results = await Promise.all(promises);
-      const successCount = results.filter(r => r?.success).length;
-      const failCount = results.length - successCount;
+      const successful = results.filter(r => r && r.success).length;
       
-      if (successCount > 0) {
-        toast.success(`Successfully added ${successCount} member(s) to the group`);
-        if (failCount === 0) {
-          router.push(`/dashboard/groups/${groupId}/members`);
-        }
+      if (successful > 0) {
+        toast.success(`Successfully added ${successful} member(s) to the group`);
+        router.push(`/dashboard/groups/${groupId}/members`);
+      } else {
+        toast.error('Failed to add members');
       }
-      
-      if (failCount > 0) {
-        toast.error(`Failed to add ${failCount} member(s)`);
-      }
-    } catch (error) {
-      toast.error('Failed to add members to group');
+    } catch {
+      toast.error('Failed to add members');
     } finally {
       setSaving(false);
     }
   };
 
-  const handleCancel = () => {
-    router.push(`/dashboard/groups/${groupId}/members`);
-  };
-
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
-        <Loader2 className="h-8 w-8 animate-spin" />
+        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
       </div>
     );
   }
 
-
-
   return (
-    <div className="space-y-6">
-      <div className="flex items-center gap-2">
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={handleCancel}
-          className="h-8 w-8"
-        >
-          <ArrowLeft className="h-4 w-4" />
-        </Button>
-        <PageHeader title="Add Members to Group" description={`Add to ${group?.name}`} />
-      </div>
-
-      <form onSubmit={handleSubmit} className="space-y-6">
-        <div className="grid gap-6 lg:grid-cols-3">
-          {/* Main Content */}
-          <div className="lg:col-span-2 space-y-6">
-            {/* Search and Filter */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center space-x-2">
-                  <Search className="h-5 w-5" />
-                  <span>Find Members</span>
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                  <Input
-                    placeholder="Search by name or email..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="pl-10"
-                  />
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Available Members */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center justify-between">
-                  <div className="flex items-center space-x-2">
-                    <Users className="h-5 w-5" />
-                    <span>Available Members</span>
-                  </div>
-                  <Badge variant="neutral">
-                    {selectedMembers.size} selected
-                  </Badge>
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4 max-h-96 overflow-y-auto">
-                  {filteredMembers.map((member) => {
-                    const isSelected = selectedMembers.has(member.id);
-                    const memberRole = memberRoles[member.id];
-                    
-                    return (
-                      <div key={member.id} className="flex items-center space-x-4 p-4 border rounded-lg">
-                        <Checkbox
-                          checked={isSelected}
-                          onCheckedChange={(checked) => handleMemberToggle(member.id, checked as boolean)}
-                        />
-                        
-                        <Avatar className="h-10 w-10">
-                          <AvatarFallback>
-                            {member.firstName[0]}{member.lastName[0]}
-                          </AvatarFallback>
-                        </Avatar>
-                        
-                        <div className="flex-1 space-y-1">
-                          <div className="flex items-center space-x-2">
-                            <h4 className="font-medium">
-                              {member.firstName} {member.lastName}
-                            </h4>
-                            <Badge variant="neutral">{member.department}</Badge>
-                          </div>
-                          
-                          <div className="flex items-center space-x-4 text-sm text-muted-foreground">
-                            <div className="flex items-center space-x-1">
-                              <Mail className="h-3 w-3" />
-                              <span>{member.email}</span>
-                            </div>
-                            
-                            {member.phone && (
-                              <div className="flex items-center space-x-1">
-                                <Phone className="h-3 w-3" />
-                                <span>{member.phone}</span>
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                        
-                        {isSelected && (
-                          <div className="w-48">
-                            <Select
-                              value={memberRole}
-                              onValueChange={(value) => handleRoleChange(member.id, value)}
-                            >
-                              <SelectTrigger>
-                                <SelectValue placeholder="Select role" />
-                              </SelectTrigger>
-                              <SelectContent>
-                                {roles.map((role) => (
-                                  <SelectItem key={role.id} value={role.name}>
-                                    {role.name}
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                          </div>
-                        )}
-                      </div>
-                    );
-                  })}
-                </div>
-                
-                {filteredMembers.length === 0 && (
-                  <div className="text-center py-8">
-                    <Users className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                    <h3 className="text-lg font-medium">No members found</h3>
-                    <p className="text-muted-foreground">
-                      {searchTerm 
-                        ? 'Try adjusting your search terms'
-                        : 'All church members are already in this group'
-                      }
-                    </p>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Sidebar */}
-          <div className="space-y-6">
-            {/* Actions */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Actions</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                <Button
-                  type="submit"
-                  disabled={saving || selectedMembers.size === 0}
-                  className="w-full bg-brand-primary hover:bg-brand-primary/90"
-                >
-                  {saving ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Adding...
-                    </>
-                  ) : (
-                    <>
-                      <UserPlus className="mr-2 h-4 w-4" />
-                      Add {selectedMembers.size} Member{selectedMembers.size !== 1 ? 's' : ''}
-                    </>
-                  )}
-                </Button>
-                
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={handleCancel}
-                  disabled={saving}
-                  className="w-full"
-                >
-                  Cancel
-                </Button>
-              </CardContent>
-            </Card>
-
-            {/* Group Info */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Group Information</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3 text-sm">
-                <div>
-                  <Label className="text-muted-foreground">Group Name</Label>
-                  <p className="font-medium">{group?.name}</p>
-                </div>
-                
-                <div>
-                  <Label className="text-muted-foreground">Current Members</Label>
-                  <p className="font-medium">{group?.members} of {group?.maxMembers}</p>
-                </div>
-                
-                <div>
-                  <Label className="text-muted-foreground">Available Spots</Label>
-                  <p className="font-medium">{(group?.maxMembers || 0) - (group?.members || 0)}</p>
-                </div>
-                
-                <div>
-                  <Label className="text-muted-foreground">Category</Label>
-                  <p className="font-medium">{group?.category}</p>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Available Roles */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Available Roles</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-2">
-                {roles.map((role) => (
-                  <div key={role.id} className="flex items-center justify-between">
-                    <div>
-                      <p className="font-medium">{role.name}</p>
-                      <p className="text-xs text-muted-foreground">{role.description}</p>
-                    </div>
-                    {role.isDefault && (
-                      <Badge variant="neutral" className="text-xs">
-                        Default
-                      </Badge>
-                    )}
-                  </div>
-                ))}
-              </CardContent>
-            </Card>
-
-            {/* Tips */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Tips</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-2 text-sm text-muted-foreground">
-                <p>• Select multiple members to add them in bulk</p>
-                <p>• Assign appropriate roles based on responsibilities</p>
-                <p>• Members can be assigned different roles later</p>
-                <p>• Check group capacity before adding members</p>
-              </CardContent>
-            </Card>
+    <div className="space-y-6 max-w-4xl mx-auto">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-4">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => router.push(`/dashboard/groups/${groupId}/members`)}
+            className="text-muted-foreground hover:text-foreground"
+          >
+            <ArrowLeft className="h-4 w-4 mr-1.5" />
+            Back
+          </Button>
+          <div>
+            <h1 className="font-heading text-2xl font-bold tracking-tight">Add Group Members</h1>
           </div>
         </div>
-      </form>
+
+        <Button
+          onClick={handleSubmit}
+          disabled={saving || selectedMembers.size === 0}
+          size="sm"
+        >
+          {saving ? (
+            <>
+              <Loader2 className="mr-1.5 h-4 w-4 animate-spin" />
+              Adding...
+            </>
+          ) : (
+            <>
+              <UserPlus className="mr-1.5 h-4 w-4" />
+              Add {selectedMembers.size > 0 ? `(${selectedMembers.size})` : ''}
+            </>
+          )}
+        </Button>
+      </div>
+
+      <Card>
+        <CardHeader className="pb-3">
+          <CardTitle className="text-base font-semibold">
+            Select Church Members ({filteredMembers.length} available)
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="relative mb-4">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Search members by name or email..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-9"
+            />
+          </div>
+
+          <div className="space-y-2 max-h-[500px] overflow-y-auto pr-1">
+            {filteredMembers.map((member) => {
+              const isSelected = selectedMembers.has(member.id);
+              const memberRole = memberRoles[member.id] || roles.find(r => r.isDefault)?.name || 'Member';
+              
+              return (
+                <div 
+                  key={member.id} 
+                  className={`flex flex-col sm:flex-row sm:items-center justify-between p-3 border rounded-lg gap-3 transition-colors ${
+                    isSelected ? 'border-primary/50 bg-primary/5' : 'bg-card'
+                  }`}
+                >
+                  <div className="flex items-center space-x-3 min-w-0">
+                    <Checkbox
+                      checked={isSelected}
+                      onCheckedChange={(checked) => handleMemberToggle(member.id, checked as boolean)}
+                    />
+                    
+                    <Avatar className="h-9 w-9">
+                      <AvatarFallback className="text-xs bg-primary/10 text-primary font-medium">
+                        {member.firstName[0]}{member.lastName[0]}
+                      </AvatarFallback>
+                    </Avatar>
+                    
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-2">
+                        <p className="font-medium text-sm text-foreground truncate">
+                          {member.firstName} {member.lastName}
+                        </p>
+                        {member.department && (
+                          <Badge variant="neutral" size="sm">{member.department}</Badge>
+                        )}
+                      </div>
+                      
+                      <div className="flex items-center gap-3 text-xs text-muted-foreground pt-0.5">
+                        <span className="truncate">{member.email}</span>
+                        {member.phone && <span>• {member.phone}</span>}
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {isSelected && (
+                    <div className="sm:w-44 shrink-0 pl-7 sm:pl-0">
+                      <Select
+                        value={memberRole}
+                        onValueChange={(value) => handleRoleChange(member.id, value)}
+                      >
+                        <SelectTrigger className="h-8 text-xs">
+                          <SelectValue placeholder="Select role" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {roles.map((role) => (
+                            <SelectItem key={role.id} value={role.name} className="text-xs">
+                              {role.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+
+          {filteredMembers.length === 0 && (
+            <div className="text-center py-10 text-muted-foreground text-sm">
+              {searchTerm 
+                ? 'No members found matching your search.' 
+                : 'All registered church members are already enrolled in this group.'}
+            </div>
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
-}
-
-function Label({ children, className }: { children: React.ReactNode; className?: string }) {
-  return <label className={className}>{children}</label>;
 }

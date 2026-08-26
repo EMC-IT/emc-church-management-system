@@ -5,9 +5,9 @@ import { useRouter, useParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { PageHeader } from '@/components/ui/page-header';
+import { StatCard } from '@/components/ui/stat-card';
 import { StatusBadge } from '@/components/ui/status-badge';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { 
   Select,
   SelectContent,
@@ -19,7 +19,6 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
@@ -41,7 +40,6 @@ import {
   Mail,
   Phone,
   MoreHorizontal,
-  Edit,
   Trash2,
   Loader2,
   Crown,
@@ -51,13 +49,6 @@ import {
 import { groupsService } from '@/services';
 import { Group, GroupMember, GroupRole } from '@/lib/types/groups';
 import { toast } from 'sonner';
-
-
-const roleIcons = {
-  'Leader': Crown,
-  'Assistant Leader': Shield,
-  'Member': User
-};
 
 export default function GroupMembersPage() {
   const router = useRouter();
@@ -84,24 +75,21 @@ export default function GroupMembersPage() {
     try {
       setLoading(true);
       
-      // Load group details
       const groupResponse = await groupsService.getGroup(groupId);
       if (groupResponse.success && groupResponse.data) {
         setGroup(groupResponse.data);
       }
       
-      // Load group members
       const membersResponse = await groupsService.getGroupMembers(groupId);
       if (membersResponse.success && membersResponse.data) {
         setMembers(membersResponse.data);
       }
       
-      // Load group roles
       const rolesResponse = await groupsService.getGroupRoles(groupId);
       if (rolesResponse.success && rolesResponse.data) {
         setRoles(rolesResponse.data);
       }
-    } catch (error) {
+    } catch {
       toast.error('Failed to load group data');
     } finally {
       setLoading(false);
@@ -117,176 +105,119 @@ export default function GroupMembersPage() {
     return matchesSearch && matchesRole && matchesStatus;
   });
 
-  const handleBack = () => {
-    router.push(`/dashboard/groups/${groupId}`);
-  };
-
-  const handleAddMember = () => {
-    router.push(`/dashboard/groups/${groupId}/members/add`);
-  };
-
   const handleUpdateMemberRole = async (memberId: string, newRole: string) => {
     try {
       const response = await groupsService.updateGroupMemberRole(groupId, memberId, newRole);
-      
       if (response.success) {
-        toast.success('Member role updated successfully');
-        loadData(); // Reload data
+        toast.success('Member role updated');
+        loadData();
       } else {
-        toast.error(response.message || 'Failed to update member role');
+        toast.error(response.message || 'Failed to update role');
       }
-    } catch (error) {
-      toast.error('Failed to update member role');
+    } catch {
+      toast.error('Failed to update role');
     }
   };
 
   const handleRemoveMember = async () => {
     if (!memberToDelete) return;
-    
     setDeletingMember(true);
-    
     try {
       const response = await groupsService.removeGroupMember(groupId, memberToDelete.memberId);
-      
       if (response.success) {
-        toast.success('Member removed from group successfully');
+        toast.success('Member removed');
         setMembers(prev => prev.filter(m => m.id !== memberToDelete.id));
         setMemberToDelete(null);
       } else {
         toast.error(response.message || 'Failed to remove member');
       }
-    } catch (error) {
+    } catch {
       toast.error('Failed to remove member');
     } finally {
       setDeletingMember(false);
     }
   };
 
-  const getRoleIcon = (role: string) => {
-    const IconComponent = roleIcons[role as keyof typeof roleIcons] || User;
-    return <IconComponent className="h-4 w-4" />;
-  };
-
-
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
-        <Loader2 className="h-8 w-8 animate-spin" />
+        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
       </div>
     );
   }
-
-
 
   const uniqueRoles = Array.from(new Set(members.map(m => m.role)));
 
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center gap-2">
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={handleBack}
-          className="h-8 w-8"
-        >
-          <ArrowLeft className="h-4 w-4" />
-        </Button>
-        <div className="flex-1">
-          <PageHeader
-            title="Group Members"
-            description={`Members of ${group?.name}`}
-            actions={
-              <Button onClick={handleAddMember} className="bg-brand-primary hover:bg-brand-primary/90">
-                <UserPlus className="mr-2 h-4 w-4" />
-                Add Member
-              </Button>
-            }
-          />
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex items-center gap-4">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => router.push(`/dashboard/groups/${groupId}`)}
+            className="text-muted-foreground hover:text-foreground"
+          >
+            <ArrowLeft className="h-4 w-4 mr-1.5" />
+            Back
+          </Button>
+          <div>
+            <h1 className="font-heading text-2xl font-bold tracking-tight">Group Members</h1>
+          </div>
         </div>
+
+        <Button size="sm" onClick={() => router.push(`/dashboard/groups/${groupId}/members/add`)}>
+          <UserPlus className="mr-1.5 h-4 w-4" />
+          Add Member
+        </Button>
       </div>
 
       {/* Stats Cards */}
-      <div className="grid gap-4 md:grid-cols-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Members</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{members.length}</div>
-            <p className="text-xs text-muted-foreground">
-              of {group?.maxMembers} maximum
-            </p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Active Members</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {members.filter(m => m.status === 'Active').length}
-            </div>
-            <p className="text-xs text-muted-foreground">
-              Currently active
-            </p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Leaders</CardTitle>
-            <Crown className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {members.filter(m => m.role.includes('Leader')).length}
-            </div>
-            <p className="text-xs text-muted-foreground">
-              Leadership roles
-            </p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Available Spots</CardTitle>
-            <UserPlus className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {(group?.maxMembers || 0) - members.length}
-            </div>
-            <p className="text-xs text-muted-foreground">
-              Remaining capacity
-            </p>
-          </CardContent>
-        </Card>
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <StatCard
+          title="Total Members"
+          value={members.length}
+          icon={Users}
+          description={`of ${group?.maxMembers || 0} maximum`}
+        />
+        <StatCard
+          title="Active Members"
+          value={members.filter(m => m.status === 'Active').length}
+          icon={User}
+        />
+        <StatCard
+          title="Leaders"
+          value={members.filter(m => m.role.includes('Leader')).length}
+          icon={Crown}
+        />
+        <StatCard
+          title="Available Spots"
+          value={Math.max(0, (group?.maxMembers || 0) - members.length)}
+          icon={Shield}
+        />
       </div>
 
-      {/* Filters and Search */}
+      {/* Members Directory */}
       <Card>
-        <CardHeader>
-          <CardTitle>Member Management</CardTitle>
+        <CardHeader className="pb-3">
+          <CardTitle className="text-base font-semibold">Members ({filteredMembers.length})</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="flex items-center space-x-4 mb-6">
+          <div className="flex flex-col sm:flex-row gap-3 mb-6">
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
                 placeholder="Search members..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10"
+                className="pl-9"
               />
             </div>
             
             <Select value={roleFilter} onValueChange={setRoleFilter}>
-              <SelectTrigger className="w-48">
-                <SelectValue placeholder="Filter by role" />
+              <SelectTrigger className="w-full sm:w-44">
+                <SelectValue placeholder="Role" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="All">All Roles</SelectItem>
@@ -299,8 +230,8 @@ export default function GroupMembersPage() {
             </Select>
             
             <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <SelectTrigger className="w-48">
-                <SelectValue placeholder="Filter by status" />
+              <SelectTrigger className="w-full sm:w-44">
+                <SelectValue placeholder="Status" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="All">All Status</SelectItem>
@@ -310,144 +241,98 @@ export default function GroupMembersPage() {
             </Select>
           </div>
 
-          {/* Members List */}
-          <div className="space-y-4">
+          {/* Members Grid */}
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {filteredMembers.map((member) => (
-              <Card key={member.id} className="hover:shadow-md transition-shadow">
-                <CardContent className="pt-6">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-4">
-                      <Avatar className="h-12 w-12">
-                        <AvatarFallback>
-                          {member.memberName.split(' ').map(n => n[0]).join('')}
-                        </AvatarFallback>
-                      </Avatar>
-                      
-                      <div className="space-y-1">
-                        <div className="flex items-center space-x-2">
-                          <h4 className="font-medium">{member.memberName}</h4>
-                          <StatusBadge status={member.status} />
-                        </div>
-                        
-                        <div className="flex items-center space-x-4 text-sm text-muted-foreground">
-                          <div className="flex items-center space-x-1">
-                            <Mail className="h-3 w-3" />
-                            <span>{member.memberEmail}</span>
-                          </div>
-                          
-                          {member.memberPhone && (
-                            <div className="flex items-center space-x-1">
-                              <Phone className="h-3 w-3" />
-                              <span>{member.memberPhone}</span>
-                            </div>
-                          )}
-                        </div>
-                        
-                        <div className="flex items-center space-x-2">
-                          <div className="flex items-center space-x-1">
-                            {getRoleIcon(member.role)}
-                            <span className="text-sm font-medium">{member.role}</span>
-                          </div>
-                          
-                          <span className="text-xs text-muted-foreground">
-                            Joined {new Date(member.joinedAt).toLocaleDateString()}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
+              <Card key={member.id} className="p-4 space-y-3">
+                <div className="flex items-start justify-between">
+                  <div className="flex items-center space-x-3 min-w-0">
+                    <Avatar className="h-10 w-10">
+                      <AvatarFallback className="bg-primary/10 text-primary font-medium text-xs">
+                        {member.memberName.split(' ').map(n => n[0]).join('')}
+                      </AvatarFallback>
+                    </Avatar>
                     
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon">
-                          <MoreHorizontal className="h-4 w-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                        <DropdownMenuSeparator />
-                        
-                        {/* Role Change Options */}
-                        <DropdownMenuLabel className="text-xs font-normal text-muted-foreground">
-                          Change Role
-                        </DropdownMenuLabel>
-                        {roles.map((role) => (
-                          <DropdownMenuItem
-                            key={role.id}
-                            onClick={() => handleUpdateMemberRole(member.memberId, role.name)}
-                            disabled={member.role === role.name}
-                          >
-                            <div className="flex items-center space-x-2">
-                              {getRoleIcon(role.name)}
-                              <span>{role.name}</span>
-                            </div>
-                          </DropdownMenuItem>
-                        ))}
-                        
-                        <DropdownMenuSeparator />
-                        
-                        <DropdownMenuItem
-                          onClick={() => setMemberToDelete(member)}
-                          className="text-destructive focus:text-destructive"
-                        >
-                          <Trash2 className="mr-2 h-4 w-4" />
-                          Remove from Group
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
+                    <div className="min-w-0">
+                      <h4 className="font-semibold text-sm text-foreground truncate">{member.memberName}</h4>
+                      <p className="text-xs text-muted-foreground">{member.role}</p>
+                    </div>
                   </div>
-                </CardContent>
+
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" size="sm" className="h-7 w-7 p-0">
+                        <MoreHorizontal className="h-3.5 w-3.5" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem onClick={() => handleUpdateMemberRole(member.memberId, 'Leader')}>
+                        Set as Leader
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => handleUpdateMemberRole(member.memberId, 'Assistant Leader')}>
+                        Set as Assistant
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => handleUpdateMemberRole(member.memberId, 'Member')}>
+                        Set as Member
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem
+                        onClick={() => setMemberToDelete(member)}
+                        className="text-destructive focus:text-destructive"
+                      >
+                        <Trash2 className="mr-2 h-4 w-4" />
+                        Remove from Group
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
+
+                <div className="space-y-1 text-xs text-muted-foreground">
+                  <div className="flex items-center space-x-2">
+                    <Mail className="h-3 w-3 shrink-0" />
+                    <span className="truncate">{member.memberEmail}</span>
+                  </div>
+                  {member.memberPhone && (
+                    <div className="flex items-center space-x-2">
+                      <Phone className="h-3 w-3 shrink-0" />
+                      <span>{member.memberPhone}</span>
+                    </div>
+                  )}
+                </div>
+
+                <div className="flex items-center justify-between pt-2 border-t border-border text-xs">
+                  <span className="text-muted-foreground">Joined {new Date(member.joinedAt).toLocaleDateString()}</span>
+                  <StatusBadge status={member.status} size="sm" />
+                </div>
               </Card>
             ))}
           </div>
-          
+
           {filteredMembers.length === 0 && (
-            <div className="text-center py-8">
-              <Users className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-              <h3 className="text-lg font-medium">No members found</h3>
-              <p className="text-muted-foreground mb-4">
-                {searchTerm || roleFilter !== 'All' || statusFilter !== 'All'
-                  ? 'Try adjusting your filters'
-                  : 'Start adding members to this group'
-                }
-              </p>
-              {!searchTerm && roleFilter === 'All' && statusFilter === 'All' && (
-                <Button onClick={handleAddMember}>
-                  <UserPlus className="mr-2 h-4 w-4" />
-                  Add First Member
-                </Button>
-              )}
+            <div className="text-center py-10 text-muted-foreground text-sm">
+              No members found matching your search criteria.
             </div>
           )}
         </CardContent>
       </Card>
 
-      {/* Delete Confirmation Dialog */}
-      <AlertDialog open={!!memberToDelete} onOpenChange={() => setMemberToDelete(null)}>
+      {/* Remove Confirmation */}
+      <AlertDialog open={!!memberToDelete} onOpenChange={(open) => !open && setMemberToDelete(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Remove Member</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to remove "{memberToDelete?.memberName}" from this group?
-              This action cannot be undone.
+              Are you sure you want to remove &quot;{memberToDelete?.memberName}&quot; from {group?.name}?
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={deletingMember}>
-              Cancel
-            </AlertDialogCancel>
+            <AlertDialogCancel disabled={deletingMember}>Cancel</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleRemoveMember}
               disabled={deletingMember}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
-              {deletingMember ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Removing...
-                </>
-              ) : (
-                'Remove Member'
-              )}
+              {deletingMember ? 'Removing...' : 'Remove Member'}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

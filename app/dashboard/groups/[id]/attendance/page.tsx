@@ -5,10 +5,9 @@ import { useRouter, useParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { PageHeader } from '@/components/ui/page-header';
 import { StatCard } from '@/components/ui/stat-card';
 import { StatusBadge } from '@/components/ui/status-badge';
-import { Checkbox } from '@/components/ui/checkbox';
+import { Progress } from '@/components/ui/progress';
 import { 
   Select,
   SelectContent,
@@ -17,48 +16,28 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
-import {
   Dialog,
   DialogContent,
-  DialogDescription,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
+  DialogFooter,
 } from '@/components/ui/dialog';
 import { 
   ArrowLeft,
-  Plus,
   Search,
   Calendar,
-  Users,
   UserCheck,
   UserX,
   TrendingUp,
-  TrendingDown,
-  Clock,
-  Save,
   Download,
-  Filter,
   Loader2,
-  CheckCircle,
-  XCircle
+  Save,
+  Clock
 } from 'lucide-react';
 import { groupsService } from '@/services';
-import { Group, GroupMember, GroupAttendance, GroupAttendanceFormData, GroupEvent } from '@/lib/types/groups';
-import { AttendanceStatus } from '@/lib/types/attendance';
+import { Group, GroupMember, GroupAttendance, GroupEvent } from '@/lib/types/groups';
 import { toast } from 'sonner';
-
-
-const attendanceStatusOptions = ['All', 'Present', 'Absent', 'Excused'];
-const eventTypeOptions = ['All', 'Meeting', 'Bible Study', 'Prayer Meeting', 'Fellowship', 'Service Project', 'Other'];
 
 export default function GroupAttendancePage() {
   const router = useRouter();
@@ -72,8 +51,6 @@ export default function GroupAttendancePage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
-  const [statusFilter, setStatusFilter] = useState('All');
-  const [eventTypeFilter, setEventTypeFilter] = useState('All');
   const [selectedEvent, setSelectedEvent] = useState<string>('');
   const [showTakeAttendance, setShowTakeAttendance] = useState(false);
   const [attendanceData, setAttendanceData] = useState<Record<string, { status: string; notes: string }>>({});
@@ -88,68 +65,45 @@ export default function GroupAttendancePage() {
     try {
       setLoading(true);
       
-      // Load group details
       const groupResponse = await groupsService.getGroup(groupId);
       if (groupResponse.success && groupResponse.data) {
         setGroup(groupResponse.data);
       }
       
-      // Load group members
       const membersResponse = await groupsService.getGroupMembers(groupId);
       if (membersResponse.success && membersResponse.data) {
         setMembers(membersResponse.data);
       }
       
-      // Load group events
       const eventsResponse = await groupsService.getGroupEvents(groupId);
       if (eventsResponse.success && eventsResponse.data) {
         setEvents(eventsResponse.data);
       }
       
-      // Load attendance records
       const attendanceResponse = await groupsService.getGroupAttendance(groupId);
       if (attendanceResponse.success && attendanceResponse.data) {
         setAttendance(attendanceResponse.data);
       }
-    } catch (error) {
-      toast.error('Failed to load group data');
+    } catch {
+      toast.error('Failed to load group attendance data');
     } finally {
       setLoading(false);
     }
   };
 
-  const filteredAttendance = attendance.filter(record => {
-    const event = events.find(e => e.id === record.eventId);
-    const member = members.find(m => m.id === record.memberId);
-    
-    const matchesSearch = member ? 
-      member.memberName.toLowerCase().includes(searchTerm.toLowerCase()) : false;
-    const matchesStatus = statusFilter === 'All' || record.status === statusFilter;
-    const matchesEventType = eventTypeFilter === 'All' || true; // Remove event type filtering since GroupEvent doesn't have type
-    
-    return matchesSearch && matchesStatus && matchesEventType;
-  });
-
-  const handleBack = () => {
-    router.push(`/dashboard/groups/${groupId}`);
-  };
-
   const handleTakeAttendance = () => {
-    if (!selectedEvent) {
-      toast.error('Please select an event first');
-      return;
+    if (!selectedEvent && events.length > 0) {
+      setSelectedEvent(events[0].id);
     }
     
-    // Initialize attendance data for all members
     const initialData: Record<string, { status: string; notes: string }> = {};
     members.forEach(member => {
-      const existingRecord = attendance.find(a => a.eventId === selectedEvent && a.memberId === member.id);
+      const existingRecord = attendance.find(a => a.eventId === (selectedEvent || events[0]?.id) && a.memberId === member.id);
       initialData[member.id] = {
-        status: existingRecord?.status || 'Present',
+        status: existingRecord?.status || 'present',
         notes: existingRecord?.notes || ''
       };
     });
-    
     setAttendanceData(initialData);
     setShowTakeAttendance(true);
   };
@@ -165,430 +119,266 @@ export default function GroupAttendancePage() {
   };
 
   const handleSaveAttendance = async () => {
-    if (!selectedEvent) return;
+    if (!selectedEvent) {
+      toast.error('Please select an event');
+      return;
+    }
     
     setSaving(true);
-    
     try {
-      const attendanceRecords = Object.entries(attendanceData).map(([memberId, data]) => ({
+      const records = Object.entries(attendanceData).map(([memberId, data]) => ({
         eventId: selectedEvent,
         memberId,
         status: data.status,
-        notes: data.notes,
-        recordedAt: new Date().toISOString(),
-        recordedBy: 'current-user' // This should come from auth context
+        notes: data.notes
       }));
       
-      const response = await groupsService.saveGroupAttendance(groupId, attendanceRecords);
-      
-      if (response.success) {
-        toast.success('Attendance saved successfully');
-        setShowTakeAttendance(false);
-        loadData(); // Reload data to show updated attendance
-      } else {
-        toast.error(response.message || 'Failed to save attendance');
-      }
-    } catch (error) {
+      await groupsService.saveGroupAttendance(groupId, records);
+      toast.success('Attendance recorded successfully');
+      setShowTakeAttendance(false);
+      loadData();
+    } catch {
       toast.error('Failed to save attendance');
     } finally {
       setSaving(false);
     }
   };
 
-  const getAttendanceStats = () => {
+  const calculateStats = () => {
     const totalRecords = attendance.length;
-    const presentCount = attendance.filter(a => a.status === 'present').length;
-    const absentCount = attendance.filter(a => a.status === 'absent').length;
-    const excusedCount = attendance.filter(a => a.status === 'excused').length;
-    
+    const presentCount = attendance.filter(a => String(a.status).toLowerCase() === 'present').length;
+    const absentCount = attendance.filter(a => String(a.status).toLowerCase() === 'absent').length;
     const attendanceRate = totalRecords > 0 ? Math.round((presentCount / totalRecords) * 100) : 0;
     
     return {
       totalRecords,
       presentCount,
       absentCount,
-      excusedCount,
       attendanceRate
     };
   };
 
   const getMemberAttendanceRate = (memberId: string) => {
     const memberRecords = attendance.filter(a => a.memberId === memberId);
-    const presentRecords = memberRecords.filter(a => a.status === 'present');
-    
-    return memberRecords.length > 0 ? Math.round((presentRecords.length / memberRecords.length) * 100) : 0;
+    if (memberRecords.length === 0) return 0;
+    const presentRecords = memberRecords.filter(a => String(a.status).toLowerCase() === 'present').length;
+    return Math.round((presentRecords / memberRecords.length) * 100);
   };
 
-  const getStatusIcon = (status: string) => {
-    switch (status) {
-      case 'present': return <CheckCircle className="h-4 w-4 text-green-600" />;
-      case 'absent': return <XCircle className="h-4 w-4 text-red-600" />;
-      case 'excused': return <Clock className="h-4 w-4 text-yellow-600" />;
-      default: return null;
-    }
+  const filteredMembers = members.filter(member =>
+    member.memberName.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const handleExport = () => {
+    const csvContent = 'Member Name,Role,Attendance Rate,Status\n' +
+      members.map(m => `${m.memberName},${m.role},${getMemberAttendanceRate(m.id)}%,${m.status}`).join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.style.display = 'none';
+    a.href = url;
+    a.download = `group-attendance-${groupId}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    window.URL.revokeObjectURL(url);
   };
 
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
-        <Loader2 className="h-8 w-8 animate-spin" />
+        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
       </div>
     );
   }
 
-
-
-  const stats = getAttendanceStats();
+  const stats = calculateStats();
 
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center gap-2">
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={handleBack}
-          className="h-8 w-8"
-        >
-          <ArrowLeft className="h-4 w-4" />
-        </Button>
-        <div className="flex-1">
-          <PageHeader
-            title="Group Attendance"
-            description={`Track attendance for ${group?.name}`}
-            actions={
-              <div className="flex items-center space-x-2">
-                <Button variant="outline">
-                  <Download className="mr-2 h-4 w-4" />
-                  Export
-                </Button>
-
-                <Dialog open={showTakeAttendance} onOpenChange={setShowTakeAttendance}>
-                  <DialogTrigger asChild>
-                    <Button className="bg-brand-primary hover:bg-brand-primary/90">
-                      <UserCheck className="mr-2 h-4 w-4" />
-                      Take Attendance
-                    </Button>
-                  </DialogTrigger>
-                  <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
-              <DialogHeader>
-                <DialogTitle>Take Attendance</DialogTitle>
-                <DialogDescription>
-                  Mark attendance for the selected event
-                </DialogDescription>
-              </DialogHeader>
-              
-              <div className="space-y-4">
-                <div>
-                  <label className="text-sm font-medium">Select Event</label>
-                  <Select value={selectedEvent} onValueChange={setSelectedEvent}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Choose an event" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {events.map((event) => (
-                        <SelectItem key={event.id} value={event.id}>
-                          {event.title} - {new Date(event.startDate).toLocaleDateString()}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                
-                {selectedEvent && (
-                  <div className="space-y-4">
-                    <div className="grid gap-4">
-                      {members.map((member) => (
-                        <div key={member.id} className="flex items-center justify-between p-4 border rounded-lg">
-                          <div className="flex items-center space-x-3">
-                            <div className="w-10 h-10 bg-brand-primary/10 rounded-full flex items-center justify-center">
-                              <span className="text-sm font-medium text-brand-primary">
-                                {member.memberName[0]}{member.memberName.split(' ')[1]?.[0] || ''}
-                              </span>
-                            </div>
-                            <div>
-                              <p className="font-medium">{member.memberName}</p>
-                              <p className="text-sm text-muted-foreground">{member.role}</p>
-                            </div>
-                          </div>
-                          
-                          <div className="flex items-center space-x-4">
-                            <Select
-                              value={attendanceData[member.id]?.status || 'present'}
-                              onValueChange={(value) => handleAttendanceChange(member.id, 'status', value)}
-                            >
-                              <SelectTrigger className="w-32">
-                                <SelectValue />
-                              </SelectTrigger>
-                              <SelectContent>
-                                <SelectItem value="present">Present</SelectItem>
-                                <SelectItem value="absent">Absent</SelectItem>
-                                <SelectItem value="excused">Excused</SelectItem>
-                              </SelectContent>
-                            </Select>
-                            
-                            <Input
-                              placeholder="Notes (optional)"
-                              value={attendanceData[member.id]?.notes || ''}
-                              onChange={(e) => handleAttendanceChange(member.id, 'notes', e.target.value)}
-                              className="w-48"
-                            />
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </div>
-              
-              <DialogFooter>
-                <Button variant="outline" onClick={() => setShowTakeAttendance(false)}>
-                  Cancel
-                </Button>
-                <Button 
-                  onClick={handleSaveAttendance} 
-                  disabled={!selectedEvent || saving}
-                  className="bg-brand-primary hover:bg-brand-primary/90"
-                >
-                  {saving ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Saving...
-                    </>
-                  ) : (
-                    <>
-                      <Save className="mr-2 h-4 w-4" />
-                      Save Attendance
-                    </>
-                  )}
-                </Button>
-              </DialogFooter>
-            </DialogContent>
-          </Dialog>
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex items-center gap-4">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => router.push(`/dashboard/groups/${groupId}`)}
+            className="text-muted-foreground hover:text-foreground"
+          >
+            <ArrowLeft className="h-4 w-4 mr-1.5" />
+            Back
+          </Button>
+          <div>
+            <h1 className="font-heading text-2xl font-bold tracking-tight">Group Attendance</h1>
+          </div>
         </div>
-              }
-            />
+
+        <div className="flex items-center gap-2">
+          <Button variant="outline" size="sm" onClick={handleExport}>
+            <Download className="mr-1.5 h-4 w-4" />
+            Export Data
+          </Button>
+          <Button size="sm" onClick={handleTakeAttendance}>
+            <UserCheck className="mr-1.5 h-4 w-4" />
+            Take Attendance
+          </Button>
         </div>
       </div>
 
       {/* Stats Cards */}
-      <div className="grid gap-4 md:grid-cols-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Attendance Rate</CardTitle>
-            <TrendingUp className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.attendanceRate}%</div>
-            <p className="text-xs text-muted-foreground">
-              Overall attendance
-            </p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Present</CardTitle>
-            <UserCheck className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.presentCount}</div>
-            <p className="text-xs text-muted-foreground">
-              Total present records
-            </p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Absent</CardTitle>
-            <UserX className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.absentCount}</div>
-            <p className="text-xs text-muted-foreground">
-              Total absent records
-            </p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Records</CardTitle>
-            <Calendar className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.totalRecords}</div>
-            <p className="text-xs text-muted-foreground">
-              All attendance records
-            </p>
-          </CardContent>
-        </Card>
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <StatCard
+          title="Attendance Rate"
+          value={`${stats.attendanceRate}%`}
+          icon={TrendingUp}
+        />
+        <StatCard
+          title="Total Present"
+          value={stats.presentCount}
+          icon={UserCheck}
+        />
+        <StatCard
+          title="Total Absent"
+          value={stats.absentCount}
+          icon={UserX}
+        />
+        <StatCard
+          title="Total Records"
+          value={stats.totalRecords}
+          icon={Calendar}
+        />
       </div>
 
       {/* Member Attendance Overview */}
       <Card>
-        <CardHeader>
-          <CardTitle>Member Attendance Overview</CardTitle>
+        <CardHeader className="pb-3">
+          <CardTitle className="text-base font-semibold">Member Attendance Overview</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {members.map((member) => {
-              const attendanceRate = getMemberAttendanceRate(member.id);
-              const memberRecords = attendance.filter(a => a.memberId === member.id);
-              
+          <div className="relative mb-4">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Search members..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-9 max-w-sm"
+            />
+          </div>
+
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {filteredMembers.map((member) => {
+              const rate = getMemberAttendanceRate(member.id);
               return (
-                <div key={member.id} className="p-4 border rounded-lg">
-                  <div className="flex items-center space-x-3 mb-3">
-                    <div className="w-10 h-10 bg-brand-primary/10 rounded-full flex items-center justify-center">
-                      <span className="text-sm font-medium text-brand-primary">
-                        {member.memberName[0]}{member.memberName.split(' ')[1]?.[0] || ''}
-                      </span>
+                <Card key={member.id} className="p-4 space-y-3">
+                  <div className="flex items-start justify-between">
+                    <div className="flex items-center space-x-3">
+                      <div className="h-9 w-9 rounded-full bg-primary/10 flex items-center justify-center font-medium text-xs text-primary">
+                        {member.memberName.split(' ').map(n => n[0]).join('')}
+                      </div>
+                      <div>
+                        <p className="font-semibold text-sm text-foreground">{member.memberName}</p>
+                        <p className="text-xs text-muted-foreground">{member.role}</p>
+                      </div>
                     </div>
-                    <div>
-                      <p className="font-medium">{member.memberName}</p>
-                      <p className="text-sm text-muted-foreground">{member.role}</p>
-                    </div>
+                    <StatusBadge status={member.status} size="sm" />
                   </div>
-                  
-                  <div className="space-y-2">
-                    <div className="flex items-center justify-between text-sm">
-                      <span>Attendance Rate</span>
-                      <span className="font-medium">{attendanceRate}%</span>
+
+                  <div className="space-y-1.5 pt-1">
+                    <div className="flex items-center justify-between text-xs">
+                      <span className="text-muted-foreground">Rate</span>
+                      <span className="font-medium text-foreground">{rate}%</span>
                     </div>
-                    <div className="w-full bg-gray-200 rounded-full h-2">
-                      <div 
-                        className="bg-brand-primary h-2 rounded-full transition-all duration-300" 
-                        style={{ width: `${attendanceRate}%` }}
-                      />
-                    </div>
-                    <div className="flex items-center justify-between text-xs text-muted-foreground">
-                      <span>{memberRecords.length} total records</span>
-                      <span>{memberRecords.filter(r => r.status === 'present').length} present</span>
-                    </div>
+                    <Progress value={rate} className="h-1.5" />
                   </div>
-                </div>
+                </Card>
               );
             })}
           </div>
-        </CardContent>
-      </Card>
 
-      {/* Attendance Records */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Attendance Records</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="flex items-center space-x-4 mb-6">
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="Search members..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10"
-              />
-            </div>
-            
-            <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <SelectTrigger className="w-48">
-                <SelectValue placeholder="Filter by status" />
-              </SelectTrigger>
-              <SelectContent>
-                {attendanceStatusOptions.map((status) => (
-                  <SelectItem key={status} value={status}>
-                    {status}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            
-            <Select value={eventTypeFilter} onValueChange={setEventTypeFilter}>
-              <SelectTrigger className="w-48">
-                <SelectValue placeholder="Filter by event type" />
-              </SelectTrigger>
-              <SelectContent>
-                {eventTypeOptions.map((type) => (
-                  <SelectItem key={type} value={type}>
-                    {type}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="border rounded-lg">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Member</TableHead>
-                  <TableHead>Event</TableHead>
-                  <TableHead>Date</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Notes</TableHead>
-                  <TableHead>Recorded By</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filteredAttendance.map((record) => {
-                  const member = members.find(m => m.id === record.memberId);
-                  const event = events.find(e => e.id === record.eventId);
-                  
-                  return (
-                    <TableRow key={`${record.eventId}-${record.memberId}`}>
-                      <TableCell>
-                        <div className="flex items-center space-x-2">
-                          <div className="w-8 h-8 bg-brand-primary/10 rounded-full flex items-center justify-center">
-                            <span className="text-xs font-medium text-brand-primary">
-                              {member?.memberName[0]}{member?.memberName.split(' ')[1]?.[0] || ''}
-                            </span>
-                          </div>
-                          <span>{member?.memberName}</span>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <div>
-                          <p className="font-medium">{event?.title}</p>
-                          <p className="text-sm text-muted-foreground">{event?.description}</p>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        {event ? new Date(event.startDate).toLocaleDateString() : '-'}
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex items-center space-x-2">
-                          {getStatusIcon(record.status)}
-                          <StatusBadge status={record.status} />
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <span className="text-sm">{record.notes || '-'}</span>
-                      </TableCell>
-                      <TableCell>
-                        <span className="text-sm text-muted-foreground">{record.recordedBy}</span>
-                      </TableCell>
-                    </TableRow>
-                  );
-                })}
-              </TableBody>
-            </Table>
-          </div>
-          
-          {filteredAttendance.length === 0 && (
-            <div className="text-center py-8">
-              <UserCheck className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-              <h3 className="text-lg font-medium">No attendance records found</h3>
-              <p className="text-muted-foreground mb-4">
-                {searchTerm || statusFilter !== 'All' || eventTypeFilter !== 'All'
-                  ? 'Try adjusting your filters'
-                  : 'Start taking attendance for group events'
-                }
-              </p>
+          {filteredMembers.length === 0 && (
+            <div className="text-center py-10 text-muted-foreground text-sm">
+              No group members found.
             </div>
           )}
         </CardContent>
       </Card>
+
+      {/* Take Attendance Dialog */}
+      <Dialog open={showTakeAttendance} onOpenChange={setShowTakeAttendance}>
+        <DialogContent className="sm:max-w-2xl max-h-[85vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="text-base font-semibold">Take Attendance</DialogTitle>
+          </DialogHeader>
+          
+          <div className="space-y-4 pt-2">
+            <div className="space-y-2">
+              <label className="text-xs font-medium text-muted-foreground">Select Event</label>
+              <Select value={selectedEvent} onValueChange={setSelectedEvent}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Choose an event..." />
+                </SelectTrigger>
+                <SelectContent>
+                  {events.map((event) => (
+                    <SelectItem key={event.id} value={event.id}>
+                      {event.title} — {new Date(event.startDate).toLocaleDateString()}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            
+            <div className="space-y-2 max-h-[350px] overflow-y-auto pr-1">
+              {members.map((member) => (
+                <div key={member.id} className="flex items-center justify-between p-3 border rounded-lg gap-2">
+                  <div className="flex items-center space-x-2.5 min-w-0">
+                    <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center text-xs font-medium text-primary shrink-0">
+                      {member.memberName.split(' ').map(n => n[0]).join('')}
+                    </div>
+                    <div className="min-w-0">
+                      <p className="font-medium text-xs text-foreground truncate">{member.memberName}</p>
+                      <p className="text-[10px] text-muted-foreground">{member.role}</p>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-center gap-2 shrink-0">
+                    <Select
+                      value={attendanceData[member.id]?.status || 'present'}
+                      onValueChange={(value) => handleAttendanceChange(member.id, 'status', value)}
+                    >
+                      <SelectTrigger className="w-28 h-8 text-xs">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="present" className="text-xs">Present</SelectItem>
+                        <SelectItem value="absent" className="text-xs">Absent</SelectItem>
+                        <SelectItem value="excused" className="text-xs">Excused</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+          
+          <DialogFooter className="pt-2">
+            <Button variant="outline" onClick={() => setShowTakeAttendance(false)} disabled={saving}>
+              Cancel
+            </Button>
+            <Button onClick={handleSaveAttendance} disabled={!selectedEvent || saving}>
+              {saving ? (
+                <>
+                  <Loader2 className="mr-1.5 h-4 w-4 animate-spin" />
+                  Saving...
+                </>
+              ) : (
+                <>
+                  <Save className="mr-1.5 h-4 w-4" />
+                  Save
+                </>
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
