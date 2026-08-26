@@ -5,7 +5,6 @@ import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { PageHeader } from '@/components/ui/page-header';
 import { StatCard } from '@/components/ui/stat-card';
 import { Badge } from '@/components/ui/badge';
 import {
@@ -19,25 +18,20 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { 
   Upload, 
   Search, 
   Download,
-  Eye,
   MoreHorizontal,
   FileText,
-  Image,
   Video,
   Music,
   File,
   Loader2,
   BookOpen,
-  TrendingUp,
-  Calendar,
+  ArrowLeft,
   Trash2
 } from 'lucide-react';
 import Link from 'next/link';
@@ -75,7 +69,7 @@ export default function MaterialsPage() {
       } else {
         toast.error(response.message || 'Failed to load materials');
       }
-    } catch (error) {
+    } catch {
       toast.error('Failed to load materials');
     } finally {
       setLoading(false);
@@ -90,83 +84,48 @@ export default function MaterialsPage() {
     return () => clearTimeout(timeoutId);
   }, [searchTerm, typeFilter, ageGroupFilter]);
 
-  const filteredMaterials = materials.filter(material => {
-    const matchesSearch = material.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         material.description.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesType = typeFilter === 'All' || material.type === typeFilter;
-    const matchesAgeGroup = ageGroupFilter === 'All' || material.ageGroup === ageGroupFilter;
-    
-    return matchesSearch && matchesType && matchesAgeGroup;
-  });
-
-  const getStats = () => {
-    const totalMaterials = materials.length;
-    const recentUploads = materials.filter(m => {
-      const uploadDate = new Date(m.uploadDate);
-      const sevenDaysAgo = new Date();
-      sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-      return uploadDate >= sevenDaysAgo;
-    }).length;
-    const totalDownloads = materials.reduce((sum, m) => sum + m.downloadCount, 0);
-    const popularMaterials = materials.filter(m => m.downloadCount > 10).length;
-
-    return { totalMaterials, recentUploads, totalDownloads, popularMaterials };
-  };
-
-  const stats = getStats();
-
-  const getFileIcon = (type: MaterialType) => {
-    switch (type) {
-      case MaterialType.LESSON_PLAN:
-      case MaterialType.WORKSHEET:
-        return <FileText className="h-8 w-8 text-brand-primary" />;
-      case MaterialType.PRESENTATION:
-        return <Image className="h-8 w-8 text-brand-secondary" />;
-      case MaterialType.VIDEO:
-        return <Video className="h-8 w-8 text-brand-accent" />;
-      case MaterialType.AUDIO:
-        return <Music className="h-8 w-8 text-brand-success" />;
-      default:
-        return <File className="h-8 w-8 text-muted-foreground" />;
-    }
-  };
-
-  const handleViewMaterial = (materialId: string) => {
-    router.push(`/dashboard/sunday-school/materials/${materialId}`);
-  };
-
-  const handleDownloadMaterial = async (material: TeachingMaterial) => {
-    try {
-      // In a real app, this would trigger a download
-      window.open(material.fileUrl, '_blank');
-      toast.success(`Downloading ${material.title}`);
-    } catch (error) {
-      toast.error('Failed to download material');
-    }
-  };
-
   const handleDeleteMaterial = async (materialId: string) => {
     try {
       const response = await sundaySchoolService.deleteMaterial(materialId);
       if (response.success) {
         toast.success('Material deleted successfully');
-        loadMaterials();
+        setMaterials(prev => prev.filter(m => m.id !== materialId));
       } else {
         toast.error(response.message || 'Failed to delete material');
       }
-    } catch (error) {
+    } catch {
       toast.error('Failed to delete material');
     }
   };
 
-  const handleUploadMaterial = () => {
-    router.push('/dashboard/sunday-school/materials/upload');
+  const getFileIcon = (type: MaterialType) => {
+    switch (type) {
+      case MaterialType.VIDEO:
+        return <Video className="h-5 w-5" />;
+      case MaterialType.AUDIO:
+        return <Music className="h-5 w-5" />;
+      case MaterialType.LESSON_PLAN:
+      case MaterialType.WORKSHEET:
+        return <FileText className="h-5 w-5" />;
+      default:
+        return <File className="h-5 w-5" />;
+    }
   };
+
+  const filteredMaterials = materials.filter(material => {
+    const matchesSearch = material.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                          material.description.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesType = typeFilter === 'All' || material.type === typeFilter;
+    const matchesAgeGroup = ageGroupFilter === 'All' || material.ageGroup === ageGroupFilter;
+    return matchesSearch && matchesType && matchesAgeGroup;
+  });
+
+  const totalDownloads = materials.reduce((sum, m) => sum + (m.downloadCount || 0), 0);
 
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
-        <Loader2 className="h-8 w-8 animate-spin" />
+        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
       </div>
     );
   }
@@ -174,119 +133,112 @@ export default function MaterialsPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <PageHeader
-        title="Teaching Materials"
-        actions={
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex items-center gap-4">
           <Button
-            onClick={handleUploadMaterial}
-            className="bg-brand-primary hover:bg-brand-primary/90"
+            variant="ghost"
+            size="sm"
+            onClick={() => router.push('/dashboard/sunday-school')}
+            className="text-muted-foreground hover:text-foreground"
           >
-            <Upload className="mr-2 h-4 w-4" />
-            Upload Material
+            <ArrowLeft className="h-4 w-4 mr-1.5" />
+            Back
           </Button>
-        }
-      />
+          <h1 className="font-heading text-2xl font-bold tracking-tight">Teaching Materials</h1>
+        </div>
+
+        <Button size="sm" asChild>
+          <Link href="/dashboard/sunday-school/materials/upload">
+            <Upload className="mr-1.5 h-4 w-4" />
+            Upload Material
+          </Link>
+        </Button>
+      </div>
 
       {/* Stats Cards */}
-      <div className="grid gap-4 md:grid-cols-4">
-        <StatCard title="Total Materials" value={stats.totalMaterials} icon={BookOpen} />
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <StatCard title="Total Resources" value={materials.length} icon={BookOpen} />
+        <StatCard title="Lesson Plans" value={materials.filter(m => m.type === MaterialType.LESSON_PLAN).length} icon={FileText} />
+        <StatCard title="Total Downloads" value={totalDownloads} icon={Download} />
         <StatCard
-          title="Recent Uploads"
-          value={stats.recentUploads}
-          icon={Calendar}
-          description="last 7 days"
-        />
-        <StatCard title="Total Downloads" value={stats.totalDownloads} icon={Download} />
-        <StatCard
-          title="Popular Materials"
-          value={stats.popularMaterials}
-          icon={TrendingUp}
-          description="10+ downloads"
+          title="Media Materials"
+          value={materials.filter(m => m.type === MaterialType.VIDEO || m.type === MaterialType.AUDIO).length}
+          icon={Video}
         />
       </div>
 
-      {/* Materials Library */}
+      {/* Materials Directory */}
       <Card>
-        <CardHeader>
-          <CardTitle>Materials Library</CardTitle>
+        <CardHeader className="pb-3">
+          <CardTitle className="text-base font-semibold">Materials Library ({filteredMaterials.length})</CardTitle>
         </CardHeader>
         <CardContent>
-          {/* Filters */}
-          <div className="flex items-center space-x-4 mb-6">
+          <div className="flex flex-col sm:flex-row gap-3 mb-6">
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
-                placeholder="Search materials..."
+                placeholder="Search materials by title or topic..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10"
+                className="pl-9"
               />
             </div>
-            
+
             <Select value={typeFilter} onValueChange={setTypeFilter}>
-              <SelectTrigger className="w-48">
-                <SelectValue placeholder="Filter by type" />
+              <SelectTrigger className="w-full sm:w-44">
+                <SelectValue placeholder="All Types" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="All">All Types</SelectItem>
                 {materialTypes.map((type) => (
-                  <SelectItem key={type} value={type}>
-                    {type}
-                  </SelectItem>
+                  <SelectItem key={type} value={type}>{type}</SelectItem>
                 ))}
               </SelectContent>
             </Select>
 
             <Select value={ageGroupFilter} onValueChange={setAgeGroupFilter}>
-              <SelectTrigger className="w-48">
-                <SelectValue placeholder="Filter by age group" />
+              <SelectTrigger className="w-full sm:w-44">
+                <SelectValue placeholder="All Age Groups" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="All">All Age Groups</SelectItem>
                 {ageGroups.map((group) => (
-                  <SelectItem key={group} value={group}>
-                    {group}
-                  </SelectItem>
+                  <SelectItem key={group} value={group}>{group}</SelectItem>
                 ))}
               </SelectContent>
             </Select>
           </div>
 
-          {/* Materials Grid */}
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {filteredMaterials.map((material) => (
-              <Card key={material.id} className="hover:shadow-lg transition-shadow">
-                <CardContent className="pt-6">
-                  <div className="flex items-start justify-between mb-4">
-                    <div className="flex items-center space-x-3">
+              <Card key={material.id} className="p-4 space-y-3 flex flex-col justify-between hover:border-primary/50 transition-colors">
+                <div className="space-y-2">
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center text-primary shrink-0">
                       {getFileIcon(material.type)}
-                      <div className="flex-1">
-                        <h3 className="font-semibold line-clamp-2">{material.title}</h3>
-                        <p className="text-sm text-muted-foreground line-clamp-2">
-                          {material.description}
-                        </p>
-                      </div>
                     </div>
+
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon">
+                        <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
                           <MoreHorizontal className="h-4 w-4" />
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
-                        <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                        <DropdownMenuItem onClick={() => handleViewMaterial(material.id)}>
-                          <Eye className="mr-2 h-4 w-4" />
-                          View Details
+                        <DropdownMenuItem asChild>
+                          <Link href={`/dashboard/sunday-school/materials/${material.id}`}>
+                            View Details
+                          </Link>
                         </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => handleDownloadMaterial(material)}>
-                          <Download className="mr-2 h-4 w-4" />
-                          Download
-                        </DropdownMenuItem>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem 
+                        {material.fileUrl && (
+                          <DropdownMenuItem onClick={() => window.open(material.fileUrl, '_blank')}>
+                            <Download className="mr-2 h-4 w-4" />
+                            Download
+                          </DropdownMenuItem>
+                        )}
+                        <DropdownMenuItem
                           onClick={() => handleDeleteMaterial(material.id)}
-                          className="text-destructive"
+                          className="text-destructive focus:text-destructive"
                         >
                           <Trash2 className="mr-2 h-4 w-4" />
                           Delete
@@ -295,75 +247,32 @@ export default function MaterialsPage() {
                     </DropdownMenu>
                   </div>
 
-                  <div className="space-y-2">
-                    <div className="flex items-center justify-between text-sm">
-                      <span>Type:</span>
-                      <Badge variant="neutral">{material.type}</Badge>
-                    </div>
-                    
-                    <div className="flex items-center justify-between text-sm">
-                      <span>Age Group:</span>
-                      <span className="font-medium">{material.ageGroup}</span>
-                    </div>
-                    
-                    <div className="flex items-center justify-between text-sm">
-                      <span>Downloads:</span>
-                      <span className="font-medium">{material.downloadCount}</span>
-                    </div>
-                    
-                    <div className="flex items-center justify-between text-sm">
-                      <span>Uploaded:</span>
-                      <span className="font-medium">
-                        {new Date(material.uploadDate).toLocaleDateString()}
-                      </span>
-                    </div>
-                    
-                    <div className="flex items-center justify-between text-sm">
-                      <span>By:</span>
-                      <span className="font-medium">{material.uploadedBy.name}</span>
-                    </div>
+                  <div>
+                    <h4 className="font-semibold text-sm text-foreground line-clamp-1">{material.title}</h4>
+                    <p className="text-xs text-muted-foreground line-clamp-2 mt-0.5">{material.description}</p>
                   </div>
-                  
-                  <div className="flex space-x-2 pt-4 border-t mt-4">
-                    <Button 
-                      variant="outline" 
-                      size="sm"
-                      onClick={() => handleViewMaterial(material.id)}
-                      className="flex-1"
-                    >
-                      <Eye className="mr-2 h-4 w-4" />
-                      View
-                    </Button>
-                    <Button 
-                      size="sm"
-                      onClick={() => handleDownloadMaterial(material)}
-                      className="flex-1"
-                    >
-                      <Download className="mr-2 h-4 w-4" />
-                      Download
-                    </Button>
+
+                  <div className="flex items-center gap-1.5 pt-1">
+                    <Badge variant="neutral" size="sm">{material.ageGroup}</Badge>
+                    <Badge variant="neutral" size="sm">{material.type}</Badge>
                   </div>
-                </CardContent>
+                </div>
+
+                <div className="pt-2 border-t border-border flex items-center justify-between text-xs text-muted-foreground">
+                  <span>{material.downloadCount || 0} downloads</span>
+                  <Button variant="ghost" size="sm" className="text-xs h-7 text-primary hover:text-primary hover:bg-transparent" asChild>
+                    <Link href={`/dashboard/sunday-school/materials/${material.id}`}>
+                      View Resource
+                    </Link>
+                  </Button>
+                </div>
               </Card>
             ))}
           </div>
 
           {filteredMaterials.length === 0 && (
-            <div className="text-center py-12">
-              <BookOpen className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
-              <h3 className="text-lg font-medium">No materials found</h3>
-              <p className="text-muted-foreground mb-4">
-                {searchTerm || typeFilter !== 'All' || ageGroupFilter !== 'All'
-                  ? 'Try adjusting your search or filters'
-                  : 'No materials have been uploaded yet'
-                }
-              </p>
-              {!searchTerm && typeFilter === 'All' && ageGroupFilter === 'All' && (
-                <Button onClick={handleUploadMaterial}>
-                  <Upload className="mr-2 h-4 w-4" />
-                  Upload First Material
-                </Button>
-              )}
+            <div className="text-center py-10 text-muted-foreground text-sm">
+              No materials found.
             </div>
           )}
         </CardContent>

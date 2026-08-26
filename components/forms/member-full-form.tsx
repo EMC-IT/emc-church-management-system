@@ -116,24 +116,22 @@ export function MemberFullForm({ initialValues, onSubmit, loading = false, mode 
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit((data) => onSubmit(data, avatarFile))}
-        className="space-y-8"
+        className="space-y-6"
       >
         {/* Personal Information */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center">
-              <User className="mr-2 h-5 w-5" />
-              Personal Information
-            </CardTitle>
-            <CardDescription>Basic member details and contact information</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            <div className="flex items-center space-x-6">
+        <Card className="rounded-xl border border-border p-6">
+          <div className="space-y-5">
+            <div>
+              <h2 className="text-base font-semibold text-foreground">Personal Information</h2>
+              <p className="text-xs text-muted-foreground mt-0.5">Basic member details and contact information</p>
+            </div>
+
+            <div className="flex flex-col sm:flex-row items-center gap-6 pb-2">
               <div className="flex flex-col items-center space-y-2">
-                <Avatar className="h-24 w-24">
+                <Avatar className="h-20 w-20">
                   <AvatarImage src={avatarPreview} />
                   <AvatarFallback>
-                    <Upload className="h-8 w-8" />
+                    <Upload className="h-6 w-6 text-muted-foreground" />
                   </AvatarFallback>
                 </Avatar>
                 <FileUpload
@@ -145,12 +143,12 @@ export function MemberFullForm({ initialValues, onSubmit, loading = false, mode 
                   placeholder="Upload Photo"
                 />
               </div>
-              <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="flex-1 grid grid-cols-12 gap-5 w-full">
                 <FormField
                   control={form.control}
                   name="title"
                   render={({ field }) => (
-                    <FormItem>
+                    <FormItem className="col-span-12 sm:col-span-4 lg:col-span-3">
                       <FormLabel>Title *</FormLabel>
                       <Select onValueChange={field.onChange} defaultValue={field.value}>
                         <FormControl>
@@ -176,7 +174,7 @@ export function MemberFullForm({ initialValues, onSubmit, loading = false, mode 
                   control={form.control}
                   name="fullName"
                   render={({ field }) => (
-                    <FormItem>
+                    <FormItem className="col-span-12 sm:col-span-8 lg:col-span-9">
                       <FormLabel>Full Name *</FormLabel>
                       <FormControl>
                         <Input placeholder="Enter full name" {...field} />
@@ -187,15 +185,16 @@ export function MemberFullForm({ initialValues, onSubmit, loading = false, mode 
                 />
               </div>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+            <div className="grid grid-cols-12 gap-5">
               <FormField
                 control={form.control}
                 name="contact1"
                 render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Contact 1 *</FormLabel>
+                  <FormItem className="col-span-12 sm:col-span-6">
+                    <FormLabel>Primary Contact *</FormLabel>
                     <FormControl>
-                      <Input placeholder="Enter contact number" {...field} />
+                      <Input placeholder="+233 24 123 4567" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -205,71 +204,73 @@ export function MemberFullForm({ initialValues, onSubmit, loading = false, mode 
                 control={form.control}
                 name="contact2"
                 render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Contact 2 (Optional)</FormLabel>
+                  <FormItem className="col-span-12 sm:col-span-6">
+                    <FormLabel>Secondary Contact</FormLabel>
                     <FormControl>
-                      <Input placeholder="Enter contact number" {...field} />
+                      <Input placeholder="Optional phone number" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
-            </div>
-            <FormField
-              control={form.control}
-              name="email"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Email Address</FormLabel>
-                  <FormControl>
-                    <Input type="email" placeholder="Enter email address (optional)" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="dateOfBirth"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Date of Birth</FormLabel>
-                  <FormControl>
-                    <Input type="date" placeholder="Select date of birth (optional)" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="ageGroup"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Age Group *</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+
+              <FormField
+                control={form.control}
+                name="email"
+                render={({ field }) => (
+                  <FormItem className="col-span-12 sm:col-span-6">
+                    <FormLabel>Email Address</FormLabel>
                     <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select age group" />
-                      </SelectTrigger>
+                      <Input type="email" placeholder="john.doe@example.com" {...field} />
                     </FormControl>
-                    <SelectContent>
-                      <SelectItem value="Youth">Youth</SelectItem>
-                      <SelectItem value="Adult">Adult</SelectItem>
-                      <SelectItem value="Children">Children</SelectItem>
-                      <SelectItem value="Baby">Baby</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="dateOfBirth"
+                render={({ field }) => (
+                  <FormItem className="col-span-12 sm:col-span-3">
+                    <FormLabel>Date of Birth</FormLabel>
+                    <FormControl>
+                      <Input type="date" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="ageGroup"
+                render={({ field }) => (
+                  <FormItem className="col-span-12 sm:col-span-3">
+                    <FormLabel>Age Group *</FormLabel>
+                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select age group" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="Youth">Youth</SelectItem>
+                        <SelectItem value="Adult">Adult</SelectItem>
+                        <SelectItem value="Children">Children</SelectItem>
+                        <SelectItem value="Baby">Baby</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
               <FormField
                 control={form.control}
                 name="gender"
                 render={({ field }) => (
-                  <FormItem>
+                  <FormItem className="col-span-12 sm:col-span-4">
                     <FormLabel>Gender *</FormLabel>
                     <Select onValueChange={field.onChange} defaultValue={field.value}>
                       <FormControl>
@@ -286,11 +287,12 @@ export function MemberFullForm({ initialValues, onSubmit, loading = false, mode 
                   </FormItem>
                 )}
               />
+
               <FormField
                 control={form.control}
                 name="branch"
                 render={({ field }) => (
-                  <FormItem>
+                  <FormItem className="col-span-12 sm:col-span-4">
                     <FormLabel>Branch *</FormLabel>
                     <Select onValueChange={field.onChange} defaultValue={field.value}>
                       <FormControl>
@@ -310,11 +312,12 @@ export function MemberFullForm({ initialValues, onSubmit, loading = false, mode 
                   </FormItem>
                 )}
               />
+
               <FormField
                 control={form.control}
                 name="serviceType"
                 render={({ field }) => (
-                  <FormItem>
+                  <FormItem className="col-span-12 sm:col-span-4">
                     <FormLabel>Service Type *</FormLabel>
                     <Select onValueChange={field.onChange} defaultValue={field.value}>
                       <FormControl>
@@ -333,57 +336,58 @@ export function MemberFullForm({ initialValues, onSubmit, loading = false, mode 
                   </FormItem>
                 )}
               />
-            </div>
-            <FormField
-              control={form.control}
-              name="status"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Status *</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+
+              <FormField
+                control={form.control}
+                name="status"
+                render={({ field }) => (
+                  <FormItem className="col-span-12 sm:col-span-6">
+                    <FormLabel>Status *</FormLabel>
+                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select status" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="Member">Member</SelectItem>
+                        <SelectItem value="Attender">Attender</SelectItem>
+                        <SelectItem value="Special Guest">Special Guest</SelectItem>
+                        <SelectItem value="Stop Coming">Stop Coming</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="location"
+                render={({ field }) => (
+                  <FormItem className="col-span-12 sm:col-span-6">
+                    <FormLabel>Location / Residence *</FormLabel>
                     <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select status" />
-                      </SelectTrigger>
+                      <Input placeholder="e.g. East Legon, Accra" {...field} />
                     </FormControl>
-                    <SelectContent>
-                      <SelectItem value="Member">Member</SelectItem>
-                      <SelectItem value="Attender">Attender</SelectItem>
-                      <SelectItem value="Special Guest">Special Guest</SelectItem>
-                      <SelectItem value="Stop Coming">Stop Coming</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="location"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Location *</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Enter location (city, area, etc.)" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </CardContent>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+          </div>
         </Card>
+
         {/* Church Details */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center">
-              <Users className="mr-2 h-5 w-5" />
-              Church Details
-            </CardTitle>
-            <CardDescription>Church-related details and life development</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <FormItem>
+        <Card className="rounded-xl border border-border p-6">
+          <div className="space-y-5">
+            <div>
+              <h2 className="text-base font-semibold text-foreground">Church Details & Ministry</h2>
+              <p className="text-xs text-muted-foreground mt-0.5">Church-related assignments and spiritual development</p>
+            </div>
+
+            <div className="grid grid-cols-12 gap-5">
+              <FormItem className="col-span-12 sm:col-span-6">
                 <FormLabel>Departments</FormLabel>
                 <Popover>
                   <PopoverTrigger asChild>
@@ -419,7 +423,8 @@ export function MemberFullForm({ initialValues, onSubmit, loading = false, mode 
                 </Popover>
                 <FormMessage />
               </FormItem>
-              <FormItem>
+
+              <FormItem className="col-span-12 sm:col-span-6">
                 <FormLabel>Groups</FormLabel>
                 <Popover>
                   <PopoverTrigger asChild>
@@ -455,139 +460,145 @@ export function MemberFullForm({ initialValues, onSubmit, loading = false, mode 
                 </Popover>
                 <FormMessage />
               </FormItem>
+
+              <FormField
+                control={form.control}
+                name="lifeDevelopment"
+                render={({ field }) => (
+                  <FormItem className="col-span-12 sm:col-span-4">
+                    <FormLabel>Life Development</FormLabel>
+                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select stage" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="Membership">Membership</SelectItem>
+                        <SelectItem value="Maturity">Maturity</SelectItem>
+                        <SelectItem value="Ministry">Ministry</SelectItem>
+                        <SelectItem value="Accountability">Accountability</SelectItem>
+                        <SelectItem value="None">None</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="waterBaptism"
+                render={({ field }) => (
+                  <FormItem className="col-span-12 sm:col-span-4">
+                    <FormLabel>Water Baptism *</FormLabel>
+                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select status" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="Yes">Yes</SelectItem>
+                        <SelectItem value="No">No</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="holyGhostBaptism"
+                render={({ field }) => (
+                  <FormItem className="col-span-12 sm:col-span-4">
+                    <FormLabel>Holy Ghost Baptism *</FormLabel>
+                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select status" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="Yes">Yes</SelectItem>
+                        <SelectItem value="No">No</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
             </div>
-            <FormField
-              control={form.control}
-              name="lifeDevelopment"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Life Development</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select life development stage" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      <SelectItem value="Membership">Membership</SelectItem>
-                      <SelectItem value="Maturity">Maturity</SelectItem>
-                      <SelectItem value="Ministry">Ministry</SelectItem>
-                      <SelectItem value="Accountability">Accountability</SelectItem>
-                      <SelectItem value="None">None</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="waterBaptism"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Water Baptism *</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select water baptism status" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      <SelectItem value="Yes">Yes</SelectItem>
-                      <SelectItem value="No">No</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="holyGhostBaptism"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Holy Ghost Baptism *</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select Holy Ghost baptism status" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      <SelectItem value="Yes">Yes</SelectItem>
-                      <SelectItem value="No">No</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </CardContent>
+          </div>
         </Card>
+
         {/* Leadership & Invitation */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center">
-              <Users className="mr-2 h-5 w-5" />
-              Leadership & Invitation
-            </CardTitle>
-            <CardDescription>Role within the church and invitation details</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <FormField
-              control={form.control}
-              name="leadershipRole"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Leadership Role</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Enter leadership role (optional)" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="specialGuestInvitedBy"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Invited By</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+        <Card className="rounded-xl border border-border p-6">
+          <div className="space-y-5">
+            <div>
+              <h2 className="text-base font-semibold text-foreground">Leadership & Invitation</h2>
+              <p className="text-xs text-muted-foreground mt-0.5">Role within the church and invitation details</p>
+            </div>
+
+            <div className="grid grid-cols-12 gap-5">
+              <FormField
+                control={form.control}
+                name="leadershipRole"
+                render={({ field }) => (
+                  <FormItem className="col-span-12 sm:col-span-6">
+                    <FormLabel>Leadership Role</FormLabel>
                     <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select member or enter custom name" />
-                      </SelectTrigger>
+                      <Input placeholder="e.g. Deacon, Usher Coordinator" {...field} />
                     </FormControl>
-                    <SelectContent>
-                      {MOCK_MEMBERS.map((member) => (
-                        <SelectItem key={member.id} value={member.id}>{member.name}</SelectItem>
-                      ))}
-                      <SelectItem value="custom">Custom (Enter name below)</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  {form.watch("specialGuestInvitedBy") === "custom" && (
-                    <FormField
-                      control={form.control}
-                      name="specialGuestInvitedByCustom"
-                      render={({ field }) => (
-                        <FormItem className="mt-2">
-                          <FormControl>
-                            <Input placeholder="Enter custom inviter's name" {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  )}
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </CardContent>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="specialGuestInvitedBy"
+                render={({ field }) => (
+                  <FormItem className="col-span-12 sm:col-span-6">
+                    <FormLabel>Invited By</FormLabel>
+                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select member or custom" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {MOCK_MEMBERS.map((member) => (
+                          <SelectItem key={member.id} value={member.id}>{member.name}</SelectItem>
+                        ))}
+                        <SelectItem value="custom">Custom (Enter name below)</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    {form.watch("specialGuestInvitedBy") === "custom" && (
+                      <FormField
+                        control={form.control}
+                        name="specialGuestInvitedByCustom"
+                        render={({ field }) => (
+                          <FormItem className="mt-2">
+                            <FormControl>
+                              <Input placeholder="Enter inviter's full name" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    )}
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+          </div>
         </Card>
+
         {/* Form Actions */}
-        <div className="flex items-center justify-end space-x-4">
+        <div className="flex justify-end gap-3 pt-2">
           <Button type="submit" disabled={loading}>
             {loading ? (
               <>
@@ -596,7 +607,7 @@ export function MemberFullForm({ initialValues, onSubmit, loading = false, mode 
               </>
             ) : (
               <>
-                <Save className="mr-2 h-4 w-4" />
+                <Save className="mr-1.5 h-4 w-4" />
                 {mode === "add" ? "Add Member" : "Update Member"}
               </>
             )}

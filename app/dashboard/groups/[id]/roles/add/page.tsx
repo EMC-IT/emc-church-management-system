@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter, useParams, useSearchParams } from 'next/navigation';
+import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -168,70 +169,71 @@ export default function AddGroupRolePage() {
   }
 
   return (
-    <div className="space-y-6 max-w-4xl mx-auto">
+    <div className="space-y-6 max-w-6xl">
       {/* Header */}
       <div className="flex items-center gap-4">
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={() => router.push(`/dashboard/groups/${groupId}/roles`)}
-          className="text-muted-foreground hover:text-foreground"
-        >
-          <ArrowLeft className="h-4 w-4 mr-1.5" />
-          Back
+        <Button variant="ghost" size="icon" asChild>
+          <Link href={`/dashboard/groups/${groupId}/roles`}>
+            <ArrowLeft className="h-4 w-4" />
+          </Link>
         </Button>
-        <h1 className="font-heading text-2xl font-bold tracking-tight">
-          {isEditing ? 'Edit Role' : 'Create Group Role'}
-        </h1>
+        <div>
+          <h1 className="font-heading text-2xl font-bold tracking-tight">
+            {isEditing ? 'Edit Group Role' : 'Create Group Role'}
+          </h1>
+          <p className="text-sm text-muted-foreground mt-1">
+            {isEditing ? 'Update permissions and settings for this role.' : 'Define permissions and access levels for group leadership.'}
+          </p>
+        </div>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base font-semibold">Role Information</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="name">Role Name *</Label>
-              <Input
-                id="name"
-                value={formData.name}
-                onChange={(e) => handleInputChange('name', e.target.value)}
-                placeholder="e.g. Treasurer, Coordinator, Secretary"
-                required
-              />
+        <Card className="rounded-xl border border-border p-6">
+          <div className="space-y-5">
+            <h2 className="text-base font-semibold text-foreground">Role Information</h2>
+
+            <div className="grid grid-cols-12 gap-5">
+              <div className="col-span-12 sm:col-span-6 space-y-2">
+                <Label htmlFor="name">Role Name *</Label>
+                <Input
+                  id="name"
+                  value={formData.name}
+                  onChange={(e) => handleInputChange('name', e.target.value)}
+                  placeholder="e.g. Treasurer, Coordinator, Secretary"
+                  required
+                />
+              </div>
+              
+              <div className="col-span-12 sm:col-span-6 flex items-center pt-6 space-x-2">
+                <Switch
+                  id="isDefault"
+                  checked={formData.isDefault}
+                  onCheckedChange={(checked) => handleInputChange('isDefault', checked)}
+                />
+                <Label htmlFor="isDefault" className="text-xs text-muted-foreground cursor-pointer">
+                  Set as default role for new members joining this group
+                </Label>
+              </div>
+
+              <div className="col-span-12 space-y-2">
+                <Label htmlFor="description">Description</Label>
+                <Textarea
+                  id="description"
+                  value={formData.description}
+                  onChange={(e) => handleInputChange('description', e.target.value)}
+                  placeholder="Role responsibilities and scope..."
+                  rows={3}
+                />
+              </div>
             </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="description">Description</Label>
-              <Textarea
-                id="description"
-                value={formData.description}
-                onChange={(e) => handleInputChange('description', e.target.value)}
-                placeholder="Role responsibilities and scope..."
-                rows={3}
-              />
-            </div>
-            
-            <div className="flex items-center space-x-2 pt-2">
-              <Switch
-                id="isDefault"
-                checked={formData.isDefault}
-                onCheckedChange={(checked) => handleInputChange('isDefault', checked)}
-              />
-              <Label htmlFor="isDefault" className="text-xs text-muted-foreground cursor-pointer">
-                Set as default role for new members joining this group
-              </Label>
-            </div>
-          </CardContent>
+          </div>
         </Card>
 
         {/* Permissions */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base font-semibold">Permissions</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-6">
+        <Card className="rounded-xl border border-border p-6">
+          <div className="space-y-6">
+            <h2 className="text-base font-semibold text-foreground">Permissions</h2>
+
             {availablePermissions.map((category) => {
               const categoryPermissionIds = category.permissions.map(p => p.id);
               const selectedInCategory = categoryPermissionIds.filter(id => 
@@ -240,7 +242,7 @@ export default function AddGroupRolePage() {
               const allSelected = selectedInCategory === categoryPermissionIds.length;
               
               return (
-                <div key={category.category} className="space-y-3 pb-4 border-b border-border last:border-b-0 last:pb-0">
+                <div key={category.category} className="space-y-3 pb-5 border-b border-border last:border-b-0 last:pb-0">
                   <div className="flex items-center justify-between">
                     <h4 className="font-semibold text-sm text-foreground">{category.category}</h4>
                     
@@ -261,9 +263,9 @@ export default function AddGroupRolePage() {
                     </div>
                   </div>
                   
-                  <div className="grid gap-2.5 sm:grid-cols-2">
+                  <div className="grid grid-cols-12 gap-3">
                     {category.permissions.map((permission) => (
-                      <div key={permission.id} className="flex items-start space-x-2.5 p-2 rounded-md hover:bg-muted/40 transition-colors">
+                      <div key={permission.id} className="col-span-12 sm:col-span-6 lg:col-span-4 flex items-start space-x-2.5 p-3 rounded-lg border border-border/50 bg-muted/20 hover:bg-muted/40 transition-colors">
                         <Checkbox
                           id={permission.id}
                           checked={formData.permissions.includes(permission.id)}
@@ -289,7 +291,7 @@ export default function AddGroupRolePage() {
                 </div>
               );
             })}
-          </CardContent>
+          </div>
         </Card>
 
         {/* Actions */}

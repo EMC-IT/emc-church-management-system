@@ -232,57 +232,41 @@ export default function DocumentUploadPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 max-w-6xl">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <Button variant="ghost" size="sm" asChild>
-            <Link href={`/dashboard/members/${member.id}/documents`}>
-              <ArrowLeft className="mr-2 h-4 w-4" />
-              Back to Documents
-            </Link>
-          </Button>
-          <PageHeader
-            title="Upload Documents"
-            description={`Upload documents for ${member.firstName} ${member.lastName}`}
-          />
+      <div className="flex items-center gap-4">
+        <Button variant="ghost" size="icon" asChild>
+          <Link href={`/dashboard/members/${member.id}/documents`}>
+            <ArrowLeft className="h-4 w-4" />
+          </Link>
+        </Button>
+        <div>
+          <h1 className="font-heading text-2xl font-bold tracking-tight">Upload Documents</h1>
+          <p className="text-sm text-muted-foreground mt-1">
+            Attach official records, identification, or certifications for {member.firstName} {member.lastName}.
+          </p>
         </div>
       </div>
 
-      {/* Upload Form */}
-      <div className="grid gap-6 md:grid-cols-2">
-        <Card>
-          <CardHeader>
-            <CardTitle>Document Information</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <Form {...form}>
-              <form onSubmit={form.handleSubmit(handleUploadDocuments)} className="space-y-6">
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(handleUploadDocuments)} className="space-y-6">
+          {/* Document Information */}
+          <Card className="rounded-xl border border-border p-6">
+            <div className="space-y-5">
+              <div>
+                <h2 className="text-base font-semibold text-foreground">Document Details</h2>
+                <p className="text-xs text-muted-foreground mt-0.5">Metadata and categorization for the uploaded document</p>
+              </div>
+
+              <div className="grid grid-cols-12 gap-5">
                 <FormField
                   control={form.control}
                   name="title"
                   render={({ field }) => (
-                    <FormItem>
+                    <FormItem className="col-span-12 sm:col-span-7">
                       <FormLabel>Document Title *</FormLabel>
                       <FormControl>
-                        <Input placeholder="Enter document title" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="description"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Description</FormLabel>
-                      <FormControl>
-                        <Textarea
-                          placeholder="Enter document description (optional)"
-                          {...field}
-                        />
+                        <Input placeholder="e.g. Baptism Certificate, National ID" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -293,12 +277,12 @@ export default function DocumentUploadPage() {
                   control={form.control}
                   name="category"
                   render={({ field }) => (
-                    <FormItem>
+                    <FormItem className="col-span-12 sm:col-span-5">
                       <FormLabel>Category *</FormLabel>
                       <Select onValueChange={field.onChange} defaultValue={field.value}>
                         <FormControl>
                           <SelectTrigger>
-                            <SelectValue placeholder="Select document category" />
+                            <SelectValue placeholder="Select category" />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
@@ -341,16 +325,31 @@ export default function DocumentUploadPage() {
 
                 <FormField
                   control={form.control}
+                  name="description"
+                  render={({ field }) => (
+                    <FormItem className="col-span-12">
+                      <FormLabel>Description</FormLabel>
+                      <FormControl>
+                        <Textarea
+                          placeholder="Enter additional details or notes about this file (optional)"
+                          rows={3}
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
                   name="tags"
                   render={({ field }) => (
-                    <FormItem>
+                    <FormItem className="col-span-12 sm:col-span-8">
                       <FormLabel>Tags</FormLabel>
                       <FormControl>
-                        <Input placeholder="Enter tags separated by commas" {...field} />
+                        <Input placeholder="e.g. 2024, verified, leadership (comma-separated)" {...field} />
                       </FormControl>
-                      <FormDescription>
-                        Tags help organize and search documents (e.g., "important, legal, 2024")
-                      </FormDescription>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -360,9 +359,10 @@ export default function DocumentUploadPage() {
                   control={form.control}
                   name="isPublic"
                   render={({ field }) => (
-                    <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                    <FormItem className="col-span-12 sm:col-span-4 flex flex-row items-center justify-between rounded-lg border border-border p-3.5 mt-auto">
                       <div className="space-y-0.5">
-                        <FormLabel className="text-base">Public Document</FormLabel>
+                        <FormLabel className="text-sm font-medium">Public Document</FormLabel>
+                        <p className="text-xs text-muted-foreground">Visible to church staff</p>
                       </div>
                       <FormControl>
                         <Switch
@@ -373,58 +373,37 @@ export default function DocumentUploadPage() {
                     </FormItem>
                   )}
                 />
+              </div>
+            </div>
+          </Card>
 
-                <div className="flex items-center justify-end space-x-4 pt-6">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={() => router.push(`/dashboard/members/${member.id}/documents`)}
-                  >
-                    Cancel
-                  </Button>
-                  <Button type="submit" disabled={uploading || uploadedFiles.length === 0}>
-                    {uploading ? (
-                      <>
-                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                        Uploading...
-                      </>
-                    ) : (
-                      <>
-                        <Upload className="mr-2 h-4 w-4" />
-                        Upload Documents
-                      </>
-                    )}
-                  </Button>
-                </div>
-              </form>
-            </Form>
-          </CardContent>
-        </Card>
+          {/* File Upload Card */}
+          <Card className="rounded-xl border border-border p-6">
+            <div className="space-y-5">
+              <div>
+                <h2 className="text-base font-semibold text-foreground">File Attachment</h2>
+                <p className="text-xs text-muted-foreground mt-0.5">
+                  Supported formats: PDF, DOC, DOCX, JPG, PNG (Max 10MB per file)
+                </p>
+              </div>
 
-        <div className="space-y-6">
-          {/* File Upload */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Select Files</CardTitle>
-            </CardHeader>
-            <CardContent>
               <FileUpload
                 accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.txt"
                 maxFiles={10}
-                maxSize={10 * 1024 * 1024} // 10MB
+                maxSize={10 * 1024 * 1024}
                 onUpload={handleFileUpload}
                 placeholder="Drag and drop files here or click to browse"
                 className="w-full"
               />
               
               {uploadedFiles.length > 0 && (
-                <div className="mt-4 space-y-2">
-                  <h4 className="font-medium">Selected Files:</h4>
+                <div className="space-y-2 pt-2">
+                  <h4 className="text-sm font-semibold">Selected Files ({uploadedFiles.length})</h4>
                   <div className="space-y-2">
                     {uploadedFiles.map((file, index) => (
-                      <div key={index} className="flex items-center justify-between p-2 border rounded-lg">
-                        <div className="flex items-center space-x-2">
-                          <FileText className="h-4 w-4 text-muted-foreground" />
+                      <div key={index} className="flex items-center justify-between p-3 border border-border rounded-lg">
+                        <div className="flex items-center space-x-3">
+                          <FileText className="h-5 w-5 text-muted-foreground" />
                           <div>
                             <p className="text-sm font-medium">{file.name}</p>
                             <p className="text-xs text-muted-foreground">
@@ -432,13 +411,14 @@ export default function DocumentUploadPage() {
                             </p>
                           </div>
                         </div>
-                        <div className="flex items-center space-x-2">
+                        <div className="flex items-center space-x-3">
                           {uploadProgress[file.name] !== undefined && (
-                            <div className="text-xs text-muted-foreground">
+                            <span className="text-xs text-muted-foreground">
                               {uploadProgress[file.name]}%
-                            </div>
+                            </span>
                           )}
                           <Button
+                            type="button"
                             variant="ghost"
                             size="sm"
                             onClick={() => handleRemoveFile(file)}
@@ -452,50 +432,34 @@ export default function DocumentUploadPage() {
                   </div>
                 </div>
               )}
-            </CardContent>
+            </div>
           </Card>
 
-          {/* Upload Guidelines */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Upload Guidelines</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <div className="flex items-start space-x-2">
-                  <Info className="h-4 w-4 text-blue-500 mt-0.5" />
-                  <div className="text-sm">
-                    <p className="font-medium">Supported Formats</p>
-                    <p className="text-muted-foreground">
-                      PDF, DOC, DOCX, JPG, JPEG, PNG, TXT (Max 10MB per file)
-                    </p>
-                  </div>
-                </div>
-                
-                <div className="flex items-start space-x-2">
-                  <AlertCircle className="h-4 w-4 text-orange-500 mt-0.5" />
-                  <div className="text-sm">
-                    <p className="font-medium">Privacy Settings</p>
-                    <p className="text-muted-foreground">
-                      Choose whether documents are public or private
-                    </p>
-                  </div>
-                </div>
-                
-                <div className="flex items-start space-x-2">
-                  <Check className="h-4 w-4 text-green-500 mt-0.5" />
-                  <div className="text-sm">
-                    <p className="font-medium">Secure Storage</p>
-                    <p className="text-muted-foreground">
-                      All documents are encrypted and securely stored
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      </div>
+          {/* Form Actions */}
+          <div className="flex justify-end gap-3 pt-2">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => router.push(`/dashboard/members/${member.id}/documents`)}
+            >
+              Cancel
+            </Button>
+            <Button type="submit" disabled={uploading || uploadedFiles.length === 0}>
+              {uploading ? (
+                <>
+                  <div className="animate-spin rounded-full h-4 w-4 border-2 border-background border-t-transparent mr-2" />
+                  Uploading...
+                </>
+              ) : (
+                <>
+                  <Upload className="mr-1.5 h-4 w-4" />
+                  Upload Documents
+                </>
+              )}
+            </Button>
+          </div>
+        </form>
+      </Form>
     </div>
   );
 } 

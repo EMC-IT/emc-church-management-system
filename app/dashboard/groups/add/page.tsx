@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -101,41 +102,39 @@ export default function AddGroupPage() {
   };
 
   return (
-    <div className="space-y-6 max-w-4xl mx-auto">
+    <div className="space-y-6 max-w-6xl">
       {/* Header */}
       <div className="flex items-center gap-4">
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={() => router.push('/dashboard/groups')}
-          className="text-muted-foreground hover:text-foreground"
-        >
-          <ArrowLeft className="h-4 w-4 mr-1.5" />
-          Back
+        <Button variant="ghost" size="icon" asChild>
+          <Link href="/dashboard/groups">
+            <ArrowLeft className="h-4 w-4" />
+          </Link>
         </Button>
-        <h1 className="font-heading text-2xl font-bold tracking-tight">Create Group</h1>
+        <div>
+          <h1 className="font-heading text-2xl font-bold tracking-tight">Create Group</h1>
+          <p className="text-sm text-muted-foreground mt-1">Set up a fellowship, ministry, or community group.</p>
+        </div>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Basic Information */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base font-semibold">Basic Information</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid gap-4 sm:grid-cols-2">
-              <div className="space-y-2">
+        <Card className="rounded-xl border border-border p-6">
+          <div className="space-y-5">
+            <h2 className="text-base font-semibold text-foreground">Basic Information</h2>
+
+            <div className="grid grid-cols-12 gap-5">
+              <div className="col-span-12 sm:col-span-6 space-y-2">
                 <Label htmlFor="name">Group Name *</Label>
                 <Input
                   id="name"
                   value={formData.name}
                   onChange={(e) => handleInputChange('name', e.target.value)}
-                  placeholder="Youth Fellowship"
+                  placeholder="e.g. Youth Fellowship"
                   required
                 />
               </div>
               
-              <div className="space-y-2">
+              <div className="col-span-12 sm:col-span-3 space-y-2">
                 <Label htmlFor="category">Category *</Label>
                 <Select
                   value={formData.category}
@@ -153,33 +152,8 @@ export default function AddGroupPage() {
                   </SelectContent>
                 </Select>
               </div>
-            </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="description">Description</Label>
-              <Textarea
-                id="description"
-                value={formData.description}
-                onChange={(e) => handleInputChange('description', e.target.value)}
-                placeholder="Brief summary of the group's purpose and activities..."
-                rows={3}
-              />
-            </div>
-            
-            <div className="grid gap-4 sm:grid-cols-2">
-              <div className="space-y-2">
-                <Label htmlFor="maxMembers">Maximum Capacity</Label>
-                <Input
-                  id="maxMembers"
-                  type="number"
-                  value={formData.maxMembers}
-                  onChange={(e) => handleInputChange('maxMembers', parseInt(e.target.value) || 0)}
-                  placeholder="50"
-                  min="1"
-                />
-              </div>
-              
-              <div className="space-y-2">
+
+              <div className="col-span-12 sm:col-span-3 space-y-2">
                 <Label htmlFor="status">Status</Label>
                 <Select
                   value={formData.status}
@@ -197,18 +171,20 @@ export default function AddGroupPage() {
                   </SelectContent>
                 </Select>
               </div>
-            </div>
-          </CardContent>
-        </Card>
 
-        {/* Meeting Details */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base font-semibold">Meeting Schedule & Location</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid gap-4 sm:grid-cols-2">
-              <div className="space-y-2">
+              <div className="col-span-12 sm:col-span-4 space-y-2">
+                <Label htmlFor="maxMembers">Maximum Capacity</Label>
+                <Input
+                  id="maxMembers"
+                  type="number"
+                  value={formData.maxMembers}
+                  onChange={(e) => handleInputChange('maxMembers', parseInt(e.target.value) || 0)}
+                  placeholder="50"
+                  min="1"
+                />
+              </div>
+
+              <div className="col-span-12 sm:col-span-4 space-y-2">
                 <Label htmlFor="meetingSchedule">Meeting Schedule</Label>
                 <Input
                   id="meetingSchedule"
@@ -218,7 +194,7 @@ export default function AddGroupPage() {
                 />
               </div>
               
-              <div className="space-y-2">
+              <div className="col-span-12 sm:col-span-4 space-y-2">
                 <Label htmlFor="location">Location / Venue</Label>
                 <Input
                   id="location"
@@ -227,18 +203,28 @@ export default function AddGroupPage() {
                   placeholder="e.g. Fellowship Hall Room 2"
                 />
               </div>
+
+              <div className="col-span-12 space-y-2">
+                <Label htmlFor="description">Description</Label>
+                <Textarea
+                  id="description"
+                  value={formData.description}
+                  onChange={(e) => handleInputChange('description', e.target.value)}
+                  placeholder="Brief summary of the group's purpose and activities..."
+                  rows={3}
+                />
+              </div>
             </div>
-          </CardContent>
+          </div>
         </Card>
 
         {/* Group Leader */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base font-semibold">Group Leader</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid gap-4 sm:grid-cols-2">
-              <div className="space-y-2">
+        <Card className="rounded-xl border border-border p-6">
+          <div className="space-y-5">
+            <h2 className="text-base font-semibold text-foreground">Group Leader</h2>
+
+            <div className="grid grid-cols-12 gap-5">
+              <div className="col-span-12 sm:col-span-4 space-y-2">
                 <Label htmlFor="leaderName">Leader Name *</Label>
                 <Input
                   id="leaderName"
@@ -249,7 +235,7 @@ export default function AddGroupPage() {
                 />
               </div>
               
-              <div className="space-y-2">
+              <div className="col-span-12 sm:col-span-4 space-y-2">
                 <Label htmlFor="leaderEmail">Leader Email *</Label>
                 <Input
                   id="leaderEmail"
@@ -260,18 +246,18 @@ export default function AddGroupPage() {
                   required
                 />
               </div>
+
+              <div className="col-span-12 sm:col-span-4 space-y-2">
+                <Label htmlFor="leaderPhone">Leader Phone</Label>
+                <Input
+                  id="leaderPhone"
+                  value={formData.leader.phone}
+                  onChange={(e) => handleInputChange('leader.phone', e.target.value)}
+                  placeholder="+233 24 123 4567"
+                />
+              </div>
             </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="leaderPhone">Leader Phone</Label>
-              <Input
-                id="leaderPhone"
-                value={formData.leader.phone}
-                onChange={(e) => handleInputChange('leader.phone', e.target.value)}
-                placeholder="+233 24 123 4567"
-              />
-            </div>
-          </CardContent>
+          </div>
         </Card>
 
         {/* Form Actions */}

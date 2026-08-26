@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -179,271 +180,288 @@ export default function EditPrayerRequestPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 max-w-6xl">
       {/* Header with back button */}
       <div className="flex items-center gap-4">
-        <Button
-          variant="outline"
-          size="icon"
-          className="h-12 w-12"
-          onClick={() => router.back()}
-        >
-          <ArrowLeft className="h-4 w-4" />
+        <Button variant="ghost" size="icon" asChild>
+          <Link href={`/dashboard/prayer-requests/${params.id}`}>
+            <ArrowLeft className="h-4 w-4" />
+          </Link>
         </Button>
-        
-        <div className="flex items-center gap-3">
-          <div className="p-2 bg-brand-primary/10 rounded-lg">
-            <Heart className="h-6 w-6 text-brand-primary" />
-          </div>
-          <PageHeader title="Edit Prayer Request" />
+        <div>
+          <h1 className="font-heading text-2xl font-bold tracking-tight">Edit Prayer Request</h1>
+          <p className="text-sm text-muted-foreground mt-1">
+            Update intercession details, priority level, confidentiality, and team assignment.
+          </p>
         </div>
       </div>
 
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-          <div className="grid gap-6 lg:grid-cols-3">
-            {/* Main Form */}
-            <div className="lg:col-span-2 space-y-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Request Details</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <FormField
-                    control={form.control}
-                    name="title"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Request Title *</FormLabel>
-                        <FormControl>
-                          <Input
-                            placeholder="Brief title for the prayer request"
-                            {...field}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+          {/* Main Request Details */}
+          <Card className="rounded-xl border border-border p-6">
+            <div className="space-y-5">
+              <div>
+                <h2 className="text-base font-semibold text-foreground">Prayer Request Details</h2>
+                <p className="text-xs text-muted-foreground mt-0.5">Specify need, category classification, and urgency</p>
+              </div>
 
-                  <FormField
-                    control={form.control}
-                    name="description"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Description *</FormLabel>
-                        <FormControl>
-                          <Textarea 
-                            placeholder="Detailed description of your prayer request..."
-                            rows={6}
-                            {...field} 
-                          />
-                        </FormControl>
-                        <FormDescription>
-                          Share the details of your prayer need (10-1000 characters)
-                        </FormDescription>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <FormField
-                      control={form.control}
-                      name="category"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Category *</FormLabel>
-                          <Select onValueChange={field.onChange} value={field.value}>
-                            <FormControl>
-                              <SelectTrigger>
-                                <SelectValue placeholder="Select category" />
-                              </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                              {PRAYER_CATEGORIES.map((category) => (
-                                <SelectItem key={category.value} value={category.value}>
-                                  {category.label}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-
-                    <FormField
-                      control={form.control}
-                      name="priority"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Priority Level *</FormLabel>
-                          <Select onValueChange={field.onChange} value={field.value}>
-                            <FormControl>
-                              <SelectTrigger>
-                                <SelectValue placeholder="Select priority" />
-                              </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                              <SelectItem value="Low">Low - General prayer</SelectItem>
-                              <SelectItem value="Medium">Medium - Important need</SelectItem>
-                              <SelectItem value="High">High - Urgent prayer</SelectItem>
-                              <SelectItem value="Urgent">Urgent - Critical situation</SelectItem>
-                            </SelectContent>
-                          </Select>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-
-                    <FormField
-                      control={form.control}
-                      name="status"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Status *</FormLabel>
-                          <Select onValueChange={field.onChange} value={field.value}>
-                            <FormControl>
-                              <SelectTrigger>
-                                <SelectValue placeholder="Select status" />
-                              </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                              <SelectItem value="New">New</SelectItem>
-                              <SelectItem value="In Progress">In Progress</SelectItem>
-                              <SelectItem value="Answered">Answered</SelectItem>
-                              <SelectItem value="Closed">Closed</SelectItem>
-                            </SelectContent>
-                          </Select>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Requester Information */}
-              <Card>
-                <CardHeader>
-                  <CardTitle>Requester Information</CardTitle>
-                  <CardDescription>
-                    {isAnonymous 
-                      ? 'This request will be submitted anonymously' 
-                      : 'Update requester contact information'
-                    }
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <FormField
-                    control={form.control}
-                    name="isAnonymous"
-                    render={({ field }) => (
-                      <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
-                        <FormControl>
-                          <Checkbox
-                            checked={field.value}
-                            onCheckedChange={field.onChange}
-                          />
-                        </FormControl>
-                        <div className="space-y-1 leading-none">
-                          <FormLabel>Submit Anonymously</FormLabel>
-                          <FormDescription>
-                            Name will not be shown with this prayer request
-                          </FormDescription>
-                        </div>
-                      </FormItem>
-                    )}
-                  />
-
-                  {!isAnonymous && (
-                    <>
-                      <FormField
-                        control={form.control}
-                        name="requesterName"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Full Name</FormLabel>
-                            <FormControl>
-                              <Input placeholder="Requester's full name" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <FormField
-                          control={form.control}
-                          name="requesterEmail"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Email Address</FormLabel>
-                              <FormControl>
-                                <Input 
-                                  type="email" 
-                                  placeholder="email@example.com" 
-                                  {...field} 
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
+              <div className="grid grid-cols-12 gap-5">
+                <FormField
+                  control={form.control}
+                  name="title"
+                  render={({ field }) => (
+                    <FormItem className="col-span-12 sm:col-span-8">
+                      <FormLabel>Request Title *</FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder="e.g., Healing for Sister Mary"
+                          {...field}
                         />
-
-                        <FormField
-                          control={form.control}
-                          name="requesterPhone"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Phone Number</FormLabel>
-                              <FormControl>
-                                <Input 
-                                  type="tel" 
-                                  placeholder="+233 XX XXX XXXX" 
-                                  {...field} 
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                      </div>
-                    </>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
                   )}
-                </CardContent>
-              </Card>
-            </div>
+                />
 
-            {/* Sidebar */}
-            <div className="space-y-6">
-              {/* Privacy Settings */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Lock className="h-4 w-4" />
-                    Privacy Settings
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
+                <FormField
+                  control={form.control}
+                  name="category"
+                  render={({ field }) => (
+                    <FormItem className="col-span-12 sm:col-span-4">
+                      <FormLabel>Category *</FormLabel>
+                      <Select onValueChange={field.onChange} value={field.value}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select category" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {PRAYER_CATEGORIES.map((category) => (
+                            <SelectItem key={category.value} value={category.value}>
+                              {category.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="priority"
+                  render={({ field }) => (
+                    <FormItem className="col-span-12 sm:col-span-6">
+                      <FormLabel>Priority Level *</FormLabel>
+                      <Select onValueChange={field.onChange} value={field.value}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select priority" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="Low">Low - General prayer</SelectItem>
+                          <SelectItem value="Medium">Medium - Important need</SelectItem>
+                          <SelectItem value="High">High - Urgent prayer</SelectItem>
+                          <SelectItem value="Urgent">Urgent - Critical situation</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="status"
+                  render={({ field }) => (
+                    <FormItem className="col-span-12 sm:col-span-6">
+                      <FormLabel>Status *</FormLabel>
+                      <Select onValueChange={field.onChange} value={field.value}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select status" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="New">New</SelectItem>
+                          <SelectItem value="In Progress">In Progress</SelectItem>
+                          <SelectItem value="Answered">Answered</SelectItem>
+                          <SelectItem value="Closed">Closed</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="description"
+                  render={({ field }) => (
+                    <FormItem className="col-span-12">
+                      <FormLabel>Description & Details *</FormLabel>
+                      <FormControl>
+                        <Textarea 
+                          placeholder="Detailed description of your prayer request..."
+                          rows={4}
+                          {...field} 
+                        />
+                      </FormControl>
+                      <FormDescription>
+                        Share the details of the prayer need (10-1000 characters)
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+            </div>
+          </Card>
+
+          {/* Requester Information */}
+          <Card className="rounded-xl border border-border p-6">
+            <div className="space-y-5">
+              <div>
+                <h2 className="text-base font-semibold text-foreground">Requester Information</h2>
+                <p className="text-xs text-muted-foreground mt-0.5">Contact details or anonymous submission</p>
+              </div>
+
+              <div className="grid grid-cols-12 gap-5">
+                <FormField
+                  control={form.control}
+                  name="isAnonymous"
+                  render={({ field }) => (
+                    <FormItem className="col-span-12 flex flex-row items-center justify-between rounded-lg border border-border p-3.5">
+                      <div className="space-y-0.5">
+                        <FormLabel className="text-sm font-medium cursor-pointer">Submit Anonymously</FormLabel>
+                        <FormDescription className="text-xs">
+                          Name and contact details will not be displayed on prayer boards
+                        </FormDescription>
+                      </div>
+                      <FormControl>
+                        <Checkbox
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                        />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+
+                {!isAnonymous && (
+                  <>
+                    <FormField
+                      control={form.control}
+                      name="requesterName"
+                      render={({ field }) => (
+                        <FormItem className="col-span-12 sm:col-span-4">
+                          <FormLabel>Full Name</FormLabel>
+                          <FormControl>
+                            <Input placeholder="Requester's full name" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name="requesterEmail"
+                      render={({ field }) => (
+                        <FormItem className="col-span-12 sm:col-span-4">
+                          <FormLabel>Email Address</FormLabel>
+                          <FormControl>
+                            <Input 
+                              type="email" 
+                              placeholder="email@example.com" 
+                              {...field} 
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name="requesterPhone"
+                      render={({ field }) => (
+                        <FormItem className="col-span-12 sm:col-span-4">
+                          <FormLabel>Phone Number</FormLabel>
+                          <FormControl>
+                            <Input 
+                              type="tel" 
+                              placeholder="+233 XX XXX XXXX" 
+                              {...field} 
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </>
+                )}
+              </div>
+            </div>
+          </Card>
+
+          {/* Privacy & Assignment */}
+          <Card className="rounded-xl border border-border p-6">
+            <div className="space-y-5">
+              <div>
+                <h2 className="text-base font-semibold text-foreground">Privacy & Team Assignment</h2>
+                <p className="text-xs text-muted-foreground mt-0.5">Intercessory team assignment and confidentiality preferences</p>
+              </div>
+
+              <div className="grid grid-cols-12 gap-5">
+                <FormField
+                  control={form.control}
+                  name="assignTo"
+                  render={({ field }) => (
+                    <FormItem className="col-span-12 sm:col-span-6">
+                      <FormLabel>Assign to Prayer Team</FormLabel>
+                      <Select onValueChange={field.onChange} value={field.value}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select team (optional)" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="auto-assign">Auto-assign</SelectItem>
+                          {PRAYER_TEAMS.map((team) => (
+                            <SelectItem key={team.value} value={team.value}>
+                              {team.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormDescription className="text-xs">
+                        Leave blank for automatic distribution
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <div className="col-span-12 sm:col-span-6 space-y-3">
                   <FormField
                     control={form.control}
                     name="isConfidential"
                     render={({ field }) => (
-                      <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                      <FormItem className="flex flex-row items-center justify-between rounded-lg border border-border p-3">
+                        <div className="space-y-0.5">
+                          <FormLabel className="text-sm font-medium cursor-pointer">Confidential Request</FormLabel>
+                          <p className="text-xs text-muted-foreground">Only prayer pastors will see this</p>
+                        </div>
                         <FormControl>
                           <Checkbox
                             checked={field.value}
                             onCheckedChange={field.onChange}
                           />
                         </FormControl>
-                        <div className="space-y-1 leading-none">
-                          <FormLabel>Confidential Request</FormLabel>
-                          <FormDescription>
-                            Only prayer team leaders will see this request
-                          </FormDescription>
-                        </div>
                       </FormItem>
                     )}
                   />
@@ -452,7 +470,11 @@ export default function EditPrayerRequestPage() {
                     control={form.control}
                     name="allowPublicPrayers"
                     render={({ field }) => (
-                      <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                      <FormItem className="flex flex-row items-center justify-between rounded-lg border border-border p-3">
+                        <div className="space-y-0.5">
+                          <FormLabel className="text-sm font-medium cursor-pointer">Allow Public Prayers</FormLabel>
+                          <p className="text-xs text-muted-foreground">Share during congregation intercessions</p>
+                        </div>
                         <FormControl>
                           <Checkbox
                             checked={field.value}
@@ -460,106 +482,31 @@ export default function EditPrayerRequestPage() {
                             disabled={isConfidential}
                           />
                         </FormControl>
-                        <div className="space-y-1 leading-none">
-                          <FormLabel>Allow Public Prayers</FormLabel>
-                          <FormDescription>
-                            Share in public prayer meetings
-                          </FormDescription>
-                        </div>
                       </FormItem>
                     )}
                   />
-                </CardContent>
-              </Card>
-
-              {/* Assignment */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Users className="h-4 w-4" />
-                    Assignment
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <FormField
-                    control={form.control}
-                    name="assignTo"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Assign to Prayer Team</FormLabel>
-                        <Select onValueChange={field.onChange} value={field.value}>
-                          <FormControl>
-                            <SelectTrigger>
-                              <SelectValue placeholder="Select team (optional)" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            <SelectItem value="auto-assign">Auto-assign</SelectItem>
-                            {PRAYER_TEAMS.map((team) => (
-                              <SelectItem key={team.value} value={team.value}>
-                                {team.label}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                        <FormDescription>
-                          Leave blank for automatic assignment
-                        </FormDescription>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name="notifyPrayerTeam"
-                    render={({ field }) => (
-                      <FormItem className="flex flex-row items-start space-x-3 space-y-0">
-                        <FormControl>
-                          <Checkbox
-                            checked={field.value}
-                            onCheckedChange={field.onChange}
-                          />
-                        </FormControl>
-                        <div className="space-y-1 leading-none">
-                          <FormLabel>Notify Prayer Team</FormLabel>
-                        </div>
-                      </FormItem>
-                    )}
-                  />
-                </CardContent>
-              </Card>
-
-              {/* Action Buttons */}
-              <div className="space-y-3">
-                <Button 
-                  type="submit" 
-                  className="w-full bg-brand-primary hover:bg-brand-primary/90"
-                  disabled={isSubmitting}
-                >
-                  {isSubmitting ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Updating...
-                    </>
-                  ) : (
-                    <>
-                      <Save className="mr-2 h-4 w-4" />
-                      Update Request
-                    </>
-                  )}
-                </Button>
-                <Button 
-                  type="button" 
-                  variant="outline" 
-                  className="w-full"
-                  onClick={() => router.back()}
-                  disabled={isSubmitting}
-                >
-                  Cancel
-                </Button>
+                </div>
               </div>
             </div>
+          </Card>
+
+          {/* Action Buttons */}
+          <div className="flex justify-end gap-3 pt-2">
+            <Button 
+              type="button" 
+              variant="outline" 
+              onClick={() => router.push(`/dashboard/prayer-requests/${params.id}`)}
+              disabled={isSubmitting}
+            >
+              Cancel
+            </Button>
+            <Button 
+              type="submit" 
+              disabled={isSubmitting}
+            >
+              <Save className="mr-1.5 h-4 w-4" />
+              {isSubmitting ? 'Updating...' : 'Save Changes'}
+            </Button>
           </div>
         </form>
       </Form>

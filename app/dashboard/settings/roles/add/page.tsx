@@ -193,7 +193,7 @@ export default function AddRolePage() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 max-w-6xl">
       {/* Header */}
       <div className="flex items-center gap-4">
         <Button variant="ghost" size="icon" asChild>
@@ -201,185 +201,75 @@ export default function AddRolePage() {
             <ArrowLeft className="h-4 w-4" />
           </Link>
         </Button>
-        <PageHeader title="Create New Role" />
+        <div>
+          <h1 className="font-heading text-2xl font-bold tracking-tight">Create New Role</h1>
+          <p className="text-sm text-muted-foreground mt-1">
+            Define system role identity, description, and module access permissions.
+          </p>
+        </div>
       </div>
 
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-          <div className="grid gap-6 lg:grid-cols-3">
-            {/* Main Content - 2 columns */}
-            <div className="lg:col-span-2 space-y-6">
-              {/* Basic Information */}
-              <Card>
-                <CardHeader>
-                  <CardTitle>Role Information</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <FormField
-                    control={form.control}
-                    name="name"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Role Name *</FormLabel>
-                        <FormControl>
-                          <Input placeholder="e.g., Youth Leader" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+          {/* Basic Information */}
+          <Card className="rounded-xl border border-border p-6">
+            <div className="space-y-5">
+              <div>
+                <h2 className="text-base font-semibold text-foreground">Role Information</h2>
+                <p className="text-xs text-muted-foreground mt-0.5">Name and administrative responsibilities of this role</p>
+              </div>
 
-                  <FormField
-                    control={form.control}
-                    name="description"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Description *</FormLabel>
-                        <FormControl>
-                          <Textarea
-                            placeholder="Describe the responsibilities and purpose of this role..."
-                            rows={4}
-                            {...field}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </CardContent>
-              </Card>
+              <div className="grid grid-cols-12 gap-5">
+                <FormField
+                  control={form.control}
+                  name="name"
+                  render={({ field }) => (
+                    <FormItem className="col-span-12 sm:col-span-8">
+                      <FormLabel>Role Name *</FormLabel>
+                      <FormControl>
+                        <Input placeholder="e.g., Youth Leader, Finance Auditor" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-              {/* Permissions */}
-              <Card>
-                <CardHeader>
-                  <CardTitle>Permissions</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <FormField
-                    control={form.control}
-                    name="permissions"
-                    render={() => (
-                      <FormItem>
-                        <div className="space-y-6">
-                          {Object.entries(PERMISSIONS).map(([categoryKey, category]) => (
-                            <div key={categoryKey} className="space-y-4">
-                              <div className="flex items-center space-x-2">
-                                <Checkbox
-                                  checked={isCategoryFullySelected(categoryKey)}
-                                  onCheckedChange={(checked) => toggleCategory(categoryKey, checked as boolean)}
-                                  className={isCategoryPartiallySelected(categoryKey) ? 'data-[state=checked]:bg-brand-primary/50' : ''}
-                                />
-                                <Label className="text-base font-semibold cursor-pointer">
-                                  {category.label}
-                                </Label>
-                                {isCategoryFullySelected(categoryKey) && (
-                                  <CheckCircle className="h-4 w-4 text-brand-primary" />
-                                )}
-                              </div>
-
-                              <div className="ml-6 space-y-3">
-                                {category.permissions.map((permission) => (
-                                  <FormField
-                                    key={permission.id}
-                                    control={form.control}
-                                    name="permissions"
-                                    render={({ field }) => (
-                                      <FormItem className="flex items-start space-x-3 space-y-0">
-                                        <FormControl>
-                                          <Checkbox
-                                            checked={field.value?.includes(permission.id)}
-                                            onCheckedChange={(checked) => {
-                                              return checked
-                                                ? field.onChange([...field.value, permission.id])
-                                                : field.onChange(
-                                                    field.value?.filter(
-                                                      (value) => value !== permission.id
-                                                    )
-                                                  );
-                                            }}
-                                          />
-                                        </FormControl>
-                                        <div className="space-y-1 leading-none">
-                                          <FormLabel className="font-medium cursor-pointer">
-                                            {permission.label}
-                                          </FormLabel>
-                                          <FormDescription className="text-xs">
-                                            {permission.description}
-                                          </FormDescription>
-                                        </div>
-                                      </FormItem>
-                                    )}
-                                  />
-                                ))}
-                              </div>
-
-                              {categoryKey !== 'settings' && <Separator />}
-                            </div>
-                          ))}
-                        </div>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </CardContent>
-              </Card>
+                <FormField
+                  control={form.control}
+                  name="description"
+                  render={({ field }) => (
+                    <FormItem className="col-span-12">
+                      <FormLabel>Description *</FormLabel>
+                      <FormControl>
+                        <Textarea
+                          placeholder="Describe the responsibilities and operational scope of this role..."
+                          rows={3}
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
             </div>
+          </Card>
 
-            {/* Sidebar - 1 column */}
+          {/* Permissions */}
+          <Card className="rounded-xl border border-border p-6">
             <div className="space-y-6">
-              {/* Summary */}
-              <Card>
-                <CardHeader>
-                  <CardTitle>Role Summary</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm text-muted-foreground">Role Name:</span>
-                    <span className="font-medium">
-                      {form.watch('name') || 'Not set'}
-                    </span>
-                  </div>
-                  <Separator />
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm text-muted-foreground">Permissions:</span>
-                    <Badge variant="neutral">
-                      {selectedPermissions.length}
-                    </Badge>
-                  </div>
-                  <Separator />
-                  <div className="space-y-2">
-                    <span className="text-sm text-muted-foreground">Selected Categories:</span>
-                    <div className="flex flex-wrap gap-2">
-                      {Object.entries(PERMISSIONS).map(([key, category]) => {
-                        const hasPermissions = category.permissions.some(p => 
-                          selectedPermissions.includes(p.id)
-                        );
-                        if (!hasPermissions) return null;
-                        
-                        return (
-                          <Badge key={key} variant="neutral" className="text-xs">
-                            {category.label}
-                          </Badge>
-                        );
-                      })}
-                      {selectedPermissions.length === 0 && (
-                        <span className="text-xs text-muted-foreground">None selected</span>
-                      )}
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Quick Presets */}
-              <Card>
-                <CardHeader>
-                  <CardTitle>Quick Presets</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-2">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-4 border-b border-border">
+                <div>
+                  <h2 className="text-base font-semibold text-foreground">Module Access & Permissions</h2>
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    {selectedPermissions.length} permission(s) granted across system modules
+                  </p>
+                </div>
+                <div className="flex items-center gap-2">
                   <Button
                     type="button"
                     variant="outline"
-                    className="w-full justify-start"
+                    size="sm"
                     onClick={() => {
                       const allPermissions = Object.values(PERMISSIONS).flatMap(cat => 
                         cat.permissions.map(p => p.id)
@@ -387,13 +277,12 @@ export default function AddRolePage() {
                       form.setValue('permissions', allPermissions);
                     }}
                   >
-                    <Shield className="mr-2 h-4 w-4" />
-                    Full Access
+                    Select All
                   </Button>
                   <Button
                     type="button"
                     variant="outline"
-                    className="w-full justify-start"
+                    size="sm"
                     onClick={() => {
                       const viewPermissions = Object.values(PERMISSIONS).flatMap(cat => 
                         cat.permissions.filter(p => p.id.includes('.view')).map(p => p.id)
@@ -406,48 +295,109 @@ export default function AddRolePage() {
                   <Button
                     type="button"
                     variant="outline"
-                    className="w-full justify-start"
+                    size="sm"
                     onClick={() => {
                       form.setValue('permissions', []);
                     }}
                   >
-                    Clear All
+                    Clear
                   </Button>
-                </CardContent>
-              </Card>
+                </div>
+              </div>
 
-              {/* Actions */}
-              <Card>
-                <CardContent className="pt-6 space-y-2">
-                  <Button 
-                    type="submit" 
-                    className="w-full bg-brand-primary hover:bg-brand-primary/90"
-                    disabled={isSubmitting || selectedPermissions.length === 0}
-                  >
-                    {isSubmitting ? (
-                      <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Creating Role...
-                      </>
-                    ) : (
-                      <>
-                        <Save className="mr-2 h-4 w-4" />
-                        Create Role
-                      </>
-                    )}
-                  </Button>
-                  <Button 
-                    type="button" 
-                    variant="outline" 
-                    className="w-full"
-                    onClick={() => router.push('/dashboard/settings?tab=roles')}
-                    disabled={isSubmitting}
-                  >
-                    Cancel
-                  </Button>
-                </CardContent>
-              </Card>
+              <FormField
+                control={form.control}
+                name="permissions"
+                render={() => (
+                  <FormItem>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      {Object.entries(PERMISSIONS).map(([categoryKey, category]) => (
+                        <div key={categoryKey} className="rounded-lg border border-border p-4 space-y-4">
+                          <div className="flex items-center space-x-2 pb-2 border-b border-border">
+                            <Checkbox
+                              checked={isCategoryFullySelected(categoryKey)}
+                              onCheckedChange={(checked) => toggleCategory(categoryKey, checked as boolean)}
+                              className={isCategoryPartiallySelected(categoryKey) ? 'data-[state=checked]:bg-primary/50' : ''}
+                            />
+                            <Label className="text-sm font-semibold cursor-pointer flex-1">
+                              {category.label}
+                            </Label>
+                            {isCategoryFullySelected(categoryKey) && (
+                              <CheckCircle className="h-4 w-4 text-brand-success" />
+                            )}
+                          </div>
+
+                          <div className="space-y-3 pt-1">
+                            {category.permissions.map((permission) => (
+                              <FormField
+                                key={permission.id}
+                                control={form.control}
+                                name="permissions"
+                                render={({ field }) => (
+                                  <FormItem className="flex items-start space-x-2.5 space-y-0">
+                                    <FormControl>
+                                      <Checkbox
+                                        checked={field.value?.includes(permission.id)}
+                                        onCheckedChange={(checked) => {
+                                          return checked
+                                            ? field.onChange([...field.value, permission.id])
+                                            : field.onChange(
+                                                field.value?.filter(
+                                                  (value) => value !== permission.id
+                                                )
+                                              );
+                                        }}
+                                      />
+                                    </FormControl>
+                                    <div className="space-y-0.5 leading-none">
+                                      <FormLabel className="text-xs font-medium cursor-pointer">
+                                        {permission.label}
+                                      </FormLabel>
+                                      <FormDescription className="text-[11px] text-muted-foreground">
+                                        {permission.description}
+                                      </FormDescription>
+                                    </div>
+                                  </FormItem>
+                                )}
+                              />
+                            ))}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
             </div>
+          </Card>
+
+          {/* Form Actions */}
+          <div className="flex items-center justify-end gap-3 pt-2">
+            <Button 
+              type="button" 
+              variant="outline" 
+              onClick={() => router.push('/dashboard/settings?tab=roles')}
+              disabled={isSubmitting}
+            >
+              Cancel
+            </Button>
+            <Button 
+              type="submit" 
+              disabled={isSubmitting || selectedPermissions.length === 0}
+            >
+              {isSubmitting ? (
+                <>
+                  <Loader2 className="mr-1.5 h-4 w-4 animate-spin" />
+                  Creating Role...
+                </>
+              ) : (
+                <>
+                  <Save className="mr-1.5 h-4 w-4" />
+                  Create Role
+                </>
+              )}
+            </Button>
           </div>
         </form>
       </Form>

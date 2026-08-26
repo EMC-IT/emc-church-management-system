@@ -2,51 +2,23 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { PageHeader } from '@/components/ui/page-header';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { 
   ArrowLeft,
   Save,
-  Upload,
   X,
   Plus,
-  User,
-  Mail,
-  Phone,
-  MapPin,
-  Calendar,
-  BookOpen,
-  Award,
-  AlertCircle,
   Loader2
 } from 'lucide-react';
 import { sundaySchoolService } from '@/services';
-import { TeacherFormData, TeacherStatus } from '@/lib/types/sunday-school';
+import { TeacherFormData } from '@/lib/types/sunday-school';
 import { toast } from 'sonner';
-
-interface FormErrors {
-  name?: string;
-  email?: string;
-  phone?: string;
-  qualifications?: string;
-  bio?: string;
-  experience?: string;
-  specializations?: string;
-}
 
 export default function AddTeacherPage() {
   const router = useRouter();
@@ -61,32 +33,14 @@ export default function AddTeacherPage() {
     specializations: []
   });
   
-  const [errors, setErrors] = useState<FormErrors>({});
+  const [errors, setErrors] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(false);
-  const [avatarFile, setAvatarFile] = useState<File | null>(null);
-  const [avatarPreview, setAvatarPreview] = useState<string>('');
   const [newQualification, setNewQualification] = useState('');
 
   const handleInputChange = (field: keyof TeacherFormData, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
-    
-    // Clear error when user starts typing
-    if (errors[field as keyof FormErrors]) {
-      setErrors(prev => ({ ...prev, [field]: undefined }));
-    }
-  };
-
-  const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      setAvatarFile(file);
-      
-      // Create preview
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        setAvatarPreview(e.target?.result as string);
-      };
-      reader.readAsDataURL(file);
+    if (errors[field]) {
+      setErrors(prev => ({ ...prev, [field]: '' }));
     }
   };
 
@@ -108,26 +62,10 @@ export default function AddTeacherPage() {
   };
 
   const validateForm = (): boolean => {
-    const newErrors: FormErrors = {};
-
-    // Required fields
-    if (!formData.name.trim()) {
-      newErrors.name = 'Name is required';
-    }
-
-    if (!formData.email.trim()) {
-      newErrors.email = 'Email is required';
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      newErrors.email = 'Please enter a valid email address';
-    }
-
-    if (!formData.phone.trim()) {
-      newErrors.phone = 'Phone number is required';
-    } else if (!/^[\d\s\-\+\(\)]+$/.test(formData.phone)) {
-      newErrors.phone = 'Please enter a valid phone number';
-    }
-
-    // Only validate fields that exist in TeacherFormData
+    const newErrors: Record<string, string> = {};
+    if (!formData.name.trim()) newErrors.name = 'Full name is required';
+    if (!formData.email.trim()) newErrors.email = 'Email is required';
+    if (!formData.phone.trim()) newErrors.phone = 'Phone number is required';
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -135,301 +73,168 @@ export default function AddTeacherPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    if (!validateForm()) {
-      toast.error('Please fix the errors in the form');
-      return;
-    }
+    if (!validateForm()) return;
 
     try {
       setLoading(true);
-      
-      // Upload avatar if provided
-      let avatarUrl = '';
-      if (avatarFile) {
-        // In a real app, you would upload to a file storage service
-        // For now, we'll use the preview URL
-        avatarUrl = avatarPreview;
-      }
-
-      const teacherData = {
-        ...formData,
-        avatar: avatarUrl
-      };
-
-      const response = await sundaySchoolService.createTeacher(teacherData);
-      
+      const response = await sundaySchoolService.createTeacher(formData);
       if (response.success) {
-        toast.success('Teacher added successfully');
+        toast.success('Teacher registered successfully');
         router.push('/dashboard/sunday-school/teachers');
       } else {
-        toast.error(response.message || 'Failed to add teacher');
+        toast.error(response.message || 'Failed to create teacher');
       }
-    } catch (error) {
-      toast.error('Failed to add teacher');
+    } catch {
+      toast.error('Failed to create teacher');
     } finally {
       setLoading(false);
     }
   };
 
-  const handleBack = () => {
-    router.push('/dashboard/sunday-school/teachers');
-  };
-
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 max-w-6xl">
       {/* Header */}
-      <div className="flex items-center gap-2">
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={handleBack}
-          className="h-8 w-8"
-        >
-          <ArrowLeft className="h-4 w-4" />
+      <div className="flex items-center gap-4">
+        <Button variant="ghost" size="icon" asChild>
+          <Link href="/dashboard/sunday-school/teachers">
+            <ArrowLeft className="h-4 w-4" />
+          </Link>
         </Button>
-        <div className="flex-1">
-          <PageHeader title="Add New Teacher" />
+        <div>
+          <h1 className="font-heading text-2xl font-bold tracking-tight">Register Teacher</h1>
+          <p className="text-sm text-muted-foreground mt-1">Add a new teacher to the Sunday School ministry staff.</p>
         </div>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
-        <div className="grid gap-6 lg:grid-cols-3">
-          {/* Main Information */}
-          <div className="lg:col-span-2 space-y-6">
-            {/* Personal Information */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center space-x-2">
-                  <User className="h-5 w-5" />
-                  <span>Personal Information</span>
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid gap-4 md:grid-cols-2">
-                  <div className="space-y-2">
-                    <Label htmlFor="name">Full Name *</Label>
-                    <Input
-                      id="name"
-                      value={formData.name}
-                      onChange={(e) => handleInputChange('name', e.target.value)}
-                      placeholder="Enter full name"
-                      className={errors.name ? 'border-destructive' : ''}
-                    />
-                    {errors.name && (
-                      <p className="text-sm text-destructive flex items-center">
-                        <AlertCircle className="h-4 w-4 mr-1" />
-                        {errors.name}
-                      </p>
-                    )}
-                  </div>
-                  
+        <Card className="rounded-xl border border-border p-6">
+          <div className="space-y-5">
+            <h2 className="text-base font-semibold text-foreground">Teacher Information</h2>
 
-                </div>
-                
+            <div className="grid grid-cols-12 gap-5">
+              {/* Full Name */}
+              <div className="col-span-12 sm:col-span-6 space-y-2">
+                <Label htmlFor="name">Full Name *</Label>
+                <Input
+                  id="name"
+                  value={formData.name}
+                  onChange={(e) => handleInputChange('name', e.target.value)}
+                  placeholder="e.g. Grace Mensah"
+                  required
+                />
+                {errors.name && <p className="text-xs text-destructive">{errors.name}</p>}
+              </div>
 
-              </CardContent>
-            </Card>
+              {/* Experience */}
+              <div className="col-span-12 sm:col-span-6 space-y-2">
+                <Label htmlFor="experience">Experience</Label>
+                <Input
+                  id="experience"
+                  value={formData.experience || ''}
+                  onChange={(e) => handleInputChange('experience', e.target.value)}
+                  placeholder="e.g. 5 years Children Ministry teaching"
+                />
+              </div>
 
-            {/* Contact Information */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center space-x-2">
-                  <Phone className="h-5 w-5" />
-                  <span>Contact Information</span>
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid gap-4 md:grid-cols-2">
-                  <div className="space-y-2">
-                    <Label htmlFor="email">Email Address *</Label>
-                    <Input
-                      id="email"
-                      type="email"
-                      value={formData.email}
-                      onChange={(e) => handleInputChange('email', e.target.value)}
-                      placeholder="teacher@example.com"
-                      className={errors.email ? 'border-destructive' : ''}
-                    />
-                    {errors.email && (
-                      <p className="text-sm text-destructive flex items-center">
-                        <AlertCircle className="h-4 w-4 mr-1" />
-                        {errors.email}
-                      </p>
-                    )}
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <Label htmlFor="phone">Phone Number *</Label>
-                    <Input
-                      id="phone"
-                      value={formData.phone}
-                      onChange={(e) => handleInputChange('phone', e.target.value)}
-                      placeholder="(555) 123-4567"
-                      className={errors.phone ? 'border-destructive' : ''}
-                    />
-                    {errors.phone && (
-                      <p className="text-sm text-destructive flex items-center">
-                        <AlertCircle className="h-4 w-4 mr-1" />
-                        {errors.phone}
-                      </p>
-                    )}
-                  </div>
-                </div>
-                
+              {/* Email Address */}
+              <div className="col-span-12 sm:col-span-6 space-y-2">
+                <Label htmlFor="email">Email Address *</Label>
+                <Input
+                  id="email"
+                  type="email"
+                  value={formData.email}
+                  onChange={(e) => handleInputChange('email', e.target.value)}
+                  placeholder="grace.mensah@church.org"
+                  required
+                />
+                {errors.email && <p className="text-xs text-destructive">{errors.email}</p>}
+              </div>
 
-              </CardContent>
-            </Card>
+              {/* Phone Number */}
+              <div className="col-span-12 sm:col-span-6 space-y-2">
+                <Label htmlFor="phone">Phone Number *</Label>
+                <Input
+                  id="phone"
+                  value={formData.phone}
+                  onChange={(e) => handleInputChange('phone', e.target.value)}
+                  placeholder="+233 24 123 4567"
+                  required
+                />
+                {errors.phone && <p className="text-xs text-destructive">{errors.phone}</p>}
+              </div>
 
-            {/* Teaching Information */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center space-x-2">
-                  <BookOpen className="h-5 w-5" />
-                  <span>Teaching Information</span>
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-
-                
-                <div className="space-y-2">
-                  <Label htmlFor="experience">Teaching Experience</Label>
-                  <Textarea
-                    id="experience"
-                    value={formData.experience}
-                    onChange={(e) => handleInputChange('experience', e.target.value)}
-                    placeholder="Describe previous teaching experience, education background, etc."
-                    rows={3}
+              {/* Qualifications */}
+              <div className="col-span-12 space-y-2">
+                <Label>Qualifications / Certifications</Label>
+                <div className="flex gap-2">
+                  <Input
+                    value={newQualification}
+                    onChange={(e) => setNewQualification(e.target.value)}
+                    placeholder="e.g. Child Evangelism Fellowship Certified"
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        e.preventDefault();
+                        addQualification();
+                      }
+                    }}
                   />
+                  <Button type="button" variant="outline" size="sm" onClick={addQualification}>
+                    <Plus className="h-4 w-4" />
+                  </Button>
                 </div>
-                
-                <div className="space-y-2">
-                  <Label>Qualifications & Certifications</Label>
-                  <div className="flex space-x-2">
-                    <Input
-                      value={newQualification}
-                      onChange={(e) => setNewQualification(e.target.value)}
-                      placeholder="Add qualification or certification"
-                      onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addQualification())}
-                    />
-                    <Button
-                      type="button"
-                      variant="outline"
-                      onClick={addQualification}
-                      disabled={!newQualification.trim()}
-                    >
-                      <Plus className="h-4 w-4" />
-                    </Button>
+
+                {formData.qualifications.length > 0 && (
+                  <div className="flex flex-wrap gap-2 pt-1">
+                    {formData.qualifications.map((q) => (
+                      <Badge key={q} variant="neutral" className="gap-1.5 py-1">
+                        {q}
+                        <button
+                          type="button"
+                          onClick={() => removeQualification(q)}
+                          className="hover:text-destructive text-muted-foreground"
+                        >
+                          <X className="h-3 w-3" />
+                        </button>
+                      </Badge>
+                    ))}
                   </div>
-                  
-                  {formData.qualifications.length > 0 && (
-                    <div className="flex flex-wrap gap-2 mt-2">
-                      {formData.qualifications.map((qualification, index) => (
-                        <Badge key={index} variant="neutral" className="flex items-center space-x-1">
-                          <span>{qualification}</span>
-                          <button
-                            type="button"
-                            onClick={() => removeQualification(qualification)}
-                            className="ml-1 hover:text-destructive"
-                          >
-                            <X className="h-3 w-3" />
-                          </button>
-                        </Badge>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
+                )}
+              </div>
 
-            {/* Additional Information */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Additional Information</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-
-              </CardContent>
-            </Card>
+              {/* Bio */}
+              <div className="col-span-12 space-y-2">
+                <Label htmlFor="bio">Bio & Ministry Background</Label>
+                <Textarea
+                  id="bio"
+                  value={formData.bio || ''}
+                  onChange={(e) => handleInputChange('bio', e.target.value)}
+                  placeholder="Brief background and notes about the teacher..."
+                  rows={3}
+                />
+              </div>
+            </div>
           </div>
+        </Card>
 
-          {/* Sidebar */}
-          <div className="space-y-6">
-            {/* Profile Picture */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Profile Picture</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex flex-col items-center space-y-4">
-                  <Avatar className="h-24 w-24">
-                    <AvatarImage src={avatarPreview} alt="Teacher avatar" />
-                    <AvatarFallback className="text-lg">
-                      {formData.name.split(' ').map(n => n[0]).join('').toUpperCase() || 'T'}
-                    </AvatarFallback>
-                  </Avatar>
-                  
-                  <div className="w-full">
-                    <Input
-                      type="file"
-                      accept="image/*"
-                      onChange={handleAvatarChange}
-                      className="hidden"
-                      id="avatar-upload"
-                    />
-                    <Label
-                      htmlFor="avatar-upload"
-                      className="flex items-center justify-center w-full p-2 border border-dashed border-muted-foreground/25 rounded-md cursor-pointer hover:border-muted-foreground/50 transition-colors"
-                    >
-                      <Upload className="h-4 w-4 mr-2" />
-                      Upload Picture
-                    </Label>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Quick Stats */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Quick Info</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-muted-foreground">Qualifications</span>
-                  <span className="font-medium">{formData.qualifications.length}</span>
-                </div>
-                
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-muted-foreground">Specializations</span>
-                  <span className="font-medium">{formData.specializations?.length || 0}</span>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        </div>
-
-        {/* Form Actions */}
-        <div className="flex items-center justify-end space-x-4 pt-6 border-t">
+        <div className="flex justify-end gap-3 pt-2">
           <Button
             type="button"
             variant="outline"
-            onClick={handleBack}
+            onClick={() => router.push('/dashboard/sunday-school/teachers')}
             disabled={loading}
           >
             Cancel
           </Button>
-          
           <Button type="submit" disabled={loading}>
             {loading ? (
               <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Adding Teacher...
+                <Loader2 className="mr-1.5 h-4 w-4 animate-spin" />
+                Saving...
               </>
             ) : (
               <>
-                <Save className="mr-2 h-4 w-4" />
-                Add Teacher
+                <Save className="mr-1.5 h-4 w-4" />
+                Register Teacher
               </>
             )}
           </Button>

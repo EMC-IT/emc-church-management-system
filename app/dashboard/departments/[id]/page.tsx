@@ -120,18 +120,14 @@ export default function DepartmentDetailsPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 max-w-6xl">
       {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-4">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => router.push('/dashboard/departments')}
-            className="text-muted-foreground hover:text-foreground"
-          >
-            <ArrowLeft className="h-4 w-4 mr-1.5" />
-            Back
+          <Button variant="ghost" size="icon" asChild>
+            <Link href="/dashboard/departments">
+              <ArrowLeft className="h-4 w-4" />
+            </Link>
           </Button>
           <div className="flex items-center gap-3">
             <h1 className="font-heading text-2xl font-bold tracking-tight">{department.name}</h1>

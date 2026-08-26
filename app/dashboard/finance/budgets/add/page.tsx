@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -120,47 +121,63 @@ export default function AddBudgetPage() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 max-w-6xl">
       {/* Header with Back Navigation */}
-      <div className="flex items-center gap-4 mb-6">
-        <Button
-          variant="outline"
-          size="icon"
-          className="h-12 w-12"
-          onClick={() => router.back()}
-        >
-          <ArrowLeft className="h-4 w-4" />
+      <div className="flex items-center gap-4">
+        <Button variant="ghost" size="icon" asChild>
+          <Link href="/dashboard/finance/budgets">
+            <ArrowLeft className="h-4 w-4" />
+          </Link>
         </Button>
-        
-        <div className="flex items-center gap-3">
-          <div className="p-2 bg-brand-primary/10 rounded-lg">
-            <Wallet className="h-6 w-6 text-brand-primary" />
-          </div>
-          <PageHeader title="Create New Budget" />
+        <div>
+          <h1 className="font-heading text-2xl font-bold tracking-tight">Create New Budget</h1>
+          <p className="text-sm text-muted-foreground mt-1">
+            Establish financial allocation targets and expenditure limits by ministry department.
+          </p>
         </div>
       </div>
 
       {/* Budget Form */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <FileText className="h-5 w-5" />
-            Budget Information
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
+      <Card className="rounded-xl border border-border p-6">
+        <div className="space-y-5">
+          <div>
+            <h2 className="text-base font-semibold text-foreground">Budget Allocation Details</h2>
+            <p className="text-xs text-muted-foreground mt-0.5">Define department allocation limits, timelines, and operational priorities</p>
+          </div>
+
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-              {/* Basic Information */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-12 gap-5">
                 <FormField
                   control={form.control}
                   name="name"
                   render={({ field }) => (
-                    <FormItem>
+                    <FormItem className="col-span-12 sm:col-span-8">
                       <FormLabel>Budget Name *</FormLabel>
                       <FormControl>
-                        <Input placeholder="e.g., Worship Ministry Q2 2024" {...field} />
+                        <Input placeholder="e.g., Worship Ministry Q2 2024, Annual Missions Budget" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="amount"
+                  render={({ field }) => (
+                    <FormItem className="col-span-12 sm:col-span-4">
+                      <FormLabel>Budget Amount (₵) *</FormLabel>
+                      <FormControl>
+                        <div className="relative">
+                          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">₵</span>
+                          <Input 
+                            type="number" 
+                            placeholder="15000" 
+                            className="pl-8"
+                            {...field} 
+                          />
+                        </div>
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -171,7 +188,7 @@ export default function AddBudgetPage() {
                   control={form.control}
                   name="department"
                   render={({ field }) => (
-                    <FormItem>
+                    <FormItem className="col-span-12 sm:col-span-4">
                       <FormLabel>Department *</FormLabel>
                       <Select onValueChange={field.onChange} defaultValue={field.value}>
                         <FormControl>
@@ -191,15 +208,12 @@ export default function AddBudgetPage() {
                     </FormItem>
                   )}
                 />
-              </div>
 
-              {/* Category and Amount */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <FormField
                   control={form.control}
                   name="category"
                   render={({ field }) => (
-                    <FormItem>
+                    <FormItem className="col-span-12 sm:col-span-4">
                       <FormLabel>Category *</FormLabel>
                       <Select onValueChange={field.onChange} defaultValue={field.value}>
                         <FormControl>
@@ -222,34 +236,34 @@ export default function AddBudgetPage() {
 
                 <FormField
                   control={form.control}
-                  name="amount"
+                  name="priority"
                   render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Budget Amount (₵) *</FormLabel>
-                      <FormControl>
-                        <div className="relative">
-                          <DollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                          <Input 
-                            type="number" 
-                            placeholder="15000" 
-                            className="pl-10"
-                            {...field} 
-                          />
-                        </div>
-                      </FormControl>
+                    <FormItem className="col-span-12 sm:col-span-4">
+                      <FormLabel>Priority *</FormLabel>
+                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select priority" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {priorities.map((priority) => (
+                            <SelectItem key={priority.value} value={priority.value}>
+                              {priority.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
-              </div>
 
-              {/* Period and Priority */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <FormField
                   control={form.control}
                   name="period"
                   render={({ field }) => (
-                    <FormItem>
+                    <FormItem className="col-span-12 sm:col-span-4">
                       <FormLabel>Budget Period *</FormLabel>
                       <Select onValueChange={field.onChange} defaultValue={field.value}>
                         <FormControl>
@@ -272,47 +286,15 @@ export default function AddBudgetPage() {
 
                 <FormField
                   control={form.control}
-                  name="priority"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Priority *</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select priority" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          {priorities.map((priority) => (
-                            <SelectItem key={priority.value} value={priority.value}>
-                              {priority.label}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-
-              {/* Date Range */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <FormField
-                  control={form.control}
                   name="startDate"
                   render={({ field }) => (
-                    <FormItem>
+                    <FormItem className="col-span-12 sm:col-span-4">
                       <FormLabel>Start Date *</FormLabel>
                       <FormControl>
-                        <div className="relative">
-                          <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                          <Input 
-                            type="date" 
-                            className="pl-10"
-                            {...field} 
-                          />
-                        </div>
+                        <Input 
+                          type="date" 
+                          {...field} 
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -323,17 +305,56 @@ export default function AddBudgetPage() {
                   control={form.control}
                   name="endDate"
                   render={({ field }) => (
-                    <FormItem>
+                    <FormItem className="col-span-12 sm:col-span-4">
                       <FormLabel>End Date *</FormLabel>
                       <FormControl>
-                        <div className="relative">
-                          <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                          <Input 
-                            type="date" 
-                            className="pl-10"
-                            {...field} 
-                          />
-                        </div>
+                        <Input 
+                          type="date" 
+                          {...field} 
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="owner"
+                  render={({ field }) => (
+                    <FormItem className="col-span-12 sm:col-span-6">
+                      <FormLabel>Budget Owner / Approver *</FormLabel>
+                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select budget owner" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {budgetOwners.map((owner) => (
+                            <SelectItem key={owner.value} value={owner.value}>
+                              {owner.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="description"
+                  render={({ field }) => (
+                    <FormItem className="col-span-12">
+                      <FormLabel>Description / Objectives</FormLabel>
+                      <FormControl>
+                        <Textarea 
+                          placeholder="Brief description of budget purpose, allocation guidelines, and project scope..."
+                          rows={3}
+                          {...field} 
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -341,57 +362,12 @@ export default function AddBudgetPage() {
                 />
               </div>
 
-              {/* Budget Owner */}
-              <FormField
-                control={form.control}
-                name="owner"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Budget Owner *</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select budget owner" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {budgetOwners.map((owner) => (
-                          <SelectItem key={owner.value} value={owner.value}>
-                            {owner.label}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              {/* Description */}
-              <FormField
-                control={form.control}
-                name="description"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Description</FormLabel>
-                    <FormControl>
-                      <Textarea 
-                        placeholder="Brief description of budget purpose and scope"
-                        rows={4}
-                        {...field} 
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
               {/* Form Actions */}
-              <div className="flex justify-end space-x-4 pt-6">
+              <div className="flex justify-end gap-3 pt-2">
                 <Button 
                   type="button" 
                   variant="outline" 
-                  onClick={() => router.back()}
+                  onClick={() => router.push('/dashboard/finance/budgets')}
                   disabled={isSubmitting}
                 >
                   Cancel
@@ -402,7 +378,7 @@ export default function AddBudgetPage() {
               </div>
             </form>
           </Form>
-        </CardContent>
+        </div>
       </Card>
     </div>
   );

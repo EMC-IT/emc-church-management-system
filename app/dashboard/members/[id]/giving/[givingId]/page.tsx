@@ -288,38 +288,39 @@ export default function GivingDetailPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 max-w-6xl">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div className="flex items-center gap-4">
-          <Button variant="ghost" size="sm" asChild>
+          <Button variant="ghost" size="icon" asChild>
             <Link href={`/dashboard/members/${member.id}/giving`}>
-              <ArrowLeft className="mr-2 h-4 w-4" />
-              Back to Giving History
+              <ArrowLeft className="h-4 w-4" />
             </Link>
           </Button>
-          <PageHeader
-            title="Giving Record Details"
-            description={`View details for ${member.firstName} ${member.lastName}'s giving record`}
-          />
+          <div>
+            <h1 className="font-heading text-2xl font-bold tracking-tight">Giving Record Details</h1>
+            <p className="text-sm text-muted-foreground mt-1">
+              View details for {member.firstName} {member.lastName}&apos;s giving record
+            </p>
+          </div>
         </div>
-        <div className="flex items-center space-x-2">
-          <Button variant="outline" onClick={handleGenerateReceipt}>
-            <Download className="mr-2 h-4 w-4" />
+        <div className="flex items-center flex-wrap gap-2 self-start sm:self-auto">
+          <Button variant="outline" size="sm" onClick={handleGenerateReceipt}>
+            <Download className="mr-1.5 h-4 w-4" />
             Download Receipt
           </Button>
-          <Button variant="outline">
-            <Share2 className="mr-2 h-4 w-4" />
+          <Button variant="outline" size="sm">
+            <Share2 className="mr-1.5 h-4 w-4" />
             Share
           </Button>
-          <Button asChild>
+          <Button size="sm" asChild>
             <Link href={`/dashboard/members/${memberId}/giving/${givingId}/edit`}>
-              <Edit className="mr-2 h-4 w-4" />
+              <Edit className="mr-1.5 h-4 w-4" />
               Edit
             </Link>
           </Button>
-          <Button variant="destructive" onClick={handleDelete} disabled={deleting}>
-            <Trash2 className="mr-2 h-4 w-4" />
+          <Button variant="destructive" size="sm" onClick={handleDelete} disabled={deleting}>
+            <Trash2 className="mr-1.5 h-4 w-4" />
             {deleting ? 'Deleting...' : 'Delete'}
           </Button>
         </div>

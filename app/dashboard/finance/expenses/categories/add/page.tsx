@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
@@ -84,254 +85,153 @@ export default function AddExpenseCategoryPage() {
   };
 
   return (
-    <div className="space-y-6">
-
-      {/* Page Header */}
+    <div className="space-y-6 max-w-6xl">
+      {/* Header */}
       <div className="flex items-center gap-4">
-        <Button
-          variant="outline"
-          size="icon"
-          onClick={() => router.push('/dashboard/finance/expenses/categories')}
-          className="h-12 w-12"
-        >
-          <ArrowLeft className="h-5 w-5" />
+        <Button variant="ghost" size="icon" asChild>
+          <Link href="/dashboard/finance/expenses/categories">
+            <ArrowLeft className="h-4 w-4" />
+          </Link>
         </Button>
-        <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-brand-primary/10">
-          <PlusCircle className="h-6 w-6 text-brand-primary" />
+        <div>
+          <h1 className="font-heading text-2xl font-bold tracking-tight">Add Expense Category</h1>
+          <p className="text-sm text-muted-foreground mt-1">
+            Create a budget line item or spending classification for church operations.
+          </p>
         </div>
-        <PageHeader title="Add Expense Category" />
       </div>
 
-      {/* Category Form */}
-      <LazySection>
-        <div className="grid gap-6 lg:grid-cols-3">
-          {/* Form */}
-          <div className="lg:col-span-2">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Tag className="h-5 w-5" />
-                  Category Details
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <Form {...form}>
-                  <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-                    {/* Category Name */}
-                    <FormField
-                      control={form.control}
-                      name="name"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Category Name *</FormLabel>
-                          <FormControl>
-                            <Input 
-                              placeholder="e.g., Office Supplies, Utilities, Missions" 
-                              {...field}
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+          <Card className="rounded-xl border border-border p-6">
+            <div className="space-y-5">
+              <div>
+                <h2 className="text-base font-semibold text-foreground">Category Details</h2>
+                <p className="text-xs text-muted-foreground mt-0.5">Define category name, descriptive purpose, color token, and status</p>
+              </div>
 
-                    {/* Description */}
-                    <FormField
-                      control={form.control}
-                      name="description"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Description</FormLabel>
-                          <FormControl>
-                            <Textarea 
-                              placeholder="Describe what types of expenses belong in this category..."
-                              className="min-h-[100px]"
-                              {...field}
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-
-                    {/* Color Selection */}
-                    <FormField
-                      control={form.control}
-                      name="color"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Category Color *</FormLabel>
-                          <FormControl>
-                            <div className="space-y-4">
-                              {/* Color Picker Grid */}
-                              <div className="grid grid-cols-6 gap-3">
-                                {colorOptions.map((color) => (
-                                  <button
-                                    key={color.value}
-                                    type="button"
-                                    onClick={() => handleColorSelect(color.value)}
-                                    className={cn(
-                                      'w-10 h-10 rounded-lg border-2 transition-all hover:scale-110',
-                                      selectedColor === color.value
-                                        ? 'border-gray-900 ring-2 ring-gray-300'
-                                        : 'border-gray-200 hover:border-gray-300'
-                                    )}
-                                    style={{ backgroundColor: color.value }}
-                                    title={color.name}
-                                  />
-                                ))}
-                              </div>
-                              
-                              {/* Custom Color Input */}
-                              <div className="flex items-center gap-3">
-                                <div className="flex items-center gap-2">
-                                  <Palette className="h-4 w-4 text-gray-500" />
-                                  <span className="text-sm text-gray-600">Custom:</span>
-                                </div>
-                                <Input
-                                  type="color"
-                                  value={selectedColor}
-                                  onChange={(e) => handleColorSelect(e.target.value)}
-                                  className="w-16 h-10 p-1 border rounded"
-                                />
-                                <Input
-                                  type="text"
-                                  value={selectedColor}
-                                  onChange={(e) => {
-                                    const value = e.target.value;
-                                    if (value.match(/^#[0-9A-Fa-f]{0,6}$/)) {
-                                      setSelectedColor(value);
-                                      if (value.length === 7) {
-                                        form.setValue('color', value);
-                                      }
-                                    }
-                                  }}
-                                  placeholder="#000000"
-                                  className="w-24 font-mono text-sm"
-                                />
-                              </div>
-                            </div>
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-
-                    {/* Active Status */}
-                    <FormField
-                      control={form.control}
-                      name="isActive"
-                      render={({ field }) => (
-                        <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-                          <div className="space-y-0.5">
-                            <FormLabel className="text-base">
-                              Active Category
-                            </FormLabel>
-                          </div>
-                          <FormControl>
-                            <Switch
-                              checked={field.value}
-                              onCheckedChange={field.onChange}
-                            />
-                          </FormControl>
-                        </FormItem>
-                      )}
-                    />
-
-                    {/* Form Actions */}
-                    <div className="flex flex-col sm:flex-row gap-4 pt-6">
-                      <Button
-                        type="submit"
-                        disabled={isSubmitting}
-                        className="flex-1 sm:flex-none"
-                      >
-                        {isSubmitting ? (
-                          <>
-                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                            Creating Category...
-                          </>
-                        ) : (
-                          <>
-                            <Tag className="mr-2 h-4 w-4" />
-                            Create Category
-                          </>
-                        )}
-                      </Button>
-                      <Button
-                        type="button"
-                        variant="outline"
-                        onClick={() => router.back()}
-                        disabled={isSubmitting}
-                        className="flex-1 sm:flex-none"
-                      >
-                        Cancel
-                      </Button>
-                    </div>
-                  </form>
-                </Form>
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Preview */}
-          <div className="lg:col-span-1">
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg">Preview</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                {/* Category Preview */}
-                <div className="p-4 border rounded-lg">
-                  <div className="flex items-center gap-3 mb-3">
-                    <div 
-                      className="w-4 h-4 rounded-full flex-shrink-0"
-                      style={{ backgroundColor: selectedColor }}
-                    />
-                    <div className="font-medium">
-                      {form.watch('name') || 'Category Name'}
-                    </div>
-                  </div>
-                  {form.watch('description') && (
-                    <p className="text-sm text-gray-600 mb-3">
-                      {form.watch('description')}
-                    </p>
+              <div className="grid grid-cols-12 gap-5">
+                <FormField
+                  control={form.control}
+                  name="name"
+                  render={({ field }) => (
+                    <FormItem className="col-span-12 sm:col-span-8">
+                      <FormLabel>Category Name *</FormLabel>
+                      <FormControl>
+                        <Input 
+                          placeholder="e.g., Office Supplies, Utilities, Missions" 
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
                   )}
-                  <div className="flex items-center justify-between text-xs text-gray-500">
-                    <span>Status:</span>
-                    <StatusBadge
-                      size="sm"
-                      status={form.watch('isActive') ? 'active' : 'inactive'}
-                    />
-                  </div>
-                </div>
+                />
 
-                {/* Color Info */}
-                <div className="space-y-2">
-                  <div className="text-sm font-medium">Color Information</div>
-                  <div className="flex items-center gap-2">
-                    <div 
-                      className="w-6 h-6 rounded border"
-                      style={{ backgroundColor: selectedColor }}
-                    />
-                    <span className="text-sm font-mono">{selectedColor}</span>
-                  </div>
-                </div>
+                <FormField
+                  control={form.control}
+                  name="isActive"
+                  render={({ field }) => (
+                    <FormItem className="col-span-12 sm:col-span-4 flex items-center justify-between rounded-lg border border-border p-3.5">
+                      <div className="space-y-0.5">
+                        <FormLabel className="text-sm font-medium cursor-pointer">
+                          Active Status
+                        </FormLabel>
+                        <p className="text-xs text-muted-foreground">Available for expense logging</p>
+                      </div>
+                      <FormControl>
+                        <Switch
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                        />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
 
-                {/* Usage Guidelines */}
-                <div className="space-y-2">
-                  <div className="text-sm font-medium">Usage Guidelines</div>
-                  <ul className="text-xs text-gray-600 space-y-1">
-                    <li>• Use clear, specific names</li>
-                    <li>• Choose distinct colors</li>
-                    <li>• Add helpful descriptions</li>
-                    <li>• Keep categories organized</li>
-                  </ul>
-                </div>
-              </CardContent>
-            </Card>
+                <FormField
+                  control={form.control}
+                  name="description"
+                  render={({ field }) => (
+                    <FormItem className="col-span-12">
+                      <FormLabel>Description</FormLabel>
+                      <FormControl>
+                        <Textarea 
+                          placeholder="Describe what types of expenses belong in this category..."
+                          rows={3}
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                {/* Color Selection */}
+                <FormField
+                  control={form.control}
+                  name="color"
+                  render={({ field }) => (
+                    <FormItem className="col-span-12">
+                      <FormLabel>Category Color Badge *</FormLabel>
+                      <FormControl>
+                        <div className="space-y-3">
+                          <div className="flex flex-wrap gap-2 pt-1">
+                            {colorOptions.map((color) => (
+                              <button
+                                key={color.value}
+                                type="button"
+                                onClick={() => handleColorSelect(color.value)}
+                                className={cn(
+                                  'w-8 h-8 rounded-full border-2 transition-all',
+                                  selectedColor === color.value
+                                    ? 'ring-2 ring-primary ring-offset-2 border-foreground'
+                                    : 'border-transparent hover:scale-105'
+                                )}
+                                style={{ backgroundColor: color.value }}
+                                title={color.name}
+                              />
+                            ))}
+                          </div>
+                        </div>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+            </div>
+          </Card>
+
+          {/* Form Actions */}
+          <div className="flex items-center justify-end gap-3 pt-2">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => router.push('/dashboard/finance/expenses/categories')}
+              disabled={isSubmitting}
+            >
+              Cancel
+            </Button>
+            <Button
+              type="submit"
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? (
+                <>
+                  <Loader2 className="mr-1.5 h-4 w-4 animate-spin" />
+                  Creating...
+                </>
+              ) : (
+                <>
+                  <PlusCircle className="mr-1.5 h-4 w-4" />
+                  Create Category
+                </>
+              )}
+            </Button>
           </div>
-        </div>
-      </LazySection>
+        </form>
+      </Form>
     </div>
   );
 }

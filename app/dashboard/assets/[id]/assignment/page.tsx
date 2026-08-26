@@ -369,21 +369,24 @@ export default function AssignmentPage() {
   );
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 max-w-6xl">
       {/* Header */}
-      <PageHeader
-        title="Asset Assignment"
-        description={`Manage assignments for ${asset.name}`}
-        actions={
-          <div className="flex items-center space-x-2">
-            <Button
-              variant="outline"
-              size="icon"
-              onClick={() => router.push(`/dashboard/assets/${params.id}`)}
-            >
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div className="flex items-center gap-4">
+          <Button variant="ghost" size="icon" asChild>
+            <Link href={`/dashboard/assets/${params.id}`}>
               <ArrowLeft className="h-4 w-4" />
-            </Button>
-            <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+            </Link>
+          </Button>
+          <div>
+            <h1 className="font-heading text-2xl font-bold tracking-tight">Asset Assignment</h1>
+            <p className="text-sm text-muted-foreground mt-1">
+              Manage assignments and custody tracking for {asset.name}
+            </p>
+          </div>
+        </div>
+        <div className="flex items-center gap-2 self-start sm:self-auto">
+          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
               <DialogTrigger asChild>
                 <Button onClick={() => {
                   setEditingAssignment(null);
@@ -582,9 +585,8 @@ export default function AssignmentPage() {
               </Form>
             </DialogContent>
           </Dialog>
-          </div>
-        }
-      />
+        </div>
+      </div>
 
       {/* Current Assignment Status */}
       <div className="grid gap-4 md:grid-cols-3">

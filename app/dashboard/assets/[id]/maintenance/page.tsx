@@ -413,25 +413,28 @@ export default function MaintenancePage() {
   const completedMaintenance = maintenanceHistory.filter(m => m.status === 'completed');
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 max-w-6xl">
       {/* Header */}
-      <PageHeader
-        title="Asset Maintenance"
-        description={`Maintenance tracking for ${asset.name}`}
-        actions={
-          <div className="flex items-center space-x-2">
-            <Button
-              variant="outline"
-              size="icon"
-              onClick={() => router.push(`/dashboard/assets/${params.id}`)}
-            >
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div className="flex items-center gap-4">
+          <Button variant="ghost" size="icon" asChild>
+            <Link href={`/dashboard/assets/${params.id}`}>
               <ArrowLeft className="h-4 w-4" />
-            </Button>
-            <Button variant="outline">
-              <Download className="mr-2 h-4 w-4" />
-              Export Report
-            </Button>
-            <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+            </Link>
+          </Button>
+          <div>
+            <h1 className="font-heading text-2xl font-bold tracking-tight">Asset Maintenance</h1>
+            <p className="text-sm text-muted-foreground mt-1">
+              Maintenance tracking for {asset.name}
+            </p>
+          </div>
+        </div>
+        <div className="flex items-center gap-2 self-start sm:self-auto">
+          <Button variant="outline">
+            <Download className="mr-2 h-4 w-4" />
+            Export Report
+          </Button>
+          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
               <DialogTrigger asChild>
                 <Button onClick={() => {
                   setEditingMaintenance(null);
@@ -707,9 +710,8 @@ export default function MaintenancePage() {
               </Form>
             </DialogContent>
             </Dialog>
-          </div>
-        }
-      />
+        </div>
+      </div>
 
       {/* Stats Cards */}
       <div className="grid gap-4 md:grid-cols-4">

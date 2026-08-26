@@ -1,13 +1,13 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Link from 'next/link';
 import { useRouter, useParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { PageHeader } from '@/components/ui/page-header';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { StatCard } from '@/components/ui/stat-card';
 import { StatusBadge } from '@/components/ui/status-badge';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { 
   ArrowLeft,
@@ -25,7 +25,6 @@ import {
   Clock,
   Loader2
 } from 'lucide-react';
-import Link from 'next/link';
 import { sundaySchoolService } from '@/services';
 import { SundaySchoolClass, Student, ClassAttendance } from '@/lib/types/sunday-school';
 import { toast } from 'sonner';
@@ -50,9 +49,12 @@ export default function ClassDetailsPage() {
   const loadClassData = async () => {
     try {
       setLoading(true);
-      
-      // Load class details
-      const classResponse = await sundaySchoolService.getClass(classId);
+      const [classResponse, studentsResponse, attendanceResponse] = await Promise.all([
+        sundaySchoolService.getClass(classId),
+        sundaySchoolService.getClassStudents(classId),
+        sundaySchoolService.getClassAttendance(classId, { limit: 10, sortBy: 'date', sortOrder: 'desc' })
+      ]);
+
       if (classResponse.success && classResponse.data) {
         setClassData(classResponse.data);
       } else {
@@ -61,66 +63,35 @@ export default function ClassDetailsPage() {
         return;
       }
       
-      // Load class students
-      const studentsResponse = await sundaySchoolService.getClassStudents(classId);
       if (studentsResponse.success && studentsResponse.data) {
         setStudents(studentsResponse.data);
       }
       
-      // Load recent attendance
-      const attendanceResponse = await sundaySchoolService.getClassAttendance(classId, {
-        limit: 10,
-        sortBy: 'date',
-        sortOrder: 'desc'
-      });
       if (attendanceResponse.success && attendanceResponse.data) {
         setRecentAttendance(attendanceResponse.data);
       }
-    } catch (error) {
+    } catch {
       toast.error('Failed to load class data');
     } finally {
       setLoading(false);
     }
   };
 
-  const handleBack = () => {
-    router.push('/dashboard/sunday-school/classes');
-  };
-
-  const handleEdit = () => {
-    router.push(`/dashboard/sunday-school/classes/${classId}/edit`);
-  };
-
-  const handleManageStudents = () => {
-    router.push(`/dashboard/sunday-school/classes/${classId}/students`);
-  };
-
-  const handleTakeAttendance = () => {
-    router.push(`/dashboard/sunday-school/classes/${classId}/attendance`);
-  };
-
-  const handleViewReports = () => {
-    router.push(`/dashboard/sunday-school/classes/${classId}/reports`);
-  };
-
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
-        <Loader2 className="h-8 w-8 animate-spin" />
+        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
       </div>
     );
   }
 
   if (!classData) {
     return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <div className="text-center">
-          <h2 className="text-2xl font-bold">Class Not Found</h2>
-          <p className="text-muted-foreground mt-2">The class you're looking for doesn't exist.</p>
-          <Button onClick={handleBack} className="mt-4">
-            Back to Classes
-          </Button>
-        </div>
+      <div className="text-center py-12 space-y-4">
+        <h2 className="text-xl font-semibold">Class Not Found</h2>
+        <Button onClick={() => router.push('/dashboard/sunday-school/classes')} variant="outline">
+          Back to Classes
+        </Button>
       </div>
     );
   }
@@ -132,318 +103,238 @@ export default function ClassDetailsPage() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 max-w-6xl">
       {/* Header */}
-      <div className="flex items-center gap-2">
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={handleBack}
-          className="h-8 w-8"
-        >
-          <ArrowLeft className="h-4 w-4" />
-        </Button>
-        <div className="flex-1">
-          <PageHeader
-            title={classData.name}
-            description={classData.description}
-            actions={
-              <>
-                <Button variant="outline" onClick={handleEdit}>
-                  <Edit className="mr-2 h-4 w-4" />
-                  Edit Class
-                </Button>
-                <Button onClick={handleTakeAttendance} className="bg-brand-primary hover:bg-brand-primary/90">
-                  <ClipboardList className="mr-2 h-4 w-4" />
-                  Take Attendance
-                </Button>
-              </>
-            }
-          />
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex items-center gap-4">
+          <Button variant="ghost" size="icon" asChild>
+            <Link href="/dashboard/sunday-school/classes">
+              <ArrowLeft className="h-4 w-4" />
+            </Link>
+          </Button>
+          <div className="flex items-center gap-3">
+            <h1 className="font-heading text-2xl font-bold tracking-tight">{classData.name}</h1>
+            <StatusBadge status={(classData.status || 'active').toLowerCase() as any} size="sm" />
+          </div>
+        </div>
+
+        <div className="flex items-center gap-2 flex-wrap">
+          <Button variant="outline" size="sm" onClick={() => router.push(`/dashboard/sunday-school/classes/${classId}/edit`)}>
+            <Edit className="mr-1.5 h-4 w-4" />
+            Edit Class
+          </Button>
+          <Button size="sm" onClick={() => router.push(`/dashboard/sunday-school/classes/${classId}/attendance`)}>
+            <ClipboardList className="mr-1.5 h-4 w-4" />
+            Take Attendance
+          </Button>
         </div>
       </div>
 
       {/* Class Overview Cards */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard
           title="Students"
           value={students.length}
           icon={Users}
-          accent="primary"
-          description={`of ${classData.maxStudents} maximum`}
+          description={`of ${classData.maxStudents || 20} capacity`}
         />
         <StatCard
           title="Attendance Rate"
           value={`${getAttendanceRate()}%`}
           icon={TrendingUp}
-          accent="secondary"
-          description="Last 10 sessions"
+          description="Recent sessions"
         />
         <StatCard
           title="Age Group"
           value={classData.ageGroup}
           icon={BookOpen}
-          accent="success"
         />
         <StatCard
-          title="Status"
-          value={<StatusBadge status={classData.status} />}
-          icon={Clock}
-          accent="accent"
+          title="Room / Location"
+          value={classData.location || '—'}
+          icon={MapPin}
         />
       </div>
 
-      {/* Main Content Tabs */}
+      {/* Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
-        <TabsList>
-          <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="students">Students</TabsTrigger>
-          <TabsTrigger value="attendance">Recent Attendance</TabsTrigger>
+        <TabsList className="border-b border-border w-full justify-start rounded-none bg-transparent p-0 gap-6">
+          <TabsTrigger
+            value="overview"
+            className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-1 pb-3 text-sm font-medium"
+          >
+            Overview
+          </TabsTrigger>
+          <TabsTrigger
+            value="students"
+            className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-1 pb-3 text-sm font-medium"
+          >
+            Students ({students.length})
+          </TabsTrigger>
+          <TabsTrigger
+            value="attendance"
+            className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-1 pb-3 text-sm font-medium"
+          >
+            Recent Attendance
+          </TabsTrigger>
         </TabsList>
 
-        <TabsContent value="overview" className="space-y-4">
+        <TabsContent value="overview" className="space-y-6">
           <div className="grid gap-6 md:grid-cols-2">
             {/* Class Information */}
             <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center space-x-2">
-                  <BookOpen className="h-5 w-5" />
-                  <span>Class Information</span>
-                </CardTitle>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-base font-semibold">Class Details</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-3">
-                  <div className="flex items-center space-x-2">
-                    <Calendar className="h-4 w-4 text-muted-foreground" />
-                    <span className="text-sm">
-                      {classData.schedule.dayOfWeek && classData.schedule.startTime && classData.schedule.endTime 
-                        ? `${classData.schedule.dayOfWeek}s ${classData.schedule.startTime} - ${classData.schedule.endTime}`
-                        : 'Schedule not set'}
-                    </span>
-                  </div>
-                  
-                  <div className="flex items-center space-x-2">
-                    <MapPin className="h-4 w-4 text-muted-foreground" />
-                    <span className="text-sm">{classData.location}</span>
-                  </div>
-                  
-                  <div className="pt-2 border-t">
-                    <h4 className="font-medium mb-2">Curriculum</h4>
-                    <p className="text-sm text-muted-foreground">{classData.curriculum}</p>
-                  </div>
-                  
-                  <div className="pt-2 border-t">
-                    <h4 className="font-medium mb-2">Objectives</h4>
-                    <p className="text-sm text-muted-foreground">{classData.objectives}</p>
-                  </div>
+              <CardContent className="space-y-3 text-sm">
+                <div>
+                  <span className="text-xs text-muted-foreground block">Description</span>
+                  <p className="text-foreground mt-0.5">{classData.description || 'No description provided.'}</p>
                 </div>
+
+                <div className="flex items-center gap-2 pt-2 border-t border-border">
+                  <Calendar className="h-4 w-4 text-muted-foreground shrink-0" />
+                  <span className="text-foreground">
+                    {classData.schedule?.dayOfWeek && classData.schedule?.startTime 
+                      ? `${classData.schedule.dayOfWeek}s, ${classData.schedule.startTime} - ${classData.schedule.endTime}`
+                      : 'Schedule not set'}
+                  </span>
+                </div>
+
+                {classData.curriculum && (
+                  <div className="pt-2 border-t border-border">
+                    <span className="text-xs text-muted-foreground block">Curriculum</span>
+                    <p className="font-medium text-foreground mt-0.5">{classData.curriculum}</p>
+                  </div>
+                )}
               </CardContent>
             </Card>
 
             {/* Teacher Information */}
             <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center space-x-2">
-                  <Users className="h-5 w-5" />
-                  <span>Teacher</span>
-                </CardTitle>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-base font-semibold">Assigned Teacher</CardTitle>
               </CardHeader>
-              <CardContent>
-                <div className="flex items-start space-x-4">
-                  <Avatar className="h-12 w-12">
-                    <AvatarImage src="" alt={classData.teacher.name} />
-                    <AvatarFallback>
-                      {classData.teacher.name.split(' ').map(n => n[0]).join('')}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div className="space-y-2">
-                    <div>
-                      <h3 className="font-medium">{classData.teacher.name}</h3>
-                      <p className="text-sm text-muted-foreground">Class Teacher</p>
+              <CardContent className="space-y-3">
+                {classData.teacher ? (
+                  <div className="flex items-start gap-3">
+                    <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center font-semibold text-xs text-primary shrink-0">
+                      {classData.teacher.name?.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()}
                     </div>
-                    
-                    <div className="space-y-1">
-                      <div className="flex items-center space-x-2">
-                        <Mail className="h-4 w-4 text-muted-foreground" />
-                        <span className="text-sm">{classData.teacher.email}</span>
-                      </div>
-                      
-                      <div className="flex items-center space-x-2">
-                        <Phone className="h-4 w-4 text-muted-foreground" />
-                        <span className="text-sm">{classData.teacher.phone}</span>
-                      </div>
+                    <div className="space-y-1 text-sm">
+                      <p className="font-medium text-foreground">{classData.teacher.name}</p>
+                      {classData.teacher.email && (
+                        <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                          <Mail className="h-3.5 w-3.5" />
+                          <span>{classData.teacher.email}</span>
+                        </div>
+                      )}
+                      {classData.teacher.phone && (
+                        <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                          <Phone className="h-3.5 w-3.5" />
+                          <span>{classData.teacher.phone}</span>
+                        </div>
+                      )}
                     </div>
                   </div>
-                </div>
+                ) : (
+                  <p className="text-xs text-muted-foreground">No teacher assigned to this class.</p>
+                )}
               </CardContent>
             </Card>
           </div>
 
-          {/* Quick Actions */}
+          {/* Quick Management Shortcuts */}
           <Card>
-            <CardHeader>
-              <CardTitle>Quick Actions</CardTitle>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base font-semibold">Management</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-                <Button 
-                  variant="outline" 
-                  className="h-20 flex-col space-y-2"
-                  onClick={handleManageStudents}
-                >
-                  <UserPlus className="h-6 w-6" />
-                  <span>Manage Students</span>
+              <div className="grid gap-3 sm:grid-cols-3">
+                <Button asChild variant="outline" className="h-16 flex-col justify-center items-center">
+                  <Link href={`/dashboard/sunday-school/classes/${classId}/students`}>
+                    <Users className="h-5 w-5 mb-1" />
+                    <span className="text-xs font-medium">Manage Students</span>
+                  </Link>
                 </Button>
-                
-                <Button 
-                  variant="outline" 
-                  className="h-20 flex-col space-y-2"
-                  onClick={handleTakeAttendance}
-                >
-                  <ClipboardList className="h-6 w-6" />
-                  <span>Take Attendance</span>
+                <Button asChild variant="outline" className="h-16 flex-col justify-center items-center">
+                  <Link href={`/dashboard/sunday-school/classes/${classId}/attendance`}>
+                    <ClipboardList className="h-5 w-5 mb-1" />
+                    <span className="text-xs font-medium">Take Attendance</span>
+                  </Link>
                 </Button>
-                
-                <Button 
-                  variant="outline" 
-                  className="h-20 flex-col space-y-2"
-                  onClick={handleViewReports}
-                >
-                  <BarChart3 className="h-6 w-6" />
-                  <span>View Reports</span>
-                </Button>
-                
-                <Button 
-                  variant="outline" 
-                  className="h-20 flex-col space-y-2"
-                  onClick={handleEdit}
-                >
-                  <Edit className="h-6 w-6" />
-                  <span>Edit Class</span>
+                <Button asChild variant="outline" className="h-16 flex-col justify-center items-center">
+                  <Link href={`/dashboard/sunday-school/classes/${classId}/reports`}>
+                    <BarChart3 className="h-5 w-5 mb-1" />
+                    <span className="text-xs font-medium">Class Reports</span>
+                  </Link>
                 </Button>
               </div>
             </CardContent>
           </Card>
         </TabsContent>
 
-        <TabsContent value="students" className="space-y-4">
+        <TabsContent value="students">
           <Card>
-            <CardHeader className="flex flex-row items-center justify-between">
-              <div>
-                <CardTitle>Class Students</CardTitle>
-                <CardDescription>
-                  {students.length} students enrolled in this class
-                </CardDescription>
-              </div>
-              <Button onClick={handleManageStudents}>
-                <UserPlus className="mr-2 h-4 w-4" />
-                Manage Students
+            <CardHeader className="pb-3 flex flex-row items-center justify-between">
+              <CardTitle className="text-base font-semibold">Enrolled Students ({students.length})</CardTitle>
+              <Button size="sm" asChild>
+                <Link href={`/dashboard/sunday-school/classes/${classId}/students/add`}>
+                  <UserPlus className="mr-1.5 h-4 w-4" />
+                  Add Students
+                </Link>
               </Button>
             </CardHeader>
             <CardContent>
-              <div className="space-y-4">
-                {students.length === 0 ? (
-                  <div className="text-center py-8">
-                    <Users className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                    <h3 className="text-lg font-medium">No students enrolled</h3>
-                    <p className="text-muted-foreground mb-4">
-                      Add students to this class to get started
-                    </p>
-                    <Button onClick={handleManageStudents}>
-                      <UserPlus className="mr-2 h-4 w-4" />
-                      Add Students
-                    </Button>
-                  </div>
-                ) : (
-                  <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                    {students.slice(0, 6).map((student) => (
-                      <Card key={student.id} className="hover:shadow-md transition-shadow">
-                        <CardContent className="pt-4">
-                          <div className="flex items-center space-x-3">
-                            <Avatar>
-                              <AvatarImage src={student.avatar} alt={student.name} />
-                              <AvatarFallback>
-                                {student.name.split(' ').map(n => n[0]).join('')}
-                              </AvatarFallback>
-                            </Avatar>
-                            <div>
-                              <h4 className="font-medium">{student.name}</h4>
-                              <p className="text-sm text-muted-foreground">Age {student.age}</p>
-                            </div>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    ))}
-                  </div>
-                )}
-                
-                {students.length > 6 && (
-                  <div className="text-center pt-4">
-                    <Button variant="outline" onClick={handleManageStudents}>
-                      View All {students.length} Students
-                    </Button>
-                  </div>
-                )}
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="attendance" className="space-y-4">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between">
-              <div>
-                <CardTitle>Recent Attendance</CardTitle>
-                <CardDescription>
-                  Last 10 attendance records
-                </CardDescription>
-              </div>
-              <Button onClick={handleTakeAttendance}>
-                <ClipboardList className="mr-2 h-4 w-4" />
-                Take Attendance
-              </Button>
-            </CardHeader>
-            <CardContent>
-              {recentAttendance.length === 0 ? (
-                <div className="text-center py-8">
-                  <ClipboardList className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                  <h3 className="text-lg font-medium">No attendance records</h3>
-                  <p className="text-muted-foreground mb-4">
-                    Start taking attendance to track student participation
-                  </p>
-                  <Button onClick={handleTakeAttendance}>
-                    <ClipboardList className="mr-2 h-4 w-4" />
-                    Take First Attendance
-                  </Button>
-                </div>
-              ) : (
-                <div className="space-y-4">
-                  {recentAttendance.slice(0, 5).map((record) => (
-                    <div key={record.id} className="flex items-center justify-between p-3 border rounded-lg">
-                      <div className="flex items-center space-x-3">
-                        <Avatar className="h-8 w-8">
-                          <AvatarFallback className="text-xs">
-                            {record.studentName?.split(' ').map(n => n[0]).join('') || 'S'}
-                          </AvatarFallback>
-                        </Avatar>
-                        <div>
-                          <p className="font-medium">{record.studentName}</p>
-                          <p className="text-sm text-muted-foreground">
-                            {new Date(record.date).toLocaleDateString()}
-                          </p>
-                        </div>
+              <div className="space-y-3">
+                {students.map((student) => (
+                  <div key={student.id} className="flex items-center justify-between p-3 rounded-lg border border-border">
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-xs font-medium text-primary">
+                        {student.name?.slice(0, 2).toUpperCase() || 'ST'}
                       </div>
-                      <StatusBadge status={record.status} />
+                      <div>
+                        <p className="font-medium text-sm text-foreground">
+                          {student.name}
+                        </p>
+                        <span className="text-xs text-muted-foreground">Age: {student.age}</span>
+                      </div>
                     </div>
-                  ))}
-                  
-                  <div className="text-center pt-4">
-                    <Button variant="outline" onClick={() => router.push(`/dashboard/sunday-school/classes/${classId}/attendance`)}>
-                      View All Attendance Records
-                    </Button>
+                    <StatusBadge status={(student.status || 'active').toLowerCase() as any} size="sm" />
                   </div>
-                </div>
-              )}
+                ))}
+
+                {students.length === 0 && (
+                  <p className="text-center py-8 text-xs text-muted-foreground">No students enrolled yet.</p>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="attendance">
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base font-semibold">Recent Attendance Records</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3">
+                {recentAttendance.map((record) => (
+                  <div key={record.id} className="flex items-center justify-between p-3 rounded-lg border border-border text-sm">
+                    <div>
+                      <p className="font-medium text-foreground">{record.studentName}</p>
+                      <span className="text-xs text-muted-foreground">
+                        {new Date(record.date).toLocaleDateString()}
+                      </span>
+                    </div>
+                    <StatusBadge status={record.status.toLowerCase() as any} size="sm" />
+                  </div>
+                ))}
+
+                {recentAttendance.length === 0 && (
+                  <p className="text-center py-8 text-xs text-muted-foreground">No attendance records found.</p>
+                )}
+              </div>
             </CardContent>
           </Card>
         </TabsContent>

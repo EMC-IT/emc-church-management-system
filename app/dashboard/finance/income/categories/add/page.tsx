@@ -153,210 +153,167 @@ export default function AddIncomeCategoryPage() {
   };
 
   return (
-    <div className="space-y-6">
-      <PageHeader
-        title="Add Income Category"
-        actions={
-          <Button variant="outline" size="sm" asChild>
-            <Link href="/dashboard/finance/income/categories">
-              <ArrowLeft className="mr-2 h-4 w-4" />
-              Back to Categories
-            </Link>
-          </Button>
-        }
-      />
-
-      <div className="grid gap-6 lg:grid-cols-3">
-        {/* Main Form */}
-        <div className="lg:col-span-2">
-          <LazySection
-            strategy="immediate"
-            showSkeleton
-            skeletonVariant="form"
-            skeletonCount={4}
-            threshold={0.1}
-          >
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center">
-                  <Tag className="mr-2 h-5 w-5" />
-                  Category Information
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <Form {...form}>
-                  <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-                    {/* Category Name */}
-                    <FormField
-                      control={form.control}
-                      name="name"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel className="flex items-center">
-                            <FileText className="mr-2 h-4 w-4" />
-                            Category Name *
-                          </FormLabel>
-                          <FormControl>
-                            <Input
-                              placeholder="e.g., Hall Rental"
-                              {...field}
-                              onChange={(e) => {
-                                field.onChange(e);
-                                handleNameChange(e.target.value);
-                              }}
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-
-                    {/* Category Code */}
-                    <FormField
-                      control={form.control}
-                      name="code"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Category Code</FormLabel>
-                          <FormControl>
-                            <Input
-                              placeholder="e.g., HALL_RENTAL"
-                              {...field}
-                              className="font-mono"
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-
-                    {/* Description */}
-                    <FormField
-                      control={form.control}
-                      name="description"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Description *</FormLabel>
-                          <FormControl>
-                            <Textarea
-                              placeholder="Describe what types of income belong to this category..."
-                              className="min-h-[100px]"
-                              {...field}
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-
-                    {/* Active Status */}
-                    <FormField
-                      control={form.control}
-                      name="isActive"
-                      render={({ field }) => (
-                        <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-                          <div className="space-y-0.5">
-                            <FormLabel className="text-base flex items-center">
-                              {field.value ? (
-                                <ToggleRight className="mr-2 h-5 w-5 text-brand-success" />
-                              ) : (
-                                <ToggleLeft className="mr-2 h-5 w-5 text-muted-foreground" />
-                              )}
-                              Active Category
-                            </FormLabel>
-                          </div>
-                          <FormControl>
-                            <Switch
-                              checked={field.value}
-                              onCheckedChange={field.onChange}
-                            />
-                          </FormControl>
-                        </FormItem>
-                      )}
-                    />
-
-                    {/* Submit Button */}
-                    <div className="flex items-center justify-end space-x-4 pt-6 border-t">
-                      <Button
-                        type="button"
-                        variant="outline"
-                        onClick={() => router.back()}
-                        disabled={saving}
-                      >
-                        Cancel
-                      </Button>
-                      <Button type="submit" disabled={saving}>
-                        {saving ? (
-                          <>
-                            <div className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-background border-t-transparent" />
-                            Creating...
-                          </>
-                        ) : (
-                          <>
-                            <Save className="mr-2 h-4 w-4" />
-                            Create Category
-                          </>
-                        )}
-                      </Button>
-                    </div>
-                  </form>
-                </Form>
-              </CardContent>
-            </Card>
-          </LazySection>
-        </div>
-
-        {/* Sidebar - Category Suggestions */}
-        <div className="space-y-6">
-          <LazySection
-            strategy="immediate"
-            showSkeleton
-            skeletonVariant="card"
-            skeletonCount={1}
-            threshold={0.1}
-          >
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg">Quick Start</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                {categorySuggestions.map((suggestion, index) => (
-                  <div
-                    key={index}
-                    className={`p-3 rounded-lg border cursor-pointer transition-colors hover:bg-muted/50 ${
-                      selectedSuggestion === index 
-                        ? 'border-brand-primary bg-brand-primary/5' 
-                        : 'border-border'
-                    }`}
-                    onClick={() => applySuggestion(suggestion, index)}
-                  >
-                    <div className="font-medium text-sm">{suggestion.name}</div>
-                    <div className="text-xs text-muted-foreground mt-1 line-clamp-2">
-                      {suggestion.description}
-                    </div>
-                  </div>
-                ))}
-              </CardContent>
-            </Card>
-          </LazySection>
-
-          <LazySection
-            strategy="immediate"
-            showSkeleton
-            skeletonVariant="card"
-            skeletonCount={1}
-            threshold={0.1}
-          >
-            <Alert>
-              <AlertCircle className="h-4 w-4" />
-              <AlertDescription className="text-sm">
-                <strong>Tip:</strong> Choose descriptive names that clearly identify the income source. 
-                You can always edit categories later if needed.
-              </AlertDescription>
-            </Alert>
-          </LazySection>
+    <div className="space-y-6 max-w-6xl">
+      {/* Header */}
+      <div className="flex items-center gap-4">
+        <Button variant="ghost" size="icon" asChild>
+          <Link href="/dashboard/finance/income/categories">
+            <ArrowLeft className="h-4 w-4" />
+          </Link>
+        </Button>
+        <div>
+          <h1 className="font-heading text-2xl font-bold tracking-tight">Add Income Category</h1>
+          <p className="text-sm text-muted-foreground mt-1">
+            Define a non-giving revenue stream, facility rental, or commercial income classification.
+          </p>
         </div>
       </div>
+
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+          {/* Quick Suggestions */}
+          <Card className="rounded-xl border border-border p-6">
+            <div className="space-y-4">
+              <div>
+                <h2 className="text-sm font-semibold text-foreground">Quick Templates</h2>
+                <p className="text-xs text-muted-foreground mt-0.5">Select a common church income source to auto-populate the form</p>
+              </div>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                {categorySuggestions.map((suggestion, index) => (
+                  <button
+                    key={index}
+                    type="button"
+                    onClick={() => applySuggestion(suggestion, index)}
+                    className={`p-3 rounded-lg border text-left transition-colors ${
+                      selectedSuggestion === index 
+                        ? 'border-primary bg-primary/5 text-foreground' 
+                        : 'border-border hover:bg-muted/40 text-muted-foreground hover:text-foreground'
+                    }`}
+                  >
+                    <div className="font-medium text-xs text-foreground truncate">{suggestion.name}</div>
+                    <div className="text-[11px] text-muted-foreground line-clamp-1 mt-0.5">{suggestion.code}</div>
+                  </button>
+                ))}
+              </div>
+            </div>
+          </Card>
+
+          {/* Category Details */}
+          <Card className="rounded-xl border border-border p-6">
+            <div className="space-y-5">
+              <div>
+                <h2 className="text-base font-semibold text-foreground">Category Details</h2>
+                <p className="text-xs text-muted-foreground mt-0.5">Define category name, unique code, operational description, and status</p>
+              </div>
+
+              <div className="grid grid-cols-12 gap-5">
+                <FormField
+                  control={form.control}
+                  name="name"
+                  render={({ field }) => (
+                    <FormItem className="col-span-12 sm:col-span-8">
+                      <FormLabel>Category Name *</FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder="e.g., Hall Rental"
+                          {...field}
+                          onChange={(e) => {
+                            field.onChange(e);
+                            handleNameChange(e.target.value);
+                          }}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="code"
+                  render={({ field }) => (
+                    <FormItem className="col-span-12 sm:col-span-4">
+                      <FormLabel>Category Code</FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder="e.g., HALL_RENTAL"
+                          {...field}
+                          className="font-mono uppercase"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="description"
+                  render={({ field }) => (
+                    <FormItem className="col-span-12 sm:col-span-8">
+                      <FormLabel>Description *</FormLabel>
+                      <FormControl>
+                        <Textarea
+                          placeholder="Describe what types of income belong to this category..."
+                          rows={3}
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="isActive"
+                  render={({ field }) => (
+                    <FormItem className="col-span-12 sm:col-span-4 flex items-center justify-between rounded-lg border border-border p-3.5 self-start">
+                      <div className="space-y-0.5">
+                        <FormLabel className="text-sm font-medium cursor-pointer">
+                          Active Status
+                        </FormLabel>
+                        <p className="text-xs text-muted-foreground">Available for income records</p>
+                      </div>
+                      <FormControl>
+                        <Switch
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                        />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+              </div>
+            </div>
+          </Card>
+
+          {/* Submit Button */}
+          <div className="flex items-center justify-end gap-3 pt-2">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => router.push('/dashboard/finance/income/categories')}
+              disabled={saving}
+            >
+              Cancel
+            </Button>
+            <Button type="submit" disabled={saving}>
+              {saving ? (
+                <>
+                  <div className="mr-1.5 h-4 w-4 animate-spin rounded-full border-2 border-background border-t-transparent" />
+                  Creating...
+                </>
+              ) : (
+                <>
+                  <Save className="mr-1.5 h-4 w-4" />
+                  Create Category
+                </>
+              )}
+            </Button>
+          </div>
+        </form>
+      </Form>
     </div>
   );
 }

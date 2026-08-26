@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter, useParams } from 'next/navigation';
+import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -337,74 +338,63 @@ export default function EditRolePage() {
   const totalPermissions = permissionCategories.reduce((sum, cat) => sum + cat.permissions.length, 0);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 max-w-6xl">
       {/* Header */}
-      <div className="flex items-center gap-4">
-        <Button
-          variant="outline"
-          size="icon"
-          className="h-12 w-12"
-          onClick={() => router.push('/dashboard/settings?tab=roles')}
-        >
-          <ArrowLeft className="h-4 w-4" />
-        </Button>
-
-        <div className="flex items-center gap-3 flex-1">
-          <div className="p-2 bg-brand-primary/10 rounded-lg">
-            <Shield className="h-6 w-6 text-brand-primary" />
-          </div>
-          <PageHeader title="Edit Role" />
-        </div>
-
-        <div className="flex gap-2">
-          <AlertDialog>
-            <AlertDialogTrigger asChild>
-              <Button variant="outline" className="text-red-600 hover:text-red-700">
-                <Trash2 className="mr-2 h-4 w-4" />
-                Delete Role
-              </Button>
-            </AlertDialogTrigger>
-            <AlertDialogContent>
-              <AlertDialogHeader>
-                <AlertDialogTitle>Delete Role</AlertDialogTitle>
-                <AlertDialogDescription>
-                  Are you sure you want to delete the role "{roleName}"? 
-                  This action cannot be undone. {mockRole.users} user(s) with this role will need to be reassigned.
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogFooter>
-                <AlertDialogCancel>Cancel</AlertDialogCancel>
-                <AlertDialogAction
-                  onClick={handleDelete}
-                  className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                  disabled={isDeleting}
-                >
-                  {isDeleting ? 'Deleting...' : 'Delete Role'}
-                </AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
-
-          <Button 
-            onClick={handleSave}
-            disabled={isSaving}
-            className="bg-brand-primary hover:bg-brand-primary/90"
-          >
-            <Save className="mr-2 h-4 w-4" />
-            {isSaving ? 'Saving...' : 'Save Changes'}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div className="flex items-center gap-4">
+          <Button variant="ghost" size="icon" asChild>
+            <Link href="/dashboard/settings?tab=roles">
+              <ArrowLeft className="h-4 w-4" />
+            </Link>
           </Button>
+          <div>
+            <h1 className="font-heading text-2xl font-bold tracking-tight">Edit Role</h1>
+            <p className="text-sm text-muted-foreground mt-1">
+              Update role identification, descriptions, and assigned system permissions.
+            </p>
+          </div>
         </div>
+
+        <AlertDialog>
+          <AlertDialogTrigger asChild>
+            <Button variant="outline" size="sm" className="text-destructive hover:text-destructive self-start sm:self-auto">
+              <Trash2 className="mr-1.5 h-4 w-4" />
+              Delete Role
+            </Button>
+          </AlertDialogTrigger>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Delete Role</AlertDialogTitle>
+              <AlertDialogDescription>
+                Are you sure you want to delete the role "{roleName}"? 
+                This action cannot be undone. {mockRole.users} user(s) with this role will need to be reassigned.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction
+                onClick={handleDelete}
+                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                disabled={isDeleting}
+              >
+                {isDeleting ? 'Deleting...' : 'Delete Role'}
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-3">
-        {/* Left Column: Role Details & Stats */}
-        <div className="lg:col-span-1 space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Role Details</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-2">
+      <div className="space-y-6">
+        {/* Role Information Card */}
+        <Card className="rounded-xl border border-border p-6">
+          <div className="space-y-5">
+            <div>
+              <h2 className="text-base font-semibold text-foreground">Role Information</h2>
+              <p className="text-xs text-muted-foreground mt-0.5">Role name, usage metrics, and descriptive purpose</p>
+            </div>
+
+            <div className="grid grid-cols-12 gap-5">
+              <div className="col-span-12 sm:col-span-8 space-y-2">
                 <Label htmlFor="roleName">Role Name *</Label>
                 <Input
                   id="roleName"
@@ -414,158 +404,101 @@ export default function EditRolePage() {
                 />
               </div>
 
-              <div className="space-y-2">
+              <div className="col-span-12 sm:col-span-4 rounded-lg border border-border p-3.5 flex items-center justify-between">
+                <div>
+                  <p className="text-xs text-muted-foreground">Assigned Users</p>
+                  <p className="text-lg font-bold text-foreground">{mockRole.users}</p>
+                </div>
+                <Badge variant="neutral">{selectedPermissions.size}/{totalPermissions} Perms</Badge>
+              </div>
+
+              <div className="col-span-12 space-y-2">
                 <Label htmlFor="description">Description</Label>
                 <Textarea
                   id="description"
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
-                  placeholder="Describe the role and its responsibilities"
-                  rows={4}
+                  placeholder="Describe the role and its responsibilities..."
+                  rows={3}
                 />
               </div>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
+        </Card>
 
-          <Card>
-            <CardHeader>
-              <CardTitle>Role Statistics</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <Users className="h-4 w-4 text-muted-foreground" />
-                  <span className="text-sm">Assigned Users</span>
-                </div>
-                <Badge variant="neutral">{mockRole.users}</Badge>
+        {/* Permissions Card */}
+        <Card className="rounded-xl border border-border p-6">
+          <div className="space-y-6">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-4 border-b border-border">
+              <div>
+                <h2 className="text-base font-semibold text-foreground">Role Permissions</h2>
+                <p className="text-xs text-muted-foreground mt-0.5">
+                  {selectedPermissions.size} of {totalPermissions} permissions selected
+                </p>
               </div>
-
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <CheckCircle className="h-4 w-4 text-muted-foreground" />
-                  <span className="text-sm">Permissions</span>
-                </div>
-                <Badge variant="neutral">
-                  {selectedPermissions.size}/{totalPermissions}
-                </Badge>
-              </div>
-
-              <Separator />
-
-              <div className="space-y-2 text-sm">
-                <div className="flex items-center gap-2">
-                  <Clock className="h-3 w-3 text-muted-foreground" />
-                  <span className="text-muted-foreground">Created:</span>
-                </div>
-                <p className="pl-5">{new Date(mockRole.createdAt).toLocaleString()}</p>
-              </div>
-
-              <div className="space-y-2 text-sm">
-                <div className="flex items-center gap-2">
-                  <Clock className="h-3 w-3 text-muted-foreground" />
-                  <span className="text-muted-foreground">Last Updated:</span>
-                </div>
-                <p className="pl-5">{new Date(mockRole.updatedAt).toLocaleString()}</p>
-              </div>
-
-              {mockRole.users > 0 && (
-                <>
-                  <Separator />
-                  <div className="flex items-start gap-2 p-3 bg-yellow-50 dark:bg-yellow-950/20 rounded-lg">
-                    <AlertCircle className="h-4 w-4 text-yellow-600 mt-0.5 flex-shrink-0" />
-                    <p className="text-xs text-yellow-600 dark:text-yellow-400">
-                      This role is currently assigned to {mockRole.users} user(s). 
-                      Changes will affect their permissions immediately.
-                    </p>
-                  </div>
-                </>
-              )}
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>Quick Actions</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-2">
-              <Button 
-                variant="outline" 
-                className="w-full justify-start"
-                onClick={() => router.push('/dashboard/settings/permissions')}
-              >
-                <Shield className="mr-2 h-4 w-4" />
-                Advanced Permissions
-              </Button>
-              <Button 
-                variant="outline" 
-                className="w-full justify-start"
-                onClick={() => {
-                  // Select all permissions
-                  const allPermissions = new Set<string>();
-                  permissionCategories.forEach(category => {
-                    category.permissions.forEach(permission => {
-                      allPermissions.add(permission.id);
+              <div className="flex items-center gap-2">
+                <Button 
+                  type="button"
+                  variant="outline" 
+                  size="sm"
+                  onClick={() => {
+                    const allPermissions = new Set<string>();
+                    permissionCategories.forEach(category => {
+                      category.permissions.forEach(permission => {
+                        allPermissions.add(permission.id);
+                      });
                     });
-                  });
-                  setSelectedPermissions(allPermissions);
-                  toast.success('All permissions selected');
-                }}
-              >
-                <CheckCircle className="mr-2 h-4 w-4" />
-                Select All Permissions
-              </Button>
-              <Button 
-                variant="outline" 
-                className="w-full justify-start"
-                onClick={() => {
-                  setSelectedPermissions(new Set());
-                  toast.success('All permissions cleared');
-                }}
-              >
-                <AlertCircle className="mr-2 h-4 w-4" />
-                Clear All Permissions
-              </Button>
-            </CardContent>
-          </Card>
-        </div>
+                    setSelectedPermissions(allPermissions);
+                    toast.success('All permissions selected');
+                  }}
+                >
+                  Select All
+                </Button>
+                <Button 
+                  type="button"
+                  variant="outline" 
+                  size="sm"
+                  onClick={() => {
+                    setSelectedPermissions(new Set());
+                    toast.success('All permissions cleared');
+                  }}
+                >
+                  Clear All
+                </Button>
+              </div>
+            </div>
 
-        {/* Right Column: Permissions */}
-        <Card className="lg:col-span-2">
-          <CardHeader>
-            <CardTitle>Role Permissions</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {permissionCategories.map((category) => {
                 const isFullySelected = isCategoryFullySelected(category.id);
                 const isPartiallySelected = isCategoryPartiallySelected(category.id);
 
                 return (
-                  <div key={category.id} className="space-y-3">
-                    <div className="flex items-center gap-3 pb-2 border-b">
+                  <div key={category.id} className="rounded-lg border border-border p-4 space-y-4">
+                    <div className="flex items-center gap-2.5 pb-2 border-b border-border">
                       <Checkbox
                         id={`category-${category.id}`}
                         checked={isFullySelected}
                         onCheckedChange={(checked) => {
                           handleCategoryToggle(category.id, checked as boolean);
                         }}
-                        className={isPartiallySelected ? 'data-[state=checked]:bg-brand-secondary' : ''}
+                        className={isPartiallySelected ? 'data-[state=checked]:bg-primary/50' : ''}
                       />
                       <Label
                         htmlFor={`category-${category.id}`}
-                        className="text-base font-semibold cursor-pointer flex-1"
+                        className="text-sm font-semibold cursor-pointer flex-1"
                       >
                         {category.name}
                       </Label>
-                      <Badge variant="neutral">
+                      <Badge variant="neutral" className="text-xs">
                         {category.permissions.filter(p => selectedPermissions.has(p.id)).length}/
                         {category.permissions.length}
                       </Badge>
                     </div>
 
-                    <div className="grid gap-3 pl-8">
+                    <div className="space-y-2.5 pt-1">
                       {category.permissions.map((permission) => (
-                        <div key={permission.id} className="flex items-center gap-3">
+                        <div key={permission.id} className="flex items-center gap-2.5">
                           <Checkbox
                             id={permission.id}
                             checked={selectedPermissions.has(permission.id)}
@@ -573,7 +506,7 @@ export default function EditRolePage() {
                           />
                           <Label
                             htmlFor={permission.id}
-                            className="text-sm cursor-pointer flex-1"
+                            className="text-xs cursor-pointer flex-1"
                           >
                             {permission.name}
                           </Label>
@@ -584,29 +517,26 @@ export default function EditRolePage() {
                 );
               })}
             </div>
-
-            <div className="mt-6 pt-6 border-t">
-              <div className="flex items-center justify-between">
-                <p className="text-sm text-muted-foreground">
-                  {selectedPermissions.size} of {totalPermissions} permissions selected
-                </p>
-                <div className="flex gap-2">
-                  <Button variant="outline" onClick={() => router.push('/dashboard/settings?tab=roles')}>
-                    Cancel
-                  </Button>
-                  <Button 
-                    onClick={handleSave}
-                    disabled={isSaving}
-                    className="bg-brand-primary hover:bg-brand-primary/90"
-                  >
-                    <Save className="mr-2 h-4 w-4" />
-                    {isSaving ? 'Saving...' : 'Save Changes'}
-                  </Button>
-                </div>
-              </div>
-            </div>
-          </CardContent>
+          </div>
         </Card>
+
+        {/* Form Actions */}
+        <div className="flex items-center justify-end gap-3 pt-2">
+          <Button 
+            type="button"
+            variant="outline" 
+            onClick={() => router.push('/dashboard/settings?tab=roles')}
+          >
+            Cancel
+          </Button>
+          <Button 
+            onClick={handleSave}
+            disabled={isSaving}
+          >
+            <Save className="mr-1.5 h-4 w-4" />
+            {isSaving ? 'Saving...' : 'Save Changes'}
+          </Button>
+        </div>
       </div>
     </div>
   );

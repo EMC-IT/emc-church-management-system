@@ -349,16 +349,17 @@ export default function LinkFamilyMemberPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <Button variant="ghost" size="sm" asChild>
+          <Button variant="ghost" size="icon" asChild>
             <Link href={`/dashboard/members/${member.id}/family`}>
-              <ArrowLeft className="mr-2 h-4 w-4" />
-              Back to Family
+              <ArrowLeft className="h-4 w-4" />
             </Link>
           </Button>
-          <PageHeader
-            title="Link Existing Member"
-            description={`Link an existing member to ${member.firstName} ${member.lastName}'s family`}
-          />
+          <div>
+            <h1 className="font-heading text-2xl font-bold tracking-tight">Link Existing Member</h1>
+            <p className="text-sm text-muted-foreground mt-1">
+              Link an existing member to {member.firstName} {member.lastName}&apos;s family
+            </p>
+          </div>
         </div>
       </div>
 

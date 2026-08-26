@@ -247,294 +247,223 @@ export default function EditDonationPage() {
   }
 
   return (
-    <div className="space-y-6">
-
-      <PageHeader
-        title="Edit Donation"
-        actions={
-          <Button variant="ghost" size="sm" asChild>
-            <Link href={`/dashboard/finance/giving/donations/${donationId}`}>
-              <ArrowLeft className="mr-2 h-4 w-4" />
-              Back to Donation
-            </Link>
-          </Button>
-        }
-      />
+    <div className="space-y-6 max-w-6xl">
+      {/* Header */}
+      <div className="flex items-center gap-4">
+        <Button variant="ghost" size="icon" asChild>
+          <Link href={`/dashboard/finance/giving/donations/${donationId}`}>
+            <ArrowLeft className="h-4 w-4" />
+          </Link>
+        </Button>
+        <div>
+          <h1 className="font-heading text-2xl font-bold tracking-tight">Edit Donation</h1>
+          <p className="text-sm text-muted-foreground mt-1">
+            Update donor attribution, donation amount, designation category, and payment channel.
+          </p>
+        </div>
+      </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
-        <div className="grid gap-6 lg:grid-cols-3">
-          {/* Main Form */}
-          <div className="lg:col-span-2 space-y-6">
-            {/* Donor Information */}
-            <LazySection
-              strategy="immediate"
-              showSkeleton
-              skeletonVariant="form"
-              threshold={0.1}
-            >
-              <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center space-x-2">
-                  <User className="h-5 w-5" />
-                  <span>Donor Information</span>
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid gap-4 md:grid-cols-2">
-                  <div className="space-y-2">
-                    <Label htmlFor="member">Member</Label>
-                    <Select 
-                      value={selectedMemberId} 
-                      onValueChange={setSelectedMemberId}
-                      disabled={formData.isAnonymous}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select member" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {mockMembers.map((member) => (
-                          <SelectItem key={member.id} value={member.id}>
-                            {member.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
+        {/* Donor Information */}
+        <Card className="rounded-xl border border-border p-6">
+          <div className="space-y-5">
+            <div>
+              <h2 className="text-base font-semibold text-foreground">Donor Attribution</h2>
+              <p className="text-xs text-muted-foreground mt-0.5">Select a registered church member or record as anonymous</p>
+            </div>
 
-                  <div className="flex items-center space-x-2 pt-8">
-                    <Switch
-                      id="anonymous"
-                      checked={formData.isAnonymous}
-                      onCheckedChange={(checked) => {
-                        handleInputChange('isAnonymous', checked);
-                        if (checked) {
-                          setSelectedMemberId('');
-                        }
-                      }}
-                    />
-                    <Label htmlFor="anonymous">Anonymous Donation</Label>
-                  </div>
+            <div className="grid grid-cols-12 gap-5">
+              <div className="col-span-12 sm:col-span-8 space-y-2">
+                <Label htmlFor="member">Church Member</Label>
+                <Select 
+                  value={selectedMemberId} 
+                  onValueChange={setSelectedMemberId}
+                  disabled={formData.isAnonymous}
+                >
+                  <SelectTrigger id="member">
+                    <SelectValue placeholder="Select member" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {mockMembers.map((member) => (
+                      <SelectItem key={member.id} value={member.id}>
+                        {member.name} ({member.email})
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="col-span-12 sm:col-span-4 flex items-center justify-between rounded-lg border border-border p-3.5">
+                <div className="space-y-0.5">
+                  <Label htmlFor="anonymous" className="text-sm font-medium cursor-pointer">Anonymous Donor</Label>
+                  <p className="text-xs text-muted-foreground">Keep donor identity private</p>
                 </div>
-              </CardContent>
-              </Card>
-            </LazySection>
+                <Switch
+                  id="anonymous"
+                  checked={formData.isAnonymous}
+                  onCheckedChange={(checked) => {
+                    handleInputChange('isAnonymous', checked);
+                    if (checked) {
+                      setSelectedMemberId('');
+                    }
+                  }}
+                />
+              </div>
+            </div>
+          </div>
+        </Card>
 
-            {/* Donation Details */}
-            <LazySection
-              strategy="lazy"
-              showSkeleton
-              skeletonVariant="form"
-              threshold={0.2}
-            >
-              <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center space-x-2">
-                  <BadgeCent className="h-5 w-5" />
-                  <span>Donation Details</span>
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid gap-4 md:grid-cols-2">
-                  <div className="space-y-2">
-                    <Label htmlFor="amount">Amount</Label>
-                    <Input
-                      id="amount"
-                      type="number"
-                      step="0.01"
-                      min="0"
-                      value={formData.amount || ''}
-                      onChange={(e) => handleInputChange('amount', parseFloat(e.target.value) || 0)}
-                      placeholder="0.00"
-                      required
-                    />
-                  </div>
+        {/* Donation Details */}
+        <Card className="rounded-xl border border-border p-6">
+          <div className="space-y-5">
+            <div>
+              <h2 className="text-base font-semibold text-foreground">Donation Details</h2>
+              <p className="text-xs text-muted-foreground mt-0.5">Specify amount, currency, fund category, payment method, and date</p>
+            </div>
 
-                  <div className="space-y-2">
-                    <Label htmlFor="currency">Currency</Label>
-                    <Select value={formData.currency} onValueChange={(value) => handleInputChange('currency', value)}>
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                          <SelectItem value="GHS">GHS (₵)</SelectItem>
-                          <SelectItem value="EUR">EUR (€)</SelectItem>
-                          <SelectItem value="USD">USD ($)</SelectItem>
-                        </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-
-                <div className="grid gap-4 md:grid-cols-2">
-                  <div className="space-y-2">
-                    <Label htmlFor="category">Category</Label>
-                    <Select value={formData.category} onValueChange={(value) => handleInputChange('category', value as GivingCategory)}>
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value={GivingCategory.GENERAL}>General</SelectItem>
-                        <SelectItem value={GivingCategory.BUILDING_FUND}>Building Fund</SelectItem>
-                        <SelectItem value={GivingCategory.MISSIONARY}>Missionary</SelectItem>
-                        <SelectItem value={GivingCategory.YOUTH}>Youth</SelectItem>
-                        <SelectItem value={GivingCategory.CHILDREN}>Children</SelectItem>
-                        <SelectItem value={GivingCategory.MUSIC}>Music</SelectItem>
-                        <SelectItem value={GivingCategory.OUTREACH}>Outreach</SelectItem>
-                        <SelectItem value={GivingCategory.CHARITY}>Charity</SelectItem>
-                        <SelectItem value={GivingCategory.EDUCATION}>Education</SelectItem>
-                        <SelectItem value={GivingCategory.MEDICAL}>Medical</SelectItem>
-                        <SelectItem value={GivingCategory.DISASTER_RELIEF}>Disaster Relief</SelectItem>
-                        <SelectItem value={GivingCategory.OTHER}>Other</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="method">Payment Method</Label>
-                    <Select value={formData.method} onValueChange={(value) => handleInputChange('method', value)}>
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="cash">Cash</SelectItem>
-                        <SelectItem value="bank_transfer">Bank Transfer</SelectItem>
-                        <SelectItem value="mobile_money">Mobile Money</SelectItem>
-                        <SelectItem value="check">Check</SelectItem>
-                        <SelectItem value="card">Card</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <Label>Date</Label>
-                  <Popover open={dateOpen} onOpenChange={setDateOpen}>
-                    <PopoverTrigger asChild>
-                      <Button
-                        variant="outline"
-                        className={cn(
-                          'w-full justify-start text-left font-normal',
-                          !selectedDate && 'text-muted-foreground'
-                        )}
-                      >
-                        <CalendarIcon className="mr-2 h-4 w-4" />
-                        {selectedDate ? format(selectedDate, 'PPP') : 'Pick a date'}
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0" align="start">
-                      <Calendar
-                        mode="single"
-                        selected={selectedDate}
-                        onSelect={handleDateSelect}
-                        initialFocus
-                      />
-                    </PopoverContent>
-                  </Popover>
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="description">Description</Label>
-                  <Textarea
-                    id="description"
-                    value={formData.description}
-                    onChange={(e) => handleInputChange('description', e.target.value)}
-                    placeholder="Enter donation description or purpose"
-                    className="min-h-[100px]"
+            <div className="grid grid-cols-12 gap-5">
+              <div className="col-span-12 sm:col-span-4 space-y-2">
+                <Label htmlFor="amount">Amount *</Label>
+                <div className="relative">
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">₵</span>
+                  <Input
+                    id="amount"
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    value={formData.amount || ''}
+                    onChange={(e) => handleInputChange('amount', parseFloat(e.target.value) || 0)}
+                    placeholder="0.00"
+                    className="pl-8"
                     required
                   />
                 </div>
-              </CardContent>
-              </Card>
-            </LazySection>
-          </div>
+              </div>
 
-          {/* Summary Sidebar */}
-          <LazySection
-            strategy="lazy"
-            showSkeleton
-            skeletonVariant="card"
-            skeletonCount={2}
-            threshold={0.3}
-          >
-            <div className="space-y-6">
-              <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center space-x-2">
-                  <BadgeCent className="h-5 w-5" />
-                  <span>Donation Summary</span>
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-3">
-                  <div className="flex justify-between">
-                    <span className="text-sm text-muted-foreground">Donor:</span>
-                    <span className="font-medium text-sm">
-                      {getMemberName()}
-                    </span>
-                  </div>
-                  
-                  <div className="flex justify-between">
-                    <span className="text-sm text-muted-foreground">Amount:</span>
-                    <span className="font-medium">
-                      {formatCurrency(formData.amount || 0)}
-                    </span>
-                  </div>
-                  
-                  <div className="flex justify-between">
-                    <span className="text-sm text-muted-foreground">Category:</span>
-                    <span className="font-medium text-sm capitalize">
-                      {formData.category.replace('_', ' ')}
-                    </span>
-                  </div>
-                  
-                  <div className="flex justify-between">
-                    <span className="text-sm text-muted-foreground">Method:</span>
-                    <span className="font-medium text-sm capitalize">
-                      {formData.method.replace('_', ' ')}
-                    </span>
-                  </div>
-                  
-                  <div className="flex justify-between">
-                    <span className="text-sm text-muted-foreground">Date:</span>
-                    <span className="font-medium text-sm">
-                      {format(selectedDate, 'MMM dd, yyyy')}
-                    </span>
-                  </div>
-                  
-                  <hr className="my-2" />
-                  
-                  <div className="flex justify-between">
-                    <span className="text-sm text-muted-foreground">Receipt #:</span>
-                    <span className="font-medium text-sm">
-                      {donation?.receiptNumber || 'N/A'}
-                    </span>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+              <div className="col-span-12 sm:col-span-2 space-y-2">
+                <Label htmlFor="currency">Currency</Label>
+                <Select value={formData.currency} onValueChange={(value) => handleInputChange('currency', value)}>
+                  <SelectTrigger id="currency">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="GHS">GHS (₵)</SelectItem>
+                    <SelectItem value="EUR">EUR (€)</SelectItem>
+                    <SelectItem value="USD">USD ($)</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
 
-              {/* Action Buttons */}
-              <div className="space-y-2">
-                <Button type="submit" className="w-full" disabled={saving}>
-                  {saving ? (
-                    <>
-                      <LoadingSpinner size="sm" className="mr-2" />
-                      Updating...
-                    </>
-                  ) : (
-                    <>
-                      <Save className="mr-2 h-4 w-4" />
-                      Update Donation
-                    </>
-                  )}
-                </Button>
-                <Button type="button" variant="outline" className="w-full" asChild>
-                  <Link href={`/dashboard/finance/giving/donations/${donationId}`}>
-                    Cancel
-                  </Link>
-                </Button>
+              <div className="col-span-12 sm:col-span-3 space-y-2">
+                <Label htmlFor="category">Category</Label>
+                <Select value={formData.category} onValueChange={(value) => handleInputChange('category', value as GivingCategory)}>
+                  <SelectTrigger id="category">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value={GivingCategory.GENERAL}>General</SelectItem>
+                    <SelectItem value={GivingCategory.BUILDING_FUND}>Building Fund</SelectItem>
+                    <SelectItem value={GivingCategory.MISSIONARY}>Missionary</SelectItem>
+                    <SelectItem value={GivingCategory.YOUTH}>Youth</SelectItem>
+                    <SelectItem value={GivingCategory.CHILDREN}>Children</SelectItem>
+                    <SelectItem value={GivingCategory.MUSIC}>Music</SelectItem>
+                    <SelectItem value={GivingCategory.OUTREACH}>Outreach</SelectItem>
+                    <SelectItem value={GivingCategory.CHARITY}>Charity</SelectItem>
+                    <SelectItem value={GivingCategory.EDUCATION}>Education</SelectItem>
+                    <SelectItem value={GivingCategory.MEDICAL}>Medical</SelectItem>
+                    <SelectItem value={GivingCategory.DISASTER_RELIEF}>Disaster Relief</SelectItem>
+                    <SelectItem value={GivingCategory.OTHER}>Other</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="col-span-12 sm:col-span-3 space-y-2">
+                <Label htmlFor="method">Payment Method</Label>
+                <Select value={formData.method} onValueChange={(value) => handleInputChange('method', value)}>
+                  <SelectTrigger id="method">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="cash">Cash</SelectItem>
+                    <SelectItem value="bank_transfer">Bank Transfer</SelectItem>
+                    <SelectItem value="mobile_money">Mobile Money</SelectItem>
+                    <SelectItem value="check">Check</SelectItem>
+                    <SelectItem value="card">Card</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="col-span-12 sm:col-span-4 space-y-2">
+                <Label>Transaction Date</Label>
+                <Popover open={dateOpen} onOpenChange={setDateOpen}>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className={cn(
+                        'w-full justify-start text-left font-normal',
+                        !selectedDate && 'text-muted-foreground'
+                      )}
+                    >
+                      <CalendarIcon className="mr-2 h-4 w-4" />
+                      {selectedDate ? format(selectedDate, 'PPP') : 'Pick a date'}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <Calendar
+                      mode="single"
+                      selected={selectedDate}
+                      onSelect={handleDateSelect}
+                      initialFocus
+                    />
+                  </PopoverContent>
+                </Popover>
+              </div>
+
+              <div className="col-span-12 sm:col-span-8 space-y-2">
+                <Label htmlFor="receipt">Receipt Number</Label>
+                <Input
+                  id="receipt"
+                  value={donation?.receiptNumber || 'Auto-generated'}
+                  disabled
+                  className="bg-muted/40"
+                />
+              </div>
+
+              <div className="col-span-12 space-y-2">
+                <Label htmlFor="description">Description / Memo *</Label>
+                <Textarea
+                  id="description"
+                  value={formData.description}
+                  onChange={(e) => handleInputChange('description', e.target.value)}
+                  placeholder="Enter donation description or designated purpose..."
+                  rows={3}
+                  required
+                />
               </div>
             </div>
-          </LazySection>
+          </div>
+        </Card>
+
+        {/* Action Buttons */}
+        <div className="flex justify-end gap-3 pt-2">
+          <Button type="button" variant="outline" asChild>
+            <Link href={`/dashboard/finance/giving/donations/${donationId}`}>
+              Cancel
+            </Link>
+          </Button>
+          <Button type="submit" disabled={saving}>
+            {saving ? (
+              <>
+                <Loader2 className="mr-1.5 h-4 w-4 animate-spin" />
+                Updating...
+              </>
+            ) : (
+              <>
+                <Save className="mr-1.5 h-4 w-4" />
+                Update Donation
+              </>
+            )}
+          </Button>
         </div>
       </form>
     </div>

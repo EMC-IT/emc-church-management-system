@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -164,36 +165,34 @@ export default function AddDepartmentPage() {
   };
 
   return (
-    <div className="space-y-6 max-w-4xl mx-auto">
+    <div className="space-y-6 max-w-6xl">
       {/* Header */}
       <div className="flex items-center gap-4">
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={() => router.push('/dashboard/departments')}
-          className="text-muted-foreground hover:text-foreground"
-        >
-          <ArrowLeft className="h-4 w-4 mr-1.5" />
-          Back
+        <Button variant="ghost" size="icon" asChild>
+          <Link href="/dashboard/departments">
+            <ArrowLeft className="h-4 w-4" />
+          </Link>
         </Button>
-        <h1 className="font-heading text-2xl font-bold tracking-tight">
-          Add Department
-        </h1>
+        <div>
+          <h1 className="font-heading text-2xl font-bold tracking-tight">
+            Add Department
+          </h1>
+          <p className="text-sm text-muted-foreground mt-1">Create a ministry, administrative, or operational church department.</p>
+        </div>
       </div>
 
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-base font-semibold">General Information</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid gap-4 sm:grid-cols-2">
+          <Card className="rounded-xl border border-border p-6">
+            <div className="space-y-5">
+              <h2 className="text-base font-semibold text-foreground">General Information</h2>
+
+              <div className="grid grid-cols-12 gap-5">
                 <FormField
                   control={form.control}
                   name="name"
                   render={({ field }) => (
-                    <FormItem className="sm:col-span-2">
+                    <FormItem className="col-span-12 sm:col-span-6">
                       <FormLabel>Department Name *</FormLabel>
                       <FormControl>
                         <Input placeholder="e.g. Media & Tech Ministry" {...field} />
@@ -207,7 +206,7 @@ export default function AddDepartmentPage() {
                   control={form.control}
                   name="leader"
                   render={({ field }) => (
-                    <FormItem>
+                    <FormItem className="col-span-12 sm:col-span-6">
                       <FormLabel>Leader Name *</FormLabel>
                       <FormControl>
                         <Input placeholder="e.g. John Doe" {...field} />
@@ -221,7 +220,7 @@ export default function AddDepartmentPage() {
                   control={form.control}
                   name="categoryId"
                   render={({ field }) => (
-                    <FormItem>
+                    <FormItem className="col-span-12 sm:col-span-4">
                       <FormLabel>Category</FormLabel>
                       <Select onValueChange={field.onChange} defaultValue={field.value}>
                         <FormControl>
@@ -246,7 +245,7 @@ export default function AddDepartmentPage() {
                   control={form.control}
                   name="departmentType"
                   render={({ field }) => (
-                    <FormItem>
+                    <FormItem className="col-span-12 sm:col-span-4">
                       <FormLabel>Type</FormLabel>
                       <Select onValueChange={field.onChange} defaultValue={field.value}>
                         <FormControl>
@@ -271,7 +270,7 @@ export default function AddDepartmentPage() {
                   control={form.control}
                   name="location"
                   render={({ field }) => (
-                    <FormItem>
+                    <FormItem className="col-span-12 sm:col-span-4">
                       <FormLabel>Location / Room</FormLabel>
                       <FormControl>
                         <Input placeholder="e.g. Media Booth, Room 204" {...field} />
@@ -285,7 +284,7 @@ export default function AddDepartmentPage() {
                   control={form.control}
                   name="description"
                   render={({ field }) => (
-                    <FormItem className="sm:col-span-2">
+                    <FormItem className="col-span-12">
                       <FormLabel>Description *</FormLabel>
                       <FormControl>
                         <Textarea 
@@ -299,14 +298,17 @@ export default function AddDepartmentPage() {
                   )}
                 />
               </div>
-            </CardContent>
+            </div>
           </Card>
 
           {/* Meeting Schedule */}
-          <Card>
-            <CardHeader className="pb-3">
+          <Card className="rounded-xl border border-border p-6">
+            <div className="space-y-5">
               <div className="flex items-center justify-between">
-                <CardTitle className="text-base font-semibold">Meeting Schedule</CardTitle>
+                <div>
+                  <h2 className="text-base font-semibold text-foreground">Meeting Schedule</h2>
+                  <p className="text-xs text-muted-foreground mt-0.5">Enable regular meeting times for department members</p>
+                </div>
                 <FormField
                   control={form.control}
                   name="hasMeetingSchedule"
@@ -322,15 +324,14 @@ export default function AddDepartmentPage() {
                   )}
                 />
               </div>
-            </CardHeader>
-            {hasMeetingSchedule && (
-              <CardContent className="space-y-4">
-                <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+
+              {hasMeetingSchedule && (
+                <div className="grid grid-cols-12 gap-5 pt-2 border-t border-border">
                   <FormField
                     control={form.control}
                     name="meetingDay"
                     render={({ field }) => (
-                      <FormItem>
+                      <FormItem className="col-span-12 sm:col-span-6 lg:col-span-3">
                         <FormLabel>Day *</FormLabel>
                         <Select onValueChange={field.onChange} defaultValue={field.value}>
                           <FormControl>
@@ -355,7 +356,7 @@ export default function AddDepartmentPage() {
                     control={form.control}
                     name="meetingFrequency"
                     render={({ field }) => (
-                      <FormItem>
+                      <FormItem className="col-span-12 sm:col-span-6 lg:col-span-3">
                         <FormLabel>Frequency *</FormLabel>
                         <Select onValueChange={field.onChange} defaultValue={field.value}>
                           <FormControl>
@@ -380,7 +381,7 @@ export default function AddDepartmentPage() {
                     control={form.control}
                     name="meetingStartTime"
                     render={({ field }) => (
-                      <FormItem>
+                      <FormItem className="col-span-12 sm:col-span-6 lg:col-span-3">
                         <FormLabel>Start Time *</FormLabel>
                         <FormControl>
                           <Input type="time" {...field} />
@@ -394,7 +395,7 @@ export default function AddDepartmentPage() {
                     control={form.control}
                     name="meetingEndTime"
                     render={({ field }) => (
-                      <FormItem>
+                      <FormItem className="col-span-12 sm:col-span-6 lg:col-span-3">
                         <FormLabel>End Time *</FormLabel>
                         <FormControl>
                           <Input type="time" {...field} />
@@ -404,8 +405,8 @@ export default function AddDepartmentPage() {
                     )}
                   />
                 </div>
-              </CardContent>
-            )}
+              )}
+            </div>
           </Card>
 
           {/* Actions */}

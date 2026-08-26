@@ -31,15 +31,17 @@ export default function ConvertProfilePage() {
   const router = useRouter();
   return (
     <div className="max-w-6xl mx-auto py-8 space-y-6">
-      <div className="flex items-center gap-4 mb-4">
-        <Button variant="ghost" size="sm" asChild>
+      <div className="flex items-center gap-4">
+        <Button variant="ghost" size="icon" asChild>
           <Link href="/dashboard/members">
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Back to Members
+            <ArrowLeft className="h-4 w-4" />
           </Link>
         </Button>
-        <div className="flex-1">
-          <PageHeader title="Convert Profile" />
+        <div>
+          <h1 className="font-heading text-2xl font-bold tracking-tight">Convert Profile</h1>
+          <p className="text-sm text-muted-foreground mt-1">
+            View convert contact details, assimilation milestones, and ministry progress
+          </p>
         </div>
       </div>
       <div className="flex flex-col md:flex-row gap-8">

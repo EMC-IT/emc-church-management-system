@@ -5,11 +5,9 @@ import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { PageHeader } from '@/components/ui/page-header';
 import { StatCard } from '@/components/ui/stat-card';
 import { Badge } from '@/components/ui/badge';
 import { StatusBadge } from '@/components/ui/status-badge';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
   Select,
   SelectContent,
@@ -21,38 +19,29 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { 
   Users, 
   Search, 
-  UserPlus,
-  Download,
-  Eye,
-  Mail,
-  ArrowUpDown,
+  Download, 
   MoreHorizontal,
   Loader2,
-  GraduationCap,
-  Calendar,
-  TrendingUp
+  Phone,
+  Mail,
+  ArrowLeft,
+  Calendar
 } from 'lucide-react';
 import Link from 'next/link';
 import { sundaySchoolService } from '@/services';
-import { Student, AgeGroup } from '@/lib/types/sunday-school';
+import { Student } from '@/lib/types/sunday-school';
 import { toast } from 'sonner';
-
-const ageGroups = Object.values(AgeGroup);
-const statusOptions = ['All', 'Active', 'Inactive'];
 
 export default function StudentsPage() {
   const router = useRouter();
   const [students, setStudents] = useState<Student[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
-  const [ageGroupFilter, setAgeGroupFilter] = useState('All');
   const [statusFilter, setStatusFilter] = useState('All');
 
   useEffect(() => {
@@ -62,75 +51,51 @@ export default function StudentsPage() {
   const loadStudents = async () => {
     try {
       setLoading(true);
-      const response = await sundaySchoolService.getStudents({
-        search: searchTerm || undefined,
-        ageGroup: ageGroupFilter !== 'All' ? ageGroupFilter as AgeGroup : undefined,
-        status: statusFilter !== 'All' ? statusFilter as 'Active' | 'Inactive' | 'Graduated' : undefined,
-        limit: 50
-      });
-      
+      const response = await sundaySchoolService.getStudents();
       if (response.success && response.data) {
         setStudents(response.data);
       } else {
         toast.error(response.message || 'Failed to load students');
       }
-    } catch (error) {
+    } catch {
       toast.error('Failed to load students');
     } finally {
       setLoading(false);
     }
   };
 
-  useEffect(() => {
-    const timeoutId = setTimeout(() => {
-      loadStudents();
-    }, 300);
-
-    return () => clearTimeout(timeoutId);
-  }, [searchTerm, ageGroupFilter, statusFilter]);
-
   const filteredStudents = students.filter(student => {
-    const matchesSearch = student.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         student.parentContact.parentName.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesAgeGroup = ageGroupFilter === 'All'; // Age group filtering not available in Student interface
+    const fullName = (student.name || '').toLowerCase();
+    const parentName = student.parentContact?.parentName?.toLowerCase() || '';
+    const matchesSearch = fullName.includes(searchTerm.toLowerCase()) || parentName.includes(searchTerm.toLowerCase());
     const matchesStatus = statusFilter === 'All' || student.status === statusFilter;
-    
-    return matchesSearch && matchesAgeGroup && matchesStatus;
+    return matchesSearch && matchesStatus;
   });
 
-  const getStats = () => {
-    const totalStudents = students.length;
-    const activeStudents = students.filter(s => s.status === 'Active').length;
-    const averageAge = students.length > 0 ? 
-      Math.round(students.reduce((sum, s) => sum + s.age, 0) / students.length) : 0;
-    const newEnrollments = students.filter(s => {
-      const enrollDate = new Date(s.enrollmentDate);
-      const thirtyDaysAgo = new Date();
-      thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-      return enrollDate >= thirtyDaysAgo;
-    }).length;
+  const activeStudents = students.filter(s => (s.status || 'Active') === 'Active').length;
+  const averageAge = students.length > 0
+    ? (students.reduce((sum, s) => sum + s.age, 0) / students.length).toFixed(1)
+    : '0';
 
-    return { totalStudents, activeStudents, averageAge, newEnrollments };
-  };
-
-  const stats = getStats();
-
-  const handleViewStudent = (studentId: string) => {
-    router.push(`/dashboard/sunday-school/students/${studentId}`);
-  };
-
-  const handleContactParent = (student: Student) => {
-    window.open(`mailto:${student.parentContact.email}?subject=Regarding ${student.name}`);
-  };
-
-  const handleExportStudents = () => {
-    toast.success('Students data exported successfully');
+  const handleExport = () => {
+    const csvContent = 'Name,Age,Gender,Parent Name,Parent Phone,Parent Email,Status\n' +
+      students.map(s =>
+        `"${s.name}",${s.age},"${s.gender}","${s.parentContact?.parentName || ''}","${s.parentContact?.phone || ''}","${s.parentContact?.email || ''}","${s.status || 'Active'}"`
+      ).join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'sunday-school-students.csv';
+    a.click();
+    window.URL.revokeObjectURL(url);
+    toast.success('Students exported successfully');
   };
 
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
-        <Loader2 className="h-8 w-8 animate-spin" />
+        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
       </div>
     );
   }
@@ -138,170 +103,136 @@ export default function StudentsPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <PageHeader
-        title="Students"
-        actions={
-          <Button variant="outline" onClick={handleExportStudents}>
-            <Download className="mr-2 h-4 w-4" />
-            Export Students
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex items-center gap-4">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => router.push('/dashboard/sunday-school')}
+            className="text-muted-foreground hover:text-foreground"
+          >
+            <ArrowLeft className="h-4 w-4 mr-1.5" />
+            Back
           </Button>
-        }
-      />
+          <h1 className="font-heading text-2xl font-bold tracking-tight">Sunday School Students</h1>
+        </div>
+
+        <Button variant="outline" size="sm" onClick={handleExport}>
+          <Download className="mr-1.5 h-4 w-4" />
+          Export Students
+        </Button>
+      </div>
 
       {/* Stats Cards */}
-      <div className="grid gap-4 md:grid-cols-4">
-        <StatCard title="Total Students" value={stats.totalStudents} icon={Users} />
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <StatCard title="Total Students" value={students.length} icon={Users} />
+        <StatCard title="Active Students" value={activeStudents} icon={Users} />
+        <StatCard title="Average Age" value={`${averageAge} yrs`} icon={Calendar} />
         <StatCard
-          title="Active Students"
-          value={stats.activeStudents}
-          icon={GraduationCap}
-          description={`${((stats.activeStudents / stats.totalStudents) * 100).toFixed(1)}% of total`}
-        />
-        <StatCard
-          title="Average Age"
-          value={stats.averageAge}
-          icon={Calendar}
-          description="years old"
-        />
-        <StatCard
-          title="New Enrollments"
-          value={stats.newEnrollments}
-          icon={TrendingUp}
-          description="last 30 days"
+          title="Active Rate"
+          value={`${students.length > 0 ? Math.round((activeStudents / students.length) * 100) : 0}%`}
+          icon={Users}
         />
       </div>
 
-      {/* Students Management */}
+      {/* Students Directory */}
       <Card>
-        <CardHeader>
-          <CardTitle>Student Directory</CardTitle>
+        <CardHeader className="pb-3">
+          <CardTitle className="text-base font-semibold">Student Directory ({filteredStudents.length})</CardTitle>
         </CardHeader>
         <CardContent>
-          {/* Filters */}
-          <div className="flex items-center space-x-4 mb-6">
+          <div className="flex flex-col sm:flex-row gap-3 mb-6">
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
-                placeholder="Search students or parents..."
+                placeholder="Search by student or parent name..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10"
+                className="pl-9"
               />
             </div>
-            
-            <Select value={ageGroupFilter} onValueChange={setAgeGroupFilter}>
-              <SelectTrigger className="w-48">
-                <SelectValue placeholder="Filter by age group" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="All">All Age Groups</SelectItem>
-                {ageGroups.map((group) => (
-                  <SelectItem key={group} value={group}>
-                    {group}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
 
             <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <SelectTrigger className="w-32">
-                <SelectValue placeholder="Status" />
+              <SelectTrigger className="w-full sm:w-36">
+                <SelectValue placeholder="All Status" />
               </SelectTrigger>
               <SelectContent>
-                {statusOptions.map((status) => (
-                  <SelectItem key={status} value={status}>
-                    {status}
-                  </SelectItem>
-                ))}
+                <SelectItem value="All">All Status</SelectItem>
+                <SelectItem value="Active">Active</SelectItem>
+                <SelectItem value="Inactive">Inactive</SelectItem>
               </SelectContent>
             </Select>
           </div>
 
-          {/* Students Grid */}
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {filteredStudents.map((student) => (
-              <Card key={student.id} className="hover:shadow-lg transition-shadow">
-                <CardContent className="pt-6">
-                  <div className="flex items-start justify-between mb-4">
-                    <div className="flex items-center space-x-3">
-                      <Avatar className="h-12 w-12">
-                        <AvatarImage src={student.avatar} alt={student.name} />
-                        <AvatarFallback>
-                          {student.name.split(' ').map(n => n[0]).join('')}
-                        </AvatarFallback>
-                      </Avatar>
+              <Card key={student.id} className="p-4 space-y-3 flex flex-col justify-between hover:border-primary/50 transition-colors">
+                <div className="space-y-3">
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center font-medium text-xs text-primary shrink-0">
+                        {student.name?.slice(0, 2).toUpperCase() || 'ST'}
+                      </div>
                       <div>
-                        <h3 className="font-semibold">{student.name}</h3>
-                        <p className="text-sm text-muted-foreground">Age {student.age}</p>
+                        <h4 className="font-semibold text-sm text-foreground">
+                          {student.name}
+                        </h4>
+                        <div className="flex items-center gap-1.5 mt-0.5">
+                          <Badge variant="neutral" size="sm">Age: {student.age}</Badge>
+                          <StatusBadge status={(student.status || 'active').toLowerCase() as any} size="sm" />
+                        </div>
                       </div>
                     </div>
+
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon">
+                        <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
                           <MoreHorizontal className="h-4 w-4" />
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
-                        <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                        <DropdownMenuItem onClick={() => handleViewStudent(student.id)}>
-                          <Eye className="mr-2 h-4 w-4" />
-                          View Profile
-                        </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => handleContactParent(student)}>
-                          <Mail className="mr-2 h-4 w-4" />
-                          Contact Parent
+                        <DropdownMenuItem asChild>
+                          <Link href={`/dashboard/sunday-school/students/${student.id}`}>
+                            View Profile
+                          </Link>
                         </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
                   </div>
 
-                  <div className="space-y-2">
-                    <div className="flex items-center justify-between text-sm">
-                      <span>Age:</span>
-                      <Badge variant="neutral">{student.age} years</Badge>
-                    </div>
-                    
-                    <div className="flex items-center justify-between text-sm">
-                      <span>Current Class:</span>
-                      <span className="font-medium">{student.currentClassId || 'Not Assigned'}</span>
-                    </div>
-                    
-                    <div className="flex items-center justify-between text-sm">
-                      <span>Status:</span>
-                      <StatusBadge status={student.status} />
-                    </div>
-                    
-                    <div className="flex items-center justify-between text-sm">
-                      <span>Parent:</span>
-                      <span className="font-medium">{student.parentContact.parentName}</span>
-                    </div>
+                  <div className="space-y-1 text-xs text-muted-foreground pt-2 border-t border-border">
+                    {student.parentContact?.parentName && (
+                      <p className="text-foreground font-medium">Parent: {student.parentContact.parentName}</p>
+                    )}
+                    {student.parentContact?.phone && (
+                      <div className="flex items-center gap-1.5">
+                        <Phone className="h-3 w-3 text-muted-foreground" />
+                        <span>{student.parentContact.phone}</span>
+                      </div>
+                    )}
+                    {student.parentContact?.email && (
+                      <div className="flex items-center gap-1.5">
+                        <Mail className="h-3 w-3 text-muted-foreground" />
+                        <span>{student.parentContact.email}</span>
+                      </div>
+                    )}
                   </div>
-                  
-                  <div className="flex items-center justify-between pt-4 border-t mt-4">
-                    <StatusBadge status={student.status} />
-                    <Button 
-                      variant="outline" 
-                      size="sm"
-                      onClick={() => handleViewStudent(student.id)}
-                    >
+                </div>
+
+                <div className="pt-2 border-t border-border flex justify-end">
+                  <Button variant="ghost" size="sm" className="text-xs h-7 text-primary hover:text-primary hover:bg-transparent" asChild>
+                    <Link href={`/dashboard/sunday-school/students/${student.id}`}>
                       View Profile
-                    </Button>
-                  </div>
-                </CardContent>
+                    </Link>
+                  </Button>
+                </div>
               </Card>
             ))}
           </div>
 
           {filteredStudents.length === 0 && (
-            <div className="text-center py-12">
-              <Users className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
-              <h3 className="text-lg font-medium">No students found</h3>
-              <p className="text-muted-foreground mb-4">
-                {searchTerm || ageGroupFilter !== 'All' || statusFilter !== 'All'
-                  ? 'Try adjusting your search or filters'
-                  : 'No students have been enrolled yet'
-                }
-              </p>
+            <div className="text-center py-10 text-muted-foreground text-sm">
+              No students found matching your criteria.
             </div>
           )}
         </CardContent>

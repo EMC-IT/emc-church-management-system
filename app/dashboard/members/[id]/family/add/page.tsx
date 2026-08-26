@@ -221,369 +221,320 @@ export default function AddFamilyMemberPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 max-w-6xl">
       {/* Header */}
       <div className="flex items-center gap-4">
-        <Button variant="ghost" size="sm" asChild>
+        <Button variant="ghost" size="icon" asChild>
           <Link href={`/dashboard/members/${member.id}/family`}>
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Back to Family
+            <ArrowLeft className="h-4 w-4" />
           </Link>
         </Button>
-        <div className="flex-1">
-          <PageHeader
-            title="Add Family Member"
-            description={`Add a new family member for ${member.firstName} ${member.lastName}`}
-          />
+        <div>
+          <h1 className="font-heading text-2xl font-bold tracking-tight">Add Family Member</h1>
+          <p className="text-sm text-muted-foreground mt-1">
+            Register a linked family member for {member.firstName} {member.lastName}.
+          </p>
         </div>
       </div>
 
-      {/* Form */}
-      <div className="grid gap-6 md:grid-cols-2">
-        <Card>
-          <CardHeader>
-            <CardTitle>Family Member Information</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-                {/* Personal Information Section */}
-                <div className="space-y-4">
-                  <h3 className="text-lg font-semibold">Personal Information</h3>
-                  
-                  <div className="grid gap-4 md:grid-cols-2">
-                    <FormField
-                      control={form.control}
-                      name="firstName"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>First Name *</FormLabel>
-                          <FormControl>
-                            <Input placeholder="Enter first name" {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    
-                    <FormField
-                      control={form.control}
-                      name="lastName"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Last Name *</FormLabel>
-                          <FormControl>
-                            <Input placeholder="Enter last name" {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+          {/* Personal Information */}
+          <Card className="rounded-xl border border-border p-6">
+            <div className="space-y-5">
+              <div>
+                <h2 className="text-base font-semibold text-foreground">Personal Information</h2>
+                <p className="text-xs text-muted-foreground mt-0.5">Basic details and relationship to primary member</p>
+              </div>
 
-                  <div className="grid gap-4 md:grid-cols-2">
-                    <FormField
-                      control={form.control}
-                      name="email"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Email</FormLabel>
-                          <FormControl>
-                            <Input placeholder="Enter email address" type="email" {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    
-                    <FormField
-                      control={form.control}
-                      name="phone"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Phone Number *</FormLabel>
-                          <FormControl>
-                            <Input placeholder="Enter phone number" {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
+              <div className="flex flex-col sm:flex-row items-center gap-6 pb-2">
+                <div className="flex flex-col items-center space-y-2">
+                  <Avatar className="h-20 w-20">
+                    <AvatarImage src={avatarPreview} />
+                    <AvatarFallback>
+                      <User className="h-6 w-6 text-muted-foreground" />
+                    </AvatarFallback>
+                  </Avatar>
+                  <FileUpload
+                    accept="image/*"
+                    maxFiles={1}
+                    maxSize={5 * 1024 * 1024}
+                    onUpload={(files) => handleAvatarUpload(files[0])}
+                    onRemove={handleRemoveAvatar}
+                    placeholder="Upload Photo"
+                    className="w-full"
+                  />
+                </div>
 
+                <div className="flex-1 grid grid-cols-12 gap-5 w-full">
                   <FormField
                     control={form.control}
-                    name="address"
+                    name="firstName"
                     render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Address *</FormLabel>
+                      <FormItem className="col-span-12 sm:col-span-6">
+                        <FormLabel>First Name *</FormLabel>
                         <FormControl>
-                          <Textarea placeholder="Enter full address" {...field} />
+                          <Input placeholder="Enter first name" {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
                     )}
                   />
 
-                  <div className="grid gap-4 md:grid-cols-3">
-                    <FormField
-                      control={form.control}
-                      name="dateOfBirth"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Date of Birth *</FormLabel>
-                          <FormControl>
-                            <Input type="date" {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    
-                    <FormField
-                      control={form.control}
-                      name="gender"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Gender *</FormLabel>
-                          <Select onValueChange={field.onChange} defaultValue={field.value}>
-                            <FormControl>
-                              <SelectTrigger>
-                                <SelectValue placeholder="Select gender" />
-                              </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                              <SelectItem value="Male">Male</SelectItem>
-                              <SelectItem value="Female">Female</SelectItem>
-                            </SelectContent>
-                          </Select>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-
-                    <FormField
-                      control={form.control}
-                      name="relationship"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Relationship *</FormLabel>
-                          <Select onValueChange={field.onChange} defaultValue={field.value}>
-                            <FormControl>
-                              <SelectTrigger>
-                                <SelectValue placeholder="Select relationship" />
-                              </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                              <SelectItem value="Spouse">Spouse</SelectItem>
-                              <SelectItem value="Child">Child</SelectItem>
-                              <SelectItem value="Parent">Parent</SelectItem>
-                              <SelectItem value="Sibling">Sibling</SelectItem>
-                              <SelectItem value="Grandparent">Grandparent</SelectItem>
-                              <SelectItem value="Other">Other</SelectItem>
-                            </SelectContent>
-                          </Select>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-                </div>
-
-                {/* Membership Information Section */}
-                <div className="space-y-4">
-                  <h3 className="text-lg font-semibold">Membership Information</h3>
-                  
-                  <div className="grid gap-4 md:grid-cols-2">
-                    <FormField
-                      control={form.control}
-                      name="joinDate"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Join Date *</FormLabel>
-                          <FormControl>
-                            <Input type="date" {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    
-                    <FormField
-                      control={form.control}
-                      name="membershipStatus"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Membership Status *</FormLabel>
-                          <Select onValueChange={field.onChange} defaultValue={field.value}>
-                            <FormControl>
-                              <SelectTrigger>
-                                <SelectValue placeholder="Select status" />
-                              </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                              <SelectItem value="New">New</SelectItem>
-                              <SelectItem value="Active">Active</SelectItem>
-                              <SelectItem value="Inactive">Inactive</SelectItem>
-                              <SelectItem value="Transferred">Transferred</SelectItem>
-                              <SelectItem value="Archived">Archived</SelectItem>
-                            </SelectContent>
-                          </Select>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-                </div>
-
-                {/* Emergency Contact Section */}
-                <div className="space-y-4">
-                  <h3 className="text-lg font-semibold">Emergency Contact</h3>
-                  
-                  <div className="grid gap-4 md:grid-cols-2">
-                    <FormField
-                      control={form.control}
-                      name="emergencyContact.name"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Emergency Contact Name *</FormLabel>
-                          <FormControl>
-                            <Input placeholder="Enter emergency contact name" {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    
-                    <FormField
-                      control={form.control}
-                      name="emergencyContact.phone"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Emergency Contact Phone *</FormLabel>
-                          <FormControl>
-                            <Input placeholder="Enter emergency contact phone" {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-
                   <FormField
                     control={form.control}
-                    name="emergencyContact.relationship"
+                    name="lastName"
                     render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Relationship to Emergency Contact *</FormLabel>
+                      <FormItem className="col-span-12 sm:col-span-6">
+                        <FormLabel>Last Name *</FormLabel>
                         <FormControl>
-                          <Input placeholder="e.g., Spouse, Parent, Friend" {...field} />
+                          <Input placeholder="Enter last name" {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
                     )}
                   />
                 </div>
+              </div>
 
-                {/* Avatar Upload Section */}
-                <div className="space-y-4">
-                  <h3 className="text-lg font-semibold">Profile Photo</h3>
-                  
-                  <div className="flex items-center space-x-4">
-                    <Avatar className="h-20 w-20">
-                      <AvatarImage src={avatarPreview} />
-                      <AvatarFallback>
-                        <User className="h-8 w-8" />
-                      </AvatarFallback>
-                    </Avatar>
-                    
-                    <div className="space-y-2">
-                      <FileUpload
-                        accept="image/*"
-                        maxFiles={1}
-                        maxSize={5 * 1024 * 1024} // 5MB
-                        onUpload={(files) => handleAvatarUpload(files[0])}
-                        onRemove={handleRemoveAvatar}
-                        placeholder="Upload profile photo"
-                        className="w-full"
-                      />
-                      <p className="text-xs text-muted-foreground">
-                        Upload a profile photo (optional). Max size: 5MB
-                      </p>
-                    </div>
-                  </div>
-                </div>
+              <div className="grid grid-cols-12 gap-5">
+                <FormField
+                  control={form.control}
+                  name="relationship"
+                  render={({ field }) => (
+                    <FormItem className="col-span-12 sm:col-span-4">
+                      <FormLabel>Relationship *</FormLabel>
+                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select relationship" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="Spouse">Spouse</SelectItem>
+                          <SelectItem value="Child">Child</SelectItem>
+                          <SelectItem value="Parent">Parent</SelectItem>
+                          <SelectItem value="Sibling">Sibling</SelectItem>
+                          <SelectItem value="Grandparent">Grandparent</SelectItem>
+                          <SelectItem value="Other">Other</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-                {/* Form Actions */}
-                <div className="flex items-center justify-end space-x-4 pt-6">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={() => router.push(`/dashboard/members/${member.id}/family`)}
-                  >
-                    Cancel
-                  </Button>
-                  <Button type="submit" disabled={saving}>
-                    {saving ? (
-                      <>
-                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                        Adding...
-                      </>
-                    ) : (
-                      <>
-                        <Plus className="mr-2 h-4 w-4" />
-                        Add Family Member
-                      </>
-                    )}
-                  </Button>
-                </div>
-              </form>
-            </Form>
-          </CardContent>
-        </Card>
+                <FormField
+                  control={form.control}
+                  name="gender"
+                  render={({ field }) => (
+                    <FormItem className="col-span-12 sm:col-span-4">
+                      <FormLabel>Gender *</FormLabel>
+                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select gender" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="Male">Male</SelectItem>
+                          <SelectItem value="Female">Female</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-        {/* Preview Card */}
-        <Card className="md:col-span-1">
-          <CardHeader>
-            <CardTitle>Family Member Preview</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="text-center">
-              <Avatar className="h-24 w-24 mx-auto mb-4">
-                <AvatarImage src={avatarPreview} />
-                <AvatarFallback className="text-lg">
-                  {form.watch('firstName')?.[0]}{form.watch('lastName')?.[0]}
-                </AvatarFallback>
-              </Avatar>
-              <h3 className="text-lg font-semibold">
-                {form.watch('firstName') || 'First'} {form.watch('lastName') || 'Last'}
-              </h3>
-              <p className="text-sm text-muted-foreground">
-                {form.watch('relationship') || 'Relationship'}
-              </p>
+                <FormField
+                  control={form.control}
+                  name="dateOfBirth"
+                  render={({ field }) => (
+                    <FormItem className="col-span-12 sm:col-span-4">
+                      <FormLabel>Date of Birth *</FormLabel>
+                      <FormControl>
+                        <Input type="date" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="phone"
+                  render={({ field }) => (
+                    <FormItem className="col-span-12 sm:col-span-6">
+                      <FormLabel>Phone Number *</FormLabel>
+                      <FormControl>
+                        <Input placeholder="+233 24 123 4567" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="email"
+                  render={({ field }) => (
+                    <FormItem className="col-span-12 sm:col-span-6">
+                      <FormLabel>Email Address</FormLabel>
+                      <FormControl>
+                        <Input placeholder="john.doe@example.com" type="email" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="address"
+                  render={({ field }) => (
+                    <FormItem className="col-span-12">
+                      <FormLabel>Residential Address *</FormLabel>
+                      <FormControl>
+                        <Textarea placeholder="Enter residential address" rows={3} {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
             </div>
-            
-            <div className="space-y-2 text-sm">
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Email:</span>
-                <span>{form.watch('email') || 'Not provided'}</span>
+          </Card>
+
+          {/* Membership Information */}
+          <Card className="rounded-xl border border-border p-6">
+            <div className="space-y-5">
+              <div>
+                <h2 className="text-base font-semibold text-foreground">Membership Information</h2>
+                <p className="text-xs text-muted-foreground mt-0.5">Church affiliation and join status</p>
               </div>
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Phone:</span>
-                <span>{form.watch('phone') || 'Not provided'}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Status:</span>
-                <span>{form.watch('membershipStatus') || 'Not set'}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Join Date:</span>
-                <span>{form.watch('joinDate') || 'Not set'}</span>
+
+              <div className="grid grid-cols-12 gap-5">
+                <FormField
+                  control={form.control}
+                  name="joinDate"
+                  render={({ field }) => (
+                    <FormItem className="col-span-12 sm:col-span-6">
+                      <FormLabel>Join Date *</FormLabel>
+                      <FormControl>
+                        <Input type="date" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                
+                <FormField
+                  control={form.control}
+                  name="membershipStatus"
+                  render={({ field }) => (
+                    <FormItem className="col-span-12 sm:col-span-6">
+                      <FormLabel>Membership Status *</FormLabel>
+                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select status" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="New">New</SelectItem>
+                          <SelectItem value="Active">Active</SelectItem>
+                          <SelectItem value="Inactive">Inactive</SelectItem>
+                          <SelectItem value="Transferred">Transferred</SelectItem>
+                          <SelectItem value="Archived">Archived</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
               </div>
             </div>
-          </CardContent>
-        </Card>
-      </div>
+          </Card>
+
+          {/* Emergency Contact Section */}
+          <Card className="rounded-xl border border-border p-6">
+            <div className="space-y-5">
+              <div>
+                <h2 className="text-base font-semibold text-foreground">Emergency Contact</h2>
+                <p className="text-xs text-muted-foreground mt-0.5">Primary emergency point of contact</p>
+              </div>
+
+              <div className="grid grid-cols-12 gap-5">
+                <FormField
+                  control={form.control}
+                  name="emergencyContact.name"
+                  render={({ field }) => (
+                    <FormItem className="col-span-12 sm:col-span-4">
+                      <FormLabel>Contact Name *</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Enter emergency contact name" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                
+                <FormField
+                  control={form.control}
+                  name="emergencyContact.phone"
+                  render={({ field }) => (
+                    <FormItem className="col-span-12 sm:col-span-4">
+                      <FormLabel>Contact Phone *</FormLabel>
+                      <FormControl>
+                        <Input placeholder="+233 24 123 4567" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="emergencyContact.relationship"
+                  render={({ field }) => (
+                    <FormItem className="col-span-12 sm:col-span-4">
+                      <FormLabel>Relationship *</FormLabel>
+                      <FormControl>
+                        <Input placeholder="e.g. Spouse, Mother" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+            </div>
+          </Card>
+
+          {/* Form Actions */}
+          <div className="flex justify-end gap-3 pt-2">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => router.push(`/dashboard/members/${member.id}/family`)}
+            >
+              Cancel
+            </Button>
+            <Button type="submit" disabled={saving}>
+              {saving ? (
+                <>
+                  <div className="animate-spin rounded-full h-4 w-4 border-2 border-background border-t-transparent mr-2" />
+                  Adding...
+                </>
+              ) : (
+                <>
+                  <Plus className="mr-1.5 h-4 w-4" />
+                  Add Family Member
+                </>
+              )}
+            </Button>
+          </div>
+        </form>
+      </Form>
     </div>
   );
 } 

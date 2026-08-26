@@ -13,7 +13,8 @@ import {
   AlertCircle,
   CheckCircle,
   Plus,
-  Trash2
+  Trash2,
+  ArrowLeft
 } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
@@ -281,55 +282,48 @@ export default function EditCategoryPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 max-w-6xl">
       {/* Header */}
-      <PageHeader
-        title="Edit Category"
-        description={`Update information for ${category.name}`}
-        actions={
-          <div className="flex items-center space-x-2">
-            <Button variant="outline" onClick={() => router.back()}>
-              <X className="mr-2 h-4 w-4" />
-              Cancel
-            </Button>
-            <Button
-              onClick={form.handleSubmit(onSubmit)}
-              disabled={saving}
-            >
-              <Save className="mr-2 h-4 w-4" />
-              {saving ? 'Saving...' : 'Save Changes'}
-            </Button>
-          </div>
-        }
-      />
+      <div className="flex items-center gap-4">
+        <Button variant="ghost" size="icon" asChild>
+          <Link href="/dashboard/assets/categories">
+            <ArrowLeft className="h-4 w-4" />
+          </Link>
+        </Button>
+        <div>
+          <h1 className="font-heading text-2xl font-bold tracking-tight">Edit Asset Category</h1>
+          <p className="text-sm text-muted-foreground mt-1">
+            Update category classification, color badges, depreciation defaults, and custom fields.
+          </p>
+        </div>
+      </div>
 
       {/* Warning for categories with assets */}
       {category.assetCount > 0 && (
         <Alert>
           <AlertCircle className="h-4 w-4" />
           <AlertDescription>
-            This category contains {category.assetCount} assets. Changes to custom fields may affect existing asset data.
+            This category contains {category.assetCount} assets. Changes to custom fields or accounting defaults may affect existing inventory.
           </AlertDescription>
         </Alert>
       )}
 
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-          <div className="grid gap-6 md:grid-cols-2">
-            {/* Basic Information */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center space-x-2">
-                  <Package className="h-5 w-5" />
-                  <span>Basic Information</span>
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
+          {/* Basic Information */}
+          <Card className="rounded-xl border border-border p-6">
+            <div className="space-y-5">
+              <div>
+                <h2 className="text-base font-semibold text-foreground">Basic Information</h2>
+                <p className="text-xs text-muted-foreground mt-0.5">Define name, classification code, and description</p>
+              </div>
+
+              <div className="grid grid-cols-12 gap-5">
                 <FormField
                   control={form.control}
                   name="name"
                   render={({ field }) => (
-                    <FormItem>
+                    <FormItem className="col-span-12 sm:col-span-8">
                       <FormLabel>Category Name *</FormLabel>
                       <FormControl>
                         <Input placeholder="Enter category name" {...field} />
@@ -343,7 +337,7 @@ export default function EditCategoryPage() {
                   control={form.control}
                   name="code"
                   render={({ field }) => (
-                    <FormItem>
+                    <FormItem className="col-span-12 sm:col-span-4">
                       <FormLabel>Category Code *</FormLabel>
                       <FormControl>
                         <Input
@@ -363,12 +357,12 @@ export default function EditCategoryPage() {
                   control={form.control}
                   name="description"
                   render={({ field }) => (
-                    <FormItem>
+                    <FormItem className="col-span-12">
                       <FormLabel>Description *</FormLabel>
                       <FormControl>
                         <Textarea
-                          placeholder="Describe what assets belong to this category"
-                          className="min-h-[100px]"
+                          placeholder="Describe what assets belong to this category and their general purpose..."
+                          rows={3}
                           {...field}
                         />
                       </FormControl>
@@ -378,55 +372,58 @@ export default function EditCategoryPage() {
                 />
 
                 {/* Tags */}
-                <div>
-                  <Label>Tags</Label>
-                  <div className="space-y-2">
-                    <div className="flex space-x-2">
-                      <Input
-                        placeholder="Add a tag"
-                        value={newTag}
-                        onChange={(e) => setNewTag(e.target.value)}
-                        onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddTag())}
-                      />
-                      <Button type="button" variant="outline" onClick={handleAddTag}>
-                        <Plus className="h-4 w-4" />
-                      </Button>
-                    </div>
-                    {form.watch('tags') && form.watch('tags')!.length > 0 && (
-                      <div className="flex flex-wrap gap-2">
-                        {form.watch('tags')!.map((tag) => (
-                          <Badge key={tag} variant="neutral" className="cursor-pointer" onClick={() => handleRemoveTag(tag)}>
-                            {tag}
-                            <X className="ml-1 h-3 w-3" />
-                          </Badge>
-                        ))}
-                      </div>
-                    )}
+                <div className="col-span-12 space-y-2">
+                  <Label>Category Tags</Label>
+                  <div className="flex gap-2">
+                    <Input
+                      placeholder="Add a tag..."
+                      value={newTag}
+                      onChange={(e) => setNewTag(e.target.value)}
+                      onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddTag())}
+                    />
+                    <Button type="button" variant="outline" onClick={handleAddTag}>
+                      Add Tag
+                    </Button>
                   </div>
+                  {form.watch('tags') && form.watch('tags')!.length > 0 && (
+                    <div className="flex flex-wrap gap-2 pt-1">
+                      {form.watch('tags')!.map((tag) => (
+                        <Badge key={tag} variant="neutral" className="cursor-pointer flex items-center gap-1" onClick={() => handleRemoveTag(tag)}>
+                          {tag}
+                          <X className="h-3 w-3" />
+                        </Badge>
+                      ))}
+                    </div>
+                  )}
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+            </div>
+          </Card>
 
-            {/* Appearance & Settings */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Appearance & Settings</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
+          {/* Appearance & Settings */}
+          <Card className="rounded-xl border border-border p-6">
+            <div className="space-y-5">
+              <div>
+                <h2 className="text-base font-semibold text-foreground">Appearance & Workflow Rules</h2>
+                <p className="text-xs text-muted-foreground mt-0.5">Color badges and categorization governance</p>
+              </div>
+
+              <div className="grid grid-cols-12 gap-5">
                 <FormField
                   control={form.control}
                   name="color"
                   render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Category Color *</FormLabel>
+                    <FormItem className="col-span-12 sm:col-span-6">
+                      <FormLabel>Category Color Badge *</FormLabel>
                       <FormControl>
-                        <div className="grid grid-cols-5 gap-2">
+                        <div className="flex flex-wrap gap-2 pt-1">
                           {categoryColors.map((color) => (
                             <button
                               key={color.value}
                               type="button"
-                              className={`w-10 h-10 rounded-md border-2 ${color.class} ${field.value === color.value ? 'border-foreground' : 'border-transparent'
-                                }`}
+                              className={`w-8 h-8 rounded-full border-2 transition-all ${color.class} ${
+                                field.value === color.value ? 'ring-2 ring-primary ring-offset-2 border-foreground' : 'border-transparent'
+                              }`}
                               onClick={() => field.onChange(color.value)}
                               title={color.name}
                             />
@@ -442,7 +439,7 @@ export default function EditCategoryPage() {
                   control={form.control}
                   name="icon"
                   render={({ field }) => (
-                    <FormItem>
+                    <FormItem className="col-span-12 sm:col-span-6">
                       <FormLabel>Category Icon</FormLabel>
                       <Select onValueChange={field.onChange} value={field.value}>
                         <FormControl>
@@ -453,7 +450,7 @@ export default function EditCategoryPage() {
                         <SelectContent>
                           {categoryIcons.map((icon) => (
                             <SelectItem key={icon} value={icon}>
-                              {icon}
+                              <span className="capitalize">{icon}</span>
                             </SelectItem>
                           ))}
                         </SelectContent>
@@ -463,15 +460,11 @@ export default function EditCategoryPage() {
                   )}
                 />
 
-                <Separator />
-
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between">
+                <div className="col-span-12 grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2">
+                  <div className="flex items-center justify-between rounded-lg border border-border p-3.5">
                     <div className="space-y-0.5">
-                      <Label>Active Status</Label>
-                      <p className="text-sm text-muted-foreground">
-                        Whether this category is available for use
-                      </p>
+                      <Label className="text-sm font-medium">Active Status</Label>
+                      <p className="text-xs text-muted-foreground">Available for new assets</p>
                     </div>
                     <Switch
                       checked={form.watch('isActive')}
@@ -479,12 +472,10 @@ export default function EditCategoryPage() {
                     />
                   </div>
 
-                  <div className="flex items-center justify-between">
+                  <div className="flex items-center justify-between rounded-lg border border-border p-3.5">
                     <div className="space-y-0.5">
-                      <Label>Allow Subcategories</Label>
-                      <p className="text-sm text-muted-foreground">
-                        Enable creation of subcategories under this category
-                      </p>
+                      <Label className="text-sm font-medium">Subcategories</Label>
+                      <p className="text-xs text-muted-foreground">Allow nested subcategories</p>
                     </div>
                     <Switch
                       checked={form.watch('allowSubcategories')}
@@ -492,12 +483,10 @@ export default function EditCategoryPage() {
                     />
                   </div>
 
-                  <div className="flex items-center justify-between">
+                  <div className="flex items-center justify-between rounded-lg border border-border p-3.5">
                     <div className="space-y-0.5">
-                      <Label>Requires Approval</Label>
-                      <p className="text-sm text-muted-foreground">
-                        Assets in this category require approval before activation
-                      </p>
+                      <Label className="text-sm font-medium">Requires Approval</Label>
+                      <p className="text-xs text-muted-foreground">Require admin verification</p>
                     </div>
                     <Switch
                       checked={form.watch('requiresApproval')}
@@ -505,20 +494,24 @@ export default function EditCategoryPage() {
                     />
                   </div>
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+            </div>
+          </Card>
 
-            {/* Default Values */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Default Values</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
+          {/* Default Values */}
+          <Card className="rounded-xl border border-border p-6">
+            <div className="space-y-5">
+              <div>
+                <h2 className="text-base font-semibold text-foreground">Default Accounting & Warranty Defaults</h2>
+                <p className="text-xs text-muted-foreground mt-0.5">Standard values auto-populated when creating assets under this category</p>
+              </div>
+
+              <div className="grid grid-cols-12 gap-5">
                 <FormField
                   control={form.control}
                   name="defaultDepreciationRate"
                   render={({ field }) => (
-                    <FormItem>
+                    <FormItem className="col-span-12 sm:col-span-6">
                       <FormLabel>Default Depreciation Rate (%)</FormLabel>
                       <FormControl>
                         <div className="relative">
@@ -528,11 +521,11 @@ export default function EditCategoryPage() {
                             min="0"
                             max="100"
                             className="pr-8"
-                            placeholder="10"
+                            placeholder="10.0"
                             {...field}
                             onChange={(e) => field.onChange(parseFloat(e.target.value) || undefined)}
                           />
-                          <span className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground">%</span>
+                          <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground">%</span>
                         </div>
                       </FormControl>
                       <FormMessage />
@@ -544,7 +537,7 @@ export default function EditCategoryPage() {
                   control={form.control}
                   name="defaultWarrantyPeriod"
                   render={({ field }) => (
-                    <FormItem>
+                    <FormItem className="col-span-12 sm:col-span-6">
                       <FormLabel>Default Warranty Period (months)</FormLabel>
                       <FormControl>
                         <Input
@@ -559,155 +552,21 @@ export default function EditCategoryPage() {
                     </FormItem>
                   )}
                 />
-              </CardContent>
-            </Card>
-
-            {/* Custom Fields */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Custom Fields</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                {/* Add Custom Field Form */}
-                <div className="border rounded-lg p-4 space-y-3">
-                  <h4 className="font-medium">Add Custom Field</h4>
-                  <div className="grid grid-cols-2 gap-2">
-                    <Input
-                      placeholder="Field name"
-                      value={newCustomField.name}
-                      onChange={(e) => setNewCustomField(prev => ({ ...prev, name: e.target.value }))}
-                    />
-                    <Select
-                      value={newCustomField.type}
-                      onValueChange={(value: any) => setNewCustomField(prev => ({ ...prev, type: value }))}
-                    >
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="text">Text</SelectItem>
-                        <SelectItem value="number">Number</SelectItem>
-                        <SelectItem value="date">Date</SelectItem>
-                        <SelectItem value="boolean">Yes/No</SelectItem>
-                        <SelectItem value="select">Dropdown</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  {newCustomField.type === 'select' && (
-                    <div className="space-y-2">
-                      <div className="flex space-x-2">
-                        <Input
-                          placeholder="Add option"
-                          value={newOption}
-                          onChange={(e) => setNewOption(e.target.value)}
-                          onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddOption())}
-                        />
-                        <Button type="button" variant="outline" size="sm" onClick={handleAddOption}>
-                          <Plus className="h-4 w-4" />
-                        </Button>
-                      </div>
-                      {newCustomField.options.length > 0 && (
-                        <div className="flex flex-wrap gap-1">
-                          {newCustomField.options.map((option) => (
-                            <Badge key={option} variant="neutral" className="cursor-pointer" onClick={() => handleRemoveOption(option)}>
-                              {option}
-                              <X className="ml-1 h-3 w-3" />
-                            </Badge>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                  )}
-
-                  <div className="flex items-center space-x-2">
-                    <input
-                      type="checkbox"
-                      id="fieldRequired"
-                      checked={newCustomField.required}
-                      onChange={(e) => setNewCustomField(prev => ({ ...prev, required: e.target.checked }))}
-                      className="rounded border-gray-300"
-                    />
-                    <Label htmlFor="fieldRequired">Required field</Label>
-                  </div>
-
-                  <Button type="button" variant="outline" onClick={handleAddCustomField}>
-                    <Plus className="mr-2 h-4 w-4" />
-                    Add Field
-                  </Button>
-                </div>
-
-                {/* Existing Custom Fields */}
-                {form.watch('customFields') && form.watch('customFields')!.length > 0 && (
-                  <div className="space-y-2">
-                    <h4 className="font-medium">Custom Fields</h4>
-                    {form.watch('customFields')!.map((field, index) => (
-                      <div key={index} className="flex items-center justify-between p-3 border rounded">
-                        <div>
-                          <span className="font-medium">{field.name}</span>
-                          <span className="ml-2 text-sm text-muted-foreground">({field.type})</span>
-                          {field.required && <Badge variant="neutral" className="ml-2 text-xs">Required</Badge>}
-                          {field.options && field.options.length > 0 && (
-                            <div className="mt-1">
-                              <span className="text-xs text-muted-foreground">Options: {field.options.join(', ')}</span>
-                            </div>
-                          )}
-                        </div>
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleRemoveCustomField(index)}
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Preview */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Preview</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="flex items-center space-x-4 p-4 border rounded-lg">
-                <div
-                  className="w-12 h-12 rounded-lg flex items-center justify-center text-white"
-                  style={{ backgroundColor: form.watch('color') }}
-                >
-                  <Package className="h-6 w-6" />
-                </div>
-                <div className="flex-1">
-                  <h3 className="font-semibold">
-                    {form.watch('name') || 'Category Name'}
-                  </h3>
-                  <p className="text-sm text-muted-foreground">
-                    {form.watch('description') || 'Category description will appear here'}
-                  </p>
-                  <div className="flex items-center space-x-2 mt-2">
-                    <Badge variant="neutral">{form.watch('code') || 'CODE'}</Badge>
-                    <StatusBadge status={form.watch('isActive') ? 'active' : 'inactive'} />
-                    {category.assetCount > 0 && (
-                      <Badge variant="neutral">{category.assetCount} assets</Badge>
-                    )}
-                  </div>
-                </div>
               </div>
-            </CardContent>
+            </div>
           </Card>
 
           {/* Form Actions */}
-          <div className="flex justify-end space-x-2">
-            <Button type="button" variant="outline" onClick={() => router.back()}>
+          <div className="flex justify-end gap-3 pt-2">
+            <Button 
+              type="button" 
+              variant="outline" 
+              onClick={() => router.push('/dashboard/assets/categories')}
+            >
               Cancel
             </Button>
             <Button type="submit" disabled={saving}>
-              <Save className="mr-2 h-4 w-4" />
+              <Save className="mr-1.5 h-4 w-4" />
               {saving ? 'Saving...' : 'Save Changes'}
             </Button>
           </div>

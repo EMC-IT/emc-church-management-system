@@ -256,34 +256,26 @@ export default function EditNewsletterPage() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 max-w-6xl">
       {/* Header with Back Navigation */}
-      <div className="flex items-center gap-4 mb-6">
-        <Button
-          variant="outline"
-          size="icon"
-          className="h-12 w-12"
-          onClick={() => router.back()}
-        >
-          <ArrowLeft className="h-4 w-4" />
-        </Button>
-        
-        <div className="flex items-center gap-3 flex-1">
-          <div className="p-2 bg-brand-primary/10 rounded-lg">
-            <FileText className="h-6 w-6 text-brand-primary" />
-          </div>
-          <div className="flex-1">
-            <PageHeader
-              title="Edit Newsletter"
-              actions={
-                <Badge variant={getStatusColor(formData.status)} className="flex items-center gap-1">
-                  {getStatusIcon(formData.status)}
-                  Current: {formData.status.charAt(0).toUpperCase() + formData.status.slice(1)}
-                </Badge>
-              }
-            />
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div className="flex items-center gap-4">
+          <Button variant="ghost" size="icon" asChild>
+            <Link href={`/dashboard/communications/newsletters/${params.id}`}>
+              <ArrowLeft className="h-4 w-4" />
+            </Link>
+          </Button>
+          <div>
+            <h1 className="font-heading text-2xl font-bold tracking-tight">Edit Newsletter</h1>
+            <p className="text-sm text-muted-foreground mt-1">
+              Update email bulletin copy, template layouts, subscriber lists, and scheduling.
+            </p>
           </div>
         </div>
+        <Badge variant={getStatusColor(formData.status)} className="w-fit text-xs flex items-center gap-1 self-start sm:self-auto">
+          {getStatusIcon(formData.status)}
+          Status: {formData.status.charAt(0).toUpperCase() + formData.status.slice(1)}
+        </Badge>
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
@@ -653,20 +645,18 @@ export default function EditNewsletterPage() {
       </Tabs>
 
       {/* Action Buttons */}
-      <div className="flex items-center justify-between pt-6 border-t">
+      <div className="flex justify-end gap-3 pt-6 border-t">
         <Button variant="outline" onClick={() => router.push(`/dashboard/communications/newsletters/${params.id}`)}>
           Cancel Changes
         </Button>
-        <div className="flex items-center gap-2">
-          <Button variant="outline" onClick={handleSaveDraft} disabled={isLoading}>
-            <Save className="mr-2 h-4 w-4" />
-            Save Draft
-          </Button>
-          <Button onClick={handleUpdateNewsletter} disabled={isLoading}>
-            <Send className="mr-2 h-4 w-4" />
-            {formData.isScheduled ? 'Update & Schedule' : 'Update Newsletter'}
-          </Button>
-        </div>
+        <Button variant="outline" onClick={handleSaveDraft} disabled={isLoading}>
+          <Save className="mr-1.5 h-4 w-4" />
+          Save Draft
+        </Button>
+        <Button onClick={handleUpdateNewsletter} disabled={isLoading}>
+          <Send className="mr-1.5 h-4 w-4" />
+          {formData.isScheduled ? 'Update & Schedule' : 'Update Newsletter'}
+        </Button>
       </div>
     </div>
   );

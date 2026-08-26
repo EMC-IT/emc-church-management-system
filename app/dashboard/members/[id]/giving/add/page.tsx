@@ -235,36 +235,36 @@ export default function AddGivingPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 max-w-6xl">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <Button variant="ghost" size="sm" asChild>
-            <Link href={`/dashboard/members/${member.id}/giving`}>
-              <ArrowLeft className="mr-2 h-4 w-4" />
-              Back to Giving History
-            </Link>
-          </Button>
-          <PageHeader
-            title="Add Giving Record"
-            description={`Record a new giving contribution for ${member.firstName} ${member.lastName}`}
-          />
+      <div className="flex items-center gap-4">
+        <Button variant="ghost" size="icon" asChild>
+          <Link href={`/dashboard/members/${member.id}/giving`}>
+            <ArrowLeft className="h-4 w-4" />
+          </Link>
+        </Button>
+        <div>
+          <h1 className="font-heading text-2xl font-bold tracking-tight">Record Member Contribution</h1>
+          <p className="text-sm text-muted-foreground mt-1">
+            Log a tithe, pledge payment, offering, or special donation for {member.firstName} {member.lastName}.
+          </p>
         </div>
       </div>
 
       {/* Form */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Giving Details</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Basic Information */}
-            <div className="grid gap-4 md:grid-cols-2">
-              <div className="space-y-2">
-                <Label htmlFor="type">Type of Giving</Label>
+      <form onSubmit={handleSubmit} className="space-y-6">
+        <Card className="rounded-xl border border-border p-6">
+          <div className="space-y-5">
+            <div>
+              <h2 className="text-base font-semibold text-foreground">Contribution Details</h2>
+              <p className="text-xs text-muted-foreground mt-0.5">Specify amount, category allocation, payment channel, and attribution</p>
+            </div>
+
+            <div className="grid grid-cols-12 gap-5">
+              <div className="col-span-12 sm:col-span-6 space-y-2">
+                <Label htmlFor="type">Type of Giving *</Label>
                 <Select value={formData.type} onValueChange={(value) => handleInputChange('type', value)}>
-                  <SelectTrigger>
+                  <SelectTrigger id="type">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -280,9 +280,10 @@ export default function AddGivingPage() {
                 </Select>
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="amount">Amount</Label>
+              <div className="col-span-12 sm:col-span-6 space-y-2">
+                <Label htmlFor="amount">Amount *</Label>
                 <div className="relative">
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">₵</span>
                   <Input
                     id="amount"
                     type="number"
@@ -293,18 +294,13 @@ export default function AddGivingPage() {
                     placeholder="0.00"
                     className="pl-8"
                   />
-                  <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground">
-                    <CurrencyDisplay amount={0} showSymbol={true} />
-                  </div>
                 </div>
               </div>
-            </div>
 
-            <div className="grid gap-4 md:grid-cols-2">
-              <div className="space-y-2">
-                <Label htmlFor="category">Category</Label>
+              <div className="col-span-12 sm:col-span-4 space-y-2">
+                <Label htmlFor="category">Category *</Label>
                 <Select value={formData.category} onValueChange={(value) => handleInputChange('category', value)}>
-                  <SelectTrigger>
+                  <SelectTrigger id="category">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -320,10 +316,10 @@ export default function AddGivingPage() {
                 </Select>
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="method">Payment Method</Label>
+              <div className="col-span-12 sm:col-span-4 space-y-2">
+                <Label htmlFor="method">Payment Method *</Label>
                 <Select value={formData.method} onValueChange={(value) => handleInputChange('method', value)}>
-                  <SelectTrigger>
+                  <SelectTrigger id="method">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -335,11 +331,9 @@ export default function AddGivingPage() {
                   </SelectContent>
                 </Select>
               </div>
-            </div>
 
-            <div className="grid gap-4 md:grid-cols-2">
-              <div className="space-y-2">
-                <Label htmlFor="date">Date</Label>
+              <div className="col-span-12 sm:col-span-4 space-y-2">
+                <Label htmlFor="date">Transaction Date *</Label>
                 <Input
                   id="date"
                   type="date"
@@ -348,76 +342,58 @@ export default function AddGivingPage() {
                 />
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="campaign">Campaign (Optional)</Label>
+              <div className="col-span-12 sm:col-span-8 space-y-2">
+                <Label htmlFor="campaign">Associated Campaign (Optional)</Label>
                 <Input
                   id="campaign"
                   value={formData.campaign}
                   onChange={(e) => handleInputChange('campaign', e.target.value)}
-                  placeholder="e.g., Building Fund, Mission Trip"
+                  placeholder="e.g., Building Fund 2024, Youth Camp Drive"
+                />
+              </div>
+
+              <div className="col-span-12 sm:col-span-4 flex items-center justify-between rounded-lg border border-border p-3.5 self-end">
+                <div className="space-y-0.5">
+                  <Label htmlFor="anonymous" className="text-sm font-medium cursor-pointer">Anonymous Attribution</Label>
+                  <p className="text-xs text-muted-foreground">Hide donor name in public reports</p>
+                </div>
+                <Switch
+                  id="anonymous"
+                  checked={formData.isAnonymous}
+                  onCheckedChange={(checked) => handleInputChange('isAnonymous', checked)}
+                />
+              </div>
+
+              <div className="col-span-12 space-y-2">
+                <Label htmlFor="description">Notes & Remarks</Label>
+                <Textarea
+                  id="description"
+                  value={formData.description}
+                  onChange={(e) => handleInputChange('description', e.target.value)}
+                  placeholder="Additional receipt notes or cheque reference numbers..."
+                  rows={3}
                 />
               </div>
             </div>
+          </div>
+        </Card>
 
-            <div className="space-y-2">
-              <Label htmlFor="description">Description</Label>
-              <Textarea
-                id="description"
-                value={formData.description}
-                onChange={(e) => handleInputChange('description', e.target.value)}
-                placeholder="Additional details about this giving..."
-                rows={3}
-              />
-            </div>
-
-            <div className="flex items-center space-x-2">
-              <Switch
-                id="anonymous"
-                checked={formData.isAnonymous}
-                onCheckedChange={(checked) => handleInputChange('isAnonymous', checked)}
-              />
-              <Label htmlFor="anonymous">Anonymous Giving</Label>
-            </div>
-
-            {/* Summary */}
-            {formData.amount && (
-              <Card className="bg-muted/50">
-                <CardContent className="pt-6">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm text-muted-foreground">Total Amount</p>
-                      <p className="text-2xl font-bold">
-                        <CurrencyDisplay amount={parseFloat(formData.amount) || 0} />
-                      </p>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-sm text-muted-foreground">Type</p>
-                      <p className="font-medium">
-                        {givingTypes.find(t => t.value === formData.type)?.label}
-                      </p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            )}
-
-            {/* Actions */}
-            <div className="flex justify-end space-x-2">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => router.push(`/dashboard/members/${memberId}/giving`)}
-              >
-                Cancel
-              </Button>
-              <Button type="submit" disabled={saving}>
-                <Save className="mr-2 h-4 w-4" />
-                {saving ? 'Saving...' : 'Save Giving Record'}
-              </Button>
-            </div>
-          </form>
-        </CardContent>
-      </Card>
+        {/* Actions */}
+        <div className="flex items-center justify-end gap-3 pt-2">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => router.push(`/dashboard/members/${memberId}/giving`)}
+            disabled={saving}
+          >
+            Cancel
+          </Button>
+          <Button type="submit" disabled={saving}>
+            <Save className="mr-1.5 h-4 w-4" />
+            {saving ? 'Saving...' : 'Save Contribution'}
+          </Button>
+        </div>
+      </form>
     </div>
   );
 } 

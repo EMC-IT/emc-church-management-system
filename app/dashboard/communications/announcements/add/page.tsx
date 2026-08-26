@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { PageHeader } from '@/components/ui/page-header';
@@ -191,156 +192,73 @@ export default function AddAnnouncementPage() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 max-w-6xl">
       {/* Header with Back Navigation */}
-      <div className="flex items-center gap-4 mb-6">
-        <Button
-          variant="outline"
-          size="icon"
-          className="h-12 w-12"
-          onClick={() => router.back()}
-        >
-          <ArrowLeft className="h-4 w-4" />
+      <div className="flex items-center gap-4">
+        <Button variant="ghost" size="icon" asChild>
+          <Link href="/dashboard/communications/announcements">
+            <ArrowLeft className="h-4 w-4" />
+          </Link>
         </Button>
-        
-        <div className="flex items-center gap-3">
-          <div className="p-2 bg-brand-primary/10 rounded-lg">
-            <Megaphone className="h-6 w-6 text-brand-primary" />
-          </div>
-          <PageHeader title="Create New Announcement" />
+        <div>
+          <h1 className="font-heading text-2xl font-bold tracking-tight">Create New Announcement</h1>
+          <p className="text-sm text-muted-foreground mt-1">
+            Broadcast church bulletins, event notices, service reminders, and ministry updates.
+          </p>
         </div>
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-3">
+      <div className="space-y-6">
         {/* Main Form */}
-        <div className="lg:col-span-2 space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Announcement Details</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-2">
+        <Card className="rounded-xl border border-border p-6">
+          <div className="space-y-5">
+            <div>
+              <h2 className="text-base font-semibold text-foreground">Announcement Details</h2>
+              <p className="text-xs text-muted-foreground mt-0.5">Specify title, targeted congregation group, priority, and content</p>
+            </div>
+
+            <div className="grid grid-cols-12 gap-5">
+              <div className="col-span-12 sm:col-span-8 space-y-2">
                 <Label htmlFor="title">Title *</Label>
                 <Input
                   id="title"
-                  placeholder="Enter announcement title..."
+                  placeholder="e.g. Special Easter Service Schedule, Annual General Meeting"
                   value={formData.title}
                   onChange={(e) => handleInputChange('title', e.target.value)}
-                  className="text-lg"
                 />
               </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="content">Content *</Label>
-                <Textarea
-                  id="content"
-                  placeholder="Write your announcement content here..."
-                  value={formData.content}
-                  onChange={(e) => handleInputChange('content', e.target.value)}
-                  className="min-h-32"
-                />
-                <p className="text-sm text-muted-foreground">
-                  {formData.content.length}/500 characters
-                </p>
-              </div>
-            </CardContent>
-          </Card>
 
-          <Card>
-            <CardHeader>
-              <CardTitle>Targeting & Priority</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="audience">Target Audience *</Label>
-                  <Select value={formData.targetAudience} onValueChange={(value) => handleInputChange('targetAudience', value)}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select target audience" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {targetAudiences.map((audience) => (
-                        <SelectItem key={audience} value={audience}>
-                          <div className="flex items-center gap-2">
-                            <Users className="h-4 w-4" />
-                            {audience}
-                          </div>
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="priority">Priority Level</Label>
-                  <Select value={formData.priority} onValueChange={(value: 'low' | 'medium' | 'high') => handleInputChange('priority', value)}>
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="low">
-                        <div className="flex items-center gap-2">
-                          <Eye className="h-4 w-4" />
-                          Low Priority
-                        </div>
+              <div className="col-span-12 sm:col-span-4 space-y-2">
+                <Label htmlFor="audience">Target Audience *</Label>
+                <Select value={formData.targetAudience} onValueChange={(value) => handleInputChange('targetAudience', value)}>
+                  <SelectTrigger id="audience">
+                    <SelectValue placeholder="Select target audience" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {targetAudiences.map((audience) => (
+                      <SelectItem key={audience} value={audience}>
+                        {audience}
                       </SelectItem>
-                      <SelectItem value="medium">
-                        <div className="flex items-center gap-2">
-                          <Clock className="h-4 w-4" />
-                          Medium Priority
-                        </div>
-                      </SelectItem>
-                      <SelectItem value="high">
-                        <div className="flex items-center gap-2">
-                          <AlertTriangle className="h-4 w-4" />
-                          High Priority
-                        </div>
-                      </SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
-            </CardContent>
-          </Card>
 
-          <Card>
-            <CardHeader>
-              <CardTitle>Scheduling Options</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="flex items-center space-x-2">
-                <Switch
-                  id="scheduled"
-                  checked={formData.isScheduled}
-                  onCheckedChange={(checked) => handleInputChange('isScheduled', checked)}
-                />
-                <Label htmlFor="scheduled">Schedule for later</Label>
+              <div className="col-span-12 sm:col-span-4 space-y-2">
+                <Label htmlFor="priority">Priority Level</Label>
+                <Select value={formData.priority} onValueChange={(value: 'low' | 'medium' | 'high') => handleInputChange('priority', value)}>
+                  <SelectTrigger id="priority">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="low">Low Priority</SelectItem>
+                    <SelectItem value="medium">Medium Priority</SelectItem>
+                    <SelectItem value="high">High Priority</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
-              
-              {formData.isScheduled && (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="scheduledDate">Scheduled Date</Label>
-                    <Input
-                      id="scheduledDate"
-                      type="date"
-                      value={formData.scheduledDate}
-                      onChange={(e) => handleInputChange('scheduledDate', e.target.value)}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="scheduledTime">Scheduled Time</Label>
-                    <Input
-                      id="scheduledTime"
-                      type="time"
-                      value={formData.scheduledTime}
-                      onChange={(e) => handleInputChange('scheduledTime', e.target.value)}
-                    />
-                  </div>
-                </div>
-              )}
-              
-              <div className="space-y-2">
+
+              <div className="col-span-12 sm:col-span-4 space-y-2">
                 <Label htmlFor="expiryDate">Expiry Date (Optional)</Label>
                 <Input
                   id="expiryDate"
@@ -348,60 +266,75 @@ export default function AddAnnouncementPage() {
                   value={formData.expiryDate}
                   onChange={(e) => handleInputChange('expiryDate', e.target.value)}
                 />
-                <p className="text-sm text-muted-foreground">
-                  Announcement will be automatically hidden after this date
-                </p>
               </div>
-            </CardContent>
-          </Card>
-        </div>
 
-        {/* Sidebar */}
-        <div className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Preview</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="p-4 border rounded-lg bg-muted/50">
-                <div className="flex items-start justify-between mb-2">
-                  <h3 className="font-semibold text-lg">
-                    {formData.title || 'Announcement Title'}
-                  </h3>
-                  <Badge variant={getPriorityColor(formData.priority)} className="flex items-center gap-1">
-                    {getPriorityIcon(formData.priority)}
-                    {formData.priority.charAt(0).toUpperCase() + formData.priority.slice(1)}
-                  </Badge>
-                </div>
-                <p className="text-sm text-muted-foreground mb-3">
-                  {formData.content || 'Your announcement content will appear here...'}
-                </p>
-                <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                  <div className="flex items-center gap-1">
-                    <Users className="h-3 w-3" />
-                    {formData.targetAudience || 'Target Audience'}
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <Calendar className="h-3 w-3" />
-                    {formData.isScheduled && formData.scheduledDate 
-                      ? new Date(formData.scheduledDate).toLocaleDateString()
-                      : 'Now'
-                    }
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>Additional Options</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="flex items-center justify-between">
+              <div className="col-span-12 sm:col-span-4 flex items-center justify-between rounded-lg border border-border p-3.5">
                 <div className="space-y-0.5">
-                  <Label htmlFor="notifications">Send Notifications</Label>
-                  <p className="text-sm text-muted-foreground">Notify members via email/SMS</p>
+                  <Label htmlFor="scheduled" className="text-sm font-medium cursor-pointer">Schedule for Later</Label>
+                  <p className="text-xs text-muted-foreground">Publish at future date/time</p>
+                </div>
+                <Switch
+                  id="scheduled"
+                  checked={formData.isScheduled}
+                  onCheckedChange={(checked) => handleInputChange('isScheduled', checked)}
+                />
+              </div>
+
+              {formData.isScheduled && (
+                <>
+                  <div className="col-span-12 sm:col-span-6 space-y-2">
+                    <Label htmlFor="scheduledDate">Scheduled Date *</Label>
+                    <Input
+                      id="scheduledDate"
+                      type="date"
+                      value={formData.scheduledDate}
+                      onChange={(e) => handleInputChange('scheduledDate', e.target.value)}
+                    />
+                  </div>
+                  <div className="col-span-12 sm:col-span-6 space-y-2">
+                    <Label htmlFor="scheduledTime">Scheduled Time *</Label>
+                    <Input
+                      id="scheduledTime"
+                      type="time"
+                      value={formData.scheduledTime}
+                      onChange={(e) => handleInputChange('scheduledTime', e.target.value)}
+                    />
+                  </div>
+                </>
+              )}
+
+              <div className="col-span-12 space-y-2">
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="content">Announcement Content *</Label>
+                  <span className="text-xs text-muted-foreground">
+                    {formData.content.length}/500 characters
+                  </span>
+                </div>
+                <Textarea
+                  id="content"
+                  placeholder="Write your announcement content here..."
+                  value={formData.content}
+                  onChange={(e) => handleInputChange('content', e.target.value)}
+                  rows={5}
+                />
+              </div>
+            </div>
+          </div>
+        </Card>
+
+        {/* Options Card */}
+        <Card className="rounded-xl border border-border p-6">
+          <div className="space-y-5">
+            <div>
+              <h2 className="text-base font-semibold text-foreground">Distribution & Engagement</h2>
+              <p className="text-xs text-muted-foreground mt-0.5">Configure push alerts and congregation interaction preferences</p>
+            </div>
+
+            <div className="grid grid-cols-12 gap-5">
+              <div className="col-span-12 sm:col-span-6 flex items-center justify-between rounded-lg border border-border p-3.5">
+                <div className="space-y-0.5">
+                  <Label htmlFor="notifications" className="text-sm font-medium cursor-pointer">Broadcast Notifications</Label>
+                  <p className="text-xs text-muted-foreground">Notify members via mobile push and email</p>
                 </div>
                 <Switch
                   id="notifications"
@@ -410,10 +343,10 @@ export default function AddAnnouncementPage() {
                 />
               </div>
               
-              <div className="flex items-center justify-between">
+              <div className="col-span-12 sm:col-span-6 flex items-center justify-between rounded-lg border border-border p-3.5">
                 <div className="space-y-0.5">
-                  <Label htmlFor="comments">Allow Comments</Label>
-                  <p className="text-sm text-muted-foreground">Let members respond</p>
+                  <Label htmlFor="comments" className="text-sm font-medium cursor-pointer">Allow Member Comments</Label>
+                  <p className="text-xs text-muted-foreground">Let members reply and react to announcement</p>
                 </div>
                 <Switch
                   id="comments"
@@ -421,55 +354,45 @@ export default function AddAnnouncementPage() {
                   onCheckedChange={(checked) => handleInputChange('allowComments', checked)}
                 />
               </div>
-            </CardContent>
-          </Card>
-
-          {/* Action Buttons */}
-          <div className="space-y-2">
-            <Button 
-              onClick={handlePublish} 
-              className="w-full bg-brand-primary hover:bg-brand-primary/90" 
-              disabled={isLoading || !isFormValid()}
-            >
-              {isLoading ? (
-                <>
-                  <Clock className="mr-2 h-4 w-4 animate-spin" />
-                  {formData.isScheduled ? 'Scheduling...' : 'Publishing...'}
-                </>
-              ) : (
-                <>
-                  <Send className="mr-2 h-4 w-4" />
-                  {formData.isScheduled ? 'Schedule Announcement' : 'Publish Now'}
-                </>
-              )}
-            </Button>
-            
-            <Button 
-              variant="outline" 
-              onClick={handleScheduleClick} 
-              className="w-full" 
-              disabled={isLoading || !isFormValid()}
-            >
-              <Calendar className="mr-2 h-4 w-4" />
-              Schedule for Later
-            </Button>
-            
-            <Button 
-              variant="outline" 
-              onClick={handleSaveDraft} 
-              className="w-full" 
-              disabled={isLoading}
-            >
-              <Save className="mr-2 h-4 w-4" />
-              Save as Draft
-            </Button>
-            
-            {!isFormValid() && (
-              <p className="text-sm text-muted-foreground text-center mt-2">
-                Fill in required fields to enable publishing
-              </p>
-            )}
+            </div>
           </div>
+        </Card>
+
+        {/* Action Buttons */}
+        <div className="flex justify-end gap-3 pt-2">
+          <Button 
+            variant="outline" 
+            onClick={() => router.push('/dashboard/communications/announcements')}
+            disabled={isLoading}
+          >
+            Cancel
+          </Button>
+          
+          <Button 
+            variant="outline" 
+            onClick={handleSaveDraft} 
+            disabled={isLoading}
+          >
+            <Save className="mr-1.5 h-4 w-4" />
+            Save as Draft
+          </Button>
+          
+          <Button 
+            onClick={handlePublish} 
+            disabled={isLoading || !isFormValid()}
+          >
+            {isLoading ? (
+              <>
+                <Clock className="mr-1.5 h-4 w-4 animate-spin" />
+                <span>{formData.isScheduled ? 'Scheduling...' : 'Publishing...'}</span>
+              </>
+            ) : (
+              <>
+                <Send className="mr-1.5 h-4 w-4" />
+                <span>{formData.isScheduled ? 'Schedule Announcement' : 'Publish Now'}</span>
+              </>
+            )}
+          </Button>
         </div>
       </div>
       

@@ -566,29 +566,30 @@ export default function GivingPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 max-w-6xl">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div className="flex items-center gap-4">
-          <Button variant="ghost" size="sm" asChild>
+          <Button variant="ghost" size="icon" asChild>
             <Link href={`/dashboard/members/${member.id}`}>
-              <ArrowLeft className="mr-2 h-4 w-4" />
-              Back to Profile
+              <ArrowLeft className="h-4 w-4" />
             </Link>
           </Button>
-          <PageHeader
-            title="Giving History"
-            description={`Track giving and donations for ${member.firstName} ${member.lastName}`}
-          />
+          <div>
+            <h1 className="font-heading text-2xl font-bold tracking-tight">Giving History</h1>
+            <p className="text-sm text-muted-foreground mt-1">
+              Track giving and donations for {member.firstName} {member.lastName}
+            </p>
+          </div>
         </div>
-        <div className="flex items-center space-x-2">
-          <Button variant="outline" onClick={handleBulkDelete} disabled={selectedGiving.length === 0}>
-            <Trash2 className="mr-2 h-4 w-4" />
+        <div className="flex items-center gap-2 self-start sm:self-auto">
+          <Button variant="outline" size="sm" onClick={handleBulkDelete} disabled={selectedGiving.length === 0}>
+            <Trash2 className="mr-1.5 h-4 w-4" />
             Delete Selected ({selectedGiving.length})
           </Button>
-          <Button asChild>
+          <Button size="sm" asChild>
             <Link href={`/dashboard/members/${member.id}/giving/add`}>
-              <Plus className="mr-2 h-4 w-4" />
+              <Plus className="mr-1.5 h-4 w-4" />
               Add Giving Record
             </Link>
           </Button>

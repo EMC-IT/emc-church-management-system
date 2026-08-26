@@ -165,223 +165,168 @@ export default function AddCategoryPage() {
   };
 
   return (
-    <div className="space-y-6">
-      <PageHeader
-        title="Add Giving Category"
-        actions={
-          <Button variant="ghost" size="sm" asChild>
-            <Link href="/dashboard/finance/giving/categories">
-              <ArrowLeft className="mr-2 h-4 w-4" />
-              Back to Categories
-            </Link>
-          </Button>
-        }
-      />
+    <div className="space-y-6 max-w-6xl">
+      {/* Header */}
+      <div className="flex items-center gap-4">
+        <Button variant="ghost" size="icon" asChild>
+          <Link href="/dashboard/finance/giving/categories">
+            <ArrowLeft className="h-4 w-4" />
+          </Link>
+        </Button>
+        <div>
+          <h1 className="font-heading text-2xl font-bold tracking-tight">Add Giving Category</h1>
+          <p className="text-sm text-muted-foreground mt-1">
+            Create a designated fund or ministry bucket for member gifts and donations.
+          </p>
+        </div>
+      </div>
 
-      <div className="grid gap-6 md:grid-cols-3">
-        {/* Main Form */}
-        <div className="md:col-span-2">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center space-x-2">
-                <BadgeCent className="h-5 w-5" />
-                <span>Category Information</span>
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <Form {...form}>
-                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-                  <div className="grid gap-4 md:grid-cols-2">
-                    <FormField
-                      control={form.control}
-                      name="name"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Category Name</FormLabel>
-                          <FormControl>
-                            <Input placeholder="e.g., Building Fund" {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+          <Card className="rounded-xl border border-border p-6">
+            <div className="space-y-5">
+              <div>
+                <h2 className="text-base font-semibold text-foreground">Category Details</h2>
+                <p className="text-xs text-muted-foreground mt-0.5">Classification type, fundraising target, and guidelines</p>
+              </div>
 
-                    <FormField
-                      control={form.control}
-                      name="category"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Category Type</FormLabel>
-                          <Select onValueChange={field.onChange} defaultValue={field.value}>
-                            <FormControl>
-                              <SelectTrigger>
-                                <SelectValue placeholder="Select category type" />
-                              </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                              {categoryOptions.map((option) => (
-                                <SelectItem key={option.value} value={option.value}>
-                                  <div>
-                                    <div className="font-medium">{option.label}</div>
-                                    <div className="text-sm text-muted-foreground">{option.description}</div>
-                                  </div>
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
+              <div className="grid grid-cols-12 gap-5">
+                <FormField
+                  control={form.control}
+                  name="name"
+                  render={({ field }) => (
+                    <FormItem className="col-span-12 sm:col-span-8">
+                      <FormLabel>Category Name *</FormLabel>
+                      <FormControl>
+                        <Input placeholder="e.g., Building Fund" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-                  <FormField
-                    control={form.control}
-                    name="description"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Description</FormLabel>
+                <FormField
+                  control={form.control}
+                  name="category"
+                  render={({ field }) => (
+                    <FormItem className="col-span-12 sm:col-span-4">
+                      <FormLabel>Category Classification *</FormLabel>
+                      <Select onValueChange={field.onChange} defaultValue={field.value}>
                         <FormControl>
-                          <Textarea
-                            placeholder="Describe the purpose and use of this category..."
-                            className="min-h-[100px]"
-                            {...field}
-                          />
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select classification" />
+                          </SelectTrigger>
                         </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+                        <SelectContent>
+                          {categoryOptions.map((option) => (
+                            <SelectItem key={option.value} value={option.value}>
+                              {option.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-                  <FormField
-                    control={form.control}
-                    name="targetAmount"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Target Amount (Optional)</FormLabel>
-                        <FormControl>
+                <FormField
+                  control={form.control}
+                  name="description"
+                  render={({ field }) => (
+                    <FormItem className="col-span-12">
+                      <FormLabel>Description *</FormLabel>
+                      <FormControl>
+                        <Textarea
+                          placeholder="Describe the purpose, designated projects, and eligible use of this fund..."
+                          rows={3}
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="targetAmount"
+                  render={({ field }) => (
+                    <FormItem className="col-span-12 sm:col-span-6">
+                      <FormLabel>Target Amount (Optional)</FormLabel>
+                      <FormControl>
+                        <div className="relative">
+                          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">₵</span>
                           <Input
                             type="number"
                             step="0.01"
                             min="0"
                             placeholder="0.00"
+                            className="pl-8"
                             {...field}
                             onChange={(e) => field.onChange(e.target.value ? parseFloat(e.target.value) : undefined)}
                           />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name="notes"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Additional Notes (Optional)</FormLabel>
-                        <FormControl>
-                          <Textarea
-                            placeholder="Any additional information or guidelines..."
-                            className="min-h-[80px]"
-                            {...field}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name="isActive"
-                    render={({ field }) => (
-                      <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-                        <div className="space-y-0.5">
-                          <FormLabel className="text-base">Active Category</FormLabel>
                         </div>
-                        <FormControl>
-                          <Switch
-                            checked={field.value}
-                            onCheckedChange={field.onChange}
-                          />
-                        </FormControl>
-                      </FormItem>
-                    )}
-                  />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-                  <div className="flex items-center space-x-2">
-                    <Button type="submit" disabled={loading}>
-                      <Save className="mr-2 h-4 w-4" />
-                      {loading ? 'Creating...' : 'Create Category'}
-                    </Button>
-                    <Button type="button" variant="outline" asChild>
-                      <Link href="/dashboard/finance/giving/categories">
-                        Cancel
-                      </Link>
-                    </Button>
-                  </div>
-                </form>
-              </Form>
-            </CardContent>
-          </Card>
-        </div>
+                <FormField
+                  control={form.control}
+                  name="isActive"
+                  render={({ field }) => (
+                    <FormItem className="col-span-12 sm:col-span-6 flex items-center justify-between rounded-lg border border-border p-3.5">
+                      <div className="space-y-0.5">
+                        <FormLabel className="text-sm font-medium cursor-pointer">Active Category</FormLabel>
+                        <p className="text-xs text-muted-foreground">Enable contributions to this fund</p>
+                      </div>
+                      <FormControl>
+                        <Switch
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                        />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
 
-        {/* Sidebar */}
-        <div className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">Category Guidelines</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div>
-                <h4 className="font-medium mb-2">Naming Best Practices</h4>
-                <ul className="text-sm text-muted-foreground space-y-1">
-                  <li>• Use clear, descriptive names</li>
-                  <li>• Keep names concise but meaningful</li>
-                  <li>• Avoid abbreviations when possible</li>
-                </ul>
+                <FormField
+                  control={form.control}
+                  name="notes"
+                  render={({ field }) => (
+                    <FormItem className="col-span-12">
+                      <FormLabel>Additional Notes (Optional)</FormLabel>
+                      <FormControl>
+                        <Textarea
+                          placeholder="Internal guidelines or restrictions for accounting..."
+                          rows={2}
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
               </div>
-              
-              <div>
-                <h4 className="font-medium mb-2">Category Types</h4>
-                <p className="text-sm text-muted-foreground">
-                  Choose the category type that best matches your intended use. This helps with reporting and organization.
-                </p>
-              </div>
-              
-              <div>
-                <h4 className="font-medium mb-2">Target Amounts</h4>
-                <p className="text-sm text-muted-foreground">
-                  Setting target amounts helps track progress and goals for specific categories.
-                </p>
-              </div>
-            </CardContent>
+            </div>
           </Card>
 
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">Quick Stats</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-2">
-                <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">Total Categories:</span>
-                  <span className="font-medium">7</span>
-                </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">Active Categories:</span>
-                  <span className="font-medium">6</span>
-                </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">Most Used:</span>
-                  <span className="font-medium">General Fund</span>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      </div>
+          {/* Action Buttons */}
+          <div className="flex items-center justify-end gap-3 pt-2">
+            <Button type="button" variant="outline" asChild>
+              <Link href="/dashboard/finance/giving/categories">
+                Cancel
+              </Link>
+            </Button>
+            <Button type="submit" disabled={loading}>
+              <Save className="mr-1.5 h-4 w-4" />
+              {loading ? 'Creating...' : 'Create Category'}
+            </Button>
+          </div>
+        </form>
+      </Form>
     </div>
   );
 }

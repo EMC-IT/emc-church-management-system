@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter, useParams, useSearchParams } from 'next/navigation';
+import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -163,31 +164,31 @@ export default function AddGroupEventPage() {
   }
 
   return (
-    <div className="space-y-6 max-w-4xl mx-auto">
+    <div className="space-y-6 max-w-6xl">
       {/* Header */}
       <div className="flex items-center gap-4">
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={() => router.push(`/dashboard/groups/${groupId}/events`)}
-          className="text-muted-foreground hover:text-foreground"
-        >
-          <ArrowLeft className="h-4 w-4 mr-1.5" />
-          Back
+        <Button variant="ghost" size="icon" asChild>
+          <Link href={`/dashboard/groups/${groupId}/events`}>
+            <ArrowLeft className="h-4 w-4" />
+          </Link>
         </Button>
-        <h1 className="font-heading text-2xl font-bold tracking-tight">
-          {isEditing ? 'Edit Event' : 'Create Event'}
-        </h1>
+        <div>
+          <h1 className="font-heading text-2xl font-bold tracking-tight">
+            {isEditing ? 'Edit Group Event' : 'Add Group Event'}
+          </h1>
+          <p className="text-sm text-muted-foreground mt-1">
+            {isEditing ? 'Update the details for this event.' : 'Schedule a new meeting, Bible study, prayer session, or outreach.'}
+          </p>
+        </div>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base font-semibold">Event Information</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid gap-4 sm:grid-cols-2">
-              <div className="sm:col-span-2 space-y-2">
+        <Card className="rounded-xl border border-border p-6">
+          <div className="space-y-5">
+            <h2 className="text-base font-semibold text-foreground">Event Information</h2>
+
+            <div className="grid grid-cols-12 gap-5">
+              <div className="col-span-12 sm:col-span-6 space-y-2">
                 <Label htmlFor="title">Event Title *</Label>
                 <Input
                   id="title"
@@ -199,7 +200,7 @@ export default function AddGroupEventPage() {
                 {errors.title && <p className="text-xs text-destructive">{errors.title}</p>}
               </div>
 
-              <div className="space-y-2">
+              <div className="col-span-12 sm:col-span-3 space-y-2">
                 <Label htmlFor="type">Event Type *</Label>
                 <Select value={formData.type} onValueChange={(val) => handleInputChange('type', val)}>
                   <SelectTrigger id="type">
@@ -213,7 +214,7 @@ export default function AddGroupEventPage() {
                 </Select>
               </div>
 
-              <div className="space-y-2">
+              <div className="col-span-12 sm:col-span-3 space-y-2">
                 <Label htmlFor="status">Status</Label>
                 <Select value={formData.status} onValueChange={(val) => handleInputChange('status', val)}>
                   <SelectTrigger id="status">
@@ -227,7 +228,7 @@ export default function AddGroupEventPage() {
                 </Select>
               </div>
 
-              <div className="sm:col-span-2 space-y-2">
+              <div className="col-span-12 space-y-2">
                 <Label htmlFor="description">Description</Label>
                 <Textarea
                   id="description"
@@ -238,16 +239,15 @@ export default function AddGroupEventPage() {
                 />
               </div>
             </div>
-          </CardContent>
+          </div>
         </Card>
 
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base font-semibold">Date & Location</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid gap-4 sm:grid-cols-2">
-              <div className="space-y-2">
+        <Card className="rounded-xl border border-border p-6">
+          <div className="space-y-5">
+            <h2 className="text-base font-semibold text-foreground">Date & Location</h2>
+
+            <div className="grid grid-cols-12 gap-5">
+              <div className="col-span-12 sm:col-span-6 lg:col-span-3 space-y-2">
                 <Label htmlFor="startDate">Start Date & Time *</Label>
                 <Input
                   id="startDate"
@@ -258,7 +258,7 @@ export default function AddGroupEventPage() {
                 />
               </div>
 
-              <div className="space-y-2">
+              <div className="col-span-12 sm:col-span-6 lg:col-span-3 space-y-2">
                 <Label htmlFor="endDate">End Date & Time *</Label>
                 <Input
                   id="endDate"
@@ -269,7 +269,7 @@ export default function AddGroupEventPage() {
                 />
               </div>
 
-              <div className="space-y-2">
+              <div className="col-span-12 sm:col-span-6 lg:col-span-3 space-y-2">
                 <Label htmlFor="location">Location / Venue *</Label>
                 <Input
                   id="location"
@@ -280,8 +280,8 @@ export default function AddGroupEventPage() {
                 />
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="maxAttendees">Expected / Max Attendees</Label>
+              <div className="col-span-12 sm:col-span-6 lg:col-span-3 space-y-2">
+                <Label htmlFor="maxAttendees">Expected Attendees</Label>
                 <Input
                   id="maxAttendees"
                   type="number"
@@ -291,7 +291,7 @@ export default function AddGroupEventPage() {
                 />
               </div>
             </div>
-          </CardContent>
+          </div>
         </Card>
 
         <div className="flex justify-end gap-3 pt-2">

@@ -191,38 +191,41 @@ export default function AddAssetPage() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 max-w-6xl">
       {/* Header */}
-      <PageHeader
-        title="Add New Asset"
-        actions={
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={() => router.push('/dashboard/assets')}
-          >
+      <div className="flex items-center gap-4">
+        <Button variant="ghost" size="icon" asChild>
+          <Link href="/dashboard/assets">
             <ArrowLeft className="h-4 w-4" />
-          </Button>
-        }
-      />
+          </Link>
+        </Button>
+        <div>
+          <h1 className="font-heading text-2xl font-bold tracking-tight">Add New Asset</h1>
+          <p className="text-sm text-muted-foreground mt-1">
+            Register church physical property, equipment, audio-visual instruments, and facilities.
+          </p>
+        </div>
+      </div>
 
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
           {/* Basic Information */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Basic Information</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <Card className="rounded-xl border border-border p-6">
+            <div className="space-y-5">
+              <div>
+                <h2 className="text-base font-semibold text-foreground">Basic Information</h2>
+                <p className="text-xs text-muted-foreground mt-0.5">Asset designation, classification, and operational status</p>
+              </div>
+
+              <div className="grid grid-cols-12 gap-5">
                 <FormField
                   control={form.control}
                   name="name"
                   render={({ field }) => (
-                    <FormItem>
+                    <FormItem className="col-span-12 sm:col-span-8">
                       <FormLabel>Asset Name *</FormLabel>
                       <FormControl>
-                        <Input placeholder="e.g., Sound Mixing Console" {...field} />
+                        <Input placeholder="e.g., Sound Mixing Console, Yamaha Grand Piano" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -233,7 +236,7 @@ export default function AddAssetPage() {
                   control={form.control}
                   name="category"
                   render={({ field }) => (
-                    <FormItem>
+                    <FormItem className="col-span-12 sm:col-span-4">
                       <FormLabel>Category *</FormLabel>
                       <Select onValueChange={field.onChange} defaultValue={field.value}>
                         <FormControl>
@@ -253,32 +256,12 @@ export default function AddAssetPage() {
                     </FormItem>
                   )}
                 />
-              </div>
 
-              <FormField
-                control={form.control}
-                name="description"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Description</FormLabel>
-                    <FormControl>
-                      <Textarea
-                        placeholder="Detailed description of the asset..."
-                        className="min-h-[100px]"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <FormField
                   control={form.control}
                   name="status"
                   render={({ field }) => (
-                    <FormItem>
+                    <FormItem className="col-span-12 sm:col-span-4">
                       <FormLabel>Status *</FormLabel>
                       <Select onValueChange={field.onChange} defaultValue={field.value}>
                         <FormControl>
@@ -303,7 +286,7 @@ export default function AddAssetPage() {
                   control={form.control}
                   name="condition"
                   render={({ field }) => (
-                    <FormItem>
+                    <FormItem className="col-span-12 sm:col-span-4">
                       <FormLabel>Condition *</FormLabel>
                       <Select onValueChange={field.onChange} defaultValue={field.value}>
                         <FormControl>
@@ -328,7 +311,7 @@ export default function AddAssetPage() {
                   control={form.control}
                   name="priority"
                   render={({ field }) => (
-                    <FormItem>
+                    <FormItem className="col-span-12 sm:col-span-4">
                       <FormLabel>Priority *</FormLabel>
                       <Select onValueChange={field.onChange} defaultValue={field.value}>
                         <FormControl>
@@ -348,22 +331,42 @@ export default function AddAssetPage() {
                     </FormItem>
                   )}
                 />
+
+                <FormField
+                  control={form.control}
+                  name="description"
+                  render={({ field }) => (
+                    <FormItem className="col-span-12">
+                      <FormLabel>Description</FormLabel>
+                      <FormControl>
+                        <Textarea
+                          placeholder="Detailed description of the asset, specifications, and accessories included..."
+                          rows={3}
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
               </div>
-            </CardContent>
+            </div>
           </Card>
 
           {/* Financial Information */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Financial Information</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <Card className="rounded-xl border border-border p-6">
+            <div className="space-y-5">
+              <div>
+                <h2 className="text-base font-semibold text-foreground">Financial & Valuation</h2>
+                <p className="text-xs text-muted-foreground mt-0.5">Procurement costs, replacement valuation, and depreciation</p>
+              </div>
+
+              <div className="grid grid-cols-12 gap-5">
                 <FormField
                   control={form.control}
                   name="currency"
                   render={({ field }) => (
-                    <FormItem>
+                    <FormItem className="col-span-12 sm:col-span-3">
                       <FormLabel>Currency</FormLabel>
                       <Select onValueChange={field.onChange} defaultValue={field.value}>
                         <FormControl>
@@ -388,7 +391,7 @@ export default function AddAssetPage() {
                   control={form.control}
                   name="purchasePrice"
                   render={({ field }) => (
-                    <FormItem>
+                    <FormItem className="col-span-12 sm:col-span-3">
                       <FormLabel>Purchase Price *</FormLabel>
                       <FormControl>
                         <Input
@@ -408,7 +411,7 @@ export default function AddAssetPage() {
                   control={form.control}
                   name="currentValue"
                   render={({ field }) => (
-                    <FormItem>
+                    <FormItem className="col-span-12 sm:col-span-3">
                       <FormLabel>Current Value *</FormLabel>
                       <FormControl>
                         <Input
@@ -428,7 +431,7 @@ export default function AddAssetPage() {
                   control={form.control}
                   name="depreciationRate"
                   render={({ field }) => (
-                    <FormItem>
+                    <FormItem className="col-span-12 sm:col-span-3">
                       <FormLabel>Depreciation Rate (%)</FormLabel>
                       <FormControl>
                         <Input
@@ -444,21 +447,23 @@ export default function AddAssetPage() {
                   )}
                 />
               </div>
-            </CardContent>
+            </div>
           </Card>
 
           {/* Location and Assignment */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Location & Assignment</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <Card className="rounded-xl border border-border p-6">
+            <div className="space-y-5">
+              <div>
+                <h2 className="text-base font-semibold text-foreground">Location & Custody</h2>
+                <p className="text-xs text-muted-foreground mt-0.5">Physical location and department or ministry assignment</p>
+              </div>
+
+              <div className="grid grid-cols-12 gap-5">
                 <FormField
                   control={form.control}
                   name="location"
                   render={({ field }) => (
-                    <FormItem>
+                    <FormItem className="col-span-12 sm:col-span-4">
                       <FormLabel>Location *</FormLabel>
                       <Select onValueChange={field.onChange} defaultValue={field.value}>
                         <FormControl>
@@ -483,7 +488,7 @@ export default function AddAssetPage() {
                   control={form.control}
                   name="assignedDepartment"
                   render={({ field }) => (
-                    <FormItem>
+                    <FormItem className="col-span-12 sm:col-span-4">
                       <FormLabel>Assigned Department</FormLabel>
                       <Select onValueChange={field.onChange} defaultValue={field.value}>
                         <FormControl>
@@ -508,32 +513,34 @@ export default function AddAssetPage() {
                   control={form.control}
                   name="assignedGroup"
                   render={({ field }) => (
-                    <FormItem>
+                    <FormItem className="col-span-12 sm:col-span-4">
                       <FormLabel>Assigned Group</FormLabel>
                       <FormControl>
-                        <Input placeholder="e.g., Worship Team" {...field} />
+                        <Input placeholder="e.g., Worship Team, Youth Ministry" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
               </div>
-            </CardContent>
+            </div>
           </Card>
 
           {/* Dates */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Important Dates</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <Card className="rounded-xl border border-border p-6">
+            <div className="space-y-5">
+              <div>
+                <h2 className="text-base font-semibold text-foreground">Timeline & Maintenance</h2>
+                <p className="text-xs text-muted-foreground mt-0.5">Acquisition date, warranty expiration, and scheduled servicing</p>
+              </div>
+
+              <div className="grid grid-cols-12 gap-5">
                 <FormField
                   control={form.control}
                   name="purchaseDate"
                   render={({ field }) => (
-                    <FormItem className="flex flex-col">
-                      <FormLabel>Purchase Date *</FormLabel>
+                    <FormItem className="col-span-12 sm:col-span-4 flex flex-col">
+                      <FormLabel className="mb-2">Purchase Date *</FormLabel>
                       <Popover>
                         <PopoverTrigger asChild>
                           <FormControl>
@@ -574,8 +581,8 @@ export default function AddAssetPage() {
                   control={form.control}
                   name="warrantyExpiry"
                   render={({ field }) => (
-                    <FormItem className="flex flex-col">
-                      <FormLabel>Warranty Expiry</FormLabel>
+                    <FormItem className="col-span-12 sm:col-span-4 flex flex-col">
+                      <FormLabel className="mb-2">Warranty Expiry</FormLabel>
                       <Popover>
                         <PopoverTrigger asChild>
                           <FormControl>
@@ -614,8 +621,8 @@ export default function AddAssetPage() {
                   control={form.control}
                   name="nextMaintenance"
                   render={({ field }) => (
-                    <FormItem className="flex flex-col">
-                      <FormLabel>Next Maintenance</FormLabel>
+                    <FormItem className="col-span-12 sm:col-span-4 flex flex-col">
+                      <FormLabel className="mb-2">Next Maintenance</FormLabel>
                       <Popover>
                         <PopoverTrigger asChild>
                           <FormControl>
@@ -650,24 +657,26 @@ export default function AddAssetPage() {
                   )}
                 />
               </div>
-            </CardContent>
+            </div>
           </Card>
 
           {/* Technical Details */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Technical Details</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <Card className="rounded-xl border border-border p-6">
+            <div className="space-y-5">
+              <div>
+                <h2 className="text-base font-semibold text-foreground">Technical Specifications</h2>
+                <p className="text-xs text-muted-foreground mt-0.5">Manufacturer details, model numbers, barcodes, and serials</p>
+              </div>
+
+              <div className="grid grid-cols-12 gap-5">
                 <FormField
                   control={form.control}
                   name="manufacturer"
                   render={({ field }) => (
-                    <FormItem>
+                    <FormItem className="col-span-12 sm:col-span-4">
                       <FormLabel>Manufacturer</FormLabel>
                       <FormControl>
-                        <Input placeholder="e.g., Yamaha" {...field} />
+                        <Input placeholder="e.g., Yamaha, Sony, Dell" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -678,10 +687,10 @@ export default function AddAssetPage() {
                   control={form.control}
                   name="model"
                   render={({ field }) => (
-                    <FormItem>
+                    <FormItem className="col-span-12 sm:col-span-4">
                       <FormLabel>Model</FormLabel>
                       <FormControl>
-                        <Input placeholder="e.g., CL5" {...field} />
+                        <Input placeholder="e.g., CL5, XPS 15" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -692,7 +701,7 @@ export default function AddAssetPage() {
                   control={form.control}
                   name="serialNumber"
                   render={({ field }) => (
-                    <FormItem>
+                    <FormItem className="col-span-12 sm:col-span-4">
                       <FormLabel>Serial Number</FormLabel>
                       <FormControl>
                         <Input placeholder="e.g., YM2023CL5001" {...field} />
@@ -701,17 +710,15 @@ export default function AddAssetPage() {
                     </FormItem>
                   )}
                 />
-              </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <FormField
                   control={form.control}
                   name="barcode"
                   render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Barcode</FormLabel>
+                    <FormItem className="col-span-12 sm:col-span-6">
+                      <FormLabel>Barcode Number</FormLabel>
                       <FormControl>
-                        <Input placeholder="Barcode number" {...field} />
+                        <Input placeholder="e.g. BAR-889021" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -722,49 +729,51 @@ export default function AddAssetPage() {
                   control={form.control}
                   name="qrCode"
                   render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>QR Code</FormLabel>
+                    <FormItem className="col-span-12 sm:col-span-6">
+                      <FormLabel>QR Code Identifier</FormLabel>
                       <FormControl>
-                        <Input placeholder="QR code data" {...field} />
+                        <Input placeholder="e.g. QR-AST-009" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
               </div>
-            </CardContent>
+            </div>
           </Card>
 
           {/* Additional Information */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Additional Information</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <FormField
-                control={form.control}
-                name="notes"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Notes</FormLabel>
-                    <FormControl>
-                      <Textarea
-                        placeholder="Additional notes about the asset..."
-                        className="min-h-[100px]"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
+          <Card className="rounded-xl border border-border p-6">
+            <div className="space-y-5">
               <div>
-                <FormLabel>Tags</FormLabel>
+                <h2 className="text-base font-semibold text-foreground">Notes & Tags</h2>
+                <p className="text-xs text-muted-foreground mt-0.5">Operational notes and indexing tags</p>
+              </div>
+
+              <div className="space-y-5">
+                <FormField
+                  control={form.control}
+                  name="notes"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Internal Notes</FormLabel>
+                      <FormControl>
+                        <Textarea
+                          placeholder="Additional operational or historical notes regarding this asset..."
+                          rows={3}
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
                 <div className="space-y-2">
+                  <FormLabel>Tags</FormLabel>
                   <div className="flex gap-2">
                     <Input
-                      placeholder="Add a tag..."
+                      placeholder="Add tag (e.g. sanctuary, audio, high-value)..."
                       value={tagInput}
                       onChange={(e) => setTagInput(e.target.value)}
                       onKeyPress={handleTagKeyPress}
@@ -774,7 +783,7 @@ export default function AddAssetPage() {
                     </Button>
                   </div>
                   {tags.length > 0 && (
-                    <div className="flex flex-wrap gap-2">
+                    <div className="flex flex-wrap gap-2 pt-1">
                       {tags.map((tag) => (
                         <Badge key={tag} variant="neutral" className="flex items-center gap-1">
                           {tag}
@@ -788,15 +797,15 @@ export default function AddAssetPage() {
                   )}
                 </div>
               </div>
-            </CardContent>
+            </div>
           </Card>
 
           {/* Form Actions */}
-          <div className="flex items-center justify-end space-x-4">
+          <div className="flex justify-end gap-3 pt-2">
             <Button
               type="button"
               variant="outline"
-              onClick={() => router.back()}
+              onClick={() => router.push('/dashboard/assets')}
               disabled={isSubmitting}
             >
               Cancel

@@ -1,27 +1,21 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { PageHeader } from '@/components/ui/page-header';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { StatCard } from '@/components/ui/stat-card';
 import { Badge } from '@/components/ui/badge';
 import {
-  BookOpen,
   Users,
   GraduationCap,
-  Calendar,
-  TrendingUp,
   Plus,
-  Eye,
   FileText,
-  Upload,
-  Settings,
   Loader2,
   School,
   UserCheck,
-  BookMarked
+  BookMarked,
+  TrendingUp,
+  ArrowRight
 } from 'lucide-react';
 import Link from 'next/link';
 import { sundaySchoolService } from '@/services';
@@ -29,7 +23,6 @@ import { SundaySchoolStats } from '@/lib/types/sunday-school';
 import { toast } from 'sonner';
 
 export default function SundaySchoolPage() {
-  const router = useRouter();
   const [stats, setStats] = useState<SundaySchoolStats | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -40,62 +33,30 @@ export default function SundaySchoolPage() {
   const loadStats = async () => {
     try {
       const response = await sundaySchoolService.getSundaySchoolStats();
-      
       if (response.success && response.data) {
         setStats(response.data);
       } else {
-        toast.error(response.message || 'Failed to load Sunday School stats');
+        toast.error(response.message || 'Failed to load stats');
       }
-    } catch (error) {
+    } catch {
       toast.error('Failed to load Sunday School stats');
     } finally {
       setLoading(false);
     }
   };
 
-  const quickActions = [
-    {
-      title: 'Create New Class',
-      description: 'Set up a new Sunday School class',
-      icon: Plus,
-      href: '/dashboard/sunday-school/classes/add',
-      color: 'bg-brand-primary'
-    },
-    {
-      title: 'Add Teacher',
-      description: 'Register a new Sunday School teacher',
-      icon: GraduationCap,
-      href: '/dashboard/sunday-school/teachers/add',
-      color: 'bg-brand-secondary'
-    },
-    {
-      title: 'Upload Material',
-      description: 'Add teaching materials and resources',
-      icon: Upload,
-      href: '/dashboard/sunday-school/materials/upload',
-      color: 'bg-brand-accent'
-    },
-    {
-      title: 'View Reports',
-      description: 'Check attendance and performance reports',
-      icon: FileText,
-      href: '/dashboard/sunday-school/reports',
-      color: 'bg-brand-success'
-    }
-  ];
-
   const moduleCards = [
     {
       title: 'Classes',
-      description: 'Manage Sunday School classes and schedules',
+      description: 'Sunday School classes, age groups, and schedules',
       icon: School,
       href: '/dashboard/sunday-school/classes',
       count: stats?.totalClasses || 0,
-      label: 'Active Classes'
+      label: 'Classes'
     },
     {
       title: 'Teachers',
-      description: 'Manage Sunday School teachers and assignments',
+      description: 'Teachers, assistants, and class assignments',
       icon: GraduationCap,
       href: '/dashboard/sunday-school/teachers',
       count: stats?.totalTeachers || 0,
@@ -103,7 +64,7 @@ export default function SundaySchoolPage() {
     },
     {
       title: 'Students',
-      description: 'View and manage all Sunday School students',
+      description: 'Enrolled students and attendance tracking',
       icon: Users,
       href: '/dashboard/sunday-school/students',
       count: stats?.totalStudents || 0,
@@ -111,195 +72,157 @@ export default function SundaySchoolPage() {
     },
     {
       title: 'Materials',
-      description: 'Teaching materials and resources library',
+      description: 'Curriculum, lesson plans, and teaching resources',
       icon: BookMarked,
       href: '/dashboard/sunday-school/materials',
-      count: 0, // Will be updated when materials stats are available
-      label: 'Materials'
+      count: 0,
+      label: 'Resources'
     }
   ];
 
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
-        <Loader2 className="h-8 w-8 animate-spin" />
+        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
       </div>
     );
   }
 
   return (
     <div className="space-y-6">
-      <PageHeader
-        title="Sunday School"
-        actions={
-          <>
-            <Button variant="outline" asChild>
-              <Link href="/dashboard/sunday-school/reports">
-                <FileText className="mr-2 h-4 w-4" />
-                View Reports
-              </Link>
-            </Button>
-            <Button className="bg-brand-primary hover:bg-brand-primary/90" asChild>
-              <Link href="/dashboard/sunday-school/classes/add">
-                <Plus className="mr-2 h-4 w-4" />
-                Create Class
-              </Link>
-            </Button>
-          </>
-        }
-      />
+      {/* Header */}
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <h1 className="font-heading text-2xl font-bold tracking-tight">Sunday School</h1>
+
+        <div className="flex items-center gap-2 flex-wrap">
+          <Button variant="outline" size="sm" asChild>
+            <Link href="/dashboard/sunday-school/reports">
+              <FileText className="mr-1.5 h-4 w-4" />
+              Reports
+            </Link>
+          </Button>
+          <Button size="sm" asChild>
+            <Link href="/dashboard/sunday-school/classes/add">
+              <Plus className="mr-1.5 h-4 w-4" />
+              Create Class
+            </Link>
+          </Button>
+        </div>
+      </div>
 
       {/* Stats Cards */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard
           title="Total Classes"
           value={stats?.totalClasses || 0}
           icon={School}
-          accent="primary"
-          description={`${stats?.activeClasses || 0} active, ${stats?.inactiveClasses || 0} inactive`}
+          description={`${stats?.activeClasses || 0} active classes`}
         />
         <StatCard
           title="Total Students"
           value={stats?.totalStudents || 0}
           icon={Users}
-          accent="secondary"
-          description={`${stats?.studentsThisWeek || 0} attended this week`}
+          description={`${stats?.studentsThisWeek || 0} this week`}
         />
         <StatCard
           title="Teachers"
           value={stats?.totalTeachers || 0}
           icon={GraduationCap}
-          accent="success"
           description="Active teaching staff"
         />
         <StatCard
-          title="Attendance Rate"
+          title="Average Attendance"
           value={`${stats?.averageAttendance || 0}%`}
           icon={UserCheck}
-          accent="accent"
+          description="Sunday school rate"
         />
       </div>
 
-      {/* Quick Actions */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Quick Actions</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-            {quickActions.map((action) => {
-              const IconComponent = action.icon;
-              return (
-                <Link key={action.title} href={action.href}>
-                  <div className="group cursor-pointer rounded-lg border p-4 hover:shadow-md transition-shadow">
-                    <div className="flex items-center space-x-3">
-                      <div className={`p-2 rounded-md ${action.color} text-white`}>
-                        <IconComponent className="h-5 w-5" />
-                      </div>
-                      <div className="flex-1">
-                        <h3 className="font-medium group-hover:text-brand-primary transition-colors">
-                          {action.title}
-                        </h3>
-                        <p className="text-sm text-muted-foreground">
-                          {action.description}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </Link>
-              );
-            })}
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Module Cards */}
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+      {/* Module Overview Cards */}
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {moduleCards.map((module) => {
           const IconComponent = module.icon;
           return (
-            <Card key={module.title} className="hover:shadow-lg transition-shadow">
-              <CardHeader className="pb-3">
+            <Card key={module.title} className="p-5 flex flex-col justify-between hover:border-primary/50 transition-colors">
+              <div className="space-y-2">
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-2">
-                    <IconComponent className="h-5 w-5 text-brand-primary" />
-                    <CardTitle className="text-lg">{module.title}</CardTitle>
+                  <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
+                    <IconComponent className="h-5 w-5" />
                   </div>
-                  <Badge variant="neutral">{module.count}</Badge>
+                  {module.count > 0 && (
+                    <Badge variant="neutral" size="sm">
+                      {module.count} {module.label}
+                    </Badge>
+                  )}
                 </div>
-                <CardDescription>{module.description}</CardDescription>
-              </CardHeader>
-              <CardContent className="pt-0">
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-muted-foreground">{module.label}</span>
-                  <Button variant="ghost" size="sm" asChild>
-                    <Link href={module.href}>
-                      <Eye className="h-4 w-4 mr-1" />
-                      View
-                    </Link>
-                  </Button>
-                </div>
-              </CardContent>
+                <h3 className="font-semibold text-base text-foreground mt-2">{module.title}</h3>
+                <p className="text-xs text-muted-foreground line-clamp-2">
+                  {module.description}
+                </p>
+              </div>
+
+              <div className="pt-4 mt-2 border-t border-border">
+                <Button variant="ghost" size="sm" className="w-full justify-between px-0 text-xs text-primary hover:text-primary hover:bg-transparent" asChild>
+                  <Link href={module.href}>
+                    Manage {module.title}
+                    <ArrowRight className="h-3.5 w-3.5 ml-1" />
+                  </Link>
+                </Button>
+              </div>
             </Card>
           );
         })}
       </div>
 
-      {/* Recent Activity & Growth */}
+      {/* Summary Insights */}
       <div className="grid gap-6 md:grid-cols-2">
         <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center space-x-2">
-              <TrendingUp className="h-5 w-5" />
-              <span>Growth Overview</span>
-            </CardTitle>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-base font-semibold">Attendance & Growth</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex items-center justify-between">
-              <span className="text-sm">Student Growth</span>
-              <div className="flex items-center space-x-2">
-                <span className="text-sm font-medium text-brand-success">
-                  +{stats?.growthRate || 0}%
-                </span>
-                <TrendingUp className="h-4 w-4 text-brand-success" />
-              </div>
+          <CardContent className="space-y-4 text-sm">
+            <div className="flex items-center justify-between py-2 border-b border-border">
+              <span className="text-muted-foreground">Student Growth</span>
+              <span className="font-medium text-foreground">+{stats?.growthRate || 0}%</span>
             </div>
             
-            <div className="flex items-center justify-between">
-              <span className="text-sm">Weekly Attendance</span>
-              <span className="text-sm font-medium">
-                {stats?.attendanceThisWeek || 0}%
-              </span>
+            <div className="flex items-center justify-between py-2 border-b border-border">
+              <span className="text-muted-foreground">Attendance This Week</span>
+              <span className="font-medium text-foreground">{stats?.attendanceThisWeek || 0}%</span>
             </div>
             
-            <div className="flex items-center justify-between">
-              <span className="text-sm">Active Classes</span>
-              <span className="text-sm font-medium">
-                {stats?.activeClasses || 0} of {stats?.totalClasses || 0}
+            <div className="flex items-center justify-between py-2">
+              <span className="text-muted-foreground">Active Class Ratio</span>
+              <span className="font-medium text-foreground">
+                {stats?.activeClasses || 0} of {stats?.totalClasses || 0} classes
               </span>
             </div>
           </CardContent>
         </Card>
 
         <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center space-x-2">
-              <Calendar className="h-5 w-5" />
-              <span>This Week</span>
-            </CardTitle>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-base font-semibold">Quick Shortcuts</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="text-center py-8">
-              <BookOpen className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-              <p className="text-sm text-muted-foreground">
-                Weekly schedule and upcoming events will be displayed here
-              </p>
-              <Button variant="outline" size="sm" className="mt-4" asChild>
-                <Link href="/dashboard/sunday-school/classes">
-                  View Class Schedule
-                </Link>
-              </Button>
-            </div>
+          <CardContent className="space-y-2">
+            <Button asChild variant="outline" className="w-full justify-start text-xs">
+              <Link href="/dashboard/sunday-school/teachers/add">
+                <GraduationCap className="mr-2 h-4 w-4 text-muted-foreground" />
+                Register New Teacher
+              </Link>
+            </Button>
+            <Button asChild variant="outline" className="w-full justify-start text-xs">
+              <Link href="/dashboard/sunday-school/materials/upload">
+                <BookMarked className="mr-2 h-4 w-4 text-muted-foreground" />
+                Upload Curriculum Material
+              </Link>
+            </Button>
+            <Button asChild variant="outline" className="w-full justify-start text-xs">
+              <Link href="/dashboard/sunday-school/reports">
+                <TrendingUp className="mr-2 h-4 w-4 text-muted-foreground" />
+                View Sunday School Analytics
+              </Link>
+            </Button>
           </CardContent>
         </Card>
       </div>

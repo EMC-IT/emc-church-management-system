@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
@@ -83,89 +84,80 @@ export default function AddCategoryPage() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 max-w-6xl">
       {/* Page Header with Back Navigation */}
       <div className="flex items-center gap-4">
-        <Button
-          variant="outline"
-          size="icon"
-          onClick={() => router.back()}
-          className="h-12 w-12"
-        >
-          <ArrowLeft className="h-4 w-4" />
+        <Button variant="ghost" size="icon" asChild>
+          <Link href="/dashboard/finance/tithes-offerings/categories">
+            <ArrowLeft className="h-4 w-4" />
+          </Link>
         </Button>
-        
-        <div className="flex items-center gap-3">
-          <div className="p-2 bg-brand-primary/10 rounded-lg">
-            <Tag className="h-6 w-6 text-brand-primary" />
-          </div>
-          <PageHeader title="Add New Category" />
+        <div>
+          <h1 className="font-heading text-2xl font-bold tracking-tight">Add Giving Category</h1>
+          <p className="text-sm text-muted-foreground mt-1">
+            Create a designated fund or offering category for tithes and contributions.
+          </p>
         </div>
       </div>
 
-      {/* Form */}
-      <LazySection>
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <PlusCircle className="h-5 w-5" />
-              Category Details
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-                {/* Basic Information */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <FormField
-                    control={form.control}
-                    name="name"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Category Name *</FormLabel>
-                        <FormControl>
-                          <Input placeholder="e.g., Building Fund" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+          <Card className="rounded-xl border border-border p-6">
+            <div className="space-y-5">
+              <div>
+                <h2 className="text-base font-semibold text-foreground">Category Details</h2>
+                <p className="text-xs text-muted-foreground mt-0.5">Specify category name, contribution type, color badges, and status</p>
+              </div>
 
-                  <FormField
-                    control={form.control}
-                    name="type"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Type *</FormLabel>
-                        <Select onValueChange={field.onChange} defaultValue={field.value}>
-                          <FormControl>
-                            <SelectTrigger>
-                              <SelectValue placeholder="Select category type" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            <SelectItem value="Tithe">Tithe</SelectItem>
-                            <SelectItem value="Offering">Offering</SelectItem>
-                            <SelectItem value="First Fruits">First Fruits</SelectItem>
-                            <SelectItem value="Special Offering">Special Offering</SelectItem>
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
+              <div className="grid grid-cols-12 gap-5">
+                <FormField
+                  control={form.control}
+                  name="name"
+                  render={({ field }) => (
+                    <FormItem className="col-span-12 sm:col-span-8">
+                      <FormLabel>Category Name *</FormLabel>
+                      <FormControl>
+                        <Input placeholder="e.g., Building Fund" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="type"
+                  render={({ field }) => (
+                    <FormItem className="col-span-12 sm:col-span-4">
+                      <FormLabel>Type *</FormLabel>
+                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select category type" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="Tithe">Tithe</SelectItem>
+                          <SelectItem value="Offering">Offering</SelectItem>
+                          <SelectItem value="First Fruits">First Fruits</SelectItem>
+                          <SelectItem value="Special Offering">Special Offering</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
                 <FormField
                   control={form.control}
                   name="description"
                   render={({ field }) => (
-                    <FormItem>
+                    <FormItem className="col-span-12">
                       <FormLabel>Description</FormLabel>
                       <FormControl>
                         <Textarea 
-                          placeholder="Describe the purpose of this category..."
-                          className="resize-none"
+                          placeholder="Describe the purpose of this designated fund..."
+                          rows={3}
                           {...field} 
                         />
                       </FormControl>
@@ -179,35 +171,24 @@ export default function AddCategoryPage() {
                   control={form.control}
                   name="color"
                   render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Category Color *</FormLabel>
+                    <FormItem className="col-span-12 sm:col-span-8">
+                      <FormLabel>Category Color Badge *</FormLabel>
                       <FormControl>
-                        <div className="space-y-3">
-                          <div className="flex items-center gap-3">
-                            <div 
-                              className="w-8 h-8 rounded-full border-2 border-gray-200" 
-                              style={{ backgroundColor: selectedColor }}
+                        <div className="flex flex-wrap gap-2 pt-1">
+                          {colorOptions.map((color) => (
+                            <button
+                              key={color.value}
+                              type="button"
+                              className={`w-8 h-8 rounded-full border-2 transition-all ${
+                                field.value === color.value 
+                                  ? 'ring-2 ring-primary ring-offset-2 border-foreground' 
+                                  : 'border-transparent'
+                              }`}
+                              style={{ backgroundColor: color.value }}
+                              onClick={() => field.onChange(color.value)}
+                              title={color.name}
                             />
-                            <span className="text-sm text-muted-foreground">
-                              Selected: {colorOptions.find(c => c.value === selectedColor)?.name}
-                            </span>
-                          </div>
-                          <div className="grid grid-cols-7 gap-2">
-                            {colorOptions.map((color) => (
-                              <button
-                                key={color.value}
-                                type="button"
-                                className={`w-8 h-8 rounded-full border-2 transition-all ${
-                                  field.value === color.value 
-                                    ? 'border-gray-900 scale-110' 
-                                    : 'border-gray-200 hover:border-gray-400'
-                                }`}
-                                style={{ backgroundColor: color.value }}
-                                onClick={() => field.onChange(color.value)}
-                                title={color.name}
-                              />
-                            ))}
-                          </div>
+                          ))}
                         </div>
                       </FormControl>
                       <FormMessage />
@@ -220,11 +201,12 @@ export default function AddCategoryPage() {
                   control={form.control}
                   name="isActive"
                   render={({ field }) => (
-                    <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                    <FormItem className="col-span-12 sm:col-span-4 flex items-center justify-between rounded-lg border border-border p-3.5">
                       <div className="space-y-0.5">
-                        <FormLabel className="text-base">
-                          Active Category
+                        <FormLabel className="text-sm font-medium cursor-pointer">
+                          Active Status
                         </FormLabel>
+                        <p className="text-xs text-muted-foreground">Available for giving records</p>
                       </div>
                       <FormControl>
                         <Switch
@@ -235,36 +217,36 @@ export default function AddCategoryPage() {
                     </FormItem>
                   )}
                 />
+              </div>
+            </div>
+          </Card>
 
-                {/* Submit Buttons */}
-                <div className="flex items-center justify-end space-x-4 pt-6">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={() => router.back()}
-                    disabled={isSubmitting}
-                  >
-                    Cancel
-                  </Button>
-                  <Button type="submit" disabled={isSubmitting}>
-                    {isSubmitting ? (
-                      <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Creating...
-                      </>
-                    ) : (
-                      <>
-                        <PlusCircle className="mr-2 h-4 w-4" />
-                        Create Category
-                      </>
-                    )}
-                  </Button>
-                </div>
-              </form>
-            </Form>
-          </CardContent>
-        </Card>
-      </LazySection>
+          {/* Submit Buttons */}
+          <div className="flex items-center justify-end gap-3 pt-2">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => router.push('/dashboard/finance/tithes-offerings/categories')}
+              disabled={isSubmitting}
+            >
+              Cancel
+            </Button>
+            <Button type="submit" disabled={isSubmitting}>
+              {isSubmitting ? (
+                <>
+                  <Loader2 className="mr-1.5 h-4 w-4 animate-spin" />
+                  Creating...
+                </>
+              ) : (
+                <>
+                  <PlusCircle className="mr-1.5 h-4 w-4" />
+                  Create Category
+                </>
+              )}
+            </Button>
+          </div>
+        </form>
+      </Form>
     </div>
   );
 }

@@ -1,30 +1,23 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Link from 'next/link';
 import { useRouter, useParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { PageHeader } from '@/components/ui/page-header';
 import { StatCard } from '@/components/ui/stat-card';
 import { Badge } from '@/components/ui/badge';
 import { StatusBadge } from '@/components/ui/status-badge';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { 
   ArrowLeft,
-  Edit,
   Mail,
   Phone,
   Calendar,
-  GraduationCap,
   TrendingUp,
-  Award,
-  MessageSquare,
   Loader2,
-  User,
-  BookOpen,
-  Clock
+  Users,
+  BookOpen
 } from 'lucide-react';
 import { sundaySchoolService } from '@/services';
 import { Student, ClassAttendance } from '@/lib/types/sunday-school';
@@ -49,8 +42,6 @@ export default function StudentProfilePage() {
   const loadStudentData = async () => {
     try {
       setLoading(true);
-      
-      // Load student details
       const studentResponse = await sundaySchoolService.getStudent(studentId);
       if (studentResponse.success && studentResponse.data) {
         setStudent(studentResponse.data);
@@ -60,339 +51,170 @@ export default function StudentProfilePage() {
         return;
       }
       
-      // Load student attendance
       const attendanceResponse = await sundaySchoolService.getAttendance({ studentId });
       if (attendanceResponse.success && attendanceResponse.data) {
         setAttendance(attendanceResponse.data);
       }
-    } catch (error) {
+    } catch {
       toast.error('Failed to load student data');
     } finally {
       setLoading(false);
     }
   };
 
-  const handleBack = () => {
-    router.push('/dashboard/sunday-school/students');
-  };
-
-  const handleContactParent = () => {
-    if (student) {
-      window.open(`mailto:${student.parentContact.email}?subject=Regarding ${student.name}`);
-    }
-  };
-
-  const handleCallParent = () => {
-    if (student) {
-      window.open(`tel:${student.parentContact.phone}`);
-    }
-  };
-
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
-        <Loader2 className="h-8 w-8 animate-spin" />
+        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
       </div>
     );
   }
 
   if (!student) {
     return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <div className="text-center">
-          <h2 className="text-2xl font-bold">Student Not Found</h2>
-          <p className="text-muted-foreground mt-2">The student you're looking for doesn't exist.</p>
-          <Button onClick={handleBack} className="mt-4">
-            Back to Students
-          </Button>
-        </div>
+      <div className="text-center py-12 space-y-4">
+        <h2 className="text-xl font-semibold">Student Not Found</h2>
+        <Button onClick={() => router.push('/dashboard/sunday-school/students')} variant="outline">
+          Back to Students
+        </Button>
       </div>
     );
   }
 
-  const getAttendanceStats = () => {
-    const totalClasses = attendance.length;
-    const attendedClasses = attendance.filter(a => a.status === 'Present').length;
-    const attendanceRate = totalClasses > 0 ? (attendedClasses / totalClasses) * 100 : 0;
-    
-    return { totalClasses, attendedClasses, attendanceRate };
-  };
-
-  const attendanceStats = getAttendanceStats();
-
-  const getRecentAttendance = () => {
-    return attendance
-      .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
-      .slice(0, 10);
-  };
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'Present': return 'bg-brand-success';
-      case 'Absent': return 'bg-destructive';
-      case 'Late': return 'bg-brand-accent';
-      case 'Excused': return 'bg-brand-secondary';
-      default: return 'bg-gray-500';
-    }
-  };
+  const totalClasses = attendance.length;
+  const attendedClasses = attendance.filter(a => a.status === 'Present').length;
+  const attendanceRate = totalClasses > 0 ? Math.round((attendedClasses / totalClasses) * 100) : 0;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 max-w-6xl">
       {/* Header */}
-      <div className="flex items-center gap-2">
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={handleBack}
-          className="h-8 w-8"
-        >
-          <ArrowLeft className="h-4 w-4" />
-        </Button>
-        <div className="flex-1">
-          <PageHeader
-            title={student.name}
-            actions={
-              <>
-                <Button variant="outline" onClick={handleContactParent}>
-                  <Mail className="mr-2 h-4 w-4" />
-                  Email Parent
-                </Button>
-                <Button variant="outline" onClick={handleCallParent}>
-                  <Phone className="mr-2 h-4 w-4" />
-                  Call Parent
-                </Button>
-              </>
-            }
-          />
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex items-center gap-4">
+          <Button variant="ghost" size="icon" asChild>
+            <Link href="/dashboard/sunday-school/students">
+              <ArrowLeft className="h-4 w-4" />
+            </Link>
+          </Button>
+          <div className="flex items-center gap-3">
+            <h1 className="font-heading text-2xl font-bold tracking-tight">
+              {student.name}
+            </h1>
+            <StatusBadge status={(student.status || 'active').toLowerCase() as any} size="sm" />
+          </div>
         </div>
       </div>
 
-      {/* Student Overview Cards */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <StatCard
-          title="Age"
-          value={student.age}
-          icon={Calendar}
-          description={`Born ${new Date(student.dateOfBirth).toLocaleDateString()}`}
-        />
-        <StatCard
-          title="Attendance Rate"
-          value={`${attendanceStats.attendanceRate.toFixed(1)}%`}
-          icon={TrendingUp}
-          description={`${attendanceStats.attendedClasses} of ${attendanceStats.totalClasses} classes`}
-        />
-        <StatCard
-          title="Current Class"
-          value={student.currentClassId || 'Not Assigned'}
-          icon={GraduationCap}
-          description={`Age: ${student.age} years old`}
-        />
-        <StatCard
-          title="Enrollment"
-          value={new Date(student.enrollmentDate).toLocaleDateString()}
-          icon={Clock}
-          description={`${Math.floor((Date.now() - new Date(student.enrollmentDate).getTime()) / (1000 * 60 * 60 * 24 * 30))} months ago`}
-        />
+      {/* Stats Cards */}
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <StatCard title="Age" value={`${student.age} years`} icon={Calendar} />
+        <StatCard title="Gender" value={student.gender || '—'} icon={Users} />
+        <StatCard title="Total Sessions" value={totalClasses} icon={BookOpen} />
+        <StatCard title="Attendance Rate" value={`${attendanceRate}%`} icon={TrendingUp} />
       </div>
 
-      {/* Main Content Tabs */}
+      {/* Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
-        <TabsList>
-          <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="attendance">Attendance</TabsTrigger>
-          <TabsTrigger value="performance">Performance</TabsTrigger>
-          <TabsTrigger value="notes">Notes</TabsTrigger>
+        <TabsList className="border-b border-border w-full justify-start rounded-none bg-transparent p-0 gap-6">
+          <TabsTrigger
+            value="overview"
+            className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-1 pb-3 text-sm font-medium"
+          >
+            Profile Information
+          </TabsTrigger>
+          <TabsTrigger
+            value="attendance"
+            className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-1 pb-3 text-sm font-medium"
+          >
+            Attendance History ({attendance.length})
+          </TabsTrigger>
         </TabsList>
 
-        <TabsContent value="overview" className="space-y-4">
-          <div className="grid gap-4 md:grid-cols-2">
+        <TabsContent value="overview" className="space-y-6">
+          <div className="grid gap-6 md:grid-cols-2">
             {/* Student Information */}
             <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center space-x-2">
-                  <User className="h-5 w-5" />
-                  <span>Student Information</span>
-                </CardTitle>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-base font-semibold">Personal Information</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex items-center space-x-4">
-                  <Avatar className="h-16 w-16">
-                    <AvatarImage src={student.avatar} alt={student.name} />
-                    <AvatarFallback className="text-lg">
-                      {student.name.split(' ').map(n => n[0]).join('')}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div>
-                    <h3 className="text-lg font-semibold">{student.name}</h3>
-                    <p className="text-muted-foreground">Age {student.age}</p>
-                    <StatusBadge status={student.status} />
-                  </div>
+              <CardContent className="space-y-3 text-sm">
+                <div className="flex items-center justify-between py-2 border-b border-border">
+                  <span className="text-muted-foreground">Date of Birth</span>
+                  <span className="font-medium text-foreground">{student.dateOfBirth || '—'}</span>
                 </div>
-                
-                <div className="space-y-2">
-                  <div className="flex justify-between">
-                    <span className="text-sm font-medium">Date of Birth:</span>
-                    <span className="text-sm">{new Date(student.dateOfBirth).toLocaleDateString()}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-sm font-medium">Age:</span>
-                    <span className="text-sm">{student.age} years old</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-sm font-medium">Enrollment Date:</span>
-                    <span className="text-sm">{new Date(student.enrollmentDate).toLocaleDateString()}</span>
-                  </div>
+                <div className="flex items-center justify-between py-2 border-b border-border">
+                  <span className="text-muted-foreground">Medical / Special Info</span>
+                  <span className="font-medium text-foreground">{student.medicalInfo || student.notes || 'None'}</span>
                 </div>
               </CardContent>
             </Card>
 
-            {/* Parent Contact */}
+            {/* Parent Information */}
             <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center space-x-2">
-                  <Mail className="h-5 w-5" />
-                  <span>Parent Contact</span>
-                </CardTitle>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-base font-semibold">Guardian / Contact Info</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
-                <div>
-                  <h4 className="font-semibold">{student.parentContact.parentName}</h4>
-                  <p className="text-sm text-muted-foreground">{student.parentContact.relationship}</p>
+              <CardContent className="space-y-3 text-sm">
+                <div className="flex items-center justify-between py-2 border-b border-border">
+                  <span className="text-muted-foreground">Guardian Name</span>
+                  <span className="font-medium text-foreground">{student.parentContact?.parentName || '—'}</span>
                 </div>
-                
-                <div className="space-y-2">
-                  <div className="flex items-center space-x-2">
-                    <Mail className="h-4 w-4 text-muted-foreground" />
-                    <span className="text-sm">{student.parentContact.email}</span>
+                {student.parentContact?.relationship && (
+                  <div className="flex items-center justify-between py-2 border-b border-border">
+                    <span className="text-muted-foreground">Relationship</span>
+                    <span className="font-medium text-foreground">{student.parentContact.relationship}</span>
                   </div>
-                  <div className="flex items-center space-x-2">
-                    <Phone className="h-4 w-4 text-muted-foreground" />
-                    <span className="text-sm">{student.parentContact.phone}</span>
+                )}
+                {student.parentContact?.phone && (
+                  <div className="flex items-center justify-between py-2 border-b border-border">
+                    <span className="text-muted-foreground">Phone</span>
+                    <div className="flex items-center gap-1.5 font-medium text-foreground">
+                      <Phone className="h-3.5 w-3.5 text-muted-foreground" />
+                      <span>{student.parentContact.phone}</span>
+                    </div>
                   </div>
-                </div>
-                
-                <div className="flex space-x-2">
-                  <Button size="sm" onClick={handleContactParent}>
-                    <Mail className="mr-2 h-4 w-4" />
-                    Email
-                  </Button>
-                  <Button size="sm" variant="outline" onClick={handleCallParent}>
-                    <Phone className="mr-2 h-4 w-4" />
-                    Call
-                  </Button>
-                </div>
+                )}
+                {student.parentContact?.email && (
+                  <div className="flex items-center justify-between py-2">
+                    <span className="text-muted-foreground">Email</span>
+                    <div className="flex items-center gap-1.5 font-medium text-foreground">
+                      <Mail className="h-3.5 w-3.5 text-muted-foreground" />
+                      <span>{student.parentContact.email}</span>
+                    </div>
+                  </div>
+                )}
               </CardContent>
             </Card>
           </div>
+        </TabsContent>
 
-          {/* Class History */}
+        <TabsContent value="attendance">
           <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center space-x-2">
-                <BookOpen className="h-5 w-5" />
-                <span>Class History</span>
-              </CardTitle>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base font-semibold">Attendance Log</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="space-y-3">
-                {student.classHistory.map((classRecord, index) => (
-                  <div key={index} className="flex items-center justify-between p-3 border rounded-lg">
+              <div className="space-y-2">
+                {attendance.map((record) => (
+                  <div
+                    key={record.id}
+                    className="flex items-center justify-between p-3 rounded-lg border border-border text-sm"
+                  >
                     <div>
-                      <h4 className="font-medium">{classRecord.className}</h4>
-                      <p className="text-sm text-muted-foreground">
-                        {new Date(classRecord.startDate).toLocaleDateString()} - 
-                        {classRecord.endDate ? new Date(classRecord.endDate).toLocaleDateString() : 'Present'}
+                      <p className="font-medium text-foreground">
+                        {new Date(record.date).toLocaleDateString()}
                       </p>
+                      {record.notes && (
+                        <p className="text-xs text-muted-foreground">{record.notes}</p>
+                      )}
                     </div>
-                    <div className="text-right">
-                      <p className="text-sm font-medium">Class ID: {classRecord.classId}</p>
-                      <p className="text-xs text-muted-foreground">
-                        {classRecord.endDate ? 'Completed' : 'Current'}
-                      </p>
-                    </div>
+                    <StatusBadge status={record.status.toLowerCase() as any} size="sm" />
                   </div>
                 ))}
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
 
-        <TabsContent value="attendance" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Attendance History</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-3">
-                {getRecentAttendance().map((record) => (
-                  <div key={record.id} className="flex items-center justify-between p-3 border rounded-lg">
-                    <div>
-                      <p className="font-medium">{new Date(record.date).toLocaleDateString()}</p>
-                      <p className="text-sm text-muted-foreground">Class ID: {record.classId}</p>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <Badge 
-                        variant="neutral" 
-                        className={`${getStatusColor(record.status)} text-white`}
-                      >
-                        {record.status}
-                      </Badge>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="performance" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center space-x-2">
-                <Award className="h-5 w-5" />
-                <span>Performance & Achievements</span>
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <div>
-                  <h4 className="font-semibold mb-2">Attendance Progress</h4>
-                  <div className="space-y-2">
-                    <div className="flex justify-between text-sm">
-                      <span>Overall Attendance</span>
-                      <span>{attendanceStats.attendanceRate.toFixed(1)}%</span>
-                    </div>
-                    <Progress value={attendanceStats.attendanceRate} className="h-2" />
-                  </div>
-                </div>
-                
-                <div>
-                  <h4 className="font-semibold mb-2">Notes</h4>
-                  <div className="p-2 bg-muted rounded">
-                    <span className="text-sm">{student.notes || 'No notes available'}</span>
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="notes" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center space-x-2">
-                <MessageSquare className="h-5 w-5" />
-                <span>Teacher Notes & Observations</span>
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-3">
-                {student.notes ? (
-                  <div className="p-3 border rounded-lg">
-                    <p className="text-sm">{student.notes}</p>
-                  </div>
-                ) : (
-                  <p className="text-sm text-muted-foreground">No notes available.</p>
+                {attendance.length === 0 && (
+                  <p className="text-center py-8 text-xs text-muted-foreground">
+                    No attendance records for this student.
+                  </p>
                 )}
               </div>
             </CardContent>

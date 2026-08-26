@@ -2,10 +2,12 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { ArrowLeft, FolderOpen, Palette, FileText } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -85,44 +87,37 @@ export default function AddCategoryPage() {
   };
 
   return (
-    <div className="space-y-6">
-      {/* Header with Back Navigation */}
-      <div className="flex items-center gap-4 mb-6">
-        <Button
-          variant="outline"
-          size="icon"
-          className="h-12 w-12"
-          onClick={() => router.back()}
-        >
-          <ArrowLeft className="h-4 w-4" />
+    <div className="space-y-6 max-w-6xl">
+      {/* Header */}
+      <div className="flex items-center gap-4">
+        <Button variant="ghost" size="icon" asChild>
+          <Link href="/dashboard/finance/budgets/categories">
+            <ArrowLeft className="h-4 w-4" />
+          </Link>
         </Button>
-        
-        <div className="flex items-center gap-3">
-          <div className="p-2 bg-brand-primary/10 rounded-lg">
-            <FolderOpen className="h-6 w-6 text-brand-primary" />
-          </div>
-          <PageHeader title="Add New Category" />
+        <div>
+          <h1 className="font-heading text-2xl font-bold tracking-tight">Add Budget Category</h1>
+          <p className="text-sm text-muted-foreground mt-1">
+            Create an operational budget envelope or fiscal classification.
+          </p>
         </div>
       </div>
 
-      {/* Category Form */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <FileText className="h-5 w-5" />
-            Category Information
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-              {/* Basic Information */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+          <Card className="rounded-xl border border-border p-6">
+            <div className="space-y-5">
+              <div>
+                <h2 className="text-base font-semibold text-foreground">Category Details</h2>
+                <p className="text-xs text-muted-foreground mt-0.5">Define category name, descriptive purpose, color token, and status</p>
+              </div>
+
+              <div className="grid grid-cols-12 gap-5">
                 <FormField
                   control={form.control}
                   name="name"
                   render={({ field }) => (
-                    <FormItem>
+                    <FormItem className="col-span-12 sm:col-span-8">
                       <FormLabel>Category Name *</FormLabel>
                       <FormControl>
                         <Input placeholder="e.g., Ministry Operations" {...field} />
@@ -136,7 +131,7 @@ export default function AddCategoryPage() {
                   control={form.control}
                   name="status"
                   render={({ field }) => (
-                    <FormItem>
+                    <FormItem className="col-span-12 sm:col-span-4">
                       <FormLabel>Status *</FormLabel>
                       <Select onValueChange={field.onChange} defaultValue={field.value}>
                         <FormControl>
@@ -156,147 +151,77 @@ export default function AddCategoryPage() {
                     </FormItem>
                   )}
                 />
-              </div>
 
-              {/* Description */}
-              <FormField
-                control={form.control}
-                name="description"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Description *</FormLabel>
-                    <FormControl>
-                      <Textarea 
-                        placeholder="Brief description of what this category covers"
-                        rows={3}
-                        {...field} 
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                <FormField
+                  control={form.control}
+                  name="description"
+                  render={({ field }) => (
+                    <FormItem className="col-span-12">
+                      <FormLabel>Description *</FormLabel>
+                      <FormControl>
+                        <Textarea 
+                          placeholder="Brief description of what this budget category covers..."
+                          rows={3}
+                          {...field} 
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-              {/* Color Selection */}
-              <FormField
-                control={form.control}
-                name="color"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="flex items-center gap-2">
-                      <Palette className="h-4 w-4" />
-                      Category Color *
-                    </FormLabel>
-                    <FormControl>
-                      <div className="space-y-3">
-                        <div className="grid grid-cols-6 md:grid-cols-12 gap-3">
-                          {categoryColors.map((color) => (
-                            <button
-                              key={color.value}
-                              type="button"
-                              className={`w-10 h-10 rounded-lg border-2 transition-all hover:scale-110 ${
-                                selectedColor === color.value 
-                                  ? 'border-gray-900 ring-2 ring-gray-300' 
-                                  : 'border-gray-200 hover:border-gray-300'
-                              }`}
-                              style={{ backgroundColor: color.value }}
-                              onClick={() => handleColorSelect(color.value)}
-                              title={color.name}
-                            >
-                              {selectedColor === color.value && (
-                                <div className="w-full h-full flex items-center justify-center">
-                                  <div className="w-3 h-3 bg-white rounded-full"></div>
-                                </div>
-                              )}
-                            </button>
-                          ))}
-                        </div>
-                        {selectedColor && (
-                          <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                            <div 
-                              className="w-4 h-4 rounded-full border"
-                              style={{ backgroundColor: selectedColor }}
-                            ></div>
-                            <span>
-                              Selected: {categoryColors.find(c => c.value === selectedColor)?.name}
-                            </span>
+                {/* Color Selection */}
+                <FormField
+                  control={form.control}
+                  name="color"
+                  render={({ field }) => (
+                    <FormItem className="col-span-12">
+                      <FormLabel>Category Color Badge *</FormLabel>
+                      <FormControl>
+                        <div className="space-y-3">
+                          <div className="flex flex-wrap gap-2 pt-1">
+                            {categoryColors.map((color) => (
+                              <button
+                                key={color.value}
+                                type="button"
+                                className={cn(
+                                  'w-8 h-8 rounded-full border-2 transition-all',
+                                  selectedColor === color.value 
+                                    ? 'ring-2 ring-primary ring-offset-2 border-foreground' 
+                                    : 'border-transparent hover:scale-105'
+                                )}
+                                style={{ backgroundColor: color.value }}
+                                onClick={() => handleColorSelect(color.value)}
+                                title={color.name}
+                              />
+                            ))}
                           </div>
-                        )}
-                      </div>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              {/* Preview */}
-              {(form.watch('name') || selectedColor) && (
-                <div className="space-y-2">
-                  <Label>Preview</Label>
-                  <Card className="p-4">
-                    <div className="flex items-center space-x-3">
-                      <div 
-                        className="w-4 h-4 rounded-full"
-                        style={{ backgroundColor: selectedColor || '#E5E7EB' }}
-                      ></div>
-                      <div>
-                        <div className="font-medium">
-                          {form.watch('name') || 'Category Name'}
                         </div>
-                        <div className="text-sm text-muted-foreground">
-                          {form.watch('description') || 'Category description will appear here'}
-                        </div>
-                      </div>
-                    </div>
-                  </Card>
-                </div>
-              )}
-
-              {/* Form Actions */}
-              <div className="flex justify-end space-x-4 pt-6">
-                <Button 
-                  type="button" 
-                  variant="outline" 
-                  onClick={() => router.back()}
-                  disabled={isSubmitting}
-                >
-                  Cancel
-                </Button>
-                <Button type="submit" disabled={isSubmitting}>
-                  {isSubmitting ? 'Creating...' : 'Create Category'}
-                </Button>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
               </div>
-            </form>
-          </Form>
-        </CardContent>
-      </Card>
+            </div>
+          </Card>
 
-      {/* Guidelines */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Category Guidelines</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-3 text-sm text-muted-foreground">
-            <div className="flex items-start gap-2">
-              <div className="w-1.5 h-1.5 bg-brand-primary rounded-full mt-2 flex-shrink-0"></div>
-              <p>Choose a descriptive name that clearly identifies the purpose of budgets in this category.</p>
-            </div>
-            <div className="flex items-start gap-2">
-              <div className="w-1.5 h-1.5 bg-brand-primary rounded-full mt-2 flex-shrink-0"></div>
-              <p>Select a unique color to help visually distinguish this category from others.</p>
-            </div>
-            <div className="flex items-start gap-2">
-              <div className="w-1.5 h-1.5 bg-brand-primary rounded-full mt-2 flex-shrink-0"></div>
-              <p>Provide a clear description that explains what types of budgets belong in this category.</p>
-            </div>
-            <div className="flex items-start gap-2">
-              <div className="w-1.5 h-1.5 bg-brand-primary rounded-full mt-2 flex-shrink-0"></div>
-              <p>Categories can be set to inactive if they're no longer needed but have historical data.</p>
-            </div>
+          {/* Form Actions */}
+          <div className="flex items-center justify-end gap-3 pt-2">
+            <Button 
+              type="button" 
+              variant="outline" 
+              onClick={() => router.push('/dashboard/finance/budgets/categories')}
+              disabled={isSubmitting}
+            >
+              Cancel
+            </Button>
+            <Button type="submit" disabled={isSubmitting}>
+              {isSubmitting ? 'Creating...' : 'Create Category'}
+            </Button>
           </div>
-        </CardContent>
-      </Card>
+        </form>
+      </Form>
     </div>
   );
 }

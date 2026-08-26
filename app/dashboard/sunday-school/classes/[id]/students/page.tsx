@@ -5,16 +5,13 @@ import { useRouter, useParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { PageHeader } from '@/components/ui/page-header';
 import { StatCard } from '@/components/ui/stat-card';
 import { Badge } from '@/components/ui/badge';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { StatusBadge } from '@/components/ui/status-badge';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import {
@@ -32,14 +29,12 @@ import {
   Search,
   UserPlus,
   MoreHorizontal,
-  UserMinus,
-  Eye,
   Mail,
   Phone,
-  Calendar,
   Users,
   TrendingUp,
-  Loader2
+  Loader2,
+  Trash2
 } from 'lucide-react';
 import Link from 'next/link';
 import { sundaySchoolService } from '@/services';
@@ -53,7 +48,6 @@ export default function ClassStudentsPage() {
   
   const [classData, setClassData] = useState<SundaySchoolClass | null>(null);
   const [students, setStudents] = useState<Student[]>([]);
-  const [filteredStudents, setFilteredStudents] = useState<Student[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [studentToRemove, setStudentToRemove] = useState<Student | null>(null);
@@ -61,88 +55,48 @@ export default function ClassStudentsPage() {
 
   useEffect(() => {
     if (classId) {
-      loadClassData();
-      loadStudents();
+      loadData();
     }
   }, [classId]);
 
-  useEffect(() => {
-    filterStudents();
-  }, [students, searchTerm]);
-
-  const loadClassData = async () => {
+  const loadData = async () => {
     try {
-      const response = await sundaySchoolService.getClass(classId);
-      if (response.success && response.data) {
-        setClassData(response.data);
+      setLoading(true);
+      const [classResponse, studentsResponse] = await Promise.all([
+        sundaySchoolService.getClass(classId),
+        sundaySchoolService.getClassStudents(classId)
+      ]);
+
+      if (classResponse.success && classResponse.data) {
+        setClassData(classResponse.data);
       } else {
         toast.error('Class not found');
         router.push('/dashboard/sunday-school/classes');
+        return;
       }
-    } catch (error) {
-      toast.error('Failed to load class data');
-    }
-  };
-
-  const loadStudents = async () => {
-    try {
-      setLoading(true);
-      const response = await sundaySchoolService.getClassStudents(classId);
       
-      if (response.success && response.data) {
-        setStudents(response.data);
-      } else {
-        toast.error(response.message || 'Failed to load students');
+      if (studentsResponse.success && studentsResponse.data) {
+        setStudents(studentsResponse.data);
       }
-    } catch (error) {
-      toast.error('Failed to load students');
+    } catch {
+      toast.error('Failed to load class students');
     } finally {
       setLoading(false);
     }
   };
 
-  const filterStudents = () => {
-    if (!searchTerm.trim()) {
-      setFilteredStudents(students);
-      return;
-    }
-
-    const filtered = students.filter(student =>
-      student.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      student.parentContact.parentName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      student.age.toString().includes(searchTerm)
-    );
-    
-    setFilteredStudents(filtered);
-  };
-
-  const handleBack = () => {
-    router.push(`/dashboard/sunday-school/classes/${classId}`);
-  };
-
-  const handleAddStudents = () => {
-    router.push(`/dashboard/sunday-school/classes/${classId}/students/add`);
-  };
-
-  const handleViewStudent = (studentId: string) => {
-    router.push(`/dashboard/sunday-school/students/${studentId}`);
-  };
-
   const handleRemoveStudent = async () => {
     if (!studentToRemove) return;
-    
     setRemoving(true);
-    
     try {
       const response = await sundaySchoolService.removeStudentFromClass(classId, studentToRemove.id);
-      
       if (response.success) {
         toast.success(`${studentToRemove.name} removed from class`);
         setStudents(prev => prev.filter(s => s.id !== studentToRemove.id));
       } else {
         toast.error(response.message || 'Failed to remove student');
       }
-    } catch (error) {
+    } catch {
       toast.error('Failed to remove student');
     } finally {
       setRemoving(false);
@@ -150,21 +104,18 @@ export default function ClassStudentsPage() {
     }
   };
 
-  const getAttendanceRate = (student: Student) => {
-    // Mock calculation - in real app, this would come from attendance data
-    return Math.floor(Math.random() * 30) + 70; // 70-100%
-  };
-
-  const getAttendanceColor = (rate: number) => {
-    if (rate >= 90) return 'text-brand-success';
-    if (rate >= 75) return 'text-brand-secondary';
-    return 'text-destructive';
-  };
+  const filteredStudents = students.filter(student => {
+    const fullName = (student.name || '').toLowerCase();
+    const parentName = student.parentContact?.parentName?.toLowerCase() || '';
+    return fullName.includes(searchTerm.toLowerCase()) ||
+           parentName.includes(searchTerm.toLowerCase()) ||
+           student.age.toString().includes(searchTerm);
+  });
 
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
-        <Loader2 className="h-8 w-8 animate-spin" />
+        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
       </div>
     );
   }
@@ -172,205 +123,145 @@ export default function ClassStudentsPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center gap-2">
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={handleBack}
-          className="h-8 w-8"
-        >
-          <ArrowLeft className="h-4 w-4" />
-        </Button>
-        <div className="flex-1">
-          <PageHeader
-            title="Class Students"
-            description={classData ? `${classData.name} - ${students.length} students enrolled` : undefined}
-            actions={
-              <Button onClick={handleAddStudents} className="bg-brand-primary hover:bg-brand-primary/90">
-                <UserPlus className="mr-2 h-4 w-4" />
-                Add Students
-              </Button>
-            }
-          />
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex items-center gap-4">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => router.push(`/dashboard/sunday-school/classes/${classId}`)}
+            className="text-muted-foreground hover:text-foreground"
+          >
+            <ArrowLeft className="h-4 w-4 mr-1.5" />
+            Back
+          </Button>
+          <div>
+            <h1 className="font-heading text-2xl font-bold tracking-tight">Class Students</h1>
+          </div>
         </div>
+
+        <Button size="sm" asChild>
+          <Link href={`/dashboard/sunday-school/classes/${classId}/students/add`}>
+            <UserPlus className="mr-1.5 h-4 w-4" />
+            Add Students
+          </Link>
+        </Button>
       </div>
 
       {/* Stats Cards */}
-      <div className="grid gap-4 md:grid-cols-4">
+      <div className="grid gap-4 sm:grid-cols-3">
+        <StatCard title="Enrolled Students" value={students.length} icon={Users} />
+        <StatCard title="Class Capacity" value={classData?.maxStudents || 20} icon={Users} />
         <StatCard
-          title="Total Students"
-          value={students.length}
-          icon={Users}
-          description={`of ${classData?.maxStudents} maximum`}
-        />
-        <StatCard
-          title="Capacity"
-          value={`${classData ? Math.round((students.length / classData.maxStudents) * 100) : 0}%`}
+          title="Capacity Filled"
+          value={`${Math.round((students.length / (classData?.maxStudents || 20)) * 100)}%`}
           icon={TrendingUp}
-          description="Class utilization"
-        />
-        <StatCard
-          title="Avg. Age"
-          value={students.length > 0 ? Math.round(students.reduce((sum, s) => sum + s.age, 0) / students.length) : 0}
-          icon={Calendar}
-          description="Years old"
-        />
-        <StatCard
-          title="Available Spots"
-          value={classData ? classData.maxStudents - students.length : 0}
-          icon={UserPlus}
-          description="Remaining capacity"
         />
       </div>
 
-      {/* Students Management */}
+      {/* Students Directory */}
       <Card>
-        <CardHeader>
-          <CardTitle>Students</CardTitle>
-
-          {/* Search */}
-          <div className="flex items-center space-x-4">
-            <div className="relative flex-1 max-w-sm">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="Search students..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10"
-              />
-            </div>
-          </div>
+        <CardHeader className="pb-3">
+          <CardTitle className="text-base font-semibold">Enrolled Students ({filteredStudents.length})</CardTitle>
         </CardHeader>
         <CardContent>
-          {filteredStudents.length === 0 ? (
-            <div className="text-center py-12">
-              {students.length === 0 ? (
-                <>
-                  <Users className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                  <h3 className="text-lg font-medium">No students enrolled</h3>
-                  <p className="text-muted-foreground mb-6">
-                    Add students to this class to get started
-                  </p>
-                  <Button onClick={handleAddStudents}>
-                    <UserPlus className="mr-2 h-4 w-4" />
-                    Add Students
-                  </Button>
-                </>
-              ) : (
-                <>
-                  <Search className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                  <h3 className="text-lg font-medium">No students found</h3>
-                  <p className="text-muted-foreground">
-                    Try adjusting your search terms
-                  </p>
-                </>
-              )}
-            </div>
-          ) : (
-            <div className="space-y-4">
-              {filteredStudents.map((student) => {
-                const attendanceRate = getAttendanceRate(student);
-                
-                return (
-                  <div key={student.id} className="flex items-center justify-between p-4 border rounded-lg hover:shadow-md transition-shadow">
-                    <div className="flex items-center space-x-4">
-                      <Avatar className="h-12 w-12">
-                        <AvatarImage src={student.avatar} alt={student.name} />
-                        <AvatarFallback>
-                          {student.name.split(' ').map(n => n[0]).join('')}
-                        </AvatarFallback>
-                      </Avatar>
-                      
-                      <div className="space-y-1">
-                        <div className="flex items-center space-x-2">
-                          <h4 className="font-medium">{student.name}</h4>
-                          <Badge variant="neutral">Age {student.age}</Badge>
-                        </div>
-                        
-                        <div className="flex items-center space-x-4 text-sm text-muted-foreground">
-                          <div className="flex items-center space-x-1">
-                            <Mail className="h-3 w-3" />
-                            <span>{student.parentContact.email}</span>
-                          </div>
-                          
-                          <div className="flex items-center space-x-1">
-                            <Phone className="h-3 w-3" />
-                            <span>{student.parentContact.phone}</span>
-                          </div>
-                        </div>
-                        
-                        <div className="flex items-center space-x-2">
-                          <span className="text-sm text-muted-foreground">Parent:</span>
-                          <span className="text-sm font-medium">{student.parentContact.parentName}</span>
-                        </div>
-                      </div>
+          <div className="relative mb-4">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Search by student name, parent name, or age..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-9 max-w-sm"
+            />
+          </div>
+
+          <div className="space-y-3">
+            {filteredStudents.map((student) => (
+              <Card key={student.id} className="p-4">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div className="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center font-medium text-xs text-primary shrink-0">
+                      {student.name?.slice(0, 2).toUpperCase() || 'ST'}
                     </div>
-                    
-                    <div className="flex items-center space-x-4">
-                      <div className="text-right">
-                        <div className="text-sm font-medium">Attendance</div>
-                        <div className={`text-sm ${getAttendanceColor(attendanceRate)}`}>
-                          {attendanceRate}%
-                        </div>
+                    <div className="space-y-1 min-w-0">
+                      <div className="flex items-center gap-2">
+                        <span className="font-semibold text-sm text-foreground">
+                          {student.name}
+                        </span>
+                        <Badge variant="neutral" size="sm">Age: {student.age}</Badge>
+                        <StatusBadge status={(student.status || 'active').toLowerCase() as any} size="sm" />
                       </div>
-                      
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="icon">
-                            <MoreHorizontal className="h-4 w-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                          <DropdownMenuSeparator />
-                          <DropdownMenuItem onClick={() => handleViewStudent(student.id)}>
-                            <Eye className="mr-2 h-4 w-4" />
-                            View Profile
-                          </DropdownMenuItem>
-                          <DropdownMenuSeparator />
-                          <DropdownMenuItem 
-                            onClick={() => setStudentToRemove(student)}
-                            className="text-destructive"
-                          >
-                            <UserMinus className="mr-2 h-4 w-4" />
-                            Remove from Class
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
+
+                      <div className="flex items-center gap-4 text-xs text-muted-foreground flex-wrap">
+                        {student.parentContact?.parentName && (
+                          <span>Parent: {student.parentContact.parentName}</span>
+                        )}
+                        {student.parentContact?.phone && (
+                          <span className="flex items-center gap-1">
+                            <Phone className="h-3 w-3" />
+                            {student.parentContact.phone}
+                          </span>
+                        )}
+                        {student.parentContact?.email && (
+                          <span className="flex items-center gap-1">
+                            <Mail className="h-3 w-3" />
+                            {student.parentContact.email}
+                          </span>
+                        )}
+                      </div>
                     </div>
                   </div>
-                );
-              })}
+
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                        <MoreHorizontal className="h-4 w-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem asChild>
+                        <Link href={`/dashboard/sunday-school/students/${student.id}`}>
+                          View Profile
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        onClick={() => setStudentToRemove(student)}
+                        className="text-destructive focus:text-destructive"
+                      >
+                        <Trash2 className="mr-2 h-4 w-4" />
+                        Remove from Class
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
+              </Card>
+            ))}
+          </div>
+
+          {filteredStudents.length === 0 && (
+            <div className="text-center py-10 text-muted-foreground text-sm">
+              No students found.
             </div>
           )}
         </CardContent>
       </Card>
 
-      {/* Remove Student Confirmation Dialog */}
-      <AlertDialog open={!!studentToRemove} onOpenChange={() => setStudentToRemove(null)}>
+      {/* Remove Confirmation */}
+      <AlertDialog open={!!studentToRemove} onOpenChange={(open) => !open && setStudentToRemove(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Remove Student</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to remove {studentToRemove?.name} from this class?
-              This will not delete the student record, but they will no longer be enrolled in this class.
+              Are you sure you want to remove &quot;{studentToRemove?.name}&quot; from this class?
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel disabled={removing}>Cancel</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleRemoveStudent}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
               disabled={removing}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
-              {removing ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Removing...
-                </>
-              ) : (
-                'Remove Student'
-              )}
+              {removing ? 'Removing...' : 'Remove Student'}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

@@ -2,12 +2,12 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { PageHeader } from '@/components/ui/page-header';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
   Select,
   SelectContent,
@@ -56,14 +56,8 @@ export default function UploadMaterialPage() {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [tags, setTags] = useState('');
 
-  const handleBack = () => {
-    router.push('/dashboard/sunday-school/materials');
-  };
-
   const handleInputChange = (field: keyof MaterialFormData, value: any) => {
     setFormData(prev => ({ ...prev, [field]: value }));
-    
-    // Clear error when user starts typing
     if (errors[field]) {
       setErrors(prev => ({ ...prev, [field]: '' }));
     }
@@ -76,7 +70,6 @@ export default function UploadMaterialPage() {
       progress: 0,
       status: 'pending'
     }));
-    
     setFiles(prev => [...prev, ...newFiles]);
   };
 
@@ -86,356 +79,199 @@ export default function UploadMaterialPage() {
 
   const validateForm = (): boolean => {
     const newErrors: Record<string, string> = {};
-    
-    if (!formData.title.trim()) {
-      newErrors.title = 'Title is required';
-    }
-    
-    if (!formData.description.trim()) {
-      newErrors.description = 'Description is required';
-    }
-    
-    if (files.length === 0) {
-      newErrors.files = 'At least one file is required';
-    }
+    if (!formData.title.trim()) newErrors.title = 'Title is required';
+    if (!formData.description.trim()) newErrors.description = 'Description is required';
+    if (files.length === 0) newErrors.files = 'At least one file is required';
     
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
-  const uploadFile = async (uploadFile: UploadFile): Promise<string> => {
-    return new Promise((resolve, reject) => {
-      // Simulate file upload with progress
-      const interval = setInterval(() => {
-        setFiles(prev => prev.map(f => 
-          f.id === uploadFile.id 
-            ? { ...f, progress: Math.min(f.progress + 10, 90), status: 'uploading' }
-            : f
-        ));
-      }, 200);
-
-      // Simulate upload completion after 2 seconds
-      setTimeout(() => {
-        clearInterval(interval);
-        
-        // Simulate random success/failure (90% success rate)
-        if (Math.random() > 0.1) {
-          setFiles(prev => prev.map(f => 
-            f.id === uploadFile.id 
-              ? { ...f, progress: 100, status: 'completed' }
-              : f
-          ));
-          resolve(`https://example.com/files/${uploadFile.file.name}`);
-        } else {
-          setFiles(prev => prev.map(f => 
-            f.id === uploadFile.id 
-              ? { ...f, status: 'error', error: 'Upload failed' }
-              : f
-          ));
-          reject(new Error('Upload failed'));
-        }
-      }, 2000);
-    });
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    if (!validateForm()) {
-      toast.error('Please fix the errors in the form');
-      return;
-    }
+    if (!validateForm()) return;
     
     setUploading(true);
-    
     try {
-      // Upload files first
-      const uploadPromises = files.map(file => uploadFile(file));
-      const fileUrls = await Promise.all(uploadPromises);
-      
-      // Process tags
-      const processedTags = tags.split(',').map(tag => tag.trim()).filter(tag => tag.length > 0);
-      
-      // Create material with file URLs
-      const materialData = {
+      const tagList = tags.split(',').map(tag => tag.trim()).filter(Boolean);
+      const materialData: MaterialFormData = {
         ...formData,
-        tags: processedTags,
-        fileUrls
+        tags: tagList,
+        file: files[0]?.file
       };
-      
+
       const response = await sundaySchoolService.uploadMaterial(materialData);
-      
       if (response.success) {
         toast.success('Material uploaded successfully');
         router.push('/dashboard/sunday-school/materials');
       } else {
         toast.error(response.message || 'Failed to upload material');
       }
-    } catch (error) {
+    } catch {
       toast.error('Failed to upload material');
     } finally {
       setUploading(false);
     }
   };
 
-  const getFileStatusIcon = (status: UploadFile['status']) => {
-    switch (status) {
-      case 'completed':
-        return <CheckCircle className="h-4 w-4 text-brand-success" />;
-      case 'error':
-        return <AlertCircle className="h-4 w-4 text-destructive" />;
-      case 'uploading':
-        return <Loader2 className="h-4 w-4 animate-spin text-brand-primary" />;
-      default:
-        return <File className="h-4 w-4 text-muted-foreground" />;
-    }
-  };
-
-  const formatFileSize = (bytes: number) => {
-    if (bytes === 0) return '0 Bytes';
-    const k = 1024;
-    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
-  };
-
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 max-w-6xl">
       {/* Header */}
-      <div className="flex items-center gap-2">
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={handleBack}
-          className="h-8 w-8"
-        >
-          <ArrowLeft className="h-4 w-4" />
+      <div className="flex items-center gap-4">
+        <Button variant="ghost" size="icon" asChild>
+          <Link href="/dashboard/sunday-school/materials">
+            <ArrowLeft className="h-4 w-4" />
+          </Link>
         </Button>
-        <div className="flex-1">
-          <PageHeader title="Upload Material" />
+        <div>
+          <h1 className="font-heading text-2xl font-bold tracking-tight">Upload Teaching Material</h1>
+          <p className="text-sm text-muted-foreground mt-1">Upload curriculum documents, lesson plans, activity worksheets, and media.</p>
         </div>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
-        <div className="grid gap-6 lg:grid-cols-3">
-          {/* Main Form */}
-          <div className="lg:col-span-2 space-y-6">
-            {/* Basic Information */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Material Information</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="title">Title *</Label>
-                  <Input
-                    id="title"
-                    value={formData.title}
-                    onChange={(e) => handleInputChange('title', e.target.value)}
-                    placeholder="Enter material title"
-                    className={errors.title ? 'border-destructive' : ''}
-                  />
-                  {errors.title && (
-                    <p className="text-sm text-destructive">{errors.title}</p>
-                  )}
-                </div>
+        <Card className="rounded-xl border border-border p-6">
+          <div className="space-y-5">
+            <h2 className="text-base font-semibold text-foreground">Material Details</h2>
 
-                <div className="space-y-2">
-                  <Label htmlFor="description">Description *</Label>
-                  <Textarea
-                    id="description"
-                    value={formData.description}
-                    onChange={(e) => handleInputChange('description', e.target.value)}
-                    placeholder="Describe the material and its purpose"
-                    rows={4}
-                    className={errors.description ? 'border-destructive' : ''}
-                  />
-                  {errors.description && (
-                    <p className="text-sm text-destructive">{errors.description}</p>
-                  )}
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="type">Material Type *</Label>
-                    <Select 
-                      value={formData.type} 
-                      onValueChange={(value) => handleInputChange('type', value as MaterialType)}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select type" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {materialTypes.map((type) => (
-                          <SelectItem key={type} value={type}>
-                            {type}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="ageGroup">Age Group *</Label>
-                    <Select 
-                      value={formData.ageGroup} 
-                      onValueChange={(value) => handleInputChange('ageGroup', value as AgeGroup)}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select age group" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {ageGroups.map((group) => (
-                          <SelectItem key={group} value={group}>
-                            {group}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="tags">Tags</Label>
-                  <Input
-                    id="tags"
-                    value={tags}
-                    onChange={(e) => setTags(e.target.value)}
-                    placeholder="Enter tags separated by commas (e.g., bible, story, activity)"
-                  />
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* File Upload */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Upload Files</CardTitle>
-                <CardDescription>
-                  Accepted formats: PDF, Word, PowerPoint, images, MP4, MP3, WAV — max 50MB per file
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <FileUpload
-                  onUpload={handleFilesSelected}
-                  accept=".pdf,.doc,.docx,.ppt,.pptx,.jpg,.jpeg,.png,.gif,.mp4,.mp3,.wav"
-                  multiple
-                  maxSize={50 * 1024 * 1024} // 50MB
+            <div className="grid grid-cols-12 gap-5">
+              {/* Title (6 cols) */}
+              <div className="col-span-12 sm:col-span-6 space-y-2">
+                <Label htmlFor="title">Title *</Label>
+                <Input
+                  id="title"
+                  value={formData.title}
+                  onChange={(e) => handleInputChange('title', e.target.value)}
+                  placeholder="e.g. David and Goliath - Faith & Courage"
+                  required
                 />
-                
-                {errors.files && (
-                  <p className="text-sm text-destructive">{errors.files}</p>
-                )}
+                {errors.title && <p className="text-xs text-destructive">{errors.title}</p>}
+              </div>
 
-                {/* File List */}
-                {files.length > 0 && (
-                  <div className="space-y-2">
-                    <h4 className="font-medium">Selected Files</h4>
-                    <div className="space-y-2">
-                      {files.map((uploadFile) => (
-                        <div key={uploadFile.id} className="flex items-center space-x-3 p-3 border rounded-lg">
-                          {getFileStatusIcon(uploadFile.status)}
-                          <div className="flex-1 min-w-0">
-                            <p className="text-sm font-medium truncate">{uploadFile.file.name}</p>
-                            <p className="text-xs text-muted-foreground">
-                              {formatFileSize(uploadFile.file.size)}
-                            </p>
-                            {uploadFile.status === 'uploading' && (
-                              <Progress value={uploadFile.progress} className="mt-1 h-1" />
-                            )}
-                            {uploadFile.status === 'error' && uploadFile.error && (
-                              <p className="text-xs text-destructive mt-1">{uploadFile.error}</p>
-                            )}
-                          </div>
-                          {uploadFile.status === 'pending' && (
-                            <Button
-                              type="button"
-                              variant="ghost"
-                              size="icon"
-                              onClick={() => removeFile(uploadFile.id)}
-                            >
-                              <X className="h-4 w-4" />
-                            </Button>
-                          )}
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          </div>
+              {/* Resource Type (3 cols) */}
+              <div className="col-span-12 sm:col-span-6 lg:col-span-3 space-y-2">
+                <Label htmlFor="type">Resource Type</Label>
+                <Select
+                  value={formData.type}
+                  onValueChange={(val) => handleInputChange('type', val as MaterialType)}
+                >
+                  <SelectTrigger id="type">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {materialTypes.map((type) => (
+                      <SelectItem key={type} value={type}>{type}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
 
-          {/* Summary Sidebar */}
-          <div className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Upload Summary</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <div className="flex justify-between text-sm">
-                    <span>Title:</span>
-                    <span className="font-medium">{formData.title || 'Not set'}</span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span>Type:</span>
-                    <span className="font-medium">{formData.type}</span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span>Age Group:</span>
-                    <span className="font-medium">{formData.ageGroup}</span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span>Files:</span>
-                    <span className="font-medium">{files.length}</span>
-                  </div>
-                  {tags && (
-                    <div className="space-y-1">
-                      <span className="text-sm">Tags:</span>
-                      <div className="flex flex-wrap gap-1">
-                        {tags.split(',').map((tag, index) => (
-                          <span key={index} className="text-xs bg-muted px-2 py-1 rounded">
-                            {tag.trim()}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
+              {/* Target Age Group (3 cols) */}
+              <div className="col-span-12 sm:col-span-6 lg:col-span-3 space-y-2">
+                <Label htmlFor="ageGroup">Target Age Group</Label>
+                <Select
+                  value={formData.ageGroup}
+                  onValueChange={(val) => handleInputChange('ageGroup', val as AgeGroup)}
+                >
+                  <SelectTrigger id="ageGroup">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {ageGroups.map((group) => (
+                      <SelectItem key={group} value={group}>{group}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
 
-            {/* Action Buttons */}
-            <div className="space-y-2">
-              <Button 
-                type="submit" 
-                className="w-full" 
-                disabled={uploading}
-              >
-                {uploading ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Uploading...
-                  </>
-                ) : (
-                  <>
-                    <Upload className="mr-2 h-4 w-4" />
-                    Upload Material
-                  </>
-                )}
-              </Button>
-              <Button 
-                type="button" 
-                variant="outline" 
-                className="w-full" 
-                onClick={handleBack}
-                disabled={uploading}
-              >
-                Cancel
-              </Button>
+              {/* Description (12 cols) */}
+              <div className="col-span-12 space-y-2">
+                <Label htmlFor="description">Description *</Label>
+                <Textarea
+                  id="description"
+                  value={formData.description}
+                  onChange={(e) => handleInputChange('description', e.target.value)}
+                  placeholder="Overview of lesson, learning objectives, scripture references..."
+                  rows={3}
+                  required
+                />
+                {errors.description && <p className="text-xs text-destructive">{errors.description}</p>}
+              </div>
+
+              {/* Tags (12 cols) */}
+              <div className="col-span-12 space-y-2">
+                <Label htmlFor="tags">Tags (comma separated)</Label>
+                <Input
+                  id="tags"
+                  value={tags}
+                  onChange={(e) => setTags(e.target.value)}
+                  placeholder="Faith, Courage, Old Testament, Activity"
+                />
+              </div>
             </div>
           </div>
+        </Card>
+
+        {/* File Upload */}
+        <Card className="rounded-xl border border-border p-6">
+          <div className="space-y-5">
+            <h2 className="text-base font-semibold text-foreground">Attach Files</h2>
+
+            <FileUpload
+              onUpload={handleFilesSelected}
+              accept=".pdf,.docx,.doc,.mp4,.mov,.mp3,.wav,.jpg,.jpeg,.png"
+              maxSize={50 * 1024 * 1024}
+              maxFiles={5}
+            />
+
+            {errors.files && <p className="text-xs text-destructive">{errors.files}</p>}
+
+            {files.length > 0 && (
+              <div className="space-y-2 pt-1">
+                {files.map((file) => (
+                  <div key={file.id} className="flex items-center justify-between p-2.5 rounded-lg border border-border text-xs">
+                    <div className="flex items-center gap-2 min-w-0">
+                      <File className="h-4 w-4 text-muted-foreground shrink-0" />
+                      <span className="font-medium text-foreground truncate">{file.file.name}</span>
+                      <span className="text-muted-foreground">({(file.file.size / 1024 / 1024).toFixed(2)} MB)</span>
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={() => removeFile(file.id)}
+                      className="text-muted-foreground hover:text-destructive p-1"
+                    >
+                      <X className="h-4 w-4" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </Card>
+
+        <div className="flex justify-end gap-3 pt-2">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => router.push('/dashboard/sunday-school/materials')}
+            disabled={uploading}
+          >
+            Cancel
+          </Button>
+          <Button type="submit" disabled={uploading}>
+            {uploading ? (
+              <>
+                <Loader2 className="mr-1.5 h-4 w-4 animate-spin" />
+                Uploading...
+              </>
+            ) : (
+              <>
+                <Upload className="mr-1.5 h-4 w-4" />
+                Upload Material
+              </>
+            )}
+          </Button>
         </div>
       </form>
     </div>

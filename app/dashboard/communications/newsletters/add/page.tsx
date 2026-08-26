@@ -264,23 +264,19 @@ export default function AddNewsletterPage() {
   const selectedTemplate = templates.find(t => t.id === formData.template);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 max-w-6xl">
       {/* Header with Back Navigation */}
-      <div className="flex items-center gap-4 mb-6">
-        <Button
-          variant="outline"
-          size="icon"
-          className="h-12 w-12"
-          onClick={() => router.back()}
-        >
-          <ArrowLeft className="h-4 w-4" />
+      <div className="flex items-center gap-4">
+        <Button variant="ghost" size="icon" asChild>
+          <Link href="/dashboard/communications/newsletters">
+            <ArrowLeft className="h-4 w-4" />
+          </Link>
         </Button>
-        
-        <div className="flex items-center gap-3">
-          <div className="p-2 bg-brand-primary/10 rounded-lg">
-            <FileText className="h-6 w-6 text-brand-primary" />
-          </div>
-          <PageHeader title="Create New Newsletter" />
+        <div>
+          <h1 className="font-heading text-2xl font-bold tracking-tight">Create New Newsletter</h1>
+          <p className="text-sm text-muted-foreground mt-1">
+            Design and distribute church newsletters, weekly bulletins, and pastoral letters.
+          </p>
         </div>
       </div>
 
@@ -614,47 +610,44 @@ export default function AddNewsletterPage() {
       </Tabs>
 
       {/* Action Buttons */}
-      <div className="flex items-center justify-between pt-6 border-t">
-        <Button variant="outline" onClick={() => router.back()}>
+      <div className="flex justify-end gap-3 pt-6 border-t">
+        <Button variant="outline" onClick={() => router.push('/dashboard/communications/newsletters')}>
           Cancel
         </Button>
-        <div className="flex items-center gap-2">
-          <Button 
-            variant="outline" 
-            onClick={handleSaveDraft} 
-            disabled={isLoading}
-          >
-            <Save className="mr-2 h-4 w-4" />
-            Save Draft
-          </Button>
-          
-          <Button 
-            variant="outline" 
-            onClick={handleScheduleClick} 
-            disabled={isLoading || !isFormValid()}
-          >
-            <Calendar className="mr-2 h-4 w-4" />
-            Schedule
-          </Button>
-          
-          <Button 
-            onClick={handleSendNewsletter} 
-            disabled={isLoading || !isFormValid()}
-            className="bg-brand-primary hover:bg-brand-primary/90"
-          >
-            {isLoading ? (
-              <>
-                <Clock className="mr-2 h-4 w-4 animate-spin" />
-                {formData.isScheduled ? 'Scheduling...' : 'Sending...'}
-              </>
-            ) : (
-              <>
-                <Send className="mr-2 h-4 w-4" />
-                {formData.isScheduled ? 'Schedule Newsletter' : 'Send Newsletter'}
-              </>
-            )}
-          </Button>
-        </div>
+        <Button 
+          variant="outline" 
+          onClick={handleSaveDraft} 
+          disabled={isLoading}
+        >
+          <Save className="mr-1.5 h-4 w-4" />
+          Save Draft
+        </Button>
+        
+        <Button 
+          variant="outline" 
+          onClick={handleScheduleClick} 
+          disabled={isLoading || !isFormValid()}
+        >
+          <Calendar className="mr-1.5 h-4 w-4" />
+          Schedule
+        </Button>
+        
+        <Button 
+          onClick={handleSendNewsletter} 
+          disabled={isLoading || !isFormValid()}
+        >
+          {isLoading ? (
+            <>
+              <Clock className="mr-1.5 h-4 w-4 animate-spin" />
+              <span>{formData.isScheduled ? 'Scheduling...' : 'Sending...'}</span>
+            </>
+          ) : (
+            <>
+              <Send className="mr-1.5 h-4 w-4" />
+              <span>{formData.isScheduled ? 'Schedule Newsletter' : 'Send Newsletter'}</span>
+            </>
+          )}
+        </Button>
       </div>
       
       {!isFormValid() && (

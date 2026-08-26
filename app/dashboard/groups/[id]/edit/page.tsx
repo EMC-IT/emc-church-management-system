@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
+import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -183,27 +184,26 @@ export default function EditGroupPage() {
   }
 
   return (
-    <div className="space-y-6 max-w-4xl mx-auto">
+    <div className="space-y-6 max-w-6xl">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-4">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => router.push(`/dashboard/groups/${groupId}`)}
-            className="text-muted-foreground hover:text-foreground"
-          >
-            <ArrowLeft className="h-4 w-4 mr-1.5" />
-            Back
+          <Button variant="ghost" size="icon" asChild>
+            <Link href={`/dashboard/groups/${groupId}`}>
+              <ArrowLeft className="h-4 w-4" />
+            </Link>
           </Button>
-          <h1 className="font-heading text-2xl font-bold tracking-tight">Edit Group</h1>
+          <div>
+            <h1 className="font-heading text-2xl font-bold tracking-tight">Edit Group</h1>
+            <p className="text-sm text-muted-foreground mt-1">Update group details, meeting schedule, and leadership.</p>
+          </div>
         </div>
 
         <AlertDialog>
           <AlertDialogTrigger asChild>
-            <Button variant="outline" size="sm" className="text-destructive hover:text-destructive border-destructive/30 hover:border-destructive">
+            <Button variant="outline" size="sm" className="text-destructive hover:text-destructive border-destructive/30 hover:border-destructive shrink-0">
               <Trash2 className="h-4 w-4 mr-1.5" />
-              Delete
+              Delete Group
             </Button>
           </AlertDialogTrigger>
           <AlertDialogContent>
@@ -229,13 +229,12 @@ export default function EditGroupPage() {
 
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Basic Information */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base font-semibold">Basic Information</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid gap-4 sm:grid-cols-2">
-              <div className="space-y-2">
+        <Card className="rounded-xl border border-border p-6">
+          <div className="space-y-5">
+            <h2 className="text-base font-semibold text-foreground">Basic Information</h2>
+
+            <div className="grid grid-cols-12 gap-5">
+              <div className="col-span-12 sm:col-span-6 space-y-2">
                 <Label htmlFor="name">Group Name *</Label>
                 <Input
                   id="name"
@@ -246,7 +245,7 @@ export default function EditGroupPage() {
                 />
               </div>
               
-              <div className="space-y-2">
+              <div className="col-span-12 sm:col-span-3 space-y-2">
                 <Label htmlFor="category">Category *</Label>
                 <Select
                   value={formData.category}
@@ -264,33 +263,8 @@ export default function EditGroupPage() {
                   </SelectContent>
                 </Select>
               </div>
-            </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="description">Description</Label>
-              <Textarea
-                id="description"
-                value={formData.description}
-                onChange={(e) => handleInputChange('description', e.target.value)}
-                placeholder="Group purpose and details..."
-                rows={3}
-              />
-            </div>
-            
-            <div className="grid gap-4 sm:grid-cols-2">
-              <div className="space-y-2">
-                <Label htmlFor="maxMembers">Maximum Capacity</Label>
-                <Input
-                  id="maxMembers"
-                  type="number"
-                  value={formData.maxMembers}
-                  onChange={(e) => handleInputChange('maxMembers', parseInt(e.target.value) || 0)}
-                  placeholder="50"
-                  min="1"
-                />
-              </div>
-              
-              <div className="space-y-2">
+
+              <div className="col-span-12 sm:col-span-3 space-y-2">
                 <Label htmlFor="status">Status</Label>
                 <Select
                   value={formData.status}
@@ -308,18 +282,20 @@ export default function EditGroupPage() {
                   </SelectContent>
                 </Select>
               </div>
-            </div>
-          </CardContent>
-        </Card>
 
-        {/* Meeting Details */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base font-semibold">Meeting Schedule & Location</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid gap-4 sm:grid-cols-2">
-              <div className="space-y-2">
+              <div className="col-span-12 sm:col-span-4 space-y-2">
+                <Label htmlFor="maxMembers">Maximum Capacity</Label>
+                <Input
+                  id="maxMembers"
+                  type="number"
+                  value={formData.maxMembers}
+                  onChange={(e) => handleInputChange('maxMembers', parseInt(e.target.value) || 0)}
+                  placeholder="50"
+                  min="1"
+                />
+              </div>
+
+              <div className="col-span-12 sm:col-span-4 space-y-2">
                 <Label htmlFor="meetingSchedule">Meeting Schedule</Label>
                 <Input
                   id="meetingSchedule"
@@ -329,8 +305,8 @@ export default function EditGroupPage() {
                 />
               </div>
               
-              <div className="space-y-2">
-                <Label htmlFor="location">Location</Label>
+              <div className="col-span-12 sm:col-span-4 space-y-2">
+                <Label htmlFor="location">Location / Venue</Label>
                 <Input
                   id="location"
                   value={formData.location}
@@ -338,18 +314,28 @@ export default function EditGroupPage() {
                   placeholder="e.g., Youth Center"
                 />
               </div>
+
+              <div className="col-span-12 space-y-2">
+                <Label htmlFor="description">Description</Label>
+                <Textarea
+                  id="description"
+                  value={formData.description}
+                  onChange={(e) => handleInputChange('description', e.target.value)}
+                  placeholder="Group purpose and details..."
+                  rows={3}
+                />
+              </div>
             </div>
-          </CardContent>
+          </div>
         </Card>
 
         {/* Group Leader */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base font-semibold">Group Leader</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid gap-4 sm:grid-cols-2">
-              <div className="space-y-2">
+        <Card className="rounded-xl border border-border p-6">
+          <div className="space-y-5">
+            <h2 className="text-base font-semibold text-foreground">Group Leader</h2>
+
+            <div className="grid grid-cols-12 gap-5">
+              <div className="col-span-12 sm:col-span-4 space-y-2">
                 <Label htmlFor="leaderName">Leader Name *</Label>
                 <Input
                   id="leaderName"
@@ -360,7 +346,7 @@ export default function EditGroupPage() {
                 />
               </div>
               
-              <div className="space-y-2">
+              <div className="col-span-12 sm:col-span-4 space-y-2">
                 <Label htmlFor="leaderEmail">Leader Email *</Label>
                 <Input
                   id="leaderEmail"
@@ -371,18 +357,18 @@ export default function EditGroupPage() {
                   required
                 />
               </div>
+
+              <div className="col-span-12 sm:col-span-4 space-y-2">
+                <Label htmlFor="leaderPhone">Leader Phone</Label>
+                <Input
+                  id="leaderPhone"
+                  value={formData.leader.phone}
+                  onChange={(e) => handleInputChange('leader.phone', e.target.value)}
+                  placeholder="+233 24 123 4567"
+                />
+              </div>
             </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="leaderPhone">Leader Phone</Label>
-              <Input
-                id="leaderPhone"
-                value={formData.leader.phone}
-                onChange={(e) => handleInputChange('leader.phone', e.target.value)}
-                placeholder="+233 24 123 4567"
-              />
-            </div>
-          </CardContent>
+          </div>
         </Card>
 
         {/* Actions */}

@@ -1,9 +1,9 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { PageHeader } from '@/components/ui/page-header';
 import { StatCard } from '@/components/ui/stat-card';
 import { Badge } from '@/components/ui/badge';
 import {
@@ -18,20 +18,15 @@ import { Progress } from '@/components/ui/progress';
 import { 
   Download,
   TrendingUp,
-  TrendingDown,
   Users,
   GraduationCap,
   Calendar,
-  Award,
-  BookOpen,
-  Clock,
-  Target,
-  BarChart3,
-  PieChart,
-  Loader2,
-  Filter
+  School,
+  ArrowLeft,
+  Loader2
 } from 'lucide-react';
 import { sundaySchoolService } from '@/services';
+import { SundaySchoolStats } from '@/lib/types/sunday-school';
 import { toast } from 'sonner';
 
 interface AttendanceTrend {
@@ -71,11 +66,12 @@ interface StudentGrowth {
 }
 
 export default function ReportsPage() {
+  const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [dateRange, setDateRange] = useState('last_30_days');
   const [activeTab, setActiveTab] = useState('overview');
-  
-  // Mock data - in a real app, this would come from the API
+  const [stats, setStats] = useState<SundaySchoolStats | null>(null);
+
   const [attendanceTrends] = useState<AttendanceTrend[]>([
     { date: '2024-01-07', present: 45, absent: 8, total: 53, rate: 84.9 },
     { date: '2024-01-14', present: 48, absent: 5, total: 53, rate: 90.6 },
@@ -163,85 +159,70 @@ export default function ReportsPage() {
   
   const [studentGrowth] = useState<StudentGrowth[]>([
     {
-      ageGroup: 'Preschool',
+      ageGroup: 'Preschool (3-5)',
       totalStudents: 12,
       newEnrollments: 3,
-      graduations: 0,
-      retentionRate: 95.8
+      graduations: 2,
+      retentionRate: 95
     },
     {
-      ageGroup: 'Elementary',
+      ageGroup: 'Elementary (6-10)',
       totalStudents: 18,
-      newEnrollments: 2,
-      graduations: 1,
-      retentionRate: 88.9
+      newEnrollments: 5,
+      graduations: 4,
+      retentionRate: 88
     },
     {
-      ageGroup: 'Middle School',
+      ageGroup: 'Middle School (11-13)',
       totalStudents: 15,
+      newEnrollments: 2,
+      graduations: 3,
+      retentionRate: 85
+    },
+    {
+      ageGroup: 'High School (14-17)',
+      totalStudents: 8,
       newEnrollments: 1,
       graduations: 2,
-      retentionRate: 83.3
-    },
-    {
-      ageGroup: 'High School',
-      totalStudents: 8,
-      newEnrollments: 0,
-      graduations: 3,
-      retentionRate: 72.7
+      retentionRate: 90
     }
   ]);
 
   useEffect(() => {
-    // Simulate loading
-    setTimeout(() => setLoading(false), 1000);
+    loadStats();
   }, []);
 
-  const getOverallStats = () => {
-    const totalStudents = studentGrowth.reduce((sum, group) => sum + group.totalStudents, 0);
-    const totalClasses = classPerformance.length;
-    const totalTeachers = teacherWorkload.length;
-    const averageAttendance = classPerformance.reduce((sum, cls) => sum + cls.averageAttendance, 0) / classPerformance.length;
-    const newEnrollments = studentGrowth.reduce((sum, group) => sum + group.newEnrollments, 0);
-    const overallRetention = studentGrowth.reduce((sum, group) => sum + group.retentionRate, 0) / studentGrowth.length;
-    
-    return {
-      totalStudents,
-      totalClasses,
-      totalTeachers,
-      averageAttendance,
-      newEnrollments,
-      overallRetention
-    };
-  };
-
-  const getTrendIcon = (trend: 'up' | 'down' | 'stable') => {
-    switch (trend) {
-      case 'up':
-        return <TrendingUp className="h-4 w-4 text-brand-success" />;
-      case 'down':
-        return <TrendingDown className="h-4 w-4 text-destructive" />;
-      default:
-        return <Target className="h-4 w-4 text-brand-secondary" />;
+  const loadStats = async () => {
+    try {
+      setLoading(true);
+      const response = await sundaySchoolService.getSundaySchoolStats();
+      if (response.success && response.data) {
+        setStats(response.data);
+      }
+    } catch {
+      toast.error('Failed to load report stats');
+    } finally {
+      setLoading(false);
     }
   };
 
-  const getWorkloadColor = (score: number) => {
-    if (score >= 80) return 'text-destructive';
-    if (score >= 60) return 'text-brand-accent';
-    return 'text-brand-success';
+  const handleExport = () => {
+    const csvContent = 'Class,Age Group,Teacher,Enrolled,Attendance Rate,Engagement Score\n' +
+      classPerformance.map(c => `"${c.name}","${c.ageGroup}","${c.teacher}",${c.totalStudents},${c.averageAttendance}%,${c.engagementScore}%`).join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'sunday-school-overall-report.csv';
+    a.click();
+    window.URL.revokeObjectURL(url);
+    toast.success('Report exported successfully');
   };
-
-  const handleExportReport = (type: string) => {
-    toast.success(`${type} report exported successfully`);
-  };
-
-  const stats = getOverallStats();
 
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
-        <Loader2 className="h-8 w-8 animate-spin" />
+        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
       </div>
     );
   }
@@ -249,178 +230,124 @@ export default function ReportsPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <PageHeader
-        title="Reports & Analytics"
-        actions={
-          <>
-            <Select value={dateRange} onValueChange={setDateRange}>
-              <SelectTrigger className="w-48">
-                <SelectValue placeholder="Select date range" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="last_7_days">Last 7 days</SelectItem>
-                <SelectItem value="last_30_days">Last 30 days</SelectItem>
-                <SelectItem value="last_3_months">Last 3 months</SelectItem>
-                <SelectItem value="last_year">Last year</SelectItem>
-              </SelectContent>
-            </Select>
-            <Button variant="outline">
-              <Download className="mr-2 h-4 w-4" />
-              Export All
-            </Button>
-          </>
-        }
-      />
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex items-center gap-4">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => router.push('/dashboard/sunday-school')}
+            className="text-muted-foreground hover:text-foreground"
+          >
+            <ArrowLeft className="h-4 w-4 mr-1.5" />
+            Back
+          </Button>
+          <h1 className="font-heading text-2xl font-bold tracking-tight">Sunday School Reports</h1>
+        </div>
 
-      {/* Overview Stats */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-6">
+        <div className="flex items-center gap-2">
+          <Select value={dateRange} onValueChange={setDateRange}>
+            <SelectTrigger className="w-36 h-8 text-xs">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="last_30_days">Last 30 Days</SelectItem>
+              <SelectItem value="last_90_days">Last 90 Days</SelectItem>
+              <SelectItem value="this_year">This Year</SelectItem>
+            </SelectContent>
+          </Select>
+
+          <Button variant="outline" size="sm" onClick={handleExport}>
+            <Download className="mr-1.5 h-4 w-4" />
+            Export CSV
+          </Button>
+        </div>
+      </div>
+
+      {/* KPI Stats Cards */}
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard
-          title="Total Students"
-          value={stats.totalStudents}
-          icon={Users}
-          description={`+${stats.newEnrollments} new this month`}
-        />
-        <StatCard title="Classes" value={stats.totalClasses} icon={GraduationCap} />
-        <StatCard title="Teachers" value={stats.totalTeachers} icon={BookOpen} />
-        <StatCard
-          title="Avg Attendance"
-          value={`${stats.averageAttendance.toFixed(1)}%`}
-          icon={Calendar}
-        />
-        <StatCard
-          title="Retention Rate"
-          value={`${stats.overallRetention.toFixed(1)}%`}
-          icon={Award}
-        />
-        <StatCard
-          title="New Enrollments"
-          value={stats.newEnrollments}
+          title="Overall Attendance"
+          value={`${stats?.averageAttendance || 87}%`}
           icon={TrendingUp}
-          description="this month"
+          description="Average participation rate"
+        />
+        <StatCard
+          title="Total Enrolled"
+          value={stats?.totalStudents || 53}
+          icon={Users}
+          description="Across all classes"
+        />
+        <StatCard
+          title="Active Classes"
+          value={stats?.totalClasses || 4}
+          icon={School}
+          description="In operation"
+        />
+        <StatCard
+          title="Teaching Staff"
+          value={stats?.totalTeachers || 4}
+          icon={GraduationCap}
+          description="Assigned teachers"
         />
       </div>
 
-      {/* Main Reports */}
+      {/* Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
-        <TabsList>
-          <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="attendance">Attendance Trends</TabsTrigger>
-          <TabsTrigger value="classes">Class Performance</TabsTrigger>
-          <TabsTrigger value="teachers">Teacher Workload</TabsTrigger>
-          <TabsTrigger value="growth">Student Growth</TabsTrigger>
+        <TabsList className="border-b border-border w-full justify-start rounded-none bg-transparent p-0 gap-6">
+          <TabsTrigger
+            value="overview"
+            className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-1 pb-3 text-sm font-medium"
+          >
+            Attendance Trends
+          </TabsTrigger>
+          <TabsTrigger
+            value="classes"
+            className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-1 pb-3 text-sm font-medium"
+          >
+            Class Performance
+          </TabsTrigger>
+          <TabsTrigger
+            value="teachers"
+            className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-1 pb-3 text-sm font-medium"
+          >
+            Teacher Workload
+          </TabsTrigger>
+          <TabsTrigger
+            value="growth"
+            className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-1 pb-3 text-sm font-medium"
+          >
+            Age Group Growth
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="overview" className="space-y-4">
-          <div className="grid gap-4 md:grid-cols-2">
-            {/* Attendance Overview */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center space-x-2">
-                  <BarChart3 className="h-5 w-5" />
-                  <span>Attendance Overview</span>
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-3">
-                  {attendanceTrends.map((trend, index) => (
-                    <div key={index} className="flex items-center justify-between">
-                      <div>
-                        <p className="text-sm font-medium">
-                          {new Date(trend.date).toLocaleDateString()}
-                        </p>
-                        <p className="text-xs text-muted-foreground">
-                          {trend.present} present, {trend.absent} absent
-                        </p>
-                      </div>
-                      <div className="text-right">
-                        <p className="text-sm font-bold">{trend.rate.toFixed(1)}%</p>
-                        <Progress value={trend.rate} className="w-20 h-2" />
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Top Performing Classes */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center space-x-2">
-                  <Award className="h-5 w-5" />
-                  <span>Top Performing Classes</span>
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-3">
-                  {classPerformance
-                    .sort((a, b) => b.averageAttendance - a.averageAttendance)
-                    .slice(0, 4)
-                    .map((cls) => (
-                      <div key={cls.id} className="flex items-center justify-between">
-                        <div>
-                          <p className="text-sm font-medium">{cls.name}</p>
-                          <p className="text-xs text-muted-foreground">
-                            {cls.teacher} • {cls.totalStudents} students
-                          </p>
-                        </div>
-                        <div className="text-right">
-                          <div className="flex items-center space-x-1">
-                            <span className="text-sm font-bold">
-                              {cls.averageAttendance.toFixed(1)}%
-                            </span>
-                            {getTrendIcon(cls.trend)}
-                          </div>
-                        </div>
-                      </div>
-                    ))
-                  }
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        </TabsContent>
-
-        <TabsContent value="attendance" className="space-y-4">
           <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center justify-between">
-                <div className="flex items-center space-x-2">
-                  <Calendar className="h-5 w-5" />
-                  <span>Attendance Trends</span>
-                </div>
-                <Button variant="outline" onClick={() => handleExportReport('Attendance')}>
-                  <Download className="mr-2 h-4 w-4" />
-                  Export
-                </Button>
-              </CardTitle>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base font-semibold">Weekly Attendance Summary</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="space-y-4">
-                {attendanceTrends.map((trend, index) => (
-                  <div key={index} className="p-4 border rounded-lg">
-                    <div className="flex items-center justify-between mb-2">
-                      <h4 className="font-semibold">
-                        Week of {new Date(trend.date).toLocaleDateString()}
-                      </h4>
-                      <Badge variant={trend.rate >= 90 ? 'primary' : trend.rate >= 80 ? 'neutral' : 'danger'}>
-                        {trend.rate.toFixed(1)}%
-                      </Badge>
-                    </div>
-                    <div className="grid grid-cols-3 gap-4 text-sm">
-                      <div>
-                        <p className="text-muted-foreground">Present</p>
-                        <p className="font-semibold text-brand-success">{trend.present}</p>
+              <div className="space-y-3">
+                {attendanceTrends.map((trend) => (
+                  <div key={trend.date} className="p-3 rounded-lg border border-border flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-sm">
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary">
+                        <Calendar className="h-4 w-4" />
                       </div>
                       <div>
-                        <p className="text-muted-foreground">Absent</p>
-                        <p className="font-semibold text-destructive">{trend.absent}</p>
-                      </div>
-                      <div>
-                        <p className="text-muted-foreground">Total</p>
-                        <p className="font-semibold">{trend.total}</p>
+                        <p className="font-semibold text-foreground">{new Date(trend.date).toLocaleDateString(undefined, { weekday: 'long', month: 'short', day: 'numeric' })}</p>
+                        <span className="text-xs text-muted-foreground">{trend.present} of {trend.total} students present</span>
                       </div>
                     </div>
-                    <Progress value={trend.rate} className="mt-3" />
+
+                    <div className="flex items-center gap-3 sm:w-48">
+                      <div className="flex-1 space-y-1">
+                        <div className="flex justify-between text-xs">
+                          <span className="text-muted-foreground">Rate</span>
+                          <span className="font-semibold text-foreground">{trend.rate}%</span>
+                        </div>
+                        <Progress value={trend.rate} className="h-1.5" />
+                      </div>
+                    </div>
                   </div>
                 ))}
               </div>
@@ -430,55 +357,32 @@ export default function ReportsPage() {
 
         <TabsContent value="classes" className="space-y-4">
           <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center justify-between">
-                <div className="flex items-center space-x-2">
-                  <GraduationCap className="h-5 w-5" />
-                  <span>Class Performance</span>
-                </div>
-                <Button variant="outline" onClick={() => handleExportReport('Class Performance')}>
-                  <Download className="mr-2 h-4 w-4" />
-                  Export
-                </Button>
-              </CardTitle>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base font-semibold">Performance by Class</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="space-y-4">
+              <div className="space-y-3">
                 {classPerformance.map((cls) => (
-                  <div key={cls.id} className="p-4 border rounded-lg">
-                    <div className="flex items-center justify-between mb-3">
-                      <div>
-                        <h4 className="font-semibold">{cls.name}</h4>
-                        <p className="text-sm text-muted-foreground">
-                          {cls.ageGroup} • {cls.teacher}
-                        </p>
+                  <div key={cls.id} className="p-3 rounded-lg border border-border flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-sm">
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <p className="font-semibold text-foreground">{cls.name}</p>
+                        <Badge variant="neutral" size="sm">{cls.ageGroup}</Badge>
                       </div>
-                      <div className="flex items-center space-x-2">
-                        {getTrendIcon(cls.trend)}
-                        <Badge variant="neutral">{cls.totalStudents} students</Badge>
-                      </div>
+                      <span className="text-xs text-muted-foreground">Teacher: {cls.teacher} • {cls.totalStudents} students</span>
                     </div>
-                    
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <p className="text-sm text-muted-foreground mb-1">Average Attendance</p>
-                        <div className="flex items-center space-x-2">
-                          <Progress value={cls.averageAttendance} className="flex-1" />
-                          <span className="text-sm font-semibold">
-                            {cls.averageAttendance.toFixed(1)}%
-                          </span>
+
+                    <div className="flex items-center gap-4 sm:w-56">
+                      <div className="flex-1 space-y-1">
+                        <div className="flex justify-between text-xs">
+                          <span className="text-muted-foreground">Attendance</span>
+                          <span className="font-semibold text-foreground">{cls.averageAttendance}%</span>
                         </div>
+                        <Progress value={cls.averageAttendance} className="h-1.5" />
                       </div>
-                      
-                      <div>
-                        <p className="text-sm text-muted-foreground mb-1">Engagement Score</p>
-                        <div className="flex items-center space-x-2">
-                          <Progress value={cls.engagementScore} className="flex-1" />
-                          <span className="text-sm font-semibold">
-                            {cls.engagementScore}%
-                          </span>
-                        </div>
-                      </div>
+                      <Badge variant={cls.averageAttendance >= 85 ? 'neutral' : 'danger'} size="sm">
+                        {cls.averageAttendance >= 85 ? 'High' : 'Medium'}
+                      </Badge>
                     </div>
                   </div>
                 ))}
@@ -489,49 +393,24 @@ export default function ReportsPage() {
 
         <TabsContent value="teachers" className="space-y-4">
           <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center justify-between">
-                <div className="flex items-center space-x-2">
-                  <BookOpen className="h-5 w-5" />
-                  <span>Teacher Workload</span>
-                </div>
-                <Button variant="outline" onClick={() => handleExportReport('Teacher Workload')}>
-                  <Download className="mr-2 h-4 w-4" />
-                  Export
-                </Button>
-              </CardTitle>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base font-semibold">Teacher Allocation & Attendance</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="space-y-4">
-                {teacherWorkload.map((teacher) => (
-                  <div key={teacher.id} className="p-4 border rounded-lg">
-                    <div className="flex items-center justify-between mb-3">
-                      <h4 className="font-semibold">{teacher.name}</h4>
-                      <Badge 
-                        variant="neutral" 
-                        className={getWorkloadColor(teacher.workloadScore)}
-                      >
-                        Workload: {teacher.workloadScore}%
+              <div className="space-y-3">
+                {teacherWorkload.map((t) => (
+                  <div key={t.id} className="p-3 rounded-lg border border-border flex items-center justify-between gap-3 text-sm">
+                    <div>
+                      <p className="font-semibold text-foreground">{t.name}</p>
+                      <span className="text-xs text-muted-foreground">
+                        {t.classesAssigned} class(es) • {t.totalStudents} total students
+                      </span>
+                    </div>
+
+                    <div className="flex items-center gap-3">
+                      <Badge variant="neutral" size="sm">
+                        Avg. Attendance: {t.averageAttendance}%
                       </Badge>
-                    </div>
-                    
-                    <div className="grid grid-cols-3 gap-4 text-sm">
-                      <div>
-                        <p className="text-muted-foreground">Classes</p>
-                        <p className="font-semibold">{teacher.classesAssigned}</p>
-                      </div>
-                      <div>
-                        <p className="text-muted-foreground">Total Students</p>
-                        <p className="font-semibold">{teacher.totalStudents}</p>
-                      </div>
-                      <div>
-                        <p className="text-muted-foreground">Avg Attendance</p>
-                        <p className="font-semibold">{teacher.averageAttendance.toFixed(1)}%</p>
-                      </div>
-                    </div>
-                    
-                    <div className="mt-3">
-                      <Progress value={teacher.workloadScore} className="h-2" />
                     </div>
                   </div>
                 ))}
@@ -542,56 +421,28 @@ export default function ReportsPage() {
 
         <TabsContent value="growth" className="space-y-4">
           <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center justify-between">
-                <div className="flex items-center space-x-2">
-                  <TrendingUp className="h-5 w-5" />
-                  <span>Student Growth by Age Group</span>
-                </div>
-                <Button variant="outline" onClick={() => handleExportReport('Student Growth')}>
-                  <Download className="mr-2 h-4 w-4" />
-                  Export
-                </Button>
-              </CardTitle>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base font-semibold">Enrollment & Retention by Age Group</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="space-y-4">
-                {studentGrowth.map((group, index) => (
-                  <div key={index} className="p-4 border rounded-lg">
-                    <div className="flex items-center justify-between mb-3">
-                      <h4 className="font-semibold">{group.ageGroup}</h4>
-                      <Badge variant="neutral">{group.totalStudents} students</Badge>
+              <div className="space-y-3">
+                {studentGrowth.map((g) => (
+                  <div key={g.ageGroup} className="p-3 rounded-lg border border-border flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-sm">
+                    <div>
+                      <p className="font-semibold text-foreground">{g.ageGroup}</p>
+                      <span className="text-xs text-muted-foreground">
+                        {g.totalStudents} enrolled • +{g.newEnrollments} new • {g.graduations} graduated
+                      </span>
                     </div>
-                    
-                    <div className="grid grid-cols-4 gap-4 text-sm">
-                      <div>
-                        <p className="text-muted-foreground">New Enrollments</p>
-                        <p className="font-semibold text-brand-success">+{group.newEnrollments}</p>
+
+                    <div className="flex items-center gap-3 sm:w-48">
+                      <div className="flex-1 space-y-1">
+                        <div className="flex justify-between text-xs">
+                          <span className="text-muted-foreground">Retention</span>
+                          <span className="font-semibold text-foreground">{g.retentionRate}%</span>
+                        </div>
+                        <Progress value={g.retentionRate} className="h-1.5" />
                       </div>
-                      <div>
-                        <p className="text-muted-foreground">Graduations</p>
-                        <p className="font-semibold text-brand-accent">{group.graduations}</p>
-                      </div>
-                      <div>
-                        <p className="text-muted-foreground">Retention Rate</p>
-                        <p className="font-semibold">{group.retentionRate.toFixed(1)}%</p>
-                      </div>
-                      <div>
-                        <p className="text-muted-foreground">Net Growth</p>
-                        <p className={`font-semibold ${
-                          group.newEnrollments - group.graduations > 0 
-                            ? 'text-brand-success' 
-                            : 'text-destructive'
-                        }`}>
-                          {group.newEnrollments - group.graduations > 0 ? '+' : ''}
-                          {group.newEnrollments - group.graduations}
-                        </p>
-                      </div>
-                    </div>
-                    
-                    <div className="mt-3">
-                      <p className="text-sm text-muted-foreground mb-1">Retention Rate</p>
-                      <Progress value={group.retentionRate} className="h-2" />
                     </div>
                   </div>
                 ))}

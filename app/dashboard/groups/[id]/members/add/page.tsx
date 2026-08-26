@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
+import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -162,28 +163,27 @@ export default function AddGroupMemberPage() {
   }
 
   return (
-    <div className="space-y-6 max-w-4xl mx-auto">
+    <div className="space-y-6 max-w-6xl">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div className="flex items-center gap-4">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => router.push(`/dashboard/groups/${groupId}/members`)}
-            className="text-muted-foreground hover:text-foreground"
-          >
-            <ArrowLeft className="h-4 w-4 mr-1.5" />
-            Back
+          <Button variant="ghost" size="icon" asChild>
+            <Link href={`/dashboard/groups/${groupId}/members`}>
+              <ArrowLeft className="h-4 w-4" />
+            </Link>
           </Button>
           <div>
             <h1 className="font-heading text-2xl font-bold tracking-tight">Add Group Members</h1>
+            <p className="text-sm text-muted-foreground mt-1">
+              Select congregants to enroll into {group?.name || 'this group'} and assign their initial roles.
+            </p>
           </div>
         </div>
 
         <Button
           onClick={handleSubmit}
           disabled={saving || selectedMembers.size === 0}
-          size="sm"
+          className="w-full sm:w-auto"
         >
           {saving ? (
             <>
@@ -193,30 +193,32 @@ export default function AddGroupMemberPage() {
           ) : (
             <>
               <UserPlus className="mr-1.5 h-4 w-4" />
-              Add {selectedMembers.size > 0 ? `(${selectedMembers.size})` : ''}
+              Add Selected {selectedMembers.size > 0 ? `(${selectedMembers.size})` : ''}
             </>
           )}
         </Button>
       </div>
 
-      <Card>
-        <CardHeader className="pb-3">
-          <CardTitle className="text-base font-semibold">
-            Select Church Members ({filteredMembers.length} available)
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="relative mb-4">
+      <Card className="rounded-xl border border-border p-6">
+        <div className="space-y-5">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+            <div>
+              <h2 className="text-base font-semibold text-foreground">Available Church Members</h2>
+              <p className="text-xs text-muted-foreground mt-0.5">{filteredMembers.length} eligible congregants available for enrollment</p>
+            </div>
+          </div>
+
+          <div className="relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
-              placeholder="Search members by name or email..."
+              placeholder="Search members by name, email, or department..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="pl-9"
             />
           </div>
 
-          <div className="space-y-2 max-h-[500px] overflow-y-auto pr-1">
+          <div className="space-y-2 max-h-[600px] overflow-y-auto pr-1">
             {filteredMembers.map((member) => {
               const isSelected = selectedMembers.has(member.id);
               const memberRole = memberRoles[member.id] || roles.find(r => r.isDefault)?.name || 'Member';
@@ -224,8 +226,8 @@ export default function AddGroupMemberPage() {
               return (
                 <div 
                   key={member.id} 
-                  className={`flex flex-col sm:flex-row sm:items-center justify-between p-3 border rounded-lg gap-3 transition-colors ${
-                    isSelected ? 'border-primary/50 bg-primary/5' : 'bg-card'
+                  className={`flex flex-col sm:flex-row sm:items-center justify-between p-3.5 border rounded-lg gap-3 transition-colors ${
+                    isSelected ? 'border-primary/50 bg-primary/5' : 'border-border bg-card'
                   }`}
                 >
                   <div className="flex items-center space-x-3 min-w-0">
@@ -258,12 +260,12 @@ export default function AddGroupMemberPage() {
                   </div>
                   
                   {isSelected && (
-                    <div className="sm:w-44 shrink-0 pl-7 sm:pl-0">
+                    <div className="sm:w-48 shrink-0 pl-7 sm:pl-0">
                       <Select
                         value={memberRole}
                         onValueChange={(value) => handleRoleChange(member.id, value)}
                       >
-                        <SelectTrigger className="h-8 text-xs">
+                        <SelectTrigger className="h-9 text-xs">
                           <SelectValue placeholder="Select role" />
                         </SelectTrigger>
                         <SelectContent>
@@ -282,13 +284,13 @@ export default function AddGroupMemberPage() {
           </div>
 
           {filteredMembers.length === 0 && (
-            <div className="text-center py-10 text-muted-foreground text-sm">
+            <div className="text-center py-12 text-muted-foreground text-sm">
               {searchTerm 
                 ? 'No members found matching your search.' 
                 : 'All registered church members are already enrolled in this group.'}
             </div>
           )}
-        </CardContent>
+        </div>
       </Card>
     </div>
   );

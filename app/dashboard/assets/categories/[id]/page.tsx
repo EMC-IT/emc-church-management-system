@@ -263,32 +263,35 @@ export default function CategoryDetailsPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 max-w-6xl">
       {/* Header */}
-      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div className="flex items-center gap-4">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => router.push('/dashboard/assets/categories')}
-          >
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Back to Categories
+          <Button variant="ghost" size="icon" asChild>
+            <Link href="/dashboard/assets/categories">
+              <ArrowLeft className="h-4 w-4" />
+            </Link>
           </Button>
-          <PageHeader title={category.name} />
+          <div>
+            <h1 className="font-heading text-2xl font-bold tracking-tight">{category.name}</h1>
+            <p className="text-sm text-muted-foreground mt-1">
+              Category overview, inventory status, and valuation metrics
+            </p>
+          </div>
         </div>
 
-        <div className="flex flex-col gap-2 sm:flex-row">
-          <Button onClick={() => router.push('/dashboard/assets/add')}>
-            <Plus className="mr-2 h-4 w-4" />
-            Add Asset
+        <div className="flex items-center gap-2 self-start sm:self-auto">
+          <Button size="sm" asChild>
+            <Link href="/dashboard/assets/add">
+              <Plus className="mr-1.5 h-4 w-4" />
+              Add Asset
+            </Link>
           </Button>
-          <Button
-            variant="outline"
-            onClick={() => router.push(`/dashboard/assets/categories/${category.id}/edit`)}
-          >
-            <Edit className="mr-2 h-4 w-4" />
-            Edit Category
+          <Button variant="outline" size="sm" asChild>
+            <Link href={`/dashboard/assets/categories/${category.id}/edit`}>
+              <Edit className="mr-1.5 h-4 w-4" />
+              Edit Category
+            </Link>
           </Button>
         </div>
       </div>

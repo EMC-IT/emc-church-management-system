@@ -130,7 +130,7 @@ export default function AddBranchPage() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 max-w-6xl">
       {/* Header */}
       <div className="flex items-center gap-4">
         <Button variant="ghost" size="icon" asChild>
@@ -138,473 +138,413 @@ export default function AddBranchPage() {
             <ArrowLeft className="h-4 w-4" />
           </Link>
         </Button>
-        <PageHeader title="Add New Branch" />
+        <div>
+          <h1 className="font-heading text-2xl font-bold tracking-tight">Add New Branch</h1>
+          <p className="text-sm text-muted-foreground mt-1">
+            Register a new branch campus, mission center, or headquarters location.
+          </p>
+        </div>
       </div>
 
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-          <div className="grid gap-6 lg:grid-cols-3">
-            {/* Main Content - 2 columns */}
-            <div className="lg:col-span-2 space-y-6">
-              {/* Basic Information */}
-              <Card>
-                <CardHeader>
-                  <CardTitle>Basic Information</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <FormField
-                    control={form.control}
-                    name="name"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Branch Name *</FormLabel>
+          {/* Basic Information */}
+          <Card className="rounded-xl border border-border p-6">
+            <div className="space-y-5">
+              <div>
+                <h2 className="text-base font-semibold text-foreground">Basic Information</h2>
+                <p className="text-xs text-muted-foreground mt-0.5">Branch classification, establishment year, and profile</p>
+              </div>
+
+              <div className="grid grid-cols-12 gap-5">
+                <FormField
+                  control={form.control}
+                  name="name"
+                  render={({ field }) => (
+                    <FormItem className="col-span-12 sm:col-span-6">
+                      <FormLabel>Branch Name *</FormLabel>
+                      <FormControl>
+                        <Input placeholder="e.g., North Campus, Grace Assembly" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="type"
+                  render={({ field }) => (
+                    <FormItem className="col-span-12 sm:col-span-3">
+                      <FormLabel>Branch Type *</FormLabel>
+                      <Select onValueChange={field.onChange} value={field.value}>
                         <FormControl>
-                          <Input placeholder="North Campus" {...field} />
+                          <SelectTrigger>
+                            <SelectValue />
+                          </SelectTrigger>
                         </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+                        <SelectContent>
+                          <SelectItem value="Headquarters">Headquarters</SelectItem>
+                          <SelectItem value="Branch">Branch</SelectItem>
+                          <SelectItem value="Mission">Mission</SelectItem>
+                          <SelectItem value="Outreach Center">Outreach Center</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-                  <div className="grid gap-4 md:grid-cols-3">
-                    <FormField
-                      control={form.control}
-                      name="type"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Branch Type *</FormLabel>
-                          <Select onValueChange={field.onChange} value={field.value}>
-                            <FormControl>
-                              <SelectTrigger>
-                                <SelectValue />
-                              </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                              <SelectItem value="Headquarters">Headquarters</SelectItem>
-                              <SelectItem value="Branch">Branch</SelectItem>
-                              <SelectItem value="Mission">Mission</SelectItem>
-                              <SelectItem value="Outreach Center">Outreach Center</SelectItem>
-                            </SelectContent>
-                          </Select>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
+                <FormField
+                  control={form.control}
+                  name="established"
+                  render={({ field }) => (
+                    <FormItem className="col-span-12 sm:col-span-3">
+                      <FormLabel>Year Established *</FormLabel>
+                      <FormControl>
+                        <Input placeholder="2020" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-                    <FormField
-                      control={form.control}
-                      name="established"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Year Established *</FormLabel>
-                          <FormControl>
-                            <Input placeholder="2020" {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-
-                    <FormField
-                      control={form.control}
-                      name="status"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Status *</FormLabel>
-                          <Select onValueChange={field.onChange} value={field.value}>
-                            <FormControl>
-                              <SelectTrigger>
-                                <SelectValue />
-                              </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                              <SelectItem value="active">Active</SelectItem>
-                              <SelectItem value="inactive">Inactive</SelectItem>
-                              <SelectItem value="under-construction">Under Construction</SelectItem>
-                            </SelectContent>
-                          </Select>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-
-                  <FormField
-                    control={form.control}
-                    name="description"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Description</FormLabel>
-                        <FormControl>
-                          <Textarea 
-                            placeholder="Brief description of this branch..."
-                            rows={3}
-                            {...field}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </CardContent>
-              </Card>
-
-              {/* Contact Information */}
-              <Card>
-                <CardHeader>
-                  <CardTitle>Contact Information</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="grid gap-4 md:grid-cols-2">
-                    <FormField
-                      control={form.control}
-                      name="email"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Email *</FormLabel>
-                          <FormControl>
-                            <Input type="email" placeholder="north@church.org" {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-
-                    <FormField
-                      control={form.control}
-                      name="phone"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Phone *</FormLabel>
-                          <FormControl>
-                            <Input placeholder="+1 (555) 123-4567" {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-
-                  <FormField
-                    control={form.control}
-                    name="alternativePhone"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Alternative Phone</FormLabel>
-                        <FormControl>
-                          <Input placeholder="+1 (555) 123-4568" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </CardContent>
-              </Card>
-
-              {/* Physical Address */}
-              <Card>
-                <CardHeader>
-                  <CardTitle>Physical Address</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <FormField
-                    control={form.control}
-                    name="street"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Street Address *</FormLabel>
-                        <FormControl>
-                          <Input placeholder="123 Faith Street" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <div className="grid gap-4 md:grid-cols-2">
-                    <FormField
-                      control={form.control}
-                      name="city"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>City *</FormLabel>
-                          <FormControl>
-                            <Input placeholder="Springfield" {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-
-                    <FormField
-                      control={form.control}
-                      name="state"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>State/Province *</FormLabel>
-                          <FormControl>
-                            <Input placeholder="Illinois" {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-
-                  <div className="grid gap-4 md:grid-cols-2">
-                    <FormField
-                      control={form.control}
-                      name="postalCode"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Postal/Zip Code *</FormLabel>
-                          <FormControl>
-                            <Input placeholder="62701" {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-
-                    <FormField
-                      control={form.control}
-                      name="country"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Country *</FormLabel>
-                          <FormControl>
-                            <Input placeholder="United States" {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Leadership */}
-              <Card>
-                <CardHeader>
-                  <CardTitle>Branch Leadership</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <FormField
-                    control={form.control}
-                    name="pastor"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Branch Pastor *</FormLabel>
-                        <FormControl>
-                          <Input placeholder="Pastor John Doe" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <div className="grid gap-4 md:grid-cols-2">
-                    <FormField
-                      control={form.control}
-                      name="assistantPastor"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Assistant Pastor</FormLabel>
-                          <FormControl>
-                            <Input placeholder="Pastor Jane Smith" {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-
-                    <FormField
-                      control={form.control}
-                      name="secretary"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Branch Secretary</FormLabel>
-                          <FormControl>
-                            <Input placeholder="Mary Williams" {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Capacity & Details */}
-              <Card>
-                <CardHeader>
-                  <CardTitle>Capacity & Additional Details</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="grid gap-4 md:grid-cols-2">
-                    <FormField
-                      control={form.control}
-                      name="capacity"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Seating Capacity *</FormLabel>
-                          <FormControl>
-                            <Input type="number" placeholder="250" {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-
-                    <FormField
-                      control={form.control}
-                      name="currentMembers"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Current Members</FormLabel>
-                          <FormControl>
-                            <Input type="number" placeholder="150" {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-
-                  <FormField
-                    control={form.control}
-                    name="serviceSchedule"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Service Schedule</FormLabel>
-                        <FormControl>
-                          <Textarea
-                            placeholder="Sunday: 9:00 AM, 11:00 AM&#10;Wednesday: 7:00 PM"
-                            rows={3}
-                            {...field}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name="facilities"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Facilities & Amenities</FormLabel>
-                        <FormControl>
-                          <Textarea
-                            placeholder="Parking lot, Children's room, Fellowship hall, etc."
-                            rows={3}
-                            {...field}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </CardContent>
-              </Card>
+                <FormField
+                  control={form.control}
+                  name="description"
+                  render={({ field }) => (
+                    <FormItem className="col-span-12">
+                      <FormLabel>Description</FormLabel>
+                      <FormControl>
+                        <Textarea 
+                          placeholder="Brief description of this branch and its community scope..."
+                          rows={3}
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
             </div>
+          </Card>
 
-            {/* Sidebar - 1 column */}
-            <div className="space-y-6">
-              {/* Branch Image */}
-              <Card>
-                <CardHeader>
-                  <CardTitle>Branch Image</CardTitle>
-                </CardHeader>
-                <CardContent className="flex flex-col items-center space-y-4">
-                  <Avatar className="h-32 w-32 rounded-lg">
-                    {imagePreview ? (
-                      <AvatarImage src={imagePreview} alt="Branch Image" className="object-cover" />
-                    ) : (
-                      <AvatarFallback className="text-4xl rounded-lg">
-                        <Building2 className="h-16 w-16" />
-                      </AvatarFallback>
-                    )}
-                  </Avatar>
-                  <div className="w-full">
-                    <Label htmlFor="image-upload" className="cursor-pointer">
-                      <div className="flex items-center justify-center w-full p-3 border-2 border-dashed rounded-lg hover:border-brand-primary transition-colors">
-                        <Upload className="mr-2 h-4 w-4" />
-                        <span className="text-sm">Upload Image</span>
-                      </div>
-                      <Input
-                        id="image-upload"
-                        type="file"
-                        accept="image/*"
-                        className="hidden"
-                        onChange={handleImageUpload}
-                      />
-                    </Label>
-                    <p className="text-xs text-muted-foreground mt-2 text-center">
-                      PNG, JPG up to 2MB
-                    </p>
-                  </div>
-                </CardContent>
-              </Card>
+          {/* Contact Information */}
+          <Card className="rounded-xl border border-border p-6">
+            <div className="space-y-5">
+              <div>
+                <h2 className="text-base font-semibold text-foreground">Contact Details</h2>
+                <p className="text-xs text-muted-foreground mt-0.5">Direct communication channels for the branch</p>
+              </div>
 
-              {/* Summary */}
-              <Card>
-                <CardHeader>
-                  <CardTitle>Branch Summary</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-3 text-sm">
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Name:</span>
-                    <span className="font-medium">{form.watch('name') || 'Not set'}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Type:</span>
-                    <span className="font-medium">{form.watch('type')}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Capacity:</span>
-                    <span className="font-medium">{form.watch('capacity') || '0'}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Status:</span>
-                    <span className="font-medium capitalize">{form.watch('status')}</span>
-                  </div>
-                </CardContent>
-              </Card>
+              <div className="grid grid-cols-12 gap-5">
+                <FormField
+                  control={form.control}
+                  name="email"
+                  render={({ field }) => (
+                    <FormItem className="col-span-12 sm:col-span-4">
+                      <FormLabel>Email Address *</FormLabel>
+                      <FormControl>
+                        <Input type="email" placeholder="branch@church.org" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-              {/* Actions */}
-              <Card>
-                <CardContent className="pt-6 space-y-2">
-                  <Button 
-                    type="submit" 
-                    className="w-full bg-brand-primary hover:bg-brand-primary/90"
-                    disabled={isSubmitting}
-                  >
-                    {isSubmitting ? (
-                      <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Creating Branch...
-                      </>
-                    ) : (
-                      <>
-                        <Save className="mr-2 h-4 w-4" />
-                        Create Branch
-                      </>
-                    )}
-                  </Button>
-                  <Button 
-                    type="button" 
-                    variant="outline" 
-                    className="w-full"
-                    onClick={() => router.push('/dashboard/settings/branches')}
-                    disabled={isSubmitting}
-                  >
-                    Cancel
-                  </Button>
-                </CardContent>
-              </Card>
+                <FormField
+                  control={form.control}
+                  name="phone"
+                  render={({ field }) => (
+                    <FormItem className="col-span-12 sm:col-span-4">
+                      <FormLabel>Phone Number *</FormLabel>
+                      <FormControl>
+                        <Input placeholder="+233 24 123 4567" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="alternativePhone"
+                  render={({ field }) => (
+                    <FormItem className="col-span-12 sm:col-span-4">
+                      <FormLabel>Alternative Phone</FormLabel>
+                      <FormControl>
+                        <Input placeholder="+233 20 765 4321" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
             </div>
+          </Card>
+
+          {/* Physical Address */}
+          <Card className="rounded-xl border border-border p-6">
+            <div className="space-y-5">
+              <div>
+                <h2 className="text-base font-semibold text-foreground">Physical Address & Location</h2>
+                <p className="text-xs text-muted-foreground mt-0.5">Geographic address and postal coordinates</p>
+              </div>
+
+              <div className="grid grid-cols-12 gap-5">
+                <FormField
+                  control={form.control}
+                  name="street"
+                  render={({ field }) => (
+                    <FormItem className="col-span-12">
+                      <FormLabel>Street Address *</FormLabel>
+                      <FormControl>
+                        <Input placeholder="123 Faith Street, Off Main Highway" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="city"
+                  render={({ field }) => (
+                    <FormItem className="col-span-12 sm:col-span-3">
+                      <FormLabel>City *</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Accra" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="state"
+                  render={({ field }) => (
+                    <FormItem className="col-span-12 sm:col-span-3">
+                      <FormLabel>State / Region *</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Greater Accra" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="postalCode"
+                  render={({ field }) => (
+                    <FormItem className="col-span-12 sm:col-span-3">
+                      <FormLabel>Postal Code *</FormLabel>
+                      <FormControl>
+                        <Input placeholder="GA-123-4567" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="country"
+                  render={({ field }) => (
+                    <FormItem className="col-span-12 sm:col-span-3">
+                      <FormLabel>Country *</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Ghana" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+            </div>
+          </Card>
+
+          {/* Leadership & Operational Status */}
+          <Card className="rounded-xl border border-border p-6">
+            <div className="space-y-5">
+              <div>
+                <h2 className="text-base font-semibold text-foreground">Leadership & Capacity</h2>
+                <p className="text-xs text-muted-foreground mt-0.5">Pastoral leadership, capacity figures, and operational state</p>
+              </div>
+
+              <div className="grid grid-cols-12 gap-5">
+                <FormField
+                  control={form.control}
+                  name="pastor"
+                  render={({ field }) => (
+                    <FormItem className="col-span-12 sm:col-span-4">
+                      <FormLabel>Branch Pastor *</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Pastor John Doe" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="assistantPastor"
+                  render={({ field }) => (
+                    <FormItem className="col-span-12 sm:col-span-4">
+                      <FormLabel>Assistant Pastor</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Pastor Jane Smith" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="secretary"
+                  render={({ field }) => (
+                    <FormItem className="col-span-12 sm:col-span-4">
+                      <FormLabel>Branch Secretary</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Mary Williams" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="capacity"
+                  render={({ field }) => (
+                    <FormItem className="col-span-12 sm:col-span-4">
+                      <FormLabel>Seating Capacity *</FormLabel>
+                      <FormControl>
+                        <Input type="number" placeholder="250" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="currentMembers"
+                  render={({ field }) => (
+                    <FormItem className="col-span-12 sm:col-span-4">
+                      <FormLabel>Current Members</FormLabel>
+                      <FormControl>
+                        <Input type="number" placeholder="150" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="status"
+                  render={({ field }) => (
+                    <FormItem className="col-span-12 sm:col-span-4">
+                      <FormLabel>Status *</FormLabel>
+                      <Select onValueChange={field.onChange} value={field.value}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="active">Active</SelectItem>
+                          <SelectItem value="inactive">Inactive</SelectItem>
+                          <SelectItem value="under-construction">Under Construction</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+            </div>
+          </Card>
+
+          {/* Schedule & Facilities */}
+          <Card className="rounded-xl border border-border p-6">
+            <div className="space-y-5">
+              <div>
+                <h2 className="text-base font-semibold text-foreground">Service Schedule & Facilities</h2>
+                <p className="text-xs text-muted-foreground mt-0.5">Weekly meeting times and branch amenities</p>
+              </div>
+
+              <div className="grid grid-cols-12 gap-5">
+                <FormField
+                  control={form.control}
+                  name="serviceSchedule"
+                  render={({ field }) => (
+                    <FormItem className="col-span-12 sm:col-span-6">
+                      <FormLabel>Service Schedule</FormLabel>
+                      <FormControl>
+                        <Textarea
+                          placeholder="Sunday: 9:00 AM, 11:00 AM&#10;Wednesday: 7:00 PM"
+                          rows={3}
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="facilities"
+                  render={({ field }) => (
+                    <FormItem className="col-span-12 sm:col-span-6">
+                      <FormLabel>Facilities & Amenities</FormLabel>
+                      <FormControl>
+                        <Textarea
+                          placeholder="Parking lot, Children's room, Fellowship hall, Audio recording booth..."
+                          rows={3}
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+            </div>
+          </Card>
+
+          {/* Form Actions */}
+          <div className="flex items-center justify-end gap-3 pt-2">
+            <Button 
+              type="button" 
+              variant="outline" 
+              onClick={() => router.push('/dashboard/settings/branches')}
+              disabled={isSubmitting}
+            >
+              Cancel
+            </Button>
+            <Button 
+              type="submit" 
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? (
+                <>
+                  <Loader2 className="mr-1.5 h-4 w-4 animate-spin" />
+                  Creating Branch...
+                </>
+              ) : (
+                <>
+                  <Save className="mr-1.5 h-4 w-4" />
+                  Create Branch
+                </>
+              )}
+            </Button>
           </div>
         </form>
       </Form>

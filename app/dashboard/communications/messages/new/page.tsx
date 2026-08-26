@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { PageHeader } from '@/components/ui/page-header';
@@ -244,97 +245,90 @@ export default function NewMessagePage() {
   const selectedMembers = getSelectedMembers();
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 max-w-6xl">
       {/* Header with Back Navigation */}
-      <div className="flex items-center gap-4 mb-6">
-        <Button
-          variant="outline"
-          size="icon"
-          className="h-12 w-12"
-          onClick={() => router.back()}
-        >
-          <ArrowLeft className="h-4 w-4" />
+      <div className="flex items-center gap-4">
+        <Button variant="ghost" size="icon" asChild>
+          <Link href="/dashboard/communications/messages">
+            <ArrowLeft className="h-4 w-4" />
+          </Link>
         </Button>
-        
-        <div className="flex items-center gap-3">
-          <div className="p-2 bg-brand-primary/10 rounded-lg">
-            <MessageCircle className="h-6 w-6 text-brand-primary" />
-          </div>
-          <PageHeader title="Compose Message" />
+        <div>
+          <h1 className="font-heading text-2xl font-bold tracking-tight">Compose Message</h1>
+          <p className="text-sm text-muted-foreground mt-1">
+            Send internal ministry messages, direct notifications, and department announcements.
+          </p>
         </div>
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-3">
-        {/* Main Compose Area */}
-        <div className="lg:col-span-2 space-y-6">
-          {/* Message Type */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Message Type</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <Tabs value={formData.type} onValueChange={(value) => handleInputChange('type', value as 'individual' | 'group')}>
-                <TabsList className="grid w-full grid-cols-2">
-                  <TabsTrigger value="individual" className="flex items-center gap-2">
-                    <User className="h-4 w-4" />
+      <div className="space-y-6">
+        {/* Recipients Card */}
+        <Card className="rounded-xl border border-border p-6">
+          <div className="space-y-5">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+              <div>
+                <h2 className="text-base font-semibold text-foreground">Message Type & Recipients</h2>
+                <p className="text-xs text-muted-foreground mt-0.5">Choose dispatch mode and select individual members or teams</p>
+              </div>
+              <Tabs 
+                value={formData.type} 
+                onValueChange={(value) => handleInputChange('type', value as 'individual' | 'group')}
+                className="w-full sm:w-auto"
+              >
+                <TabsList className="grid grid-cols-2 w-full sm:w-[260px]">
+                  <TabsTrigger value="individual" className="flex items-center gap-1.5 text-xs">
+                    <User className="h-3.5 w-3.5" />
                     Individual
                   </TabsTrigger>
-                  <TabsTrigger value="group" className="flex items-center gap-2">
-                    <Users className="h-4 w-4" />
+                  <TabsTrigger value="group" className="flex items-center gap-1.5 text-xs">
+                    <Users className="h-3.5 w-3.5" />
                     Group Message
                   </TabsTrigger>
                 </TabsList>
               </Tabs>
-            </CardContent>
-          </Card>
+            </div>
 
-          {/* Recipients */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Recipients</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {/* Selected Recipients */}
-              {selectedMembers.length > 0 && (
-                <div className="space-y-2">
-                  <Label>Selected Recipients ({selectedMembers.length})</Label>
-                  <div className="flex flex-wrap gap-2 p-3 border rounded-lg bg-muted/50">
-                    {selectedMembers.map((member) => (
-                      <Badge key={member.id} variant="neutral" className="flex items-center gap-2">
-                        <Avatar className="h-4 w-4">
-                          <AvatarImage src={member.avatar} />
-                          <AvatarFallback className="text-xs">
-                            {member.name.split(' ').map(n => n[0]).join('')}
-                          </AvatarFallback>
-                        </Avatar>
-                        {member.name}
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="h-4 w-4 p-0 hover:bg-destructive hover:text-destructive-foreground"
-                          onClick={() => handleRemoveRecipient(member.id)}
-                        >
-                          <X className="h-3 w-3" />
-                        </Button>
-                      </Badge>
-                    ))}
-                  </div>
+            {/* Selected Recipients */}
+            {selectedMembers.length > 0 && (
+              <div className="space-y-2">
+                <Label className="text-xs text-muted-foreground">Selected Recipients ({selectedMembers.length})</Label>
+                <div className="flex flex-wrap gap-2 p-3 border border-border rounded-lg bg-muted/40">
+                  {selectedMembers.map((member) => (
+                    <Badge key={member.id} variant="neutral" className="flex items-center gap-2 py-1 px-2.5">
+                      <Avatar className="h-4 w-4">
+                        <AvatarImage src={member.avatar} />
+                        <AvatarFallback className="text-[10px]">
+                          {member.name.split(' ').map(n => n[0]).join('')}
+                        </AvatarFallback>
+                      </Avatar>
+                      <span className="text-xs font-normal">{member.name}</span>
+                      <button
+                        type="button"
+                        className="h-3.5 w-3.5 rounded-full hover:bg-destructive/20 text-muted-foreground hover:text-destructive flex items-center justify-center transition-colors"
+                        onClick={() => handleRemoveRecipient(member.id)}
+                      >
+                        <X className="h-2.5 w-2.5" />
+                      </button>
+                    </Badge>
+                  ))}
                 </div>
-              )}
+              </div>
+            )}
 
-              {/* Search and Filter */}
-              <div className="flex gap-2">
-                <div className="relative flex-1">
-                  <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-                  <Input
-                    placeholder="Search members..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="pl-8"
-                  />
-                </div>
+            {/* Search and Filter */}
+            <div className="grid grid-cols-12 gap-3">
+              <div className="col-span-12 sm:col-span-6 relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input
+                  placeholder="Search by name, role, email..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-9"
+                />
+              </div>
+              <div className="col-span-12 sm:col-span-4">
                 <Select value={selectedDepartment} onValueChange={setSelectedDepartment}>
-                  <SelectTrigger className="w-48">
+                  <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -343,113 +337,79 @@ export default function NewMessagePage() {
                     ))}
                   </SelectContent>
                 </Select>
-                <Button variant="outline" onClick={handleSelectAll}>
+              </div>
+              <div className="col-span-12 sm:col-span-2">
+                <Button 
+                  type="button" 
+                  variant="outline" 
+                  onClick={handleSelectAll}
+                  className="w-full text-xs"
+                >
                   {filteredMembers.every(member => formData.recipients.includes(member.id)) ? 'Deselect All' : 'Select All'}
                 </Button>
               </div>
+            </div>
 
-              {/* Members List */}
-              <div className="max-h-64 overflow-y-auto border rounded-lg">
-                {filteredMembers.map((member) => (
-                  <div
-                    key={member.id}
-                    className="flex items-center gap-3 p-3 hover:bg-muted/50 cursor-pointer border-b last:border-b-0"
-                    onClick={() => handleRecipientToggle(member.id)}
-                  >
-                    <Checkbox
-                      checked={formData.recipients.includes(member.id)}
-                      onChange={() => handleRecipientToggle(member.id)}
-                    />
-                    <div className="relative">
-                      <Avatar className="h-10 w-10">
-                        <AvatarImage src={member.avatar} />
-                        <AvatarFallback>{member.name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
-                      </Avatar>
-                      <div className={`absolute -bottom-1 -right-1 w-3 h-3 rounded-full border-2 border-white ${getStatusColor(member.status)}`}></div>
-                    </div>
-                    <div className="flex-1">
-                      <p className="font-medium">{member.name}</p>
-                      <p className="text-sm text-muted-foreground">{member.role}</p>
-                    </div>
-                    <Badge variant="neutral" className="text-xs">{member.department}</Badge>
+            {/* Members List */}
+            <div className="max-h-56 overflow-y-auto border border-border rounded-lg divide-y divide-border">
+              {filteredMembers.map((member) => (
+                <div
+                  key={member.id}
+                  className="flex items-center gap-3 p-3 hover:bg-muted/50 cursor-pointer transition-colors"
+                  onClick={() => handleRecipientToggle(member.id)}
+                >
+                  <Checkbox
+                    checked={formData.recipients.includes(member.id)}
+                    onCheckedChange={() => handleRecipientToggle(member.id)}
+                  />
+                  <div className="relative">
+                    <Avatar className="h-8 w-8">
+                      <AvatarImage src={member.avatar} />
+                      <AvatarFallback className="text-xs">{member.name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
+                    </Avatar>
+                    <div className={`absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full border-2 border-background ${getStatusColor(member.status)}`}></div>
                   </div>
-                ))}
-                
-                {filteredMembers.length === 0 && (
-                  <div className="p-6 text-center text-muted-foreground">
-                    <Users className="h-8 w-8 mx-auto mb-2 opacity-50" />
-                    <p>No members found</p>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-medium text-sm truncate">{member.name}</p>
+                    <p className="text-xs text-muted-foreground truncate">{member.role}</p>
                   </div>
-                )}
-              </div>
-            </CardContent>
-          </Card>
+                  <Badge variant="neutral" className="text-xs font-normal shrink-0">{member.department}</Badge>
+                </div>
+              ))}
+              
+              {filteredMembers.length === 0 && (
+                <div className="p-8 text-center text-muted-foreground">
+                  <Users className="h-6 w-6 mx-auto mb-1.5 opacity-40" />
+                  <p className="text-xs">No members found matching your search</p>
+                </div>
+              )}
+            </div>
+          </div>
+        </Card>
 
-          {/* Message Content */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Message Content</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-2">
+        {/* Message Content */}
+        <Card className="rounded-xl border border-border p-6">
+          <div className="space-y-5">
+            <div>
+              <h2 className="text-base font-semibold text-foreground">Message Details</h2>
+              <p className="text-xs text-muted-foreground mt-0.5">Compose your message header, priority level, and body</p>
+            </div>
+
+            <div className="grid grid-cols-12 gap-5">
+              <div className="col-span-12 sm:col-span-8 space-y-2">
                 <Label htmlFor="subject">Subject (Optional)</Label>
                 <Input
                   id="subject"
-                  placeholder="Enter message subject..."
+                  placeholder="e.g. Rehearsal schedule update, Prayer meeting notice"
                   value={formData.subject}
                   onChange={(e) => handleInputChange('subject', e.target.value)}
                 />
               </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="message">Message *</Label>
-                <Textarea
-                  id="message"
-                  placeholder="Type your message here..."
-                  value={formData.message}
-                  onChange={(e) => handleInputChange('message', e.target.value)}
-                  className="min-h-32"
-                />
-                <p className="text-sm text-muted-foreground">
-                  {formData.message.length}/1000 characters
-                </p>
-              </div>
-              
-              {/* Message Tools */}
-              <div className="flex items-center gap-2 pt-2">
-                <Button variant="ghost" size="sm">
-                  <Paperclip className="h-4 w-4 mr-2" />
-                  Attach File
-                </Button>
-                <Button variant="ghost" size="sm">
-                  <Image className="h-4 w-4 mr-2" />
-                  Add Image
-                </Button>
-                <Button variant="ghost" size="sm">
-                  <Smile className="h-4 w-4 mr-2" />
-                  Emoji
-                </Button>
-                <Button variant="ghost" size="sm">
-                  <AtSign className="h-4 w-4 mr-2" />
-                  Mention
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
 
-        {/* Sidebar */}
-        <div className="space-y-6">
-          {/* Message Settings */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Message Settings</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-2">
+              <div className="col-span-12 sm:col-span-4 space-y-2">
                 <Label htmlFor="priority">Priority</Label>
                 <Select value={formData.priority} onValueChange={(value: 'low' | 'normal' | 'high') => handleInputChange('priority', value)}>
-                  <SelectTrigger>
+                  <SelectTrigger id="priority">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -459,88 +419,49 @@ export default function NewMessagePage() {
                   </SelectContent>
                 </Select>
               </div>
-            </CardContent>
-          </Card>
 
-          {/* Message Preview */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Preview</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="border rounded-lg p-4 bg-muted/50">
-                <div className="flex items-center gap-2 mb-3">
-                  <Badge variant={getPriorityColor(formData.priority)} className="text-xs">
-                    {formData.priority.charAt(0).toUpperCase() + formData.priority.slice(1)} Priority
-                  </Badge>
-                  {formData.type === 'group' && (
-                    <Badge variant="neutral" className="text-xs">
-                      <Users className="h-3 w-3 mr-1" />
-                      Group Message
-                    </Badge>
-                  )}
+              <div className="col-span-12 space-y-2">
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="message">Message Body *</Label>
+                  <span className="text-xs text-muted-foreground">
+                    {formData.message.length}/1000 characters
+                  </span>
                 </div>
-                
-                {formData.subject && (
-                  <h4 className="font-semibold mb-2">{formData.subject}</h4>
-                )}
-                
-                <p className="text-sm text-muted-foreground mb-3">
-                  {formData.message || 'Your message will appear here...'}
-                </p>
-                
-                <div className="text-xs text-muted-foreground">
-                  To: {selectedMembers.length > 0 
-                    ? selectedMembers.length === 1 
-                      ? selectedMembers[0].name
-                      : `${selectedMembers.length} recipients`
-                    : 'No recipients selected'
-                  }
-                </div>
+                <Textarea
+                  id="message"
+                  placeholder="Type your message here..."
+                  value={formData.message}
+                  onChange={(e) => handleInputChange('message', e.target.value)}
+                  rows={6}
+                />
               </div>
-            </CardContent>
-          </Card>
-
-          {/* Quick Stats */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Message Stats</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              <div className="flex justify-between">
-                <span className="text-sm">Recipients:</span>
-                <span className="font-semibold">{selectedMembers.length}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-sm">Characters:</span>
-                <span className="font-semibold">{formData.message.length}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-sm">Type:</span>
-                <span className="font-semibold capitalize">{formData.type}</span>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Action Buttons */}
-          <div className="space-y-2">
-            <Button 
-              onClick={handleSendMessage} 
-              className="w-full" 
-              disabled={isLoading || selectedMembers.length === 0 || !formData.message.trim()}
-            >
-              <Send className="mr-2 h-4 w-4" />
-              Send Message
-            </Button>
-            <Button 
-              variant="outline" 
-              onClick={handleSaveDraft} 
-              className="w-full" 
-              disabled={isLoading}
-            >
-              Save as Draft
-            </Button>
+            </div>
           </div>
+        </Card>
+
+        {/* Action Buttons */}
+        <div className="flex justify-end gap-3 pt-2">
+          <Button 
+            variant="outline" 
+            onClick={() => router.push('/dashboard/communications/messages')}
+            disabled={isLoading}
+          >
+            Cancel
+          </Button>
+          <Button 
+            variant="outline" 
+            onClick={handleSaveDraft} 
+            disabled={isLoading}
+          >
+            Save as Draft
+          </Button>
+          <Button 
+            onClick={handleSendMessage} 
+            disabled={isLoading || selectedMembers.length === 0 || !formData.message.trim()}
+          >
+            <Send className="mr-1.5 h-4 w-4" />
+            Send Message
+          </Button>
         </div>
       </div>
     </div>

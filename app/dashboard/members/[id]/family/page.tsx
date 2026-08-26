@@ -320,36 +320,35 @@ export default function FamilyPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 max-w-6xl">
       {/* Header */}
-      <div className="flex items-center gap-4">
-        <Button variant="ghost" size="sm" asChild>
-          <Link href={`/dashboard/members/${member.id}`}>
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Back to Profile
-          </Link>
-        </Button>
-        <div className="flex-1">
-          <PageHeader
-            title="Family Management"
-            description={`Manage family relationships for ${member.firstName} ${member.lastName}`}
-            actions={
-              <>
-                <Button variant="outline" asChild>
-                  <Link href={`/dashboard/members/${member.id}/family/link`}>
-                    <LinkIcon className="mr-2 h-4 w-4" />
-                    Link Existing Member
-                  </Link>
-                </Button>
-                <Button asChild>
-                  <Link href={`/dashboard/members/${member.id}/family/add`}>
-                    <Plus className="mr-2 h-4 w-4" />
-                    Add New Family Member
-                  </Link>
-                </Button>
-              </>
-            }
-          />
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div className="flex items-center gap-4">
+          <Button variant="ghost" size="icon" asChild>
+            <Link href={`/dashboard/members/${member.id}`}>
+              <ArrowLeft className="h-4 w-4" />
+            </Link>
+          </Button>
+          <div>
+            <h1 className="font-heading text-2xl font-bold tracking-tight">Family Management</h1>
+            <p className="text-sm text-muted-foreground mt-1">
+              Manage family relationships for {member.firstName} {member.lastName}
+            </p>
+          </div>
+        </div>
+        <div className="flex items-center gap-2 self-start sm:self-auto">
+          <Button variant="outline" size="sm" asChild>
+            <Link href={`/dashboard/members/${member.id}/family/link`}>
+              <LinkIcon className="mr-1.5 h-4 w-4" />
+              Link Member
+            </Link>
+          </Button>
+          <Button size="sm" asChild>
+            <Link href={`/dashboard/members/${member.id}/family/add`}>
+              <Plus className="mr-1.5 h-4 w-4" />
+              Add Family Member
+            </Link>
+          </Button>
         </div>
       </div>
 

@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -12,7 +13,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Checkbox } from '@/components/ui/checkbox';
-import { ArrowLeft, Calendar as CalendarIcon, Clock, MapPin, Users, Plus } from 'lucide-react';
+import { ArrowLeft, Calendar as CalendarIcon, Clock, MapPin, Users, Plus, Loader2 } from 'lucide-react';
 import { format, formatDate } from 'date-fns';
 import { toast } from 'sonner';
 
@@ -142,50 +143,42 @@ export default function AddEventPage() {
   };
 
   return (
-    <div className="space-y-6">
-      {/* Back Navigation */}
-      <div className="flex items-center gap-4 mb-6">
-        <Button
-          variant="outline"
-          size="icon"
-          className="h-12 w-12"
-          onClick={() => router.back()}
-        >
-          <ArrowLeft className="h-4 w-4" />
+    <div className="space-y-6 max-w-6xl">
+      {/* Header */}
+      <div className="flex items-center gap-4">
+        <Button variant="ghost" size="icon" asChild>
+          <Link href="/dashboard/events">
+            <ArrowLeft className="h-4 w-4" />
+          </Link>
         </Button>
-        
-        <div className="flex items-center gap-3">
-          <div className="p-2 bg-brand-primary/10 rounded-lg">
-            <Plus className="h-6 w-6 text-brand-primary" />
-          </div>
-          <PageHeader title="Create Event" />
+        <div>
+          <h1 className="font-heading text-2xl font-bold tracking-tight">Create Event</h1>
+          <p className="text-sm text-muted-foreground mt-1">Schedule a church service, conference, outreach, or ministry event.</p>
         </div>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Basic Information */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Basic Information</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
+        <Card className="rounded-xl border border-border p-6">
+          <div className="space-y-5">
+            <h2 className="text-base font-semibold text-foreground">Basic Information</h2>
+
+            <div className="grid grid-cols-12 gap-5">
+              <div className="col-span-12 sm:col-span-8 space-y-2">
                 <Label htmlFor="title">Event Title *</Label>
                 <Input
                   id="title"
                   value={formData.title}
                   onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
-                  placeholder="Enter event title"
-                  className={errors.title ? 'border-red-500' : ''}
+                  placeholder="e.g. Annual Church Conference 2026"
                 />
-                {errors.title && <p className="text-sm text-red-500">{errors.title}</p>}
+                {errors.title && <p className="text-xs text-destructive">{errors.title}</p>}
               </div>
 
-              <div className="space-y-2">
+              <div className="col-span-12 sm:col-span-4 space-y-2">
                 <Label htmlFor="category">Category *</Label>
                 <Select value={formData.category} onValueChange={(value) => setFormData(prev => ({ ...prev, category: value }))}>
-                  <SelectTrigger className={errors.category ? 'border-red-500' : ''}>
+                  <SelectTrigger>
                     <SelectValue placeholder="Select category" />
                   </SelectTrigger>
                   <SelectContent>
@@ -196,42 +189,37 @@ export default function AddEventPage() {
                     ))}
                   </SelectContent>
                 </Select>
-                {errors.category && <p className="text-sm text-red-500">{errors.category}</p>}
+                {errors.category && <p className="text-xs text-destructive">{errors.category}</p>}
+              </div>
+
+              <div className="col-span-12 space-y-2">
+                <Label htmlFor="description">Description *</Label>
+                <Textarea
+                  id="description"
+                  value={formData.description}
+                  onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
+                  placeholder="Describe event focus, key speakers, schedule, and purpose..."
+                  rows={3}
+                />
+                {errors.description && <p className="text-xs text-destructive">{errors.description}</p>}
               </div>
             </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="description">Description *</Label>
-              <Textarea
-                id="description"
-                value={formData.description}
-                onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
-                placeholder="Describe the event"
-                rows={3}
-                className={errors.description ? 'border-red-500' : ''}
-              />
-              {errors.description && <p className="text-sm text-red-500">{errors.description}</p>}
-            </div>
-          </CardContent>
+          </div>
         </Card>
 
-        {/* Date & Time */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <CalendarIcon className="h-5 w-5" />
-              Date & Time
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="space-y-2">
+        {/* Date & Location */}
+        <Card className="rounded-xl border border-border p-6">
+          <div className="space-y-5">
+            <h2 className="text-base font-semibold text-foreground">Schedule & Location</h2>
+
+            <div className="grid grid-cols-12 gap-5">
+              <div className="col-span-12 sm:col-span-6 lg:col-span-3 space-y-2">
                 <Label>Event Date *</Label>
                 <Popover>
                   <PopoverTrigger asChild>
                     <Button
                       variant="outline"
-                      className={`w-full justify-start text-left font-normal ${errors.date ? 'border-red-500' : ''}`}
+                      className="w-full justify-start text-left font-normal"
                     >
                       <CalendarIcon className="mr-2 h-4 w-4" />
                       {formData.date ? format(formData.date, 'PPP') : 'Select date'}
@@ -246,59 +234,52 @@ export default function AddEventPage() {
                     />
                   </PopoverContent>
                 </Popover>
-                {errors.date && <p className="text-sm text-red-500">{String(errors.date)}</p>}
+                {errors.date && <p className="text-xs text-destructive">{String(errors.date)}</p>}
               </div>
 
-              <div className="space-y-2">
+              <div className="col-span-12 sm:col-span-6 lg:col-span-3 space-y-2">
                 <Label htmlFor="startTime">Start Time *</Label>
                 <Input
                   id="startTime"
                   type="time"
                   value={formData.startTime}
                   onChange={(e) => setFormData(prev => ({ ...prev, startTime: e.target.value }))}
-                  className={errors.startTime ? 'border-red-500' : ''}
                 />
-                {errors.startTime && <p className="text-sm text-red-500">{errors.startTime}</p>}
+                {errors.startTime && <p className="text-xs text-destructive">{errors.startTime}</p>}
               </div>
 
-              <div className="space-y-2">
+              <div className="col-span-12 sm:col-span-6 lg:col-span-3 space-y-2">
                 <Label htmlFor="endTime">End Time</Label>
                 <Input
                   id="endTime"
                   type="time"
                   value={formData.endTime}
                   onChange={(e) => setFormData(prev => ({ ...prev, endTime: e.target.value }))}
-                  className={errors.endTime ? 'border-red-500' : ''}
                 />
-                {errors.endTime && <p className="text-sm text-red-500">{errors.endTime}</p>}
+                {errors.endTime && <p className="text-xs text-destructive">{errors.endTime}</p>}
               </div>
-            </div>
-          </CardContent>
-        </Card>
 
-        {/* Location & Capacity */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <MapPin className="h-5 w-5" />
-              Location & Capacity
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="location">Location *</Label>
+              <div className="col-span-12 sm:col-span-6 lg:col-span-3 space-y-2">
+                <Label htmlFor="location">Location / Venue *</Label>
                 <Input
                   id="location"
                   value={formData.location}
                   onChange={(e) => setFormData(prev => ({ ...prev, location: e.target.value }))}
-                  placeholder="e.g., Main Sanctuary, Fellowship Hall"
-                  className={errors.location ? 'border-red-500' : ''}
+                  placeholder="e.g. Main Sanctuary"
                 />
-                {errors.location && <p className="text-sm text-red-500">{errors.location}</p>}
+                {errors.location && <p className="text-xs text-destructive">{errors.location}</p>}
               </div>
+            </div>
+          </div>
+        </Card>
 
-              <div className="space-y-2">
+        {/* Capacity & Registration Settings */}
+        <Card className="rounded-xl border border-border p-6">
+          <div className="space-y-5">
+            <h2 className="text-base font-semibold text-foreground">Capacity & Registration</h2>
+
+            <div className="grid grid-cols-12 gap-5">
+              <div className="col-span-12 sm:col-span-4 space-y-2">
                 <Label htmlFor="maxAttendees">Max Attendees</Label>
                 <Input
                   id="maxAttendees"
@@ -306,76 +287,64 @@ export default function AddEventPage() {
                   value={formData.maxAttendees}
                   onChange={(e) => setFormData(prev => ({ ...prev, maxAttendees: e.target.value }))}
                   placeholder="Leave empty for unlimited"
-                  className={errors.maxAttendees ? 'border-red-500' : ''}
                 />
-                {errors.maxAttendees && <p className="text-sm text-red-500">{errors.maxAttendees}</p>}
+                {errors.maxAttendees && <p className="text-xs text-destructive">{errors.maxAttendees}</p>}
               </div>
-            </div>
-          </CardContent>
-        </Card>
 
-        {/* Registration Settings */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Users className="h-5 w-5" />
-              Registration Settings
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex items-center space-x-2">
-              <Checkbox
-                id="registrationRequired"
-                checked={formData.registrationRequired}
-                onCheckedChange={(checked) => setFormData(prev => ({ ...prev, registrationRequired: !!checked }))}
-              />
-              <Label htmlFor="registrationRequired">Require registration for this event</Label>
-            </div>
-
-            {formData.registrationRequired && (
-              <div className="space-y-2">
-                <Label>Registration Deadline</Label>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button variant="outline" className="w-full md:w-auto justify-start text-left font-normal">
-                      <CalendarIcon className="mr-2 h-4 w-4" />
-                      {formData.registrationDeadline ? format(formData.registrationDeadline, 'PPP') : 'Select deadline'}
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0">
-                    <Calendar
-                      mode="single"
-                      selected={formData.registrationDeadline}
-                      onSelect={(date) => setFormData(prev => ({ ...prev, registrationDeadline: date }))}
-                      initialFocus
-                    />
-                  </PopoverContent>
-                </Popover>
+              <div className="col-span-12 sm:col-span-4 flex items-center pt-6 space-x-2">
+                <Checkbox
+                  id="registrationRequired"
+                  checked={formData.registrationRequired}
+                  onCheckedChange={(checked) => setFormData(prev => ({ ...prev, registrationRequired: !!checked }))}
+                />
+                <Label htmlFor="registrationRequired" className="text-xs text-foreground cursor-pointer">
+                  Require attendee registration
+                </Label>
               </div>
-            )}
-          </CardContent>
+
+              {formData.registrationRequired && (
+                <div className="col-span-12 sm:col-span-4 space-y-2">
+                  <Label>Registration Deadline</Label>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button variant="outline" className="w-full justify-start text-left font-normal">
+                        <CalendarIcon className="mr-2 h-4 w-4" />
+                        {formData.registrationDeadline ? format(formData.registrationDeadline, 'PPP') : 'Select deadline'}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0">
+                      <Calendar
+                        mode="single"
+                        selected={formData.registrationDeadline}
+                        onSelect={(date) => setFormData(prev => ({ ...prev, registrationDeadline: date }))}
+                        initialFocus
+                      />
+                    </PopoverContent>
+                  </Popover>
+                </div>
+              )}
+            </div>
+          </div>
         </Card>
 
         {/* Organizer Information */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Organizer Information</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="space-y-2">
+        <Card className="rounded-xl border border-border p-6">
+          <div className="space-y-5">
+            <h2 className="text-base font-semibold text-foreground">Organizer Information</h2>
+
+            <div className="grid grid-cols-12 gap-5">
+              <div className="col-span-12 sm:col-span-4 space-y-2">
                 <Label htmlFor="organizer">Organizer Name *</Label>
                 <Input
                   id="organizer"
                   value={formData.organizer}
                   onChange={(e) => setFormData(prev => ({ ...prev, organizer: e.target.value }))}
-                  placeholder="Enter organizer name"
-                  className={errors.organizer ? 'border-red-500' : ''}
+                  placeholder="e.g. Pastor David Appiah"
                 />
-                {errors.organizer && <p className="text-sm text-red-500">{errors.organizer}</p>}
+                {errors.organizer && <p className="text-xs text-destructive">{errors.organizer}</p>}
               </div>
 
-              <div className="space-y-2">
+              <div className="col-span-12 sm:col-span-4 space-y-2">
                 <Label htmlFor="contactEmail">Contact Email *</Label>
                 <Input
                   id="contactEmail"
@@ -383,79 +352,84 @@ export default function AddEventPage() {
                   value={formData.contactEmail}
                   onChange={(e) => setFormData(prev => ({ ...prev, contactEmail: e.target.value }))}
                   placeholder="organizer@church.com"
-                  className={errors.contactEmail ? 'border-red-500' : ''}
                 />
-                {errors.contactEmail && <p className="text-sm text-red-500">{errors.contactEmail}</p>}
+                {errors.contactEmail && <p className="text-xs text-destructive">{errors.contactEmail}</p>}
               </div>
 
-              <div className="space-y-2">
+              <div className="col-span-12 sm:col-span-4 space-y-2">
                 <Label htmlFor="contactPhone">Contact Phone</Label>
                 <Input
                   id="contactPhone"
                   type="tel"
                   value={formData.contactPhone}
                   onChange={(e) => setFormData(prev => ({ ...prev, contactPhone: e.target.value }))}
-                  placeholder="(555) 123-4567"
+                  placeholder="+233 24 123 4567"
                 />
               </div>
             </div>
-          </CardContent>
+          </div>
         </Card>
 
-        {/* Linked Groups */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Linked Groups/Departments</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-              {groups.map((group) => (
-                <div key={group.id} className="flex items-center space-x-2">
-                  <Checkbox
-                    id={`group-${group.id}`}
-                    checked={formData.linkedGroups.includes(group.id)}
-                    onCheckedChange={() => handleGroupToggle(group.id)}
-                  />
-                  <Label htmlFor={`group-${group.id}`} className="text-sm">
-                    {group.name}
-                  </Label>
+        {/* Linked Groups & Notes */}
+        <Card className="rounded-xl border border-border p-6">
+          <div className="space-y-5">
+            <h2 className="text-base font-semibold text-foreground">Linked Groups & Special Notes</h2>
+
+            <div className="grid grid-cols-12 gap-5">
+              <div className="col-span-12 space-y-2">
+                <Label className="text-xs text-muted-foreground">Linked Groups / Departments</Label>
+                <div className="grid grid-cols-12 gap-3 pt-1">
+                  {groups.map((group) => (
+                    <div key={group.id} className="col-span-12 sm:col-span-6 lg:col-span-3 flex items-center space-x-2 p-2.5 rounded-lg border border-border/50 bg-muted/20">
+                      <Checkbox
+                        id={`group-${group.id}`}
+                        checked={formData.linkedGroups.includes(group.id)}
+                        onCheckedChange={() => handleGroupToggle(group.id)}
+                      />
+                      <Label htmlFor={`group-${group.id}`} className="text-xs font-medium cursor-pointer">
+                        {group.name}
+                      </Label>
+                    </div>
+                  ))}
                 </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
+              </div>
 
-        {/* Additional Notes */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Additional Notes</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <Textarea
-              value={formData.notes}
-              onChange={(e) => setFormData(prev => ({ ...prev, notes: e.target.value }))}
-              placeholder="Add any special instructions, requirements, or notes..."
-              rows={3}
-            />
-          </CardContent>
+              <div className="col-span-12 space-y-2 pt-2">
+                <Label htmlFor="notes">Additional Notes</Label>
+                <Textarea
+                  id="notes"
+                  value={formData.notes}
+                  onChange={(e) => setFormData(prev => ({ ...prev, notes: e.target.value }))}
+                  placeholder="Add any special instructions, setup requirements, or equipment needs..."
+                  rows={3}
+                />
+              </div>
+            </div>
+          </div>
         </Card>
 
         {/* Form Actions */}
-        <div className="flex items-center justify-end space-x-4">
+        <div className="flex justify-end gap-3 pt-2">
           <Button
             type="button"
             variant="outline"
-            onClick={() => router.back()}
+            onClick={() => router.push('/dashboard/events')}
             disabled={loading}
           >
             Cancel
           </Button>
           <Button
             type="submit"
-            className="bg-brand-primary hover:bg-brand-primary/90"
             disabled={loading}
           >
-            {loading ? 'Creating...' : 'Create Event'}
+            {loading ? (
+              <>
+                <Loader2 className="mr-1.5 h-4 w-4 animate-spin" />
+                Creating...
+              </>
+            ) : (
+              'Create Event'
+            )}
           </Button>
         </div>
       </form>

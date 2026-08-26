@@ -341,26 +341,26 @@ export default function ImportMembersPage() {
   ];
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 max-w-6xl">
       {/* Header */}
-      <div className="flex items-center gap-4">
-        <Button variant="ghost" size="sm" asChild>
-          <Link href="/dashboard/members">
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Back to Members
-          </Link>
-        </Button>
-        <div className="flex-1">
-          <PageHeader
-            title="Import Members"
-            actions={
-              <Button variant="outline" onClick={handleDownloadTemplate}>
-                <Download className="mr-2 h-4 w-4" />
-                Download Template
-              </Button>
-            }
-          />
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div className="flex items-center gap-4">
+          <Button variant="ghost" size="icon" asChild>
+            <Link href="/dashboard/members">
+              <ArrowLeft className="h-4 w-4" />
+            </Link>
+          </Button>
+          <div>
+            <h1 className="font-heading text-2xl font-bold tracking-tight">Import Members</h1>
+            <p className="text-sm text-muted-foreground mt-1">
+              Bulk import members into the database using a CSV or Excel spreadsheet.
+            </p>
+          </div>
         </div>
+        <Button variant="outline" onClick={handleDownloadTemplate} className="self-start sm:self-auto">
+          <Download className="mr-2 h-4 w-4" />
+          Download Template
+        </Button>
       </div>
 
       {/* Import Steps */}

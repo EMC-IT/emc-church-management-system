@@ -293,401 +293,302 @@ export default function EditPledgePage() {
   }
 
   return (
-    <div className="space-y-6">
-
-      <PageHeader
-        title="Edit Pledge"
-        actions={
-          <Button variant="ghost" size="sm" asChild>
-            <Link href={`/dashboard/finance/giving/pledges/${pledgeId}`}>
-              <ArrowLeft className="mr-2 h-4 w-4" />
-              Back to Pledge
-            </Link>
-          </Button>
-        }
-      />
+    <div className="space-y-6 max-w-6xl">
+      {/* Header */}
+      <div className="flex items-center gap-4">
+        <Button variant="ghost" size="icon" asChild>
+          <Link href={`/dashboard/finance/giving/pledges/${pledgeId}`}>
+            <ArrowLeft className="h-4 w-4" />
+          </Link>
+        </Button>
+        <div>
+          <h1 className="font-heading text-2xl font-bold tracking-tight">Edit Pledge</h1>
+          <p className="text-sm text-muted-foreground mt-1">
+            Update member commitment, total pledged sum, designated fund, and installment schedule.
+          </p>
+        </div>
+      </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
-        <div className="grid gap-6 lg:grid-cols-3">
-          {/* Main Form */}
-          <div className="lg:col-span-2 space-y-6">
-            {/* Basic Information */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center space-x-2">
-                  <BadgeCent className="h-5 w-5" />
-                  <span>Pledge Information</span>
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid gap-4 md:grid-cols-2">
-                  <div className="space-y-2">
-                    <Label htmlFor="member">Member</Label>
-                    <Select 
-                      value={formData.memberId} 
-                      onValueChange={(value) => handleInputChange('memberId', value)}
-                      disabled={formData.isAnonymous}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select member" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {mockMembers.map((member) => (
-                          <SelectItem key={member.id} value={member.id}>
-                            {member.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
+        {/* Basic Information */}
+        <Card className="rounded-xl border border-border p-6">
+          <div className="space-y-5">
+            <div>
+              <h2 className="text-base font-semibold text-foreground">Pledge Information</h2>
+              <p className="text-xs text-muted-foreground mt-0.5">Commitment attribution, total sum, and designated fund</p>
+            </div>
 
-                  <div className="flex items-center space-x-2 pt-8">
-                    <Switch
-                      id="anonymous"
-                      checked={formData.isAnonymous}
-                      onCheckedChange={(checked) => {
-                        handleInputChange('isAnonymous', checked);
-                        if (checked) {
-                          handleInputChange('memberId', '');
-                        }
-                      }}
-                    />
-                    <Label htmlFor="anonymous">Anonymous Pledge</Label>
-                  </div>
+            <div className="grid grid-cols-12 gap-5">
+              <div className="col-span-12 sm:col-span-8 space-y-2">
+                <Label htmlFor="member">Church Member</Label>
+                <Select 
+                  value={formData.memberId} 
+                  onValueChange={(value) => handleInputChange('memberId', value)}
+                  disabled={formData.isAnonymous}
+                >
+                  <SelectTrigger id="member">
+                    <SelectValue placeholder="Select member" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {mockMembers.map((member) => (
+                      <SelectItem key={member.id} value={member.id}>
+                        {member.name} ({member.email})
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="col-span-12 sm:col-span-4 flex items-center justify-between rounded-lg border border-border p-3.5">
+                <div className="space-y-0.5">
+                  <Label htmlFor="anonymous" className="text-sm font-medium cursor-pointer">Anonymous Pledge</Label>
+                  <p className="text-xs text-muted-foreground">Keep donor identity private</p>
                 </div>
+                <Switch
+                  id="anonymous"
+                  checked={formData.isAnonymous}
+                  onCheckedChange={(checked) => {
+                    handleInputChange('isAnonymous', checked);
+                    if (checked) {
+                      handleInputChange('memberId', '');
+                    }
+                  }}
+                />
+              </div>
 
-                <div className="grid gap-4 md:grid-cols-2">
-                  <div className="space-y-2">
-                    <Label htmlFor="amount">Total Pledge Amount</Label>
-                    <Input
-                      id="amount"
-                      type="number"
-                      step="0.01"
-                      min="0"
-                      value={formData.amount || ''}
-                      onChange={(e) => handleInputChange('amount', parseFloat(e.target.value) || 0)}
-                      placeholder="0.00"
-                      required
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="currency">Currency</Label>
-                    <Select value={formData.currency} onValueChange={(value) => handleInputChange('currency', value)}>
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                          <SelectItem value="GHS">GHS (₵)</SelectItem>
-                          <SelectItem value="EUR">EUR (€)</SelectItem>
-                          <SelectItem value="USD">USD ($)</SelectItem>
-                        </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-
-                <div className="grid gap-4 md:grid-cols-2">
-                  <div className="space-y-2">
-                    <Label htmlFor="category">Category</Label>
-                    <Select value={formData.category} onValueChange={(value) => handleInputChange('category', value as GivingCategory)}>
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value={GivingCategory.GENERAL}>General</SelectItem>
-                        <SelectItem value={GivingCategory.BUILDING_FUND}>Building Fund</SelectItem>
-                        <SelectItem value={GivingCategory.MISSIONARY}>Missionary</SelectItem>
-                        <SelectItem value={GivingCategory.YOUTH}>Youth</SelectItem>
-                        <SelectItem value={GivingCategory.CHILDREN}>Children</SelectItem>
-                        <SelectItem value={GivingCategory.MUSIC}>Music</SelectItem>
-                        <SelectItem value={GivingCategory.OUTREACH}>Outreach</SelectItem>
-                        <SelectItem value={GivingCategory.CHARITY}>Charity</SelectItem>
-                        <SelectItem value={GivingCategory.EDUCATION}>Education</SelectItem>
-                        <SelectItem value={GivingCategory.MEDICAL}>Medical</SelectItem>
-                        <SelectItem value={GivingCategory.DISASTER_RELIEF}>Disaster Relief</SelectItem>
-                        <SelectItem value={GivingCategory.OTHER}>Other</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="method">Payment Method</Label>
-                    <Select value={formData.method} onValueChange={(value) => handleInputChange('method', value)}>
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="Cash">Cash</SelectItem>
-                        <SelectItem value="Transfer">Transfer</SelectItem>
-                        <SelectItem value="Online">Online</SelectItem>
-                        <SelectItem value="Check">Check</SelectItem>
-                        <SelectItem value="Card">Card</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="description">Description</Label>
-                  <Textarea
-                    id="description"
-                    value={formData.description}
-                    onChange={(e) => handleInputChange('description', e.target.value)}
-                    placeholder="Enter pledge description or purpose"
-                    className="min-h-[100px]"
+              <div className="col-span-12 sm:col-span-4 space-y-2">
+                <Label htmlFor="amount">Total Pledge Amount *</Label>
+                <div className="relative">
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">₵</span>
+                  <Input
+                    id="amount"
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    value={formData.amount || ''}
+                    onChange={(e) => handleInputChange('amount', parseFloat(e.target.value) || 0)}
+                    placeholder="0.00"
+                    className="pl-8"
+                    required
                   />
                 </div>
-              </CardContent>
-            </Card>
+              </div>
 
-            {/* Payment Schedule */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center space-x-2">
-                  <Clock className="h-5 w-5" />
-                  <span>Payment Schedule</span>
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid gap-4 md:grid-cols-3">
-                  <div className="space-y-2">
-                    <Label htmlFor="installments">Number of Installments</Label>
-                    <Input
-                      id="installments"
-                      type="number"
-                      min="1"
-                      value={formData.installments}
-                      onChange={(e) => handleInputChange('installments', parseInt(e.target.value) || 1)}
-                      required
-                    />
-                  </div>
+              <div className="col-span-12 sm:col-span-2 space-y-2">
+                <Label htmlFor="currency">Currency</Label>
+                <Select value={formData.currency} onValueChange={(value) => handleInputChange('currency', value)}>
+                  <SelectTrigger id="currency">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="GHS">GHS (₵)</SelectItem>
+                    <SelectItem value="EUR">EUR (€)</SelectItem>
+                    <SelectItem value="USD">USD ($)</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
 
-                  <div className="space-y-2">
-                    <Label htmlFor="frequency">Payment Frequency</Label>
-                    <Select value={formData.frequency} onValueChange={(value) => handleInputChange('frequency', value)}>
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="weekly">Weekly</SelectItem>
-                        <SelectItem value="bi-weekly">Bi-weekly</SelectItem>
-                        <SelectItem value="monthly">Monthly</SelectItem>
-                        <SelectItem value="quarterly">Quarterly</SelectItem>
-                        <SelectItem value="annually">Annually</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
+              <div className="col-span-12 sm:col-span-3 space-y-2">
+                <Label htmlFor="category">Category</Label>
+                <Select value={formData.category} onValueChange={(value) => handleInputChange('category', value as GivingCategory)}>
+                  <SelectTrigger id="category">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value={GivingCategory.GENERAL}>General</SelectItem>
+                    <SelectItem value={GivingCategory.BUILDING_FUND}>Building Fund</SelectItem>
+                    <SelectItem value={GivingCategory.MISSIONARY}>Missionary</SelectItem>
+                    <SelectItem value={GivingCategory.YOUTH}>Youth</SelectItem>
+                    <SelectItem value={GivingCategory.CHILDREN}>Children</SelectItem>
+                    <SelectItem value={GivingCategory.MUSIC}>Music</SelectItem>
+                    <SelectItem value={GivingCategory.OUTREACH}>Outreach</SelectItem>
+                    <SelectItem value={GivingCategory.CHARITY}>Charity</SelectItem>
+                    <SelectItem value={GivingCategory.EDUCATION}>Education</SelectItem>
+                    <SelectItem value={GivingCategory.MEDICAL}>Medical</SelectItem>
+                    <SelectItem value={GivingCategory.DISASTER_RELIEF}>Disaster Relief</SelectItem>
+                    <SelectItem value={GivingCategory.OTHER}>Other</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
 
-                  <div className="space-y-2">
-                    <Label>Installment Amount</Label>
-                    <div className="p-2 bg-muted rounded text-sm font-medium">
-                      {new Intl.NumberFormat('en-GH', {
-                        style: 'currency',
-                        currency: 'GHS',
-                        minimumFractionDigits: 2,
-                      }).format(installmentAmount || 0)}
-                    </div>
-                  </div>
-                </div>
+              <div className="col-span-12 sm:col-span-3 space-y-2">
+                <Label htmlFor="method">Payment Method</Label>
+                <Select value={formData.method} onValueChange={(value) => handleInputChange('method', value)}>
+                  <SelectTrigger id="method">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Cash">Cash</SelectItem>
+                    <SelectItem value="Transfer">Transfer</SelectItem>
+                    <SelectItem value="Online">Online</SelectItem>
+                    <SelectItem value="Check">Check</SelectItem>
+                    <SelectItem value="Card">Card</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
 
-                <div className="grid gap-4 md:grid-cols-2">
-                  <div className="space-y-2">
-                    <Label>Start Date</Label>
-                    <Popover open={startDateOpen} onOpenChange={setStartDateOpen}>
-                      <PopoverTrigger asChild>
-                        <Button
-                          variant="outline"
-                          className={cn(
-                            'w-full justify-start text-left font-normal',
-                            !formData.startDate && 'text-muted-foreground'
-                          )}
-                        >
-                          <CalendarIcon className="mr-2 h-4 w-4" />
-                          {formData.startDate ? format(formData.startDate, 'PPP') : 'Pick a date'}
-                        </Button>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-auto p-0" align="start">
-                        <Calendar
-                          mode="single"
-                          selected={formData.startDate}
-                          onSelect={(date) => {
-                            if (date) {
-                              handleInputChange('startDate', date);
-                              setStartDateOpen(false);
-                            }
-                          }}
-                          initialFocus
-                        />
-                      </PopoverContent>
-                    </Popover>
-                  </div>
-
-                  <div className="space-y-2">
-                    <div className="flex items-center justify-between">
-                      <Label>End Date</Label>
-                      <div className="flex items-center space-x-2">
-                        <Switch
-                          id="autoEndDate"
-                          checked={formData.autoCalculateEndDate}
-                          onCheckedChange={(checked) => handleInputChange('autoCalculateEndDate', checked)}
-                        />
-                        <Label htmlFor="autoEndDate" className="text-xs">Auto</Label>
-                      </div>
-                    </div>
-                    {formData.autoCalculateEndDate ? (
-                      <div className="p-2 bg-muted rounded text-sm">
-                        {formData.endDate ? format(formData.endDate, 'PPP') : 'Calculating...'}
-                      </div>
-                    ) : (
-                      <Popover open={endDateOpen} onOpenChange={setEndDateOpen}>
-                        <PopoverTrigger asChild>
-                          <Button
-                            variant="outline"
-                            className={cn(
-                              'w-full justify-start text-left font-normal',
-                              !formData.endDate && 'text-muted-foreground'
-                            )}
-                          >
-                            <CalendarIcon className="mr-2 h-4 w-4" />
-                            {formData.endDate ? format(formData.endDate, 'PPP') : 'Pick a date'}
-                          </Button>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-auto p-0" align="start">
-                          <Calendar
-                            mode="single"
-                            selected={formData.endDate}
-                            onSelect={(date) => {
-                              handleInputChange('endDate', date);
-                              setEndDateOpen(false);
-                            }}
-                            initialFocus
-                          />
-                        </PopoverContent>
-                      </Popover>
-                    )}
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Summary Sidebar */}
-          <div className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center space-x-2">
-                  <Target className="h-5 w-5" />
-                  <span>Pledge Summary</span>
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-3">
-                  <div className="flex justify-between">
-                    <span className="text-sm text-muted-foreground">Total Amount:</span>
-                    <span className="font-medium">
-                      {new Intl.NumberFormat('en-GH', {
-                        style: 'currency',
-                        currency: 'GHS',
-                        minimumFractionDigits: 2,
-                      }).format(formData.amount || 0)}
-                    </span>
-                  </div>
-                  
-                  <div className="flex justify-between">
-                    <span className="text-sm text-muted-foreground">Paid Amount:</span>
-                    <span className="font-medium">
-                      {new Intl.NumberFormat('en-GH', {
-                        style: 'currency',
-                        currency: 'GHS',
-                        minimumFractionDigits: 2,
-                      }).format(pledge.pledgeDetails.paidAmount || 0)}
-                    </span>
-                  </div>
-                  
-                  <div className="flex justify-between">
-                    <span className="text-sm text-muted-foreground">Remaining:</span>
-                    <span className="font-medium">
-                      {new Intl.NumberFormat('en-GH', {
-                        style: 'currency',
-                        currency: 'GHS',
-                        minimumFractionDigits: 2,
-                      }).format((formData.amount || 0) - (pledge.pledgeDetails.paidAmount || 0))}
-                    </span>
-                  </div>
-                  
-                  <hr className="my-2" />
-                  
-                  <div className="flex justify-between">
-                    <span className="text-sm text-muted-foreground">Installments:</span>
-                    <span className="font-medium">{formData.installments}</span>
-                  </div>
-                  
-                  <div className="flex justify-between">
-                    <span className="text-sm text-muted-foreground">Frequency:</span>
-                    <span className="font-medium capitalize">{formData.frequency}</span>
-                  </div>
-                  
-                  <div className="flex justify-between">
-                    <span className="text-sm text-muted-foreground">Per Payment:</span>
-                    <span className="font-medium">
-                      {new Intl.NumberFormat('en-GH', {
-                        style: 'currency',
-                        currency: 'GHS',
-                        minimumFractionDigits: 2,
-                      }).format(installmentAmount || 0)}
-                    </span>
-                  </div>
-                  
-                  <hr className="my-2" />
-                  
-                  <div className="flex justify-between">
-                    <span className="text-sm text-muted-foreground">Start Date:</span>
-                    <span className="font-medium text-sm">
-                      {format(formData.startDate, 'MMM dd, yyyy')}
-                    </span>
-                  </div>
-                  
-                  {formData.endDate && (
-                    <div className="flex justify-between">
-                      <span className="text-sm text-muted-foreground">End Date:</span>
-                      <span className="font-medium text-sm">
-                        {format(formData.endDate, 'MMM dd, yyyy')}
-                      </span>
-                    </div>
-                  )}
-                  
-                  <div className="flex justify-between">
-                    <span className="text-sm text-muted-foreground">Category:</span>
-                    <span className="font-medium text-sm capitalize">
-                      {formData.category.replace('_', ' ')}
-                    </span>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Action Buttons */}
-            <div className="space-y-2">
-              <Button type="submit" className="w-full" disabled={saving}>
-                {saving ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Updating...
-                  </>
-                ) : (
-                  <>
-                    <Save className="mr-2 h-4 w-4" />
-                    Update Pledge
-                  </>
-                )}
-              </Button>
-              <Button type="button" variant="outline" className="w-full" asChild>
-                <Link href={`/dashboard/finance/giving/pledges/${pledgeId}`}>
-                  Cancel
-                </Link>
-              </Button>
+              <div className="col-span-12 space-y-2">
+                <Label htmlFor="description">Description / Purpose</Label>
+                <Textarea
+                  id="description"
+                  value={formData.description}
+                  onChange={(e) => handleInputChange('description', e.target.value)}
+                  placeholder="Enter pledge description or campaign purpose..."
+                  rows={3}
+                />
+              </div>
             </div>
           </div>
+        </Card>
+
+        {/* Payment Schedule */}
+        <Card className="rounded-xl border border-border p-6">
+          <div className="space-y-5">
+            <div>
+              <h2 className="text-base font-semibold text-foreground">Payment Schedule & Installments</h2>
+              <p className="text-xs text-muted-foreground mt-0.5">Recurring frequency, fulfillment intervals, and milestone dates</p>
+            </div>
+
+            <div className="grid grid-cols-12 gap-5">
+              <div className="col-span-12 sm:col-span-4 space-y-2">
+                <Label htmlFor="installments">Number of Installments</Label>
+                <Input
+                  id="installments"
+                  type="number"
+                  min="1"
+                  value={formData.installments}
+                  onChange={(e) => handleInputChange('installments', parseInt(e.target.value) || 1)}
+                  required
+                />
+              </div>
+
+              <div className="col-span-12 sm:col-span-4 space-y-2">
+                <Label htmlFor="frequency">Payment Frequency</Label>
+                <Select value={formData.frequency} onValueChange={(value) => handleInputChange('frequency', value)}>
+                  <SelectTrigger id="frequency">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="weekly">Weekly</SelectItem>
+                    <SelectItem value="bi-weekly">Bi-weekly</SelectItem>
+                    <SelectItem value="monthly">Monthly</SelectItem>
+                    <SelectItem value="quarterly">Quarterly</SelectItem>
+                    <SelectItem value="annually">Annually</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="col-span-12 sm:col-span-4 space-y-2">
+                <Label>Installment Amount</Label>
+                <div className="h-10 px-3 flex items-center bg-muted/40 border border-border rounded-md text-sm font-semibold text-foreground">
+                  {new Intl.NumberFormat('en-GH', {
+                    style: 'currency',
+                    currency: 'GHS',
+                    minimumFractionDigits: 2,
+                  }).format(installmentAmount || 0)}
+                  <span className="text-xs font-normal text-muted-foreground ml-1.5">/ {formData.frequency}</span>
+                </div>
+              </div>
+
+              <div className="col-span-12 sm:col-span-6 space-y-2">
+                <Label>Start Date</Label>
+                <Popover open={startDateOpen} onOpenChange={setStartDateOpen}>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className={cn(
+                        'w-full justify-start text-left font-normal',
+                        !formData.startDate && 'text-muted-foreground'
+                      )}
+                    >
+                      <CalendarIcon className="mr-2 h-4 w-4" />
+                      {formData.startDate ? format(formData.startDate, 'PPP') : 'Pick a date'}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <Calendar
+                      mode="single"
+                      selected={formData.startDate}
+                      onSelect={(date) => {
+                        if (date) {
+                          handleInputChange('startDate', date);
+                          setStartDateOpen(false);
+                        }
+                      }}
+                      initialFocus
+                    />
+                  </PopoverContent>
+                </Popover>
+              </div>
+
+              <div className="col-span-12 sm:col-span-6 space-y-2">
+                <div className="flex items-center justify-between">
+                  <Label>End Date</Label>
+                  <div className="flex items-center space-x-2">
+                    <Switch
+                      id="autoEndDate"
+                      checked={formData.autoCalculateEndDate}
+                      onCheckedChange={(checked) => handleInputChange('autoCalculateEndDate', checked)}
+                    />
+                    <Label htmlFor="autoEndDate" className="text-xs text-muted-foreground cursor-pointer">Auto Calculate</Label>
+                  </div>
+                </div>
+                {formData.autoCalculateEndDate ? (
+                  <div className="h-10 px-3 flex items-center bg-muted/40 border border-border rounded-md text-sm text-foreground">
+                    {formData.endDate ? format(formData.endDate, 'PPP') : 'Calculating...'}
+                  </div>
+                ) : (
+                  <Popover open={endDateOpen} onOpenChange={setEndDateOpen}>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        className={cn(
+                          'w-full justify-start text-left font-normal',
+                          !formData.endDate && 'text-muted-foreground'
+                        )}
+                      >
+                        <CalendarIcon className="mr-2 h-4 w-4" />
+                        {formData.endDate ? format(formData.endDate, 'PPP') : 'Pick a date'}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <Calendar
+                        mode="single"
+                        selected={formData.endDate}
+                        onSelect={(date) => {
+                          handleInputChange('endDate', date);
+                          setEndDateOpen(false);
+                        }}
+                        initialFocus
+                      />
+                    </PopoverContent>
+                  </Popover>
+                )}
+              </div>
+            </div>
+          </div>
+        </Card>
+
+        {/* Action Buttons */}
+        <div className="flex justify-end gap-3 pt-2">
+          <Button type="button" variant="outline" asChild>
+            <Link href={`/dashboard/finance/giving/pledges/${pledgeId}`}>
+              Cancel
+            </Link>
+          </Button>
+          <Button type="submit" disabled={saving}>
+            {saving ? (
+              <>
+                <Loader2 className="mr-1.5 h-4 w-4 animate-spin" />
+                Updating...
+              </>
+            ) : (
+              <>
+                <Save className="mr-1.5 h-4 w-4" />
+                Update Pledge
+              </>
+            )}
+          </Button>
         </div>
       </form>
     </div>

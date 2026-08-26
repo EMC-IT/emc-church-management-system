@@ -5,94 +5,23 @@ import { useRouter, useParams } from 'next/navigation';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { PageHeader } from '@/components/ui/page-header';
 import { StatCard } from '@/components/ui/stat-card';
 import { Badge } from '@/components/ui/badge';
 import { StatusBadge } from '@/components/ui/status-badge';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
 import { 
   ArrowLeft,
-  Edit,
-  MoreHorizontal,
   Users,
-  BookOpen,
   Calendar,
-  Award,
   Phone,
   Mail,
-  MapPin,
-  Clock,
+  Loader2,
   TrendingUp,
-  TrendingDown,
-  Target,
-  Eye,
-  UserMinus,
-  Settings,
-  Download,
-  CheckCircle,
-  XCircle,
-  AlertCircle,
-  Loader2
+  School
 } from 'lucide-react';
-import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid } from 'recharts';
-import { ChartContainer, ChartTooltip, ChartTooltipContent, ChartConfig } from '@/components/ui/chart';
 import { sundaySchoolService } from '@/services';
-import { Teacher, SundaySchoolClass, Student, ClassAttendance, TeacherStatus, AttendanceStatus } from '@/lib/types/sunday-school';
+import { Teacher, SundaySchoolClass } from '@/lib/types/sunday-school';
 import { toast } from 'sonner';
-
-interface ClassWithStats extends SundaySchoolClass {
-  studentCount: number;
-  attendanceRate: number;
-  lastSession: string;
-}
-
-interface TeacherStats {
-  totalClasses: number;
-  totalStudents: number;
-  averageAttendance: number;
-  yearsOfService: number;
-  totalSessions: number;
-  activeClasses: number;
-}
-
-interface AttendanceData {
-  date: string;
-  rate: number;
-  present: number;
-  total: number;
-}
-
-// Chart configuration
-const attendanceRateConfig = {
-  rate: { label: 'Attendance Rate', color: 'hsl(var(--chart-1))' },
-} satisfies ChartConfig;
 
 export default function TeacherProfilePage() {
   const router = useRouter();
@@ -100,20 +29,9 @@ export default function TeacherProfilePage() {
   const teacherId = params.id as string;
   
   const [teacher, setTeacher] = useState<Teacher | null>(null);
-  const [classes, setClasses] = useState<ClassWithStats[]>([]);
-  const [stats, setStats] = useState<TeacherStats>({
-    totalClasses: 0,
-    totalStudents: 0,
-    averageAttendance: 0,
-    yearsOfService: 0,
-    totalSessions: 0,
-    activeClasses: 0
-  });
-  const [attendanceData, setAttendanceData] = useState<AttendanceData[]>([]);
+  const [classes, setClasses] = useState<SundaySchoolClass[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('overview');
-  const [timeRange, setTimeRange] = useState('3months');
-  const [showRemoveDialog, setShowRemoveDialog] = useState<SundaySchoolClass | null>(null);
 
   useEffect(() => {
     if (teacherId) {
@@ -121,18 +39,14 @@ export default function TeacherProfilePage() {
     }
   }, [teacherId]);
 
-  useEffect(() => {
-    if (classes.length > 0) {
-      loadAttendanceData();
-    }
-  }, [classes, timeRange]);
-
   const loadData = async () => {
     try {
       setLoading(true);
-      
-      // Load teacher data
-      const teacherResponse = await sundaySchoolService.getTeacher(teacherId);
+      const [teacherResponse, classesResponse] = await Promise.all([
+        sundaySchoolService.getTeacher(teacherId),
+        sundaySchoolService.getTeacherClasses(teacherId)
+      ]);
+
       if (teacherResponse.success && teacherResponse.data) {
         setTeacher(teacherResponse.data);
       } else {
@@ -141,394 +55,136 @@ export default function TeacherProfilePage() {
         return;
       }
       
-      // Load teacher's classes
-      const classesResponse = await sundaySchoolService.getTeacherClasses(teacherId);
       if (classesResponse.success && classesResponse.data) {
-        const classesWithStats = await Promise.all(
-          classesResponse.data.map(async (classData) => {
-            // Get student count
-            const studentsResponse = await sundaySchoolService.getClassStudents(classData.id);
-            const studentCount = studentsResponse.success ? studentsResponse.data?.length || 0 : 0;
-            
-            // Get attendance data for rate calculation
-            const attendanceResponse = await sundaySchoolService.getClassAttendance(classData.id, {
-              limit: 50,
-              sortBy: 'date',
-              sortOrder: 'desc'
-            });
-            
-            let attendanceRate = 0;
-            let lastSession = 'No sessions yet';
-            
-            if (attendanceResponse.success && attendanceResponse.data && attendanceResponse.data.length > 0) {
-              const records = attendanceResponse.data;
-              const presentCount = records.filter(r => r.status === AttendanceStatus.PRESENT || r.status === AttendanceStatus.LATE).length;
-              attendanceRate = Math.round((presentCount / records.length) * 100);
-              
-              // Get last session date
-              const lastRecord = records[0];
-              lastSession = new Date(lastRecord.date).toLocaleDateString();
-            }
-            
-            return {
-              ...classData,
-              studentCount,
-              attendanceRate,
-              lastSession
-            };
-          })
-        );
-        
-        setClasses(classesWithStats);
-        calculateStats(classesWithStats, teacherResponse.data);
+        setClasses(classesResponse.data);
       }
-      
-    } catch (error) {
+    } catch {
       toast.error('Failed to load teacher data');
     } finally {
       setLoading(false);
     }
   };
 
-  const calculateStats = (classesData: ClassWithStats[], teacherData: Teacher) => {
-    const totalClasses = classesData.length;
-    const activeClasses = classesData.filter(c => c.status === 'Active').length;
-    const totalStudents = classesData.reduce((sum, c) => sum + c.studentCount, 0);
-    const averageAttendance = classesData.length > 0 
-      ? Math.round(classesData.reduce((sum, c) => sum + c.attendanceRate, 0) / classesData.length)
-      : 0;
-    
-    const yearsOfService = teacherData.joinDate 
-      ? Math.floor((new Date().getTime() - new Date(teacherData.joinDate).getTime()) / (1000 * 60 * 60 * 24 * 365))
-      : 0;
-    
-    // Mock total sessions - would be calculated from actual data
-    const totalSessions = classesData.length * 20; // Assuming ~20 sessions per class
-    
-    setStats({
-      totalClasses,
-      totalStudents,
-      averageAttendance,
-      yearsOfService,
-      totalSessions,
-      activeClasses
-    });
-  };
-
-  const loadAttendanceData = async () => {
-    try {
-      const now = new Date();
-      const cutoffDate = new Date();
-      
-      switch (timeRange) {
-        case '1month':
-          cutoffDate.setMonth(now.getMonth() - 1);
-          break;
-        case '3months':
-          cutoffDate.setMonth(now.getMonth() - 3);
-          break;
-        case '6months':
-          cutoffDate.setMonth(now.getMonth() - 6);
-          break;
-        case '1year':
-          cutoffDate.setFullYear(now.getFullYear() - 1);
-          break;
-      }
-
-      // Aggregate attendance data from all classes
-      const allAttendanceData: AttendanceData[] = [];
-      
-      for (const classData of classes) {
-        const attendanceResponse = await sundaySchoolService.getClassAttendance(classData.id, {
-          limit: 100,
-          sortBy: 'date',
-          sortOrder: 'desc'
-        });
-        
-        if (attendanceResponse.success && attendanceResponse.data) {
-          const filteredRecords = attendanceResponse.data.filter(
-            record => new Date(record.date) >= cutoffDate
-          );
-          
-          // Group by date
-          const dateGroups = new Map<string, ClassAttendance[]>();
-          filteredRecords.forEach(record => {
-            const date = new Date(record.date).toISOString().split('T')[0];
-            if (!dateGroups.has(date)) {
-              dateGroups.set(date, []);
-            }
-            dateGroups.get(date)!.push(record);
-          });
-          
-          // Process each date
-          dateGroups.forEach((records, date) => {
-            const present = records.filter(r => r.status === AttendanceStatus.PRESENT || r.status === AttendanceStatus.LATE).length;
-            const total = records.length;
-            const rate = total > 0 ? Math.round((present / total) * 100) : 0;
-            
-            const existingData = allAttendanceData.find(d => d.date === date);
-            if (existingData) {
-              existingData.present += present;
-              existingData.total += total;
-              existingData.rate = Math.round((existingData.present / existingData.total) * 100);
-            } else {
-              allAttendanceData.push({
-                date: new Date(date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
-                rate,
-                present,
-                total
-              });
-            }
-          });
-        }
-      }
-      
-      // Sort by date
-      allAttendanceData.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
-      setAttendanceData(allAttendanceData.slice(-20)); // Last 20 data points
-    } catch (error) {
-      console.error('Failed to load attendance data:', error);
-    }
-  };
-
-  const handleBack = () => {
-    router.push('/dashboard/sunday-school/teachers');
-  };
-
-  const handleEditTeacher = () => {
-    router.push(`/dashboard/sunday-school/teachers/${teacherId}/edit`);
-  };
-
-  const handleViewClass = (classId: string) => {
-    router.push(`/dashboard/sunday-school/classes/${classId}`);
-  };
-
-  const handleRemoveFromClass = async (classData: SundaySchoolClass) => {
-    try {
-      // In a real app, you would call an API to remove teacher from class
-      // For now, we'll just show a success message
-      toast.success(`Teacher removed from ${classData.name}`);
-      loadData(); // Reload data
-    } catch (error) {
-      toast.error('Failed to remove teacher from class');
-    } finally {
-      setShowRemoveDialog(null);
-    }
-  };
-
-  const getStatusBadge = (status: TeacherStatus) => <StatusBadge status={status} />;
-
-  const getTrendIcon = (rate: number) => {
-    if (rate >= 85) return <TrendingUp className="h-4 w-4 text-brand-success" />;
-    if (rate >= 70) return <Target className="h-4 w-4 text-brand-accent" />;
-    return <TrendingDown className="h-4 w-4 text-destructive" />;
-  };
-
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
-        <Loader2 className="h-8 w-8 animate-spin" />
+        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
       </div>
     );
   }
 
   if (!teacher) {
     return (
-      <div className="text-center py-12">
-        <AlertCircle className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-        <h3 className="text-lg font-medium">Teacher not found</h3>
-        <p className="text-muted-foreground mb-4">The teacher you're looking for doesn't exist.</p>
-        <Button onClick={handleBack}>Back to Teachers</Button>
+      <div className="text-center py-12 space-y-4">
+        <h2 className="text-xl font-semibold">Teacher Not Found</h2>
+        <Button onClick={() => router.push('/dashboard/sunday-school/teachers')} variant="outline">
+          Back to Teachers
+        </Button>
       </div>
     );
   }
 
+  const totalStudents = classes.reduce((sum, c) => sum + (c.students || 0), 0);
+
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 max-w-6xl">
       {/* Header */}
-      <div className="flex items-center gap-4">
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={handleBack}
-          className="h-8 w-8"
-        >
-          <ArrowLeft className="h-4 w-4" />
-        </Button>
-
-        <Avatar className="h-16 w-16">
-          <AvatarImage src={teacher.avatar} alt={teacher.name} />
-          <AvatarFallback className="text-lg">
-            {teacher.name.split(' ').map(n => n[0]).join('')}
-          </AvatarFallback>
-        </Avatar>
-
-        <div className="flex-1">
-          <PageHeader
-            title={teacher.name}
-            description={
-              <span className="flex flex-wrap items-center gap-4">
-                <span className="flex items-center gap-1">
-                  <Mail className="h-4 w-4" />
-                  {teacher.email}
-                </span>
-                <span className="flex items-center gap-1">
-                  <Phone className="h-4 w-4" />
-                  {teacher.phone}
-                </span>
-                {getStatusBadge(teacher.status)}
-              </span>
-            }
-            actions={
-              <>
-                <Button variant="outline">
-                  <Download className="mr-2 h-4 w-4" />
-                  Export Report
-                </Button>
-
-                <Button onClick={handleEditTeacher}>
-                  <Edit className="mr-2 h-4 w-4" />
-                  Edit Teacher
-                </Button>
-              </>
-            }
-          />
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex items-center gap-4">
+          <Button variant="ghost" size="icon" asChild>
+            <Link href="/dashboard/sunday-school/teachers">
+              <ArrowLeft className="h-4 w-4" />
+            </Link>
+          </Button>
+          <div className="flex items-center gap-3">
+            <h1 className="font-heading text-2xl font-bold tracking-tight">
+              {teacher.name}
+            </h1>
+            <StatusBadge status={(teacher.status || 'active').toLowerCase() as any} size="sm" />
+          </div>
         </div>
       </div>
 
       {/* Stats Cards */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-6">
-        <StatCard
-          title="Total Classes"
-          value={stats.totalClasses}
-          icon={BookOpen}
-          description={`${stats.activeClasses} active`}
-        />
-        <StatCard
-          title="Total Students"
-          value={stats.totalStudents}
-          icon={Users}
-          description="across all classes"
-        />
-        <StatCard
-          title="Avg Attendance"
-          value={`${stats.averageAttendance}%`}
-          icon={CheckCircle}
-          accent="success"
-          description="across all classes"
-        />
-        <StatCard
-          title="Experience"
-          value={stats.yearsOfService}
-          icon={Award}
-          description="years of service"
-        />
-        <StatCard
-          title="Total Sessions"
-          value={stats.totalSessions}
-          icon={Calendar}
-          description="taught"
-        />
-        <StatCard
-          title="Specialization"
-          value={teacher.specializations && teacher.specializations.length > 0 ? teacher.specializations[0] : 'General'}
-          icon={Target}
-          description="area of focus"
-        />
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <StatCard title="Assigned Classes" value={classes.length} icon={School} />
+        <StatCard title="Total Students" value={totalStudents} icon={Users} />
+        <StatCard title="Join Date" value={teacher.joinDate || '—'} icon={Calendar} />
+        <StatCard title="Experience" value={teacher.experience || '—'} icon={TrendingUp} />
       </div>
 
-      {/* Main Content */}
+      {/* Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
-        <TabsList>
-          <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="classes">Assigned Classes</TabsTrigger>
-          <TabsTrigger value="performance">Performance</TabsTrigger>
-          <TabsTrigger value="details">Details</TabsTrigger>
+        <TabsList className="border-b border-border w-full justify-start rounded-none bg-transparent p-0 gap-6">
+          <TabsTrigger
+            value="overview"
+            className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-1 pb-3 text-sm font-medium"
+          >
+            Profile & Contact
+          </TabsTrigger>
+          <TabsTrigger
+            value="classes"
+            className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-1 pb-3 text-sm font-medium"
+          >
+            Assigned Classes ({classes.length})
+          </TabsTrigger>
         </TabsList>
 
-        <TabsContent value="overview" className="space-y-4">
+        <TabsContent value="overview" className="space-y-6">
           <div className="grid gap-6 md:grid-cols-2">
-            {/* Recent Classes */}
+            {/* Teacher Details */}
             <Card>
-              <CardHeader>
-                <CardTitle>Recent Classes</CardTitle>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-base font-semibold">Teacher Details</CardTitle>
               </CardHeader>
-              <CardContent>
-                {classes.length === 0 ? (
-                  <div className="text-center py-8">
-                    <BookOpen className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                    <h3 className="text-lg font-medium">No classes assigned</h3>
-                    <p className="text-muted-foreground">
-                      This teacher is not currently assigned to any classes
-                    </p>
-                  </div>
-                ) : (
-                  <div className="space-y-3">
-                    {classes.slice(0, 3).map((classData) => (
-                      <div key={classData.id} className="flex items-center justify-between p-3 border rounded-lg">
-                        <div>
-                          <h4 className="font-medium">{classData.name}</h4>
-                          <p className="text-sm text-muted-foreground">
-                            {classData.studentCount} students • {classData.ageGroup}
-                          </p>
-                        </div>
-                        
-                        <div className="flex items-center space-x-2">
-                          <div className="text-right">
-                            <div className="text-sm font-medium">{classData.attendanceRate}%</div>
-                            <div className="text-xs text-muted-foreground">attendance</div>
-                          </div>
-                          {getTrendIcon(classData.attendanceRate)}
-                        </div>
-                      </div>
-                    ))}
-                    
-                    {classes.length > 3 && (
-                      <Button variant="outline" className="w-full" onClick={() => setActiveTab('classes')}>
-                        View All Classes ({classes.length})
-                      </Button>
+              <CardContent className="space-y-3 text-sm">
+                <div className="flex items-center justify-between py-2 border-b border-border">
+                  <span className="text-muted-foreground">Join Date</span>
+                  <span className="font-medium text-foreground">{teacher.joinDate || '—'}</span>
+                </div>
+                <div className="flex items-center justify-between py-2 border-b border-border">
+                  <span className="text-muted-foreground">Qualifications</span>
+                  <div className="flex gap-1 flex-wrap justify-end">
+                    {teacher.qualifications && teacher.qualifications.length > 0 ? (
+                      teacher.qualifications.map((q, idx) => (
+                        <Badge key={idx} variant="neutral" size="sm">{q}</Badge>
+                      ))
+                    ) : (
+                      <span className="font-medium text-foreground">—</span>
                     )}
                   </div>
-                )}
+                </div>
+                <div className="flex items-center justify-between py-2 border-b border-border">
+                  <span className="text-muted-foreground">Status</span>
+                  <StatusBadge status={(teacher.status || 'active').toLowerCase() as any} size="sm" />
+                </div>
               </CardContent>
             </Card>
 
-            {/* Teacher Information */}
+            {/* Contact Information */}
             <Card>
-              <CardHeader>
-                <CardTitle>Teacher Information</CardTitle>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-base font-semibold">Contact Information</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-3">
-                  <div className="flex items-center space-x-3">
-                    <Mail className="h-4 w-4 text-muted-foreground" />
-                    <div>
-                      <div className="font-medium">Email</div>
-                      <div className="text-sm text-muted-foreground">{teacher.email}</div>
+              <CardContent className="space-y-3 text-sm">
+                {teacher.email && (
+                  <div className="flex items-center justify-between py-2 border-b border-border">
+                    <span className="text-muted-foreground">Email</span>
+                    <div className="flex items-center gap-1.5 font-medium text-foreground">
+                      <Mail className="h-3.5 w-3.5 text-muted-foreground" />
+                      <span>{teacher.email}</span>
                     </div>
                   </div>
-                  
-                  <div className="flex items-center space-x-3">
-                    <Phone className="h-4 w-4 text-muted-foreground" />
-                    <div>
-                      <div className="font-medium">Phone</div>
-                      <div className="text-sm text-muted-foreground">{teacher.phone}</div>
+                )}
+                {teacher.phone && (
+                  <div className="flex items-center justify-between py-2 border-b border-border">
+                    <span className="text-muted-foreground">Phone</span>
+                    <div className="flex items-center gap-1.5 font-medium text-foreground">
+                      <Phone className="h-3.5 w-3.5 text-muted-foreground" />
+                      <span>{teacher.phone}</span>
                     </div>
                   </div>
-                  
-
-                  
-                  <div className="flex items-center space-x-3">
-                    <Calendar className="h-4 w-4 text-muted-foreground" />
-                    <div>
-                      <div className="font-medium">Start Date</div>
-                      <div className="text-sm text-muted-foreground">
-                        {new Date(teacher.joinDate).toLocaleDateString()}
-                      </div>
-                    </div>
-                  </div>
-
-                </div>
+                )}
               </CardContent>
             </Card>
           </div>
@@ -536,227 +192,46 @@ export default function TeacherProfilePage() {
 
         <TabsContent value="classes" className="space-y-4">
           <Card>
-            <CardHeader>
-              <CardTitle>Assigned Classes</CardTitle>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base font-semibold">Assigned Classes ({classes.length})</CardTitle>
             </CardHeader>
             <CardContent>
-              {classes.length === 0 ? (
-                <div className="text-center py-12">
-                  <BookOpen className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                  <h3 className="text-lg font-medium">No classes assigned</h3>
-                  <p className="text-muted-foreground">
-                    This teacher is not currently assigned to any classes
-                  </p>
-                </div>
-              ) : (
-                <div className="space-y-4">
-                  {classes.map((classData) => (
-                    <div key={classData.id} className="flex items-center justify-between p-4 border rounded-lg">
-                      <div className="flex items-center space-x-4">
-                        <div>
-                          <h4 className="font-medium">{classData.name}</h4>
-                          <p className="text-sm text-muted-foreground">
-                            {classData.ageGroup} • {classData.studentCount} students • Last session: {classData.lastSession}
-                          </p>
-                          {classData.description && (
-                            <p className="text-sm text-muted-foreground mt-1">{classData.description}</p>
-                          )}
-                        </div>
-                      </div>
-                      
-                      <div className="flex items-center space-x-4">
-                        <div className="text-right">
-                          <div className="flex items-center space-x-2">
-                            <span className="text-lg font-bold">{classData.attendanceRate}%</span>
-                            {getTrendIcon(classData.attendanceRate)}
-                          </div>
-                          <div className="w-24">
-                            <Progress value={classData.attendanceRate} className="h-2" />
-                          </div>
-                        </div>
-                        
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" className="h-8 w-8 p-0">
-                              <MoreHorizontal className="h-4 w-4" />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
-                            <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                            <DropdownMenuItem onClick={() => handleViewClass(classData.id)}>
-                              <Eye className="mr-2 h-4 w-4" />
-                              View Class
-                            </DropdownMenuItem>
-                            <DropdownMenuSeparator />
-                            <DropdownMenuItem 
-                              onClick={() => setShowRemoveDialog(classData)}
-                              className="text-destructive"
-                            >
-                              <UserMinus className="mr-2 h-4 w-4" />
-                              Remove from Class
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      </div>
+              <div className="space-y-3">
+                {classes.map((cls) => (
+                  <div
+                    key={cls.id}
+                    className="p-3 rounded-lg border border-border flex items-center justify-between gap-3"
+                  >
+                    <div>
+                      <h4 className="font-medium text-sm text-foreground">{cls.name}</h4>
+                      <span className="text-xs text-muted-foreground">
+                        {cls.ageGroup} • Room: {cls.location || '—'}
+                      </span>
                     </div>
-                  ))}
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        </TabsContent>
 
-        <TabsContent value="performance" className="space-y-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <h3 className="text-lg font-medium">Performance Analytics</h3>
-              <p className="text-muted-foreground">Attendance trends and teaching effectiveness</p>
-            </div>
-            
-            <Select value={timeRange} onValueChange={setTimeRange}>
-              <SelectTrigger className="w-40">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="1month">Last Month</SelectItem>
-                <SelectItem value="3months">Last 3 Months</SelectItem>
-                <SelectItem value="6months">Last 6 Months</SelectItem>
-                <SelectItem value="1year">Last Year</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-          
-          <Card>
-            <CardHeader>
-              <CardTitle>Attendance Trends</CardTitle>
-            </CardHeader>
-            <CardContent>
-              {attendanceData.length === 0 ? (
-                <div className="text-center py-12">
-                  <TrendingUp className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                  <h3 className="text-lg font-medium">No attendance data</h3>
-                  <p className="text-muted-foreground">
-                    Start taking attendance to see performance trends
-                  </p>
-                </div>
-              ) : (
-                <ChartContainer config={attendanceRateConfig} className="h-64 w-full">
-                  <LineChart data={attendanceData} margin={{ left: 12, right: 12 }}>
-                    <CartesianGrid vertical={false} strokeDasharray="3 3" className="stroke-muted" />
-                    <XAxis 
-                      dataKey="date" 
-                      tickLine={false} 
-                      axisLine={false} 
-                      tickMargin={8}
-                      className="text-xs"
-                    />
-                    <YAxis 
-                      domain={[0, 100]}
-                      tickLine={false} 
-                      axisLine={false} 
-                      tickMargin={8}
-                      className="text-xs"
-                    />
-                    <ChartTooltip 
-                      cursor={{ stroke: 'hsl(var(--muted))', strokeWidth: 1 }}
-                      content={<ChartTooltipContent indicator="line" />} 
-                    />
-                    <Line 
-                      type="monotone" 
-                      dataKey="rate" 
-                      stroke="hsl(var(--chart-1))" 
-                      strokeWidth={2}
-                      dot={{ fill: 'hsl(var(--chart-1))' }}
-                    />
-                  </LineChart>
-                </ChartContainer>
-              )}
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="details" className="space-y-4">
-          <div className="grid gap-6 md:grid-cols-2">
-            {/* Qualifications */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Qualifications & Experience</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                {teacher.qualifications && teacher.qualifications.length > 0 ? (
-                  <div>
-                    <h4 className="font-medium mb-2">Qualifications</h4>
-                    <div className="flex flex-wrap gap-2">
-                      {teacher.qualifications.map((qualification, index) => (
-                        <Badge key={index} variant="neutral">
-                          {qualification}
-                        </Badge>
-                      ))}
+                    <div className="flex items-center gap-3">
+                      <span className="text-xs text-muted-foreground">
+                        {cls.students || 0} students
+                      </span>
+                      <Button variant="ghost" size="sm" className="text-xs text-primary" asChild>
+                        <Link href={`/dashboard/sunday-school/classes/${cls.id}`}>
+                          View Class
+                        </Link>
+                      </Button>
                     </div>
                   </div>
-                ) : (
-                  <p className="text-muted-foreground">No qualifications listed</p>
-                )}
-                
-                {teacher.experience && (
-                  <div>
-                    <h4 className="font-medium mb-2">Experience</h4>
-                    <p className="text-sm text-muted-foreground">{teacher.experience}</p>
-                  </div>
-                )}
-                
-                <div>
-                  <h4 className="font-medium mb-2">Specialization</h4>
-                  <p className="text-sm text-muted-foreground">
-                    {teacher.specializations && teacher.specializations.length > 0 ? 
-                  teacher.specializations[0] : 
-                  'General Teaching'
-                }
+                ))}
+
+                {classes.length === 0 && (
+                  <p className="text-center py-8 text-xs text-muted-foreground">
+                    No classes currently assigned to this teacher.
                   </p>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Additional Information */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Additional Information</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div>
-                  <h4 className="font-medium mb-2">Status</h4>
-                  {getStatusBadge(teacher.status)}
-                </div>
-                
-
-
-              </CardContent>
-            </Card>
-          </div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
         </TabsContent>
       </Tabs>
-
-      {/* Remove from Class Dialog */}
-      <AlertDialog open={!!showRemoveDialog} onOpenChange={() => setShowRemoveDialog(null)}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Remove from Class</AlertDialogTitle>
-            <AlertDialogDescription>
-              Are you sure you want to remove {teacher.name} from {showRemoveDialog?.name}? 
-              This will unassign the teacher from this class.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={() => showRemoveDialog && handleRemoveFromClass(showRemoveDialog)}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-            >
-              Remove from Class
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
     </div>
   );
 }

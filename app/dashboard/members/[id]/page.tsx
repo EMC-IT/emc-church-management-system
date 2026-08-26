@@ -434,15 +434,14 @@ export default function MemberProfilePage() {
       {/* Top Header & Actions Bar */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-4">
-          <Button variant="ghost" size="sm" asChild className="text-muted-foreground hover:text-foreground">
+          <Button variant="ghost" size="icon" asChild>
             <Link href="/dashboard/members">
-              <ArrowLeft className="mr-2 h-4 w-4" />
-              Back to Members
+              <ArrowLeft className="h-4 w-4" />
             </Link>
           </Button>
-          <h1 className="font-heading text-2xl font-bold tracking-tight">
-            Member Profile
-          </h1>
+          <div>
+            <h1 className="font-heading text-2xl font-bold tracking-tight">Member Profile</h1>
+          </div>
         </div>
 
         <div className="flex items-center gap-2 flex-wrap">

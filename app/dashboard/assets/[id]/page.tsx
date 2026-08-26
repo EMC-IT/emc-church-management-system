@@ -246,61 +246,64 @@ export default function AssetDetailsPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 max-w-6xl">
       {/* Header */}
-      <PageHeader
-        title={asset.name}
-        actions={
-          <div className="flex items-center space-x-2">
-            <Button
-              variant="outline"
-              size="icon"
-              onClick={() => router.push('/dashboard/assets')}
-            >
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div className="flex items-center gap-4">
+          <Button variant="ghost" size="icon" asChild>
+            <Link href="/dashboard/assets">
               <ArrowLeft className="h-4 w-4" />
-            </Button>
-            <Button variant="outline" asChild>
-              <Link href={`/dashboard/assets/${asset.id}/maintenance`}>
-                <Wrench className="mr-2 h-4 w-4" />
-                Maintenance
-              </Link>
-            </Button>
-            <Button variant="outline" asChild>
-              <Link href={`/dashboard/assets/${asset.id}/assignment`}>
-                <Users className="mr-2 h-4 w-4" />
-                Assignment
-              </Link>
-            </Button>
-            <Button asChild>
-              <Link href={`/dashboard/assets/${asset.id}/edit`}>
-                <Edit className="mr-2 h-4 w-4" />
-                Edit
-              </Link>
-            </Button>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="icon">
-                  <MoreHorizontal className="h-4 w-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem>
-                  <Download className="mr-2 h-4 w-4" />
-                  Export Details
-                </DropdownMenuItem>
-                <DropdownMenuItem>
-                  <Camera className="mr-2 h-4 w-4" />
-                  Add Photos
-                </DropdownMenuItem>
-                <DropdownMenuItem>
-                  <FileText className="mr-2 h-4 w-4" />
-                  Add Documents
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+            </Link>
+          </Button>
+          <div>
+            <h1 className="font-heading text-2xl font-bold tracking-tight">{asset.name}</h1>
+            <p className="text-sm text-muted-foreground mt-1">
+              Asset specifications, tracking, maintenance, and status
+            </p>
           </div>
-        }
-      />
+        </div>
+        <div className="flex items-center flex-wrap gap-2 self-start sm:self-auto">
+          <Button variant="outline" size="sm" asChild>
+            <Link href={`/dashboard/assets/${asset.id}/maintenance`}>
+              <Wrench className="mr-1.5 h-4 w-4" />
+              Maintenance
+            </Link>
+          </Button>
+          <Button variant="outline" size="sm" asChild>
+            <Link href={`/dashboard/assets/${asset.id}/assignment`}>
+              <Users className="mr-1.5 h-4 w-4" />
+              Assignment
+            </Link>
+          </Button>
+          <Button size="sm" asChild>
+            <Link href={`/dashboard/assets/${asset.id}/edit`}>
+              <Edit className="mr-1.5 h-4 w-4" />
+              Edit
+            </Link>
+          </Button>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" size="icon" className="h-8 w-8">
+                <MoreHorizontal className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem>
+                <Download className="mr-2 h-4 w-4" />
+                Export Details
+              </DropdownMenuItem>
+              <DropdownMenuItem>
+                <Camera className="mr-2 h-4 w-4" />
+                Add Photos
+              </DropdownMenuItem>
+              <DropdownMenuItem>
+                <FileText className="mr-2 h-4 w-4" />
+                Add Documents
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+      </div>
 
       <div className="grid gap-6 md:grid-cols-3">
         {/* Main Content */}

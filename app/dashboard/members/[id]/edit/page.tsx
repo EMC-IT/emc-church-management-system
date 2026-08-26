@@ -175,18 +175,19 @@ export default function EditMemberPage() {
     );
   }
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 max-w-6xl">
       <div className="flex items-center gap-4">
-        <Button variant="ghost" size="sm" asChild>
+        <Button variant="ghost" size="icon" asChild>
           <Link href={`/dashboard/members/${memberId}`}>
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Back to Profile
+            <ArrowLeft className="h-4 w-4" />
           </Link>
         </Button>
-        <div className="flex-1">
-          <PageHeader title="Edit Member" />
+        <div>
+          <h1 className="font-heading text-2xl font-bold tracking-tight">Edit Member Profile</h1>
+          <p className="text-sm text-muted-foreground mt-1">Update personal details, membership status, and ministry assignments.</p>
         </div>
       </div>
+
       <MemberFullForm
         initialValues={{
           ...member,
