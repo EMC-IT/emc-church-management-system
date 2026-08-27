@@ -39,16 +39,20 @@ http://localhost:8000/api
       "name": "Admin User",
       "role": {
         "name": "SuperAdmin",
+        "tenantId": "tenant_emc_accra",
+        "branchId": "branch_hq",
         "permissions": [
-          "canViewMembers",
-          "canEditMembers",
-          "canViewFinance",
-          "canManageFinance"
+          "members.view",
+          "members.create",
+          "finance.view",
+          "finance.expenses.create",
+          "attendance.view",
+          "dashboard.view"
         ]
       },
       "avatar": null,
-      "createdAt": "2024-01-21T10:30:00Z",
-      "updatedAt": "2024-01-21T10:30:00Z"
+      "createdAt": "2026-01-21T10:30:00Z",
+      "updatedAt": "2026-01-21T10:30:00Z"
     },
     "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
     "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."

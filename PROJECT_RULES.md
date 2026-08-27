@@ -14,6 +14,7 @@
 10. [File Naming Conventions](#file-naming-conventions)
 11. [Git Workflow Rules](#git-workflow-rules)
 12. [Testing Requirements](#testing-requirements)
+13. [Production Architecture & Domain Contracts](#production-architecture--domain-contracts)
 
 ---
 
@@ -1357,6 +1358,52 @@ export function MemberForm({ member, onSubmit, loading }: MemberFormProps) {
 
 ---
 
+## 🏛️ Production Architecture & Domain Contracts
+
+### 1. Frontend Preservation Contract (Invisible Restructuring)
+- **Zero Frontend Redesign**: Existing page designs, cards, layouts, sidebars, headers, colors, typography, tables, and modal components must be preserved.
+- **Route Stability**: All URL paths under `app/dashboard/**` must remain stable.
+- **Underlying Refactoring**: Architectural refactoring happens underneath existing UI components.
+
+### 2. Architectural Layers & Boundaries
+```
+Presentation (app/dashboard/*)
+      ↓
+Domain Components (components/<domain>/*)
+      ↓
+Application Services (services/<domain>/*)
+      ↓
+Validation (lib/validation/*) & Authorization (lib/authorization/*)
+      ↓
+Infrastructure & API Client (services/api-client.ts)
+```
+
+1. **Presentation Layer (`app/dashboard/*`)**:
+   - Manages routing, page layout, suspense fallbacks (`loading.tsx`), and data fetching triggers.
+   - Must NOT contain business logic, multi-step math calculations, or raw database queries.
+2. **Domain Component Layer (`components/<domain>/*`)**:
+   - Contains domain-specific forms, tables, modals, and display cards (e.g. `components/members/`, `components/finance/`).
+3. **Generic UI Primitives (`components/ui/*`)**:
+   - Pure UI design system primitives (buttons, dialogs, inputs, date pickers).
+   - Zero domain model imports or domain logic.
+4. **Application Services (`services/<domain>/*`)**:
+   - Encapsulates domain operations, command execution, and API integration.
+   - Organized by domain packages rather than a flat unstructured folder.
+5. **Runtime Validation (`lib/validation/*`)**:
+   - Zod schemas validating all API inputs, form submissions, and external data.
+6. **Authorization & Tenant Isolation (`lib/authorization/*`)**:
+   - Centralized RBAC permission checks, policy guards, and trusted tenant/branch scope resolution.
+7. **Audit & Error Standards (`lib/audit/*`, `lib/errors/*`)**:
+   - Immutable audit logging for sensitive operations and structured application error classes.
+
+### 3. Core Architectural Invariants
+- **Multi-Tenant & Branch Scoping**: `tenantId` is always resolved from trusted server context, never blindly accepted from untrusted client overrides.
+- **Financial Integrity**: All financial calculations (tithes, giving, income, expenses, budgets) must derive from single sources of truth with explicit currency handling.
+- **Centralized Date/Time**: All UI dates and forms must use `lib/date-utils.ts` formatters (`STANDARD_DATE_FORMAT`, `DISPLAY_DATE_FORMAT`, `parseDisplayDate`).
+- **Incremental Migration**: Use `OLD -> ADAPTER -> NEW` pattern to guarantee zero breaking changes across existing components.
+
+---
+
 ## 🎯 Conclusion
 
 These project rules ensure consistency, quality, and maintainability across the Church Management System. All team members must follow these guidelines to maintain code quality and user experience standards.
@@ -1367,6 +1414,7 @@ These project rules ensure consistency, quality, and maintainability across the 
 3. **Performance optimization**
 4. **Code consistency**
 5. **User experience focus**
+6. **Domain-oriented architecture & data integrity**
 
 ### Enforcement
 - **Code reviews**: Enforce during PR reviews
