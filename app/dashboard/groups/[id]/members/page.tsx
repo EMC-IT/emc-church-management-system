@@ -179,7 +179,6 @@ export default function GroupMembersPage() {
           title="Total Members"
           value={members.length}
           icon={Users}
-          description={`of ${group?.maxMembers || 0} maximum`}
         />
         <StatCard
           title="Active Members"

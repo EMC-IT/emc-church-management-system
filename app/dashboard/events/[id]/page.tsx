@@ -4,9 +4,9 @@ import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { PageHeader } from '@/components/ui/page-header';
-import { Badge } from '@/components/ui/badge';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { StatusBadge } from '@/components/ui/status-badge';
+import { EventCategoryBadge, EventGroupRoleBadge } from '@/components/ui/category-badges';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Progress } from '@/components/ui/progress';
 import { Separator } from '@/components/ui/separator';
@@ -22,19 +22,15 @@ import {
   Trash2,
   UserCheck,
   UserPlus,
-  Share2,
-  Download,
   Settings,
-  AlertCircle,
-  CheckCircle2,
-  XCircle
+  Loader2
 } from 'lucide-react';
 import { format } from 'date-fns';
 import Link from 'next/link';
 import { toast } from 'sonner';
 import { DeleteDialog, useDeleteDialog } from '@/components/ui/delete-dialog';
 
-// Mock data - in real app, this would come from API
+// Mock data
 const mockEvent = {
   id: '1',
   title: 'Sunday Service',
@@ -86,32 +82,13 @@ export default function EventDetailsPage() {
   const deleteDialog = useDeleteDialog();
 
   useEffect(() => {
-    // In real app, fetch event data based on params.id
     setLoading(true);
-    setTimeout(() => {
+    const timer = setTimeout(() => {
       setEvent(mockEvent);
       setLoading(false);
-    }, 500);
+    }, 400);
+    return () => clearTimeout(timer);
   }, [params.id]);
-
-  const getStatusColor = (status: string) => {
-    switch (status.toLowerCase()) {
-      case 'upcoming': return 'primary';
-      case 'ongoing': return 'neutral';
-      case 'completed': return 'neutral';
-      case 'cancelled': return 'danger';
-      default: return 'primary';
-    }
-  };
-
-  const getStatusIcon = (status: string) => {
-    switch (status.toLowerCase()) {
-      case 'confirmed': return <CheckCircle2 className="h-4 w-4 text-green-500" />;
-      case 'pending': return <AlertCircle className="h-4 w-4 text-yellow-500" />;
-      case 'cancelled': return <XCircle className="h-4 w-4 text-red-500" />;
-      default: return <CheckCircle2 className="h-4 w-4 text-green-500" />;
-    }
-  };
 
   const attendancePercentage = (event.currentAttendees / event.maxAttendees) * 100;
   const registrationPercentage = (event.registrations.length / event.maxAttendees) * 100;
@@ -120,126 +97,108 @@ export default function EventDetailsPage() {
     deleteDialog.openDialog({ id: event.id, name: event.title });
   };
 
-  const confirmDeleteEvent = async (item: { id: string; name: string }) => {
+  const confirmDeleteEvent = async () => {
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      await new Promise(resolve => setTimeout(resolve, 800));
       toast.success('Event deleted successfully');
       router.push('/dashboard/events');
-    } catch (error) {
+    } catch {
       toast.error('Failed to delete event');
-      throw error;
     }
   };
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand-primary mx-auto"></div>
-          <p className="mt-2 text-muted-foreground">Loading event details...</p>
-        </div>
+      <div className="flex items-center justify-center min-h-[400px]">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
       </div>
     );
   }
 
   return (
     <div className="space-y-6">
-      {/* Back Navigation */}
-      <div className="flex items-center gap-4 mb-6">
-        <Button
-          variant="outline"
-          size="icon"
-          className="h-12 w-12"
-          onClick={() => router.back()}
-        >
-          <ArrowLeft className="h-4 w-4" />
-        </Button>
-        
-        <div className="flex items-center gap-3">
-          <div className="p-2 bg-brand-primary/10 rounded-lg">
-            <CalendarIcon className="h-6 w-6 text-brand-primary" />
+      {/* Header */}
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex items-center gap-3 min-w-0">
+          <Button
+            variant="outline"
+            size="icon"
+            className="h-9 w-9 shrink-0"
+            asChild
+          >
+            <Link href="/dashboard/events" aria-label="Back to Events">
+              <ArrowLeft className="h-4 w-4" />
+            </Link>
+          </Button>
+          <div className="min-w-0">
+            <h1 className="font-heading text-2xl font-bold tracking-tight truncate">{event.title}</h1>
           </div>
-          <PageHeader title={event.title} />
+        </div>
+
+        <div className="flex items-center gap-2 shrink-0">
+          <Button variant="outline" size="sm" asChild>
+            <Link href={`/dashboard/events/${event.id}/edit`}>
+              <Edit className="mr-1.5 h-4 w-4" />
+              Edit
+            </Link>
+          </Button>
+          <Button 
+            variant="outline" 
+            size="sm"
+            className="text-destructive hover:bg-destructive/10"
+            onClick={handleDeleteEvent}
+          >
+            <Trash2 className="mr-1.5 h-4 w-4" />
+            Delete
+          </Button>
         </div>
       </div>
 
-      {/* Event Header */}
+      {/* Main Overview Card */}
       <Card>
-        <CardHeader>
-          <div className="flex items-start justify-between">
-            <div className="space-y-2">
-              <div className="flex items-center gap-3">
-                <h2 className="text-2xl font-bold">{event.title}</h2>
-                <Badge variant={getStatusColor(event.status)}>
-                  {event.status}
-                </Badge>
-                <Badge variant="neutral">
-                  {event.category}
-                </Badge>
-              </div>
-              <p className="text-muted-foreground max-w-2xl">{event.description}</p>
-            </div>
-            
-            <div className="flex items-center gap-2">
-              <Button variant="outline" size="icon">
-                <Share2 className="h-4 w-4" />
-              </Button>
-              <Button variant="outline" size="icon">
-                <Download className="h-4 w-4" />
-              </Button>
-              <Button variant="outline" size="icon" asChild>
-                <Link href={`/dashboard/events/${event.id}/edit`}>
-                  <Edit className="h-4 w-4" />
-                </Link>
-              </Button>
-              <Button 
-                variant="outline" 
-                size="icon"
-                onClick={handleDeleteEvent}
-                disabled={loading}
-              >
-                <Trash2 className="h-4 w-4" />
-              </Button>
-            </div>
+        <CardHeader className="pb-3">
+          <div className="flex flex-wrap items-center gap-2">
+            <StatusBadge status={event.status} />
+            <EventCategoryBadge category={event.category} />
           </div>
+          <p className="text-sm text-muted-foreground pt-1">{event.description}</p>
         </CardHeader>
         
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <div className="flex items-center gap-3">
-              <CalendarIcon className="h-5 w-5 text-muted-foreground" />
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 pt-2 border-t border-border/50">
+            <div className="flex items-center gap-2.5">
+              <CalendarIcon className="h-4 w-4 text-muted-foreground shrink-0" />
               <div>
-                <p className="text-sm font-medium">Date</p>
-                <p className="text-sm text-muted-foreground">
-                  {format(new Date(event.date), 'EEEE, MMMM dd, yyyy')}
+                <p className="text-xs text-muted-foreground">Date</p>
+                <p className="text-sm font-medium">
+                  {format(new Date(event.date), 'MMM dd, yyyy')}
                 </p>
               </div>
             </div>
             
-            <div className="flex items-center gap-3">
-              <Clock className="h-5 w-5 text-muted-foreground" />
+            <div className="flex items-center gap-2.5">
+              <Clock className="h-4 w-4 text-muted-foreground shrink-0" />
               <div>
-                <p className="text-sm font-medium">Time</p>
-                <p className="text-sm text-muted-foreground">
+                <p className="text-xs text-muted-foreground">Time</p>
+                <p className="text-sm font-medium">
                   {event.startTime} - {event.endTime}
                 </p>
               </div>
             </div>
             
-            <div className="flex items-center gap-3">
-              <MapPin className="h-5 w-5 text-muted-foreground" />
+            <div className="flex items-center gap-2.5">
+              <MapPin className="h-4 w-4 text-muted-foreground shrink-0" />
               <div>
-                <p className="text-sm font-medium">Location</p>
-                <p className="text-sm text-muted-foreground">{event.location}</p>
+                <p className="text-xs text-muted-foreground">Location</p>
+                <p className="text-sm font-medium truncate">{event.location}</p>
               </div>
             </div>
             
-            <div className="flex items-center gap-3">
-              <Users className="h-5 w-5 text-muted-foreground" />
+            <div className="flex items-center gap-2.5">
+              <Users className="h-4 w-4 text-muted-foreground shrink-0" />
               <div>
-                <p className="text-sm font-medium">Attendance</p>
-                <p className="text-sm text-muted-foreground">
+                <p className="text-xs text-muted-foreground">Attendance</p>
+                <p className="text-sm font-medium">
                   {event.currentAttendees} / {event.maxAttendees}
                 </p>
               </div>
@@ -248,8 +207,8 @@ export default function EventDetailsPage() {
         </CardContent>
       </Card>
 
-      {/* Quick Stats */}
-      <div className="grid gap-4 md:grid-cols-3">
+      {/* Progress Cards */}
+      <div className="grid gap-4 sm:grid-cols-3">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Registration Progress</CardTitle>
@@ -259,7 +218,7 @@ export default function EventDetailsPage() {
             <div className="text-2xl font-bold">{event.registrations.length}</div>
             <Progress value={registrationPercentage} className="mt-2" />
             <p className="text-xs text-muted-foreground mt-1">
-              {registrationPercentage.toFixed(1)}% of capacity
+              {registrationPercentage.toFixed(0)}% of capacity ({event.maxAttendees} max)
             </p>
           </CardContent>
         </Card>
@@ -273,7 +232,7 @@ export default function EventDetailsPage() {
             <div className="text-2xl font-bold">{event.currentAttendees}</div>
             <Progress value={attendancePercentage} className="mt-2" />
             <p className="text-xs text-muted-foreground mt-1">
-              {attendancePercentage.toFixed(1)}% capacity
+              {attendancePercentage.toFixed(0)}% of total capacity
             </p>
           </CardContent>
         </Card>
@@ -286,7 +245,7 @@ export default function EventDetailsPage() {
           <CardContent>
             <div className="text-2xl font-bold">{event.linkedGroups.length}</div>
             <p className="text-xs text-muted-foreground mt-1">
-              Groups involved
+              Active ministries involved
             </p>
           </CardContent>
         </Card>
@@ -306,31 +265,31 @@ export default function EventDetailsPage() {
           <div className="grid gap-4 md:grid-cols-2">
             <Card>
               <CardHeader>
-                <CardTitle>Organizer Information</CardTitle>
+                <CardTitle className="text-base">Organizer Information</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="flex items-center gap-3">
-                  <Avatar>
+                  <Avatar className="h-9 w-9">
                     <AvatarFallback>
                       {event.organizer.split(' ').map(n => n[0]).join('')}
                     </AvatarFallback>
                   </Avatar>
                   <div>
-                    <p className="font-medium">{event.organizer}</p>
-                    <p className="text-sm text-muted-foreground">Event Organizer</p>
+                    <p className="font-medium text-sm">{event.organizer}</p>
+                    <p className="text-xs text-muted-foreground">Event Organizer</p>
                   </div>
                 </div>
                 
                 <Separator />
                 
-                <div className="space-y-2">
-                  <div className="flex items-center gap-2">
-                    <Mail className="h-4 w-4 text-muted-foreground" />
-                    <span className="text-sm">{event.contactEmail}</span>
+                <div className="space-y-2 text-sm">
+                  <div className="flex items-center gap-2 text-muted-foreground">
+                    <Mail className="h-4 w-4" />
+                    <span>{event.contactEmail}</span>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <Phone className="h-4 w-4 text-muted-foreground" />
-                    <span className="text-sm">{event.contactPhone}</span>
+                  <div className="flex items-center gap-2 text-muted-foreground">
+                    <Phone className="h-4 w-4" />
+                    <span>{event.contactPhone}</span>
                   </div>
                 </div>
               </CardContent>
@@ -338,38 +297,36 @@ export default function EventDetailsPage() {
             
             <Card>
               <CardHeader>
-                <CardTitle>Event Details</CardTitle>
+                <CardTitle className="text-base">Event Details</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-3">
+              <CardContent className="space-y-3 text-sm">
+                <div>
+                  <p className="text-xs text-muted-foreground">Registration Required</p>
+                  <p className="font-medium">
+                    {event.registrationRequired ? 'Yes' : 'No'}
+                  </p>
+                </div>
+                
+                {event.registrationRequired && (
                   <div>
-                    <p className="text-sm font-medium">Registration Required</p>
-                    <p className="text-sm text-muted-foreground">
-                      {event.registrationRequired ? 'Yes' : 'No'}
+                    <p className="text-xs text-muted-foreground">Registration Deadline</p>
+                    <p className="font-medium">
+                      {format(new Date(event.registrationDeadline), 'PPP')}
                     </p>
                   </div>
-                  
-                  {event.registrationRequired && (
-                    <div>
-                      <p className="text-sm font-medium">Registration Deadline</p>
-                      <p className="text-sm text-muted-foreground">
-                        {format(new Date(event.registrationDeadline), 'PPP')}
-                      </p>
-                    </div>
-                  )}
-                  
-                  <div>
-                    <p className="text-sm font-medium">Maximum Attendees</p>
-                    <p className="text-sm text-muted-foreground">{event.maxAttendees}</p>
-                  </div>
+                )}
+                
+                <div>
+                  <p className="text-xs text-muted-foreground">Maximum Attendees</p>
+                  <p className="font-medium">{event.maxAttendees}</p>
                 </div>
                 
                 {event.notes && (
                   <>
                     <Separator />
                     <div>
-                      <p className="text-sm font-medium mb-2">Additional Notes</p>
-                      <p className="text-sm text-muted-foreground">{event.notes}</p>
+                      <p className="text-xs text-muted-foreground mb-1">Additional Notes</p>
+                      <p className="text-xs text-foreground">{event.notes}</p>
                     </div>
                   </>
                 )}
@@ -380,8 +337,8 @@ export default function EventDetailsPage() {
 
         <TabsContent value="registrations" className="space-y-4">
           <div className="flex items-center justify-between">
-            <h3 className="text-lg font-semibold">Event Registrations</h3>
-            <Button asChild className="bg-brand-primary hover:bg-brand-primary/90">
+            <h3 className="text-base font-semibold">Event Registrations</h3>
+            <Button size="sm" asChild>
               <Link href={`/dashboard/events/${event.id}/registrations`}>
                 Manage Registrations
               </Link>
@@ -390,7 +347,7 @@ export default function EventDetailsPage() {
           
           <Card>
             <CardContent className="p-0">
-              <div className="divide-y">
+              <div className="divide-y divide-border">
                 {event.registrations.map((registration) => (
                   <div key={registration.id} className="p-4 flex items-center justify-between">
                     <div className="flex items-center gap-3">
@@ -400,26 +357,18 @@ export default function EventDetailsPage() {
                         </AvatarFallback>
                       </Avatar>
                       <div>
-                        <p className="font-medium">{registration.memberName}</p>
-                        <p className="text-sm text-muted-foreground">{registration.email}</p>
+                        <p className="font-medium text-sm">{registration.memberName}</p>
+                        <p className="text-xs text-muted-foreground">{registration.email}</p>
                       </div>
                     </div>
                     
                     <div className="flex items-center gap-3">
-                      <div className="text-right">
-                        <p className="text-sm font-medium">
-                          {format(new Date(registration.registeredAt), 'MMM dd')}
-                        </p>
+                      <div className="text-right hidden sm:block">
                         <p className="text-xs text-muted-foreground">
-                          {format(new Date(registration.registeredAt), 'HH:mm')}
+                          {format(new Date(registration.registeredAt), 'MMM dd, yyyy')}
                         </p>
                       </div>
-                      <div className="flex items-center gap-1">
-                        {getStatusIcon(registration.status)}
-                        <Badge variant={registration.status === 'Confirmed' ? 'primary' : 'neutral'}>
-                          {registration.status}
-                        </Badge>
-                      </div>
+                      <StatusBadge status={registration.status} />
                     </div>
                   </div>
                 ))}
@@ -430,8 +379,8 @@ export default function EventDetailsPage() {
 
         <TabsContent value="attendance" className="space-y-4">
           <div className="flex items-center justify-between">
-            <h3 className="text-lg font-semibold">Attendance Tracking</h3>
-            <Button asChild className="bg-brand-primary hover:bg-brand-primary/90">
+            <h3 className="text-base font-semibold">Attendance Tracking</h3>
+            <Button size="sm" asChild>
               <Link href={`/dashboard/events/${event.id}/attendance`}>
                 Manage Attendance
               </Link>
@@ -440,7 +389,7 @@ export default function EventDetailsPage() {
           
           <Card>
             <CardContent className="p-0">
-              <div className="divide-y">
+              <div className="divide-y divide-border">
                 {event.attendance.map((attendee) => (
                   <div key={attendee.id} className="p-4 flex items-center justify-between">
                     <div className="flex items-center gap-3">
@@ -450,16 +399,14 @@ export default function EventDetailsPage() {
                         </AvatarFallback>
                       </Avatar>
                       <div>
-                        <p className="font-medium">{attendee.memberName}</p>
-                        <p className="text-sm text-muted-foreground">
+                        <p className="font-medium text-sm">{attendee.memberName}</p>
+                        <p className="text-xs text-muted-foreground">
                           {attendee.checkedInAt ? `Checked in at ${attendee.checkedInAt}` : 'Not checked in'}
                         </p>
                       </div>
                     </div>
                     
-                    <Badge variant={attendee.status === 'Present' ? 'primary' : 'neutral'}>
-                      {attendee.status}
-                    </Badge>
+                    <StatusBadge status={attendee.status} />
                   </div>
                 ))}
               </div>
@@ -469,25 +416,23 @@ export default function EventDetailsPage() {
 
         <TabsContent value="groups" className="space-y-4">
           <div className="flex items-center justify-between">
-            <h3 className="text-lg font-semibold">Linked Groups & Departments</h3>
-            <Button asChild className="bg-brand-primary hover:bg-brand-primary/90">
+            <h3 className="text-base font-semibold">Linked Groups & Departments</h3>
+            <Button size="sm" asChild>
               <Link href={`/dashboard/events/${event.id}/groups`}>
                 Manage Groups
               </Link>
             </Button>
           </div>
           
-          <div className="grid gap-4 md:grid-cols-2">
+          <div className="grid gap-3 sm:grid-cols-2">
             {event.linkedGroups.map((group) => (
               <Card key={group.id}>
-                <CardContent className="p-4">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="font-medium">{group.name}</p>
-                      <p className="text-sm text-muted-foreground">{group.role}</p>
-                    </div>
-                    <Badge variant="neutral">{group.role}</Badge>
+                <CardContent className="p-4 flex items-center justify-between">
+                  <div>
+                    <p className="font-medium text-sm">{group.name}</p>
+                    <p className="text-xs text-muted-foreground">{group.role}</p>
                   </div>
+                  <EventGroupRoleBadge role={group.role} />
                 </CardContent>
               </Card>
             ))}
@@ -495,14 +440,14 @@ export default function EventDetailsPage() {
         </TabsContent>
 
         <TabsContent value="activity" className="space-y-4">
-          <h3 className="text-lg font-semibold">Recent Activity</h3>
+          <h3 className="text-base font-semibold">Recent Activity</h3>
           
           <Card>
             <CardContent className="p-0">
-              <div className="divide-y">
+              <div className="divide-y divide-border">
                 {recentActivity.map((activity) => (
-                  <div key={activity.id} className="p-4 flex items-center gap-3">
-                    <div className="h-2 w-2 bg-brand-primary rounded-full" />
+                  <div key={activity.id} className="p-3.5 flex items-center gap-3">
+                    <div className="h-2 w-2 bg-primary rounded-full shrink-0" />
                     <div className="flex-1">
                       <p className="text-sm">
                         <span className="font-medium">{activity.action}</span>

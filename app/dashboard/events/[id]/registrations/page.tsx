@@ -1,14 +1,14 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { useRouter, useParams } from 'next/navigation';
+import { useState } from 'react';
+import { useParams } from 'next/navigation';
+import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { PageHeader } from '@/components/ui/page-header';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { StatCard } from '@/components/ui/stat-card';
-import { Badge } from '@/components/ui/badge';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { StatusBadge } from '@/components/ui/status-badge';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -16,22 +16,18 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import {
   ArrowLeft,
-  UserPlus,
   Search,
-  Filter,
   Download,
   Mail,
-  Phone,
   CheckCircle2,
   XCircle,
   Clock,
   Users,
-  AlertCircle,
   MoreHorizontal,
   Send,
-  FileText,
   Calendar,
-  MapPin
+  MapPin,
+  AlertCircle
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { toast } from 'sonner';
@@ -135,8 +131,8 @@ const statusOptions = ['All', 'Pending', 'Confirmed', 'Waitlisted', 'Cancelled']
 const groupOptions = ['All', 'Adult Ministry', 'Youth Ministry', 'Children Ministry', 'Worship Team', 'Ushering Team'];
 
 export default function RegistrationsPage() {
-  const router = useRouter();
   const params = useParams();
+  const eventId = (params.id as string) || mockEvent.id;
   const [loading, setLoading] = useState(false);
   const [registrations, setRegistrations] = useState(mockRegistrations);
   const [searchTerm, setSearchTerm] = useState('');
@@ -148,12 +144,12 @@ export default function RegistrationsPage() {
   const [emailSubject, setEmailSubject] = useState('');
   const [emailMessage, setEmailMessage] = useState('');
 
-  const filteredRegistrations = registrations.filter(registration => {
-    const matchesSearch = registration.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         registration.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         registration.memberId.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesStatus = statusFilter === 'All' || registration.status === statusFilter;
-    const matchesGroup = groupFilter === 'All' || registration.group === groupFilter;
+  const filteredRegistrations = registrations.filter(reg => {
+    const matchesSearch = reg.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         reg.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         reg.memberId.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesStatus = statusFilter === 'All' || reg.status === statusFilter;
+    const matchesGroup = groupFilter === 'All' || reg.group === groupFilter;
     
     return matchesSearch && matchesStatus && matchesGroup;
   });
@@ -163,47 +159,18 @@ export default function RegistrationsPage() {
     confirmed: registrations.filter(r => r.status === 'Confirmed').length,
     pending: registrations.filter(r => r.status === 'Pending').length,
     waitlisted: registrations.filter(r => r.status === 'Waitlisted').length,
-    cancelled: registrations.filter(r => r.status === 'Cancelled').length
+    cancelled: registrations.filter(r => r.status === 'Cancelled').length,
   };
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'Confirmed': return 'primary';
-      case 'Pending': return 'neutral';
-      case 'Waitlisted': return 'neutral';
-      case 'Cancelled': return 'danger';
-      default: return 'neutral';
-    }
-  };
-
-  const getStatusIcon = (status: string) => {
-    switch (status) {
-      case 'Confirmed': return <CheckCircle2 className="h-4 w-4 text-green-500" />;
-      case 'Pending': return <Clock className="h-4 w-4 text-yellow-500" />;
-      case 'Waitlisted': return <AlertCircle className="h-4 w-4 text-blue-500" />;
-      case 'Cancelled': return <XCircle className="h-4 w-4 text-red-500" />;
-      default: return <AlertCircle className="h-4 w-4 text-gray-500" />;
-    }
-  };
-
-  const handleStatusChange = async (registrationId: string, newStatus: string) => {
+  const handleStatusChange = async (id: string, newStatus: string) => {
     setLoading(true);
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 500));
-      
-      setRegistrations(prev => prev.map(registration => 
-        registration.id === registrationId 
-          ? { 
-              ...registration, 
-              status: newStatus,
-              confirmedAt: newStatus === 'Confirmed' ? new Date().toISOString() : null
-            }
-          : registration
+      await new Promise(resolve => setTimeout(resolve, 400));
+      setRegistrations(prev => prev.map(reg => 
+        reg.id === id ? { ...reg, status: newStatus } : reg
       ));
-      
-      toast.success(`Registration ${newStatus.toLowerCase()} successfully`);
-    } catch (error) {
+      toast.success(`Registration status updated to ${newStatus}`);
+    } catch {
       toast.error('Failed to update registration status');
     } finally {
       setLoading(false);
@@ -211,30 +178,18 @@ export default function RegistrationsPage() {
   };
 
   const handleBulkStatusChange = async (newStatus: string) => {
-    if (selectedRegistrations.length === 0) {
-      toast.error('Please select registrations to update');
-      return;
-    }
+    if (selectedRegistrations.length === 0) return;
 
     setLoading(true);
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      setRegistrations(prev => prev.map(registration => 
-        selectedRegistrations.includes(registration.id)
-          ? { 
-              ...registration, 
-              status: newStatus,
-              confirmedAt: newStatus === 'Confirmed' ? new Date().toISOString() : null
-            }
-          : registration
+      await new Promise(resolve => setTimeout(resolve, 600));
+      setRegistrations(prev => prev.map(reg => 
+        selectedRegistrations.includes(reg.id) ? { ...reg, status: newStatus } : reg
       ));
-      
       setSelectedRegistrations([]);
-      toast.success(`${selectedRegistrations.length} registrations ${newStatus.toLowerCase()} successfully`);
-    } catch (error) {
-      toast.error('Failed to update selected registrations');
+      toast.success(`Updated ${selectedRegistrations.length} registrations to ${newStatus}`);
+    } catch {
+      toast.error('Failed to update registrations');
     } finally {
       setLoading(false);
     }
@@ -269,15 +224,13 @@ export default function RegistrationsPage() {
 
     setLoading(true);
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
+      await new Promise(resolve => setTimeout(resolve, 1000));
       toast.success(`Email sent to ${selectedRegistrations.length} registrants`);
       setEmailDialogOpen(false);
       setEmailSubject('');
       setEmailMessage('');
       setSelectedRegistrations([]);
-    } catch (error) {
+    } catch {
       toast.error('Failed to send email');
     } finally {
       setLoading(false);
@@ -285,73 +238,120 @@ export default function RegistrationsPage() {
   };
 
   const exportRegistrations = () => {
-    // Simulate export functionality
     toast.success('Registration report exported successfully');
   };
 
   return (
     <div className="space-y-6">
-      {/* Back Navigation */}
-      <div className="flex items-center gap-4 mb-6">
-        <Button
-          variant="outline"
-          size="icon"
-          className="h-12 w-12"
-          onClick={() => router.back()}
-        >
-          <ArrowLeft className="h-4 w-4" />
-        </Button>
-        
+      {/* Header */}
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-3">
-          <div className="p-2 bg-brand-primary/10 rounded-lg">
-            <UserPlus className="h-6 w-6 text-brand-primary" />
+          <Button
+            variant="outline"
+            size="icon"
+            className="h-9 w-9"
+            asChild
+          >
+            <Link href={`/dashboard/events/${eventId}`} aria-label="Back to Event Details">
+              <ArrowLeft className="h-4 w-4" />
+            </Link>
+          </Button>
+          <div>
+            <h1 className="font-heading text-2xl font-bold tracking-tight">Event Registrations</h1>
+            <p className="text-xs text-muted-foreground mt-0.5">
+              {mockEvent.title} • {format(new Date(mockEvent.date), 'MMM dd, yyyy')}
+            </p>
           </div>
-          <PageHeader
-            title="Event Registrations"
-            description={`${mockEvent.title} - ${format(new Date(mockEvent.date), 'PPP')}`}
-          />
+        </div>
+
+        <div className="flex items-center gap-2">
+          <Dialog open={emailDialogOpen} onOpenChange={setEmailDialogOpen}>
+            <DialogTrigger asChild>
+              <Button variant="outline" size="sm" disabled={selectedRegistrations.length === 0}>
+                <Mail className="mr-1.5 h-4 w-4" />
+                Email Selected
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-md">
+              <DialogHeader>
+                <DialogTitle>Send Email</DialogTitle>
+                <DialogDescription>
+                  Send email to {selectedRegistrations.length} selected registrants
+                </DialogDescription>
+              </DialogHeader>
+              <div className="space-y-3 py-2">
+                <div className="space-y-1.5">
+                  <Label htmlFor="subject" className="text-xs">Subject</Label>
+                  <Input
+                    id="subject"
+                    value={emailSubject}
+                    onChange={(e) => setEmailSubject(e.target.value)}
+                    placeholder="Email subject..."
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <Label htmlFor="message" className="text-xs">Message</Label>
+                  <Textarea
+                    id="message"
+                    value={emailMessage}
+                    onChange={(e) => setEmailMessage(e.target.value)}
+                    placeholder="Email message..."
+                    rows={4}
+                  />
+                </div>
+              </div>
+              <DialogFooter>
+                <Button variant="outline" size="sm" onClick={() => setEmailDialogOpen(false)}>
+                  Cancel
+                </Button>
+                <Button size="sm" onClick={handleSendEmail} disabled={loading}>
+                  <Send className="mr-1.5 h-4 w-4" />
+                  {loading ? 'Sending...' : 'Send Email'}
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+          
+          <Button variant="outline" size="sm" onClick={exportRegistrations}>
+            <Download className="mr-1.5 h-4 w-4" />
+            Export
+          </Button>
         </div>
       </div>
 
       {/* Event Info Card */}
       <Card>
         <CardContent className="p-4">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <div className="flex items-center gap-2">
-              <Calendar className="h-4 w-4 text-muted-foreground" />
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-xs">
+            <div className="flex items-center gap-2.5">
+              <Calendar className="h-4 w-4 text-muted-foreground shrink-0" />
               <div>
-                <p className="text-sm font-medium">Event Date</p>
-                <p className="text-sm text-muted-foreground">
-                  {format(new Date(mockEvent.date), 'PPP')}
-                </p>
+                <p className="font-medium text-foreground">Event Date</p>
+                <p className="text-muted-foreground">{format(new Date(mockEvent.date), 'MMM dd, yyyy')}</p>
               </div>
             </div>
             
-            <div className="flex items-center gap-2">
-              <MapPin className="h-4 w-4 text-muted-foreground" />
+            <div className="flex items-center gap-2.5">
+              <MapPin className="h-4 w-4 text-muted-foreground shrink-0" />
               <div>
-                <p className="text-sm font-medium">Location</p>
-                <p className="text-sm text-muted-foreground">{mockEvent.location}</p>
+                <p className="font-medium text-foreground">Location</p>
+                <p className="text-muted-foreground truncate">{mockEvent.location}</p>
               </div>
             </div>
             
-            <div className="flex items-center gap-2">
-              <Users className="h-4 w-4 text-muted-foreground" />
+            <div className="flex items-center gap-2.5">
+              <Users className="h-4 w-4 text-muted-foreground shrink-0" />
               <div>
-                <p className="text-sm font-medium">Capacity</p>
-                <p className="text-sm text-muted-foreground">
-                  {stats.confirmed} / {mockEvent.maxAttendees}
-                </p>
+                <p className="font-medium text-foreground">Capacity</p>
+                <p className="text-muted-foreground">{stats.confirmed} / {mockEvent.maxAttendees}</p>
               </div>
             </div>
             
-            <div className="flex items-center gap-2">
-              <Clock className="h-4 w-4 text-muted-foreground" />
+            <div className="flex items-center gap-2.5">
+              <Clock className="h-4 w-4 text-muted-foreground shrink-0" />
               <div>
-                <p className="text-sm font-medium">Registration Deadline</p>
-                <p className="text-sm text-muted-foreground">
-                  {format(new Date(mockEvent.registrationDeadline), 'PPP')}
-                </p>
+                <p className="font-medium text-foreground">Deadline</p>
+                <p className="text-muted-foreground">{format(new Date(mockEvent.registrationDeadline), 'MMM dd, yyyy')}</p>
               </div>
             </div>
           </div>
@@ -359,122 +359,43 @@ export default function RegistrationsPage() {
       </Card>
 
       {/* Stats Cards */}
-      <div className="grid gap-4 md:grid-cols-5">
-        <StatCard title="Total" value={stats.total} icon={Users} />
-        <StatCard
-          title="Confirmed"
-          value={stats.confirmed}
-          icon={CheckCircle2}
-          accent="success"
-          description={`${((stats.confirmed / stats.total) * 100).toFixed(1)}%`}
-        />
-        <StatCard
-          title="Pending"
-          value={stats.pending}
-          icon={Clock}
-          accent="accent"
-          description={`${((stats.pending / stats.total) * 100).toFixed(1)}%`}
-        />
-        <StatCard
-          title="Waitlisted"
-          value={stats.waitlisted}
-          icon={AlertCircle}
-          accent="secondary"
-          description={`${((stats.waitlisted / stats.total) * 100).toFixed(1)}%`}
-        />
-        <StatCard
-          title="Cancelled"
-          value={stats.cancelled}
-          icon={XCircle}
-          description={`${((stats.cancelled / stats.total) * 100).toFixed(1)}%`}
-        />
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
+        <StatCard title="Total Registrations" value={stats.total} icon={Users} />
+        <StatCard title="Confirmed" value={stats.confirmed} icon={CheckCircle2} />
+        <StatCard title="Pending" value={stats.pending} icon={Clock} />
+        <StatCard title="Waitlisted" value={stats.waitlisted} icon={AlertCircle} />
+        <StatCard title="Cancelled" value={stats.cancelled} icon={XCircle} />
       </div>
 
       {/* Main Content */}
       <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <div>
-              <CardTitle>Registration Management</CardTitle>
-            </div>
-            <div className="flex items-center gap-2">
-              <Dialog open={emailDialogOpen} onOpenChange={setEmailDialogOpen}>
-                <DialogTrigger asChild>
-                  <Button variant="outline" disabled={selectedRegistrations.length === 0}>
-                    <Mail className="mr-2 h-4 w-4" />
-                    Email Selected
-                  </Button>
-                </DialogTrigger>
-                <DialogContent className="sm:max-w-md">
-                  <DialogHeader>
-                    <DialogTitle>Send Email</DialogTitle>
-                    <DialogDescription>
-                      Send email to {selectedRegistrations.length} selected registrants
-                    </DialogDescription>
-                  </DialogHeader>
-                  <div className="space-y-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="subject">Subject</Label>
-                      <Input
-                        id="subject"
-                        value={emailSubject}
-                        onChange={(e) => setEmailSubject(e.target.value)}
-                        placeholder="Email subject..."
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="message">Message</Label>
-                      <Textarea
-                        id="message"
-                        value={emailMessage}
-                        onChange={(e) => setEmailMessage(e.target.value)}
-                        placeholder="Email message..."
-                        rows={4}
-                      />
-                    </div>
-                  </div>
-                  <DialogFooter>
-                    <Button variant="outline" onClick={() => setEmailDialogOpen(false)}>
-                      Cancel
-                    </Button>
-                    <Button onClick={handleSendEmail} disabled={loading}>
-                      <Send className="mr-2 h-4 w-4" />
-                      {loading ? 'Sending...' : 'Send Email'}
-                    </Button>
-                  </DialogFooter>
-                </DialogContent>
-              </Dialog>
-              
-              <Button variant="outline" onClick={exportRegistrations}>
-                <Download className="mr-2 h-4 w-4" />
-                Export
-              </Button>
-            </div>
-          </div>
+        <CardHeader className="pb-3">
+          <CardTitle className="text-base">Registration Management</CardTitle>
+          <CardDescription className="text-xs">Manage attendees and RSVP status</CardDescription>
         </CardHeader>
         
         <CardContent>
           <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
-            <TabsList>
-              <TabsTrigger value="list">Registration List</TabsTrigger>
-              <TabsTrigger value="summary">Summary Report</TabsTrigger>
+            <TabsList className="h-9">
+              <TabsTrigger value="list" className="text-xs">Registration List</TabsTrigger>
+              <TabsTrigger value="summary" className="text-xs">Summary Report</TabsTrigger>
             </TabsList>
 
-            <TabsContent value="list" className="space-y-4">
+            <TabsContent value="list" className="space-y-4 pt-1">
               {/* Filters and Search */}
-              <div className="flex items-center gap-4 mb-4">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
                 <div className="relative flex-1">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                   <Input
                     placeholder="Search by name, email, or member ID..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="pl-10"
+                    className="pl-9 h-9"
                   />
                 </div>
                 
                 <Select value={statusFilter} onValueChange={setStatusFilter}>
-                  <SelectTrigger className="w-40">
+                  <SelectTrigger className="w-full sm:w-36 h-9">
                     <SelectValue placeholder="Status" />
                   </SelectTrigger>
                   <SelectContent>
@@ -487,7 +408,7 @@ export default function RegistrationsPage() {
                 </Select>
                 
                 <Select value={groupFilter} onValueChange={setGroupFilter}>
-                  <SelectTrigger className="w-48">
+                  <SelectTrigger className="w-full sm:w-44 h-9">
                     <SelectValue placeholder="Group" />
                   </SelectTrigger>
                   <SelectContent>
@@ -502,8 +423,8 @@ export default function RegistrationsPage() {
 
               {/* Bulk Actions */}
               {selectedRegistrations.length > 0 && (
-                <div className="flex items-center gap-2 p-3 bg-muted rounded-lg">
-                  <span className="text-sm font-medium">
+                <div className="flex flex-wrap items-center gap-2 p-2.5 bg-muted/60 rounded-lg border border-border">
+                  <span className="text-xs font-semibold text-foreground mr-2">
                     {selectedRegistrations.length} selected
                   </span>
                   <Button size="sm" onClick={() => handleBulkStatusChange('Confirmed')} disabled={loading}>
@@ -521,8 +442,8 @@ export default function RegistrationsPage() {
               {/* Registration List */}
               <div className="space-y-2">
                 {/* Header */}
-                <div className="flex items-center p-3 bg-muted/50 rounded-lg font-medium text-sm">
-                  <div className="flex items-center space-x-3 flex-1">
+                <div className="hidden sm:flex items-center p-2.5 bg-muted/50 rounded-lg font-medium text-xs text-muted-foreground border border-border/40">
+                  <div className="flex items-center gap-3 flex-1">
                     <Checkbox
                       checked={selectedRegistrations.length === filteredRegistrations.length && filteredRegistrations.length > 0}
                       onCheckedChange={handleSelectAll}
@@ -532,58 +453,51 @@ export default function RegistrationsPage() {
                   <div className="w-32">Group</div>
                   <div className="w-24">Status</div>
                   <div className="w-32">Registered</div>
-                  <div className="w-20">Actions</div>
+                  <div className="w-12 text-right">Action</div>
                 </div>
 
                 {/* Registration Rows */}
                 {filteredRegistrations.map((registration) => (
-                  <div key={registration.id} className="flex items-center p-3 border rounded-lg hover:bg-muted/50">
-                    <div className="flex items-center space-x-3 flex-1">
+                  <div key={registration.id} className="flex flex-col sm:flex-row sm:items-center p-3 border rounded-lg hover:border-foreground/20 transition-colors gap-3">
+                    <div className="flex items-center gap-3 flex-1 min-w-0">
                       <Checkbox
                         checked={selectedRegistrations.includes(registration.id)}
                         onCheckedChange={() => handleSelectRegistration(registration.id)}
                       />
                       <Avatar className="h-8 w-8">
-                        <AvatarFallback className="text-xs">
+                        <AvatarFallback className="text-xs bg-primary/10 text-primary">
                           {registration.name.split(' ').map(n => n[0]).join('')}
                         </AvatarFallback>
                       </Avatar>
-                      <div>
-                        <p className="font-medium">{registration.name}</p>
-                        <p className="text-sm text-muted-foreground">{registration.email}</p>
+                      <div className="min-w-0">
+                        <p className="font-medium text-xs text-foreground truncate">{registration.name}</p>
+                        <p className="text-[11px] text-muted-foreground truncate">{registration.email}</p>
                         {registration.specialRequests && (
-                          <p className="text-xs text-blue-600 mt-1">
+                          <p className="text-[11px] text-primary mt-0.5">
                             Special: {registration.specialRequests}
                           </p>
                         )}
                       </div>
                     </div>
                     
-                    <div className="w-32">
-                      <Badge variant="neutral" className="text-xs">
-                        {registration.group}
-                      </Badge>
+                    <div className="sm:w-32 text-xs text-muted-foreground">
+                      {registration.group}
                     </div>
                     
-                    <div className="w-24">
-                      <div className="flex items-center gap-1">
-                        {getStatusIcon(registration.status)}
-                        <Badge variant={getStatusColor(registration.status)} className="text-xs">
-                          {registration.status}
-                        </Badge>
-                      </div>
+                    <div className="sm:w-24">
+                      <StatusBadge status={registration.status} />
                     </div>
                     
-                    <div className="w-32 text-sm text-muted-foreground">
-                      <div>{format(new Date(registration.registeredAt), 'MMM dd')}</div>
-                      <div className="text-xs">{format(new Date(registration.registeredAt), 'HH:mm')}</div>
+                    <div className="sm:w-32 text-xs text-muted-foreground">
+                      {format(new Date(registration.registeredAt), 'MMM dd, HH:mm')}
                     </div>
                     
-                    <div className="w-20">
+                    <div className="sm:w-12 flex justify-end">
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                           <Button variant="ghost" size="icon" className="h-8 w-8">
                             <MoreHorizontal className="h-4 w-4" />
+                            <span className="sr-only">Open menu</span>
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
@@ -607,17 +521,17 @@ export default function RegistrationsPage() {
               </div>
 
               {filteredRegistrations.length === 0 && (
-                <div className="text-center py-8 text-muted-foreground">
-                  No registrations found matching your criteria.
+                <div className="text-center py-12 text-muted-foreground">
+                  <p className="text-sm font-medium">No registrations found matching your criteria.</p>
                 </div>
               )}
             </TabsContent>
 
-            <TabsContent value="summary" className="space-y-4">
+            <TabsContent value="summary" className="space-y-4 pt-1">
               <div className="grid gap-4 md:grid-cols-2">
                 <Card>
-                  <CardHeader>
-                    <CardTitle className="text-lg">Registration Timeline</CardTitle>
+                  <CardHeader className="pb-3">
+                    <CardTitle className="text-base">Recent Registrations</CardTitle>
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-3">
@@ -625,12 +539,12 @@ export default function RegistrationsPage() {
                         .sort((a, b) => new Date(b.registeredAt).getTime() - new Date(a.registeredAt).getTime())
                         .slice(0, 5)
                         .map((registration) => (
-                          <div key={registration.id} className="flex items-center justify-between">
+                          <div key={registration.id} className="flex items-center justify-between text-xs">
                             <div className="flex items-center gap-2">
-                              <div className="h-2 w-2 bg-brand-primary rounded-full" />
-                              <span className="text-sm font-medium">{registration.name}</span>
+                              <div className="h-2 w-2 bg-primary rounded-full" />
+                              <span className="font-medium text-foreground">{registration.name}</span>
                             </div>
-                            <span className="text-xs text-muted-foreground">
+                            <span className="text-muted-foreground">
                               {format(new Date(registration.registeredAt), 'MMM dd, HH:mm')}
                             </span>
                           </div>
@@ -640,23 +554,23 @@ export default function RegistrationsPage() {
                 </Card>
                 
                 <Card>
-                  <CardHeader>
-                    <CardTitle className="text-lg">Group Distribution</CardTitle>
+                  <CardHeader className="pb-3">
+                    <CardTitle className="text-base">Group Distribution</CardTitle>
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-3">
                       {groupOptions.slice(1).map((group) => {
                         const count = registrations.filter(r => r.group === group).length;
-                        const percentage = (count / registrations.length) * 100;
+                        const percentage = registrations.length > 0 ? (count / registrations.length) * 100 : 0;
                         return (
-                          <div key={group} className="space-y-1">
-                            <div className="flex justify-between text-sm">
-                              <span>{group}</span>
-                              <span>{count}</span>
+                          <div key={group} className="space-y-1 text-xs">
+                            <div className="flex justify-between">
+                              <span className="text-muted-foreground">{group}</span>
+                              <span className="font-medium text-foreground">{count}</span>
                             </div>
-                            <div className="w-full bg-muted rounded-full h-2">
+                            <div className="w-full bg-muted rounded-full h-1.5 overflow-hidden">
                               <div 
-                                className="bg-brand-primary h-2 rounded-full" 
+                                className="bg-primary h-1.5 rounded-full" 
                                 style={{ width: `${percentage}%` }}
                               />
                             </div>

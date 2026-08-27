@@ -96,8 +96,8 @@ export function AdvancedFilters({ onFilterChange, categories = [], prayerTeams =
           Advanced Filters
           {activeFilterCount > 0 && (
             <Badge 
-              variant="neutral" 
-              className="ml-2 h-5 w-5 rounded-full p-0 flex items-center justify-center bg-brand-primary text-white"
+              variant="primary" 
+              className="ml-2 h-5 min-w-5 rounded-full px-1.5 py-0 text-xs"
             >
               {activeFilterCount}
             </Badge>
@@ -128,10 +128,7 @@ export function AdvancedFilters({ onFilterChange, categories = [], prayerTeams =
                 <Badge
                   key={option.value}
                   variant={filters.status.includes(option.value) ? "primary" : "neutral"}
-                  className={cn(
-                    "cursor-pointer hover:opacity-80",
-                    filters.status.includes(option.value) && "bg-brand-primary text-white hover:bg-brand-primary/90"
-                  )}
+                  className="cursor-pointer transition-opacity hover:opacity-80"
                   onClick={() => toggleArrayFilter('status', option.value)}
                 >
                   {option.label}
@@ -151,10 +148,7 @@ export function AdvancedFilters({ onFilterChange, categories = [], prayerTeams =
                 <Badge
                   key={option.value}
                   variant={filters.priority.includes(option.value) ? "primary" : "neutral"}
-                  className={cn(
-                    "cursor-pointer hover:opacity-80",
-                    filters.priority.includes(option.value) && "bg-brand-primary text-white hover:bg-brand-primary/90"
-                  )}
+                  className="cursor-pointer transition-opacity hover:opacity-80"
                   onClick={() => toggleArrayFilter('priority', option.value)}
                 >
                   {option.label}
@@ -175,10 +169,7 @@ export function AdvancedFilters({ onFilterChange, categories = [], prayerTeams =
                   <Badge
                     key={category.id}
                     variant={filters.category.includes(category.id) ? "primary" : "neutral"}
-                    className={cn(
-                      "cursor-pointer hover:opacity-80",
-                      filters.category.includes(category.id) && "bg-brand-primary text-white hover:bg-brand-primary/90"
-                    )}
+                    className="cursor-pointer transition-opacity hover:opacity-80"
                     onClick={() => toggleArrayFilter('category', category.id)}
                   >
                     {category.name}

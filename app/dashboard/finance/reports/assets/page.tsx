@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -257,10 +258,12 @@ export default function AssetReportsPage() {
         <Button
           variant="outline"
           size="icon"
-          className="h-12 w-12"
-          onClick={() => router.back()}
+          className="h-9 w-9"
+          asChild
         >
-          <ArrowLeft className="h-4 w-4" />
+          <Link href="/dashboard/finance/reports" aria-label="Back to Finance Reports">
+            <ArrowLeft className="h-4 w-4" />
+          </Link>
         </Button>
         <PageHeader title="Asset Reports" />
       </div>
@@ -297,43 +300,36 @@ export default function AssetReportsPage() {
           title="Total Value"
           value={`₵${assetSummary.totalCurrentValue.toLocaleString()}`}
           icon={Package}
-          description="Current value"
         />
         <StatCard
           title="Original Value"
           value={`₵${assetSummary.totalOriginalValue.toLocaleString()}`}
           icon={BarChart3}
-          description="Purchase value"
         />
         <StatCard
           title="Depreciation"
           value={`₵${assetSummary.totalDepreciation.toLocaleString()}`}
           icon={TrendingDown}
-          description={`${assetSummary.depreciationRate}% rate`}
         />
         <StatCard
           title="Maintenance"
           value={`₵${assetSummary.totalMaintenanceCosts.toLocaleString()}`}
           icon={Settings}
-          description="This year"
         />
         <StatCard
           title="Total Assets"
           value={assetSummary.totalAssets}
           icon={Building}
-          description="All categories"
         />
         <StatCard
           title="Average Age"
           value={assetSummary.averageAge}
           icon={Calendar}
-          description="Years"
         />
         <StatCard
           title="Alerts"
           value={maintenanceAlerts.length}
           icon={AlertTriangle}
-          description="Pending"
         />
       </div>
 

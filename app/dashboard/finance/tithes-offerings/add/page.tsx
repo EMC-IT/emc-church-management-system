@@ -123,8 +123,8 @@ export default function AddTitheOfferingPage() {
     <div className="space-y-6 max-w-6xl">
       {/* Page Header with Back Navigation */}
       <div className="flex items-center gap-4">
-        <Button variant="ghost" size="icon" asChild>
-          <Link href="/dashboard/finance/tithes-offerings">
+        <Button variant="outline" size="icon" className="h-9 w-9" asChild>
+          <Link href="/dashboard/finance/tithes-offerings" aria-label="Back to Tithes & Offerings">
             <ArrowLeft className="h-4 w-4" />
           </Link>
         </Button>
@@ -308,10 +308,12 @@ export default function AddTitheOfferingPage() {
                 <Button
                   type="button"
                   variant="outline"
-                  onClick={() => router.push('/dashboard/finance/tithes-offerings')}
+                  asChild
                   disabled={isSubmitting}
                 >
-                  Cancel
+                  <Link href="/dashboard/finance/tithes-offerings">
+                    Cancel
+                  </Link>
                 </Button>
                 <Button type="submit" disabled={isSubmitting}>
                   {isSubmitting ? (

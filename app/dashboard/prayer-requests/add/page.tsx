@@ -22,7 +22,8 @@ import {
   AlertCircle,
   CheckCircle2,
   Users,
-  Save
+  Save,
+  Loader2
 } from 'lucide-react';
 import Link from 'next/link';
 
@@ -99,11 +100,8 @@ export default function AddPrayerRequestPage() {
     setIsSubmitting(true);
     
     try {
-      // TODO: Replace with actual API call
-      console.log('Submitting prayer request:', data);
-      
       // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      await new Promise(resolve => setTimeout(resolve, 1000));
       
       toast({
         title: 'Prayer Request Submitted',
@@ -111,7 +109,7 @@ export default function AddPrayerRequestPage() {
       });
       
       router.push('/dashboard/prayer-requests');
-    } catch (error) {
+    } catch {
       toast({
         title: 'Error',
         description: 'Failed to submit prayer request. Please try again.',
@@ -125,15 +123,13 @@ export default function AddPrayerRequestPage() {
   return (
     <div className="space-y-6 max-w-6xl">
       {/* Header with back button */}
-      <div className="flex items-center gap-4">
-        <Button variant="ghost" size="icon" asChild>
-          <Link href="/dashboard/prayer-requests">
+      <div className="flex items-center gap-3">
+        <Button variant="outline" size="icon" className="h-9 w-9" asChild>
+          <Link href="/dashboard/prayer-requests" aria-label="Go back">
             <ArrowLeft className="h-4 w-4" />
           </Link>
         </Button>
-        <div>
-          <h1 className="font-heading text-2xl font-bold tracking-tight">Submit Prayer Request</h1>
-        </div>
+        <h1 className="font-heading text-2xl font-bold tracking-tight">Submit Prayer Request</h1>
       </div>
 
       <Form {...form}>

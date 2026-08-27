@@ -326,8 +326,8 @@ export default function EditGivingPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div className="flex items-center gap-4">
-          <Button variant="ghost" size="icon" asChild>
-            <Link href={`/dashboard/members/${member.id}/giving`}>
+          <Button variant="outline" size="icon" className="h-9 w-9" asChild>
+            <Link href={`/dashboard/members/${member.id}/giving/${giving.id}`} aria-label="Back to Giving Record Details">
               <ArrowLeft className="h-4 w-4" />
             </Link>
           </Button>
@@ -497,10 +497,12 @@ export default function EditGivingPage() {
           <Button
             type="button"
             variant="outline"
-            onClick={() => router.push(`/dashboard/members/${memberId}/giving`)}
+            asChild
             disabled={saving}
           >
-            Cancel
+            <Link href={`/dashboard/members/${memberId}/giving/${givingId}`}>
+              Cancel
+            </Link>
           </Button>
           <Button type="submit" disabled={saving}>
             <Save className="mr-1.5 h-4 w-4" />

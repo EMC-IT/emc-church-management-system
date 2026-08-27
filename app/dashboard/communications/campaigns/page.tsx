@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -236,10 +237,12 @@ export default function CampaignsPage() {
         <Button
           variant="outline"
           size="icon"
-          className="h-12 w-12"
-          onClick={() => router.back()}
+          className="h-9 w-9"
+          asChild
         >
-          <ArrowLeft className="h-4 w-4" />
+          <Link href="/dashboard/communications" aria-label="Back to Communications">
+            <ArrowLeft className="h-4 w-4" />
+          </Link>
         </Button>
 
         <div className="flex-1">
@@ -254,28 +257,24 @@ export default function CampaignsPage() {
           value={summaryStats.totalCampaigns}
           icon={Send}
           accent="primary"
-          description="All campaigns"
         />
         <StatCard
           title="Completed"
           value={summaryStats.completed}
           icon={CheckCircle}
           accent="secondary"
-          description="Successfully sent"
         />
         <StatCard
           title="Total Sent"
           value={summaryStats.totalSent}
           icon={TrendingUp}
           accent="success"
-          description="Messages delivered"
         />
         <StatCard
           title="Avg Open Rate"
           value={`${summaryStats.avgOpenRate}%`}
           icon={BarChart3}
           accent="accent"
-          description="Campaign engagement"
         />
       </div>
 

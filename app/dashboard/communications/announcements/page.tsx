@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -176,10 +177,12 @@ export default function AnnouncementsPage() {
         <Button
           variant="outline"
           size="icon"
-          className="h-12 w-12"
-          onClick={() => router.back()}
+          className="h-9 w-9"
+          asChild
         >
-          <ArrowLeft className="h-4 w-4" />
+          <Link href="/dashboard/communications" aria-label="Back to Communications">
+            <ArrowLeft className="h-4 w-4" />
+          </Link>
         </Button>
         
         <div className="flex items-center gap-3">
@@ -196,20 +199,17 @@ export default function AnnouncementsPage() {
           title="Total Announcements"
           value={summaryStats.totalAnnouncements}
           icon={Megaphone}
-          description="Active announcements"
         />
         <StatCard
           title="Published"
           value={summaryStats.published}
           icon={CheckCircle}
           accent="success"
-          description="Live announcements"
         />
         <StatCard
           title="Total Views"
           value={summaryStats.totalViews}
           icon={Eye}
-          description="Across all announcements"
         />
       </div>
 

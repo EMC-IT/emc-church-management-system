@@ -1,12 +1,13 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { PageHeader } from '@/components/ui/page-header';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { StatusBadge, PriorityBadge } from '@/components/ui/status-badge';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Textarea } from '@/components/ui/textarea';
@@ -26,12 +27,10 @@ import {
   AlertCircle,
   Mail,
   Phone,
-  User,
   TrendingUp,
   FileText,
   Share2
 } from 'lucide-react';
-import Link from 'next/link';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -108,11 +107,11 @@ const mockPrayerRequest = {
   ],
 };
 
-const PRAYER_STATUSES = [
-  { value: 'New', label: 'New', icon: AlertCircle, color: 'primary' },
-  { value: 'In Progress', label: 'In Progress', icon: Clock, color: 'neutral' },
-  { value: 'Answered', label: 'Answered', icon: CheckCircle2, color: 'primary' },
-  { value: 'Closed', label: 'Closed', icon: CheckCircle2, color: 'neutral' },
+const PRAYER_STATUS_OPTIONS = [
+  { value: 'New', label: 'New' },
+  { value: 'In Progress', label: 'In Progress' },
+  { value: 'Answered', label: 'Answered' },
+  { value: 'Closed', label: 'Closed' },
 ];
 
 export default function PrayerRequestDetailsPage() {
@@ -125,9 +124,6 @@ export default function PrayerRequestDetailsPage() {
 
   const handleStatusChange = async (status: string) => {
     try {
-      // TODO: Replace with actual API call
-      console.log('Updating status to:', status);
-      
       setPrayerRequest({ ...prayerRequest, status });
       setNewStatus(status);
       
@@ -135,7 +131,7 @@ export default function PrayerRequestDetailsPage() {
         title: 'Status Updated',
         description: `Prayer request status updated to ${status}`,
       });
-    } catch (error) {
+    } catch {
       toast({
         title: 'Error',
         description: 'Failed to update status',
@@ -148,7 +144,6 @@ export default function PrayerRequestDetailsPage() {
     if (!newComment.trim()) return;
     
     try {
-      // TODO: Replace with actual API call
       const newCommentObj = {
         id: `c${Date.now()}`,
         user: 'Current User',
@@ -167,7 +162,7 @@ export default function PrayerRequestDetailsPage() {
         title: 'Comment Added',
         description: 'Your comment has been added successfully',
       });
-    } catch (error) {
+    } catch {
       toast({
         title: 'Error',
         description: 'Failed to add comment',
@@ -178,16 +173,13 @@ export default function PrayerRequestDetailsPage() {
 
   const handleDelete = async () => {
     try {
-      // TODO: Replace with actual API call
-      console.log('Deleting prayer request:', params.id);
-      
       toast({
         title: 'Prayer Request Deleted',
         description: 'The prayer request has been deleted successfully',
       });
       
       router.push('/dashboard/prayer-requests');
-    } catch (error) {
+    } catch {
       toast({
         title: 'Error',
         description: 'Failed to delete prayer request',
@@ -196,78 +188,54 @@ export default function PrayerRequestDetailsPage() {
     }
   };
 
-  const getPriorityColor = (priority: string) => {
-    switch (priority.toLowerCase()) {
-      case 'urgent': return 'danger';
-      case 'high': return 'danger';
-      case 'medium': return 'neutral';
-      case 'low': return 'neutral';
-      default: return 'primary';
-    }
-  };
-
-  const getStatusColor = (status: string): "primary" | "neutral" => {
-    const statusObj = PRAYER_STATUSES.find(s => s.value === status);
-    return (statusObj?.color as "primary" | "neutral") || 'primary';
-  };
-
-  const StatusIcon = PRAYER_STATUSES.find(s => s.value === prayerRequest.status)?.icon || AlertCircle;
-
   return (
     <div className="space-y-6">
-      {/* Header with back button */}
-      <div className="flex items-center gap-4">
-        <Button
-          variant="outline"
-          size="icon"
-          className="h-12 w-12"
-          onClick={() => router.back()}
-        >
-          <ArrowLeft className="h-4 w-4" />
-        </Button>
-        
-        <div className="flex items-center gap-3 flex-1">
-          <div className="p-2 bg-brand-primary/10 rounded-lg">
-            <Heart className="h-6 w-6 text-brand-primary" />
-          </div>
-          <div className="flex-1">
-            <PageHeader
-              title={prayerRequest.title}
-              actions={
-                <>
-                  <Button variant="outline" asChild>
-                    <Link href={`/dashboard/prayer-requests/${params.id}/edit`}>
-                      <Edit className="mr-2 h-4 w-4" />
-                      Edit
-                    </Link>
-                  </Button>
+      {/* Header */}
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex items-center gap-3">
+          <Button
+            variant="outline"
+            size="icon"
+            className="h-9 w-9"
+            asChild
+          >
+            <Link href="/dashboard/prayer-requests" aria-label="Back to Prayer Requests">
+              <ArrowLeft className="h-4 w-4" />
+            </Link>
+          </Button>
+          <h1 className="font-heading text-2xl font-bold tracking-tight">{prayerRequest.title}</h1>
+        </div>
 
-                  <AlertDialog>
-                    <AlertDialogTrigger asChild>
-                      <Button variant="outline" className="text-destructive hover:bg-destructive/10">
-                        <Trash2 className="mr-2 h-4 w-4" />
-                        Delete
-                      </Button>
-                    </AlertDialogTrigger>
-                    <AlertDialogContent>
-                      <AlertDialogHeader>
-                        <AlertDialogTitle>Delete Prayer Request</AlertDialogTitle>
-                        <AlertDialogDescription>
-                          Are you sure you want to delete this prayer request? This action cannot be undone.
-                        </AlertDialogDescription>
-                      </AlertDialogHeader>
-                      <AlertDialogFooter>
-                        <AlertDialogCancel>Cancel</AlertDialogCancel>
-                        <AlertDialogAction onClick={handleDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
-                          Delete
-                        </AlertDialogAction>
-                      </AlertDialogFooter>
-                    </AlertDialogContent>
-                  </AlertDialog>
-                </>
-              }
-            />
-          </div>
+        <div className="flex items-center gap-2">
+          <Button variant="outline" size="sm" asChild>
+            <Link href={`/dashboard/prayer-requests/${params.id}/edit`}>
+              <Edit className="mr-1.5 h-4 w-4" />
+              Edit
+            </Link>
+          </Button>
+
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button variant="outline" size="sm" className="text-destructive hover:bg-destructive/10">
+                <Trash2 className="mr-1.5 h-4 w-4" />
+                Delete
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Delete Prayer Request</AlertDialogTitle>
+                <AlertDialogDescription>
+                  Are you sure you want to delete this prayer request? This action cannot be undone.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <AlertDialogAction onClick={handleDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+                  Delete
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
         </div>
       </div>
 
@@ -276,29 +244,23 @@ export default function PrayerRequestDetailsPage() {
         <div className="lg:col-span-2 space-y-6">
           {/* Request Details */}
           <Card>
-            <CardHeader>
-              <div className="flex items-start justify-between">
-                <div className="space-y-1">
-                  <CardTitle className="text-2xl">{prayerRequest.title}</CardTitle>
-                  <CardDescription className="flex items-center gap-2">
-                    <Calendar className="h-3 w-3" />
+            <CardHeader className="pb-4">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                <div>
+                  <CardTitle className="text-xl font-bold">{prayerRequest.title}</CardTitle>
+                  <p className="text-xs text-muted-foreground mt-1">
                     Submitted on {new Date(prayerRequest.createdAt).toLocaleDateString('en-US', { 
                       year: 'numeric', 
                       month: 'long', 
                       day: 'numeric' 
                     })}
-                  </CardDescription>
+                  </p>
                 </div>
-                <div className="flex gap-2">
-                  <Badge variant={getPriorityColor(prayerRequest.priority)}>
-                    {prayerRequest.priority}
-                  </Badge>
-                  <Badge variant={getStatusColor(prayerRequest.status)} className="flex items-center gap-1">
-                    <StatusIcon className="h-3 w-3" />
-                    {prayerRequest.status}
-                  </Badge>
+                <div className="flex items-center gap-2 flex-wrap">
+                  <PriorityBadge priority={prayerRequest.priority.toLowerCase() as any} size="sm" />
+                  <StatusBadge status={prayerRequest.status.toLowerCase() as any} size="sm" />
                   {prayerRequest.isConfidential && (
-                    <Badge variant="neutral" className="flex items-center gap-1">
+                    <Badge variant="neutral" size="sm">
                       <Lock className="h-3 w-3" />
                       Confidential
                     </Badge>
@@ -306,38 +268,34 @@ export default function PrayerRequestDetailsPage() {
                 </div>
               </div>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-5">
               <div>
-                <h3 className="font-semibold mb-2">Description</h3>
-                <p className="text-muted-foreground leading-relaxed">
+                <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">Description</h3>
+                <p className="text-sm text-foreground leading-relaxed">
                   {prayerRequest.description}
                 </p>
               </div>
 
               <Separator />
 
-              <div className="grid grid-cols-2 gap-4 text-sm">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-sm">
                 <div>
-                  <p className="text-muted-foreground mb-1">Category</p>
-                  <p className="font-medium capitalize">{prayerRequest.category.replace('-', ' ')}</p>
+                  <p className="text-xs text-muted-foreground mb-1">Category</p>
+                  <p className="font-medium capitalize text-foreground">{prayerRequest.category.replace('-', ' ')}</p>
                 </div>
                 <div>
-                  <p className="text-muted-foreground mb-1">Prayer Count</p>
-                  <p className="font-medium flex items-center gap-1">
-                    <Heart className="h-4 w-4 text-brand-primary fill-brand-primary" />
-                    {prayerRequest.prayerCount} people praying
-                  </p>
+                  <p className="text-xs text-muted-foreground mb-1">Intercessors</p>
+                  <p className="font-medium text-foreground">{prayerRequest.prayerCount} praying</p>
                 </div>
                 <div>
-                  <p className="text-muted-foreground mb-1">Last Updated</p>
-                  <p className="font-medium">
+                  <p className="text-xs text-muted-foreground mb-1">Last Updated</p>
+                  <p className="font-medium text-foreground">
                     {new Date(prayerRequest.updatedAt).toLocaleDateString()}
                   </p>
                 </div>
                 <div>
-                  <p className="text-muted-foreground mb-1">Assigned To</p>
-                  <p className="font-medium flex items-center gap-1">
-                    <Users className="h-4 w-4" />
+                  <p className="text-xs text-muted-foreground mb-1">Assigned To</p>
+                  <p className="font-medium text-foreground">
                     {prayerRequest.assignedTo.name}
                   </p>
                 </div>
@@ -345,10 +303,10 @@ export default function PrayerRequestDetailsPage() {
 
               <Separator />
 
-              {/* Prayer Button */}
-              <Button className="w-full bg-brand-primary hover:bg-brand-primary/90">
+              {/* Prayer Action Button */}
+              <Button className="w-full">
                 <Heart className="mr-2 h-4 w-4" />
-                I'm Praying for This
+                I&apos;m Praying for This
               </Button>
             </CardContent>
           </Card>
@@ -356,37 +314,38 @@ export default function PrayerRequestDetailsPage() {
           {/* Comments & Updates Tabs */}
           <Card>
             <Tabs defaultValue="comments" className="w-full">
-              <CardHeader>
+              <CardHeader className="pb-3">
                 <TabsList className="grid w-full grid-cols-2">
                   <TabsTrigger value="comments">
-                    <MessageSquare className="mr-2 h-4 w-4" />
                     Comments ({prayerRequest.comments.length})
                   </TabsTrigger>
                   <TabsTrigger value="updates">
-                    <TrendingUp className="mr-2 h-4 w-4" />
                     Prayer Updates ({prayerRequest.prayerUpdates.length})
                   </TabsTrigger>
                 </TabsList>
               </CardHeader>
 
               <CardContent>
-                <TabsContent value="comments" className="space-y-4">
+                <TabsContent value="comments" className="space-y-4 pt-1">
                   {/* Add Comment */}
                   <div className="space-y-2">
-                    <Label>Add a Comment</Label>
+                    <Label htmlFor="new-comment" className="text-xs font-medium">Add a Comment</Label>
                     <Textarea
+                      id="new-comment"
                       placeholder="Share an update or encouragement..."
                       value={newComment}
                       onChange={(e) => setNewComment(e.target.value)}
                       rows={3}
                     />
-                    <Button 
-                      onClick={handleAddComment}
-                      disabled={!newComment.trim()}
-                      className="bg-brand-primary hover:bg-brand-primary/90"
-                    >
-                      Post Comment
-                    </Button>
+                    <div className="flex justify-end">
+                      <Button 
+                        size="sm"
+                        onClick={handleAddComment}
+                        disabled={!newComment.trim()}
+                      >
+                        Post Comment
+                      </Button>
+                    </div>
                   </div>
 
                   <Separator />
@@ -395,22 +354,22 @@ export default function PrayerRequestDetailsPage() {
                   <div className="space-y-4">
                     {prayerRequest.comments.map((comment) => (
                       <div key={comment.id} className="flex gap-3">
-                        <Avatar className="h-8 w-8">
-                          <AvatarFallback className="text-xs">
+                        <Avatar className="h-7 w-7 mt-0.5">
+                          <AvatarFallback className="text-[10px]">
                             {comment.user.split(' ').map(n => n[0]).join('')}
                           </AvatarFallback>
                         </Avatar>
                         <div className="flex-1 space-y-1">
                           <div className="flex items-center gap-2">
-                            <p className="font-semibold text-sm">{comment.user}</p>
-                            <p className="text-xs text-muted-foreground">
+                            <span className="font-medium text-sm text-foreground">{comment.user}</span>
+                            <span className="text-xs text-muted-foreground">
                               {new Date(comment.timestamp).toLocaleDateString('en-US', {
                                 month: 'short',
                                 day: 'numeric',
                                 hour: '2-digit',
                                 minute: '2-digit',
                               })}
-                            </p>
+                            </span>
                           </div>
                           <p className="text-sm text-muted-foreground">{comment.message}</p>
                         </div>
@@ -419,28 +378,23 @@ export default function PrayerRequestDetailsPage() {
                   </div>
                 </TabsContent>
 
-                <TabsContent value="updates" className="space-y-4">
-                  <div className="space-y-4">
+                <TabsContent value="updates" className="space-y-3 pt-1">
+                  <div className="space-y-2">
                     {prayerRequest.prayerUpdates.map((update) => (
-                      <div key={update.id} className="flex gap-3 p-3 rounded-lg bg-muted/50">
-                        <div className="p-2 bg-brand-primary/10 rounded-lg h-fit">
-                          <Heart className="h-4 w-4 text-brand-primary" />
-                        </div>
-                        <div className="flex-1 space-y-1">
+                      <div key={update.id} className="p-3 rounded-lg border bg-muted/30 flex items-start justify-between gap-3">
+                        <div className="space-y-1">
                           <div className="flex items-center gap-2">
-                            <p className="font-semibold text-sm">{update.user}</p>
-                            <Badge variant="neutral" className="text-xs">{update.action}</Badge>
+                            <span className="font-medium text-sm text-foreground">{update.user}</span>
+                            <Badge variant="neutral" size="sm" className="text-[10px]">{update.action}</Badge>
                           </div>
                           <p className="text-sm text-muted-foreground">{update.message}</p>
-                          <p className="text-xs text-muted-foreground">
-                            {new Date(update.timestamp).toLocaleDateString('en-US', {
-                              month: 'short',
-                              day: 'numeric',
-                              hour: '2-digit',
-                              minute: '2-digit',
-                            })}
-                          </p>
                         </div>
+                        <span className="text-xs text-muted-foreground whitespace-nowrap">
+                          {new Date(update.timestamp).toLocaleDateString('en-US', {
+                            month: 'short',
+                            day: 'numeric',
+                          })}
+                        </span>
                       </div>
                     ))}
                   </div>
@@ -454,23 +408,20 @@ export default function PrayerRequestDetailsPage() {
         <div className="space-y-6">
           {/* Status Management */}
           <Card>
-            <CardHeader>
-              <CardTitle className="text-sm">Status Management</CardTitle>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-sm font-semibold">Status</CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
-              <div className="space-y-2">
-                <Label>Update Status</Label>
+              <div className="space-y-1.5">
+                <Label htmlFor="status-select" className="text-xs text-muted-foreground">Current Status</Label>
                 <Select value={newStatus} onValueChange={handleStatusChange}>
-                  <SelectTrigger>
+                  <SelectTrigger id="status-select">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    {PRAYER_STATUSES.map((status) => (
+                    {PRAYER_STATUS_OPTIONS.map((status) => (
                       <SelectItem key={status.value} value={status.value}>
-                        <span className="flex items-center gap-2">
-                          <status.icon className="h-3 w-3" />
-                          {status.label}
-                        </span>
+                        {status.label}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -482,37 +433,37 @@ export default function PrayerRequestDetailsPage() {
           {/* Requester Info */}
           {!prayerRequest.isAnonymous && (
             <Card>
-              <CardHeader>
-                <CardTitle className="text-sm">Requester Information</CardTitle>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm font-semibold">Requester</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-3">
+              <CardContent className="space-y-4">
                 <div className="flex items-center gap-3">
-                  <Avatar>
-                    <AvatarFallback>
+                  <Avatar className="h-9 w-9">
+                    <AvatarFallback className="text-xs font-medium">
                       {prayerRequest.requester.name.split(' ').map(n => n[0]).join('')}
                     </AvatarFallback>
                   </Avatar>
                   <div>
-                    <p className="font-semibold">{prayerRequest.requester.name}</p>
+                    <p className="font-medium text-sm text-foreground">{prayerRequest.requester.name}</p>
                     <p className="text-xs text-muted-foreground">Member</p>
                   </div>
                 </div>
                 
                 <Separator />
                 
-                <div className="space-y-2 text-sm">
+                <div className="space-y-2 text-xs">
                   <div className="flex items-center gap-2 text-muted-foreground">
-                    <Mail className="h-3 w-3" />
+                    <Mail className="h-3.5 w-3.5" />
                     <span>{prayerRequest.requester.email}</span>
                   </div>
                   <div className="flex items-center gap-2 text-muted-foreground">
-                    <Phone className="h-3 w-3" />
+                    <Phone className="h-3.5 w-3.5" />
                     <span>{prayerRequest.requester.phone}</span>
                   </div>
                 </div>
 
                 <Button variant="outline" size="sm" className="w-full">
-                  <Mail className="mr-2 h-3 w-3" />
+                  <Mail className="mr-1.5 h-3.5 w-3.5" />
                   Contact Requester
                 </Button>
               </CardContent>
@@ -521,16 +472,16 @@ export default function PrayerRequestDetailsPage() {
 
           {/* Actions */}
           <Card>
-            <CardHeader>
-              <CardTitle className="text-sm">Actions</CardTitle>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-sm font-semibold">Actions</CardTitle>
             </CardHeader>
             <CardContent className="space-y-2">
               <Button variant="outline" size="sm" className="w-full justify-start">
-                <Share2 className="mr-2 h-3 w-3" />
+                <Share2 className="mr-2 h-4 w-4" />
                 Share Request
               </Button>
               <Button variant="outline" size="sm" className="w-full justify-start">
-                <FileText className="mr-2 h-3 w-3" />
+                <FileText className="mr-2 h-4 w-4" />
                 Print Request
               </Button>
             </CardContent>

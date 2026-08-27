@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -252,10 +253,12 @@ export default function BudgetReportsPage() {
         <Button
           variant="outline"
           size="icon"
-          className="h-12 w-12"
-          onClick={() => router.back()}
+          className="h-9 w-9"
+          asChild
         >
-          <ArrowLeft className="h-4 w-4" />
+          <Link href="/dashboard/finance/reports" aria-label="Back to Finance Reports">
+            <ArrowLeft className="h-4 w-4" />
+          </Link>
         </Button>
         <PageHeader title="Budget Reports" />
       </div>
@@ -292,43 +295,36 @@ export default function BudgetReportsPage() {
           title="Total Budget"
           value={`₵${budgetSummary.totalBudget.toLocaleString()}`}
           icon={Target}
-          description="Annual budget"
         />
         <StatCard
           title="Total Spent"
           value={`₵${budgetSummary.totalSpent.toLocaleString()}`}
           icon={TrendingDown}
-          description="Year to date"
         />
         <StatCard
           title="Remaining"
           value={`₵${budgetSummary.totalRemaining.toLocaleString()}`}
           icon={BarChart3}
-          description="Available budget"
         />
         <StatCard
           title="Utilization"
           value={`${budgetSummary.overallUtilization}%`}
           icon={PieChart}
-          description="Of total budget"
         />
         <StatCard
           title="Over Budget"
           value={budgetSummary.departmentsOverBudget}
           icon={XCircle}
-          description="Departments"
         />
         <StatCard
           title="On Track"
           value={budgetSummary.departmentsOnTrack}
           icon={CheckCircle}
-          description="Departments"
         />
         <StatCard
           title="Under Budget"
           value={budgetSummary.departmentsUnderBudget}
           icon={TrendingUp}
-          description="Departments"
         />
       </div>
 

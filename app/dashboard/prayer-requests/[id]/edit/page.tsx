@@ -174,7 +174,7 @@ export default function EditPrayerRequestPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
-        <Loader2 className="h-8 w-8 animate-spin text-brand-primary" />
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
       </div>
     );
   }
@@ -182,15 +182,13 @@ export default function EditPrayerRequestPage() {
   return (
     <div className="space-y-6 max-w-6xl">
       {/* Header with back button */}
-      <div className="flex items-center gap-4">
-        <Button variant="ghost" size="icon" asChild>
-          <Link href={`/dashboard/prayer-requests/${params.id}`}>
+      <div className="flex items-center gap-3">
+        <Button variant="outline" size="icon" className="h-9 w-9" asChild>
+          <Link href={`/dashboard/prayer-requests/${params.id}`} aria-label="Go back">
             <ArrowLeft className="h-4 w-4" />
           </Link>
         </Button>
-        <div>
-          <h1 className="font-heading text-2xl font-bold tracking-tight">Edit Prayer Request</h1>
-        </div>
+        <h1 className="font-heading text-2xl font-bold tracking-tight">Edit Prayer Request</h1>
       </div>
 
       <Form {...form}>

@@ -5,6 +5,8 @@ import { useParams, useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Checkbox } from '@/components/ui/checkbox';
+import { StatusBadge } from '@/components/ui/status-badge';
 import { DataTable } from '@/components/ui/data-table';
 import { PageHeader } from '@/components/ui/page-header';
 import { StatCard } from '@/components/ui/stat-card';
@@ -420,35 +422,39 @@ export default function GivingPage() {
     return category.charAt(0).toUpperCase() + category.slice(1).replace(/([A-Z])/g, ' $1');
   };
 
-  const getStatusBadge = (status: GivingStatus) => {
-    switch (status) {
-      case GivingStatus.COMPLETED:
-        return <Badge variant="primary">Completed</Badge>;
-      case GivingStatus.PENDING:
-        return <Badge variant="neutral">Pending</Badge>;
-      case GivingStatus.FAILED:
-        return <Badge variant="danger">Failed</Badge>;
-      case GivingStatus.REFUNDED:
-        return <Badge variant="neutral">Refunded</Badge>;
-      case GivingStatus.CANCELLED:
-        return <Badge variant="neutral">Cancelled</Badge>;
-      default:
-        return <Badge variant="neutral">{status}</Badge>;
-    }
-  };
+  const getStatusBadge = (status: GivingStatus) => <StatusBadge status={status} />;
 
   // Table columns definition
   const columns: ColumnDef<Giving>[] = [
+    {
+      id: 'select',
+      header: ({ table }) => (
+        <Checkbox
+          checked={
+            table.getIsAllPageRowsSelected() ||
+            (table.getIsSomePageRowsSelected() && 'indeterminate')
+          }
+          onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+          aria-label="Select all"
+        />
+      ),
+      cell: ({ row }) => (
+        <Checkbox
+          checked={row.getIsSelected()}
+          onCheckedChange={(value) => row.toggleSelected(!!value)}
+          aria-label="Select row"
+        />
+      ),
+      enableSorting: false,
+      enableHiding: false,
+    },
     {
       accessorKey: 'type',
       header: 'Type',
       cell: ({ row }) => {
         const giving = row.original;
         return (
-          <div className="flex items-center space-x-2">
-            {getGivingTypeIcon(giving.type)}
-            <span className="font-medium">{getGivingTypeLabel(giving.type)}</span>
-          </div>
+          <span className="font-medium">{getGivingTypeLabel(giving.type)}</span>
         );
       },
     },
@@ -459,7 +465,7 @@ export default function GivingPage() {
         const amount = row.getValue('amount') as number;
         const currency = row.original.currency;
         return (
-          <span className="font-medium text-green-600">
+          <span className="font-medium text-brand-success">
             {formatCurrency(amount, currency)}
           </span>
         );
@@ -471,10 +477,7 @@ export default function GivingPage() {
       cell: ({ row }) => {
         const category = row.getValue('category') as GivingCategory;
         return (
-          <div className="flex items-center space-x-2">
-            {getCategoryIcon(category)}
-            <span className="text-sm">{getCategoryLabel(category)}</span>
-          </div>
+          <span className="text-sm">{getCategoryLabel(category)}</span>
         );
       },
     },
@@ -570,8 +573,8 @@ export default function GivingPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div className="flex items-center gap-4">
-          <Button variant="ghost" size="icon" asChild>
-            <Link href={`/dashboard/members/${member.id}`}>
+          <Button variant="outline" size="icon" className="h-9 w-9" asChild>
+            <Link href={`/dashboard/members/${member.id}`} aria-label="Back to Member Details">
               <ArrowLeft className="h-4 w-4" />
             </Link>
           </Button>
@@ -602,13 +605,11 @@ export default function GivingPage() {
           title="Total Given"
           value={formatCurrency(analytics.totalAmount)}
           icon={Heart}
-          description={`${analytics.totalCount} giving records`}
         />
         <StatCard
           title="Average Amount"
           value={formatCurrency(analytics.averageAmount)}
           icon={BarChart3}
-          description="Per giving record"
         />
         <StatCard
           title="This Month"
@@ -623,7 +624,6 @@ export default function GivingPage() {
           title="Top Category"
           value={analytics.topCategories[0]?.category ? getCategoryLabel(analytics.topCategories[0].category) : 'N/A'}
           icon={PieChart}
-          description={`${analytics.topCategories[0]?.percentage || 0}% of total`}
         />
       </div>
 

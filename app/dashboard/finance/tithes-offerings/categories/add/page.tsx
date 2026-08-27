@@ -30,22 +30,14 @@ const categoryFormSchema = z.object({
 
 type CategoryFormData = z.infer<typeof categoryFormSchema>;
 
-// Predefined colors for categories
+// Predefined colors for categories aligned with brand palette
 const colorOptions = [
   { value: '#2E8DB0', name: 'Brand Primary', class: 'bg-brand-primary' },
   { value: '#28ACD1', name: 'Brand Secondary', class: 'bg-brand-secondary' },
-  { value: '#C49831', name: 'Brand Accent', class: 'bg-brand-accent' },
+  { value: '#C49831', name: 'Brand Gold', class: 'bg-brand-accent' },
   { value: '#A5CF5D', name: 'Brand Success', class: 'bg-brand-success' },
-  { value: '#EF4444', name: 'Red', class: 'bg-red-500' },
-  { value: '#F97316', name: 'Orange', class: 'bg-orange-500' },
-  { value: '#EAB308', name: 'Yellow', class: 'bg-yellow-500' },
-  { value: '#22C55E', name: 'Green', class: 'bg-green-500' },
-  { value: '#06B6D4', name: 'Cyan', class: 'bg-cyan-500' },
-  { value: '#3B82F6', name: 'Blue', class: 'bg-blue-500' },
-  { value: '#6366F1', name: 'Indigo', class: 'bg-indigo-500' },
-  { value: '#8B5CF6', name: 'Violet', class: 'bg-violet-500' },
-  { value: '#EC4899', name: 'Pink', class: 'bg-pink-500' },
-  { value: '#6B7280', name: 'Gray', class: 'bg-gray-500' },
+  { value: '#1e627c', name: 'Deep Navy', class: 'bg-brand-primary-dark' },
+  { value: '#475569', name: 'Slate', class: 'bg-slate-600' },
 ];
 
 export default function AddCategoryPage() {
@@ -87,8 +79,8 @@ export default function AddCategoryPage() {
     <div className="space-y-6 max-w-6xl">
       {/* Page Header with Back Navigation */}
       <div className="flex items-center gap-4">
-        <Button variant="ghost" size="icon" asChild>
-          <Link href="/dashboard/finance/tithes-offerings/categories">
+        <Button variant="outline" size="icon" className="h-9 w-9" asChild>
+          <Link href="/dashboard/finance/tithes-offerings/categories" aria-label="Back to Categories">
             <ArrowLeft className="h-4 w-4" />
           </Link>
         </Button>
@@ -220,10 +212,12 @@ export default function AddCategoryPage() {
             <Button
               type="button"
               variant="outline"
-              onClick={() => router.push('/dashboard/finance/tithes-offerings/categories')}
+              asChild
               disabled={isSubmitting}
             >
-              Cancel
+              <Link href="/dashboard/finance/tithes-offerings/categories">
+                Cancel
+              </Link>
             </Button>
             <Button type="submit" disabled={isSubmitting}>
               {isSubmitting ? (

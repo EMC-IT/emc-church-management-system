@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { DataTable } from '@/components/ui/data-table';
 import { GivingTypeBadge } from '@/components/ui/finance-badges';
@@ -159,22 +160,38 @@ export default function TitheOfferingCategoriesPage() {
 
   const columns: ColumnDef<TitheOfferingCategory>[] = [
     {
+      id: 'select',
+      header: ({ table }) => (
+        <Checkbox
+          checked={
+            table.getIsAllPageRowsSelected() ||
+            (table.getIsSomePageRowsSelected() && 'indeterminate')
+          }
+          onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+          aria-label="Select all"
+        />
+      ),
+      cell: ({ row }) => (
+        <Checkbox
+          checked={row.getIsSelected()}
+          onCheckedChange={(value) => row.toggleSelected(!!value)}
+          aria-label="Select row"
+        />
+      ),
+      enableSorting: false,
+      enableHiding: false,
+    },
+    {
       accessorKey: 'name',
       header: 'Category',
       cell: ({ row }) => {
         const category = row.original;
         return (
-          <div className="flex items-center gap-3">
-            <div 
-              className="w-4 h-4 rounded-full" 
-              style={{ backgroundColor: category.color }}
-            />
-            <div>
-              <div className="font-medium">{category.name}</div>
-              {category.description && (
-                <div className="text-sm text-muted-foreground">{category.description}</div>
-              )}
-            </div>
+          <div>
+            <div className="font-medium">{category.name}</div>
+            {category.description && (
+              <div className="text-sm text-muted-foreground">{category.description}</div>
+            )}
           </div>
         );
       },
@@ -259,20 +276,16 @@ export default function TitheOfferingCategoriesPage() {
         <Button
           variant="outline"
           size="icon"
-          onClick={() => router.back()}
-          className="h-12 w-12"
+          className="h-9 w-9"
+          asChild
         >
-          <ArrowLeft className="h-4 w-4" />
+          <Link href="/dashboard/finance/tithes-offerings" aria-label="Back to Tithes & Offerings">
+            <ArrowLeft className="h-4 w-4" />
+          </Link>
         </Button>
         
-        <div className="flex items-center gap-3">
-          <div className="p-2 bg-brand-primary/10 rounded-lg">
-            <FolderOpen className="h-6 w-6 text-brand-primary" />
-          </div>
-          <div>
-            <h1 className="text-2xl font-bold tracking-tight">Giving Categories</h1>
-            <p className="text-muted-foreground">Manage tithe and offering categories</p>
-          </div>
+        <div>
+          <h1 className="font-heading text-2xl font-bold tracking-tight">Giving Categories</h1>
         </div>
 
         <div className="ml-auto">
@@ -301,9 +314,6 @@ export default function TitheOfferingCategoriesPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{totalCategories}</div>
-            <p className="text-xs text-muted-foreground">
-              {activeCategories} active
-            </p>
           </CardContent>
         </Card>
 
@@ -314,24 +324,16 @@ export default function TitheOfferingCategoriesPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{totalRecords}</div>
-            <p className="text-xs text-muted-foreground">
-              Across all categories
-            </p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Amount</CardTitle>
-            <div className="p-2 bg-brand-primary/10 rounded-lg">
-              <Tag className="h-6 w-6 text-brand-primary" />
-            </div>
+            <Tag className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-brand-success">{formatCurrency(totalAmount)}</div>
-            <p className="text-xs text-muted-foreground">
-              All categories combined
-            </p>
           </CardContent>
         </Card>
 
@@ -342,9 +344,6 @@ export default function TitheOfferingCategoriesPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{formatCurrency(totalAmount / totalCategories || 0)}</div>
-            <p className="text-xs text-muted-foreground">
-              Average amount
-            </p>
           </CardContent>
         </Card>
       </LazySection>

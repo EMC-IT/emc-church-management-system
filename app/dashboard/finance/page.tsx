@@ -223,7 +223,6 @@ export default function FinanceOverviewPage() {
           value={<CurrencyDisplay amount={financialSummary?.totalDonations || 0} currency="GHS" />}
           icon={TrendingUp}
           accent="success"
-          description="Donations this month"
         />
 
         <StatCard
@@ -236,7 +235,6 @@ export default function FinanceOverviewPage() {
           }
           icon={BadgeCent}
           accent="secondary"
-          description="Tithes & offerings this month"
         />
 
         <StatCard
@@ -244,7 +242,6 @@ export default function FinanceOverviewPage() {
           value={<CurrencyDisplay amount={financialSummary?.totalExpenses || 0} currency="GHS" />}
           icon={TrendingDown}
           accent="accent"
-          description="Expenses this month"
         />
 
         <StatCard
@@ -252,7 +249,6 @@ export default function FinanceOverviewPage() {
           value={<CurrencyDisplay amount={financialSummary?.netIncome || 0} currency="GHS" />}
           icon={Activity}
           accent="primary"
-          description="Net income this month"
         />
       </div>
 

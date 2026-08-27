@@ -106,8 +106,8 @@ export default function EditConvertPage() {
     <div className="space-y-6 max-w-6xl">
       {/* Header */}
       <div className="flex items-center gap-4">
-        <Button variant="ghost" size="icon" asChild>
-          <Link href={`/dashboard/members/${convertId}/convert`}>
+        <Button variant="outline" size="icon" className="h-9 w-9" asChild>
+          <Link href={`/dashboard/members/${convertId}/convert`} aria-label="Back to Convert Profile">
             <ArrowLeft className="h-4 w-4" />
           </Link>
         </Button>
@@ -286,11 +286,12 @@ export default function EditConvertPage() {
           <div className="flex items-center justify-end gap-3 pt-2">
             <Button 
               variant="outline" 
-              type="button" 
-              onClick={() => router.back()}
+              asChild
               disabled={saving}
             >
-              Cancel
+              <Link href={`/dashboard/members/${convertId}/convert`}>
+                Cancel
+              </Link>
             </Button>
             <Button type="submit" disabled={saving}>
               {saving ? (

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Link from 'next/link';
 import { useRouter, useParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -196,10 +197,12 @@ export default function AnnouncementDetailPage() {
         <Button
           variant="outline"
           size="icon"
-          className="h-12 w-12"
-          onClick={() => router.back()}
+          className="h-9 w-9"
+          asChild
         >
-          <ArrowLeft className="h-4 w-4" />
+          <Link href="/dashboard/communications/announcements" aria-label="Back to Announcements">
+            <ArrowLeft className="h-4 w-4" />
+          </Link>
         </Button>
         
         <div className="flex items-center gap-3 flex-1">

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -109,10 +110,10 @@ export default function TithesOfferingsReportsPage() {
   const [activeTab, setActiveTab] = useState('overview');
 
   const getConsistencyColor = (consistency: number) => {
-    if (consistency >= 95) return 'text-green-600';
-    if (consistency >= 80) return 'text-blue-600';
-    if (consistency >= 60) return 'text-orange-600';
-    return 'text-red-600';
+    if (consistency >= 95) return 'text-brand-success';
+    if (consistency >= 80) return 'text-brand-primary';
+    if (consistency >= 60) return 'text-brand-gold';
+    return 'text-destructive';
   };
 
   // Chart configurations
@@ -141,10 +142,12 @@ export default function TithesOfferingsReportsPage() {
         <Button
           variant="outline"
           size="icon"
-          className="h-12 w-12"
-          onClick={() => router.back()}
+          className="h-9 w-9"
+          asChild
         >
-          <ArrowLeft className="h-4 w-4" />
+          <Link href="/dashboard/finance/reports" aria-label="Back to Finance Reports">
+            <ArrowLeft className="h-4 w-4" />
+          </Link>
         </Button>
         <PageHeader title="Tithes & Offerings Reports" />
       </div>
@@ -181,49 +184,41 @@ export default function TithesOfferingsReportsPage() {
           title="Total Tithes"
           value={`₵${tithesOfferingsSummary.totalTithes.toLocaleString()}`}
           icon={Wallet}
-          description="This year"
         />
         <StatCard
           title="Total Offerings"
           value={`₵${tithesOfferingsSummary.totalOfferings.toLocaleString()}`}
           icon={Gift}
-          description="This year"
         />
         <StatCard
           title="Combined Total"
           value={`₵${tithesOfferingsSummary.combined.toLocaleString()}`}
           icon={Heart}
-          description="Tithes + Offerings"
         />
         <StatCard
           title="Tithers"
           value={tithesOfferingsSummary.tithersCount}
           icon={Users}
-          description="Active tithers"
         />
         <StatCard
           title="Offerers"
           value={tithesOfferingsSummary.offerersCount}
           icon={Gift}
-          description="Active offerers"
         />
         <StatCard
           title="Faithful Tithers"
           value={tithesOfferingsSummary.faithfulTithers}
           icon={Crown}
-          description="100% consistency"
         />
         <StatCard
           title="Avg Tithe"
           value={`₵${tithesOfferingsSummary.averageTithe}`}
           icon={BarChart3}
-          description="Per tithe"
         />
         <StatCard
           title="Avg Offering"
           value={`₵${tithesOfferingsSummary.averageOffering}`}
           icon={Target}
-          description="Per offering"
         />
       </div>
 

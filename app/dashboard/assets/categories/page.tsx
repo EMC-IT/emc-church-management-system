@@ -295,7 +295,6 @@ export default function CategoriesPage() {
           value={totalCategories}
           icon={Package}
           accent="primary"
-          description={`${activeCategories} active categories`}
         />
 
         <StatCard
@@ -303,7 +302,6 @@ export default function CategoriesPage() {
           value={totalAssets}
           icon={Package}
           accent="secondary"
-          description="Across all categories"
         />
 
         <StatCard
@@ -311,7 +309,6 @@ export default function CategoriesPage() {
           value={formatCurrency(totalValue)}
           icon={Package}
           accent="success"
-          description="Combined asset value"
         />
 
         <StatCard
@@ -319,7 +316,6 @@ export default function CategoriesPage() {
           value={totalCategories > 0 ? Math.round(totalAssets / totalCategories) : 0}
           icon={Package}
           accent="accent"
-          description="Assets per category"
         />
       </div>
 

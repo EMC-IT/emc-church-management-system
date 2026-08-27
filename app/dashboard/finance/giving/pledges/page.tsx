@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { GivingCategoryBadge } from '@/components/ui/finance-badges';
 import { StatusBadge } from '@/components/ui/status-badge';
@@ -21,7 +22,8 @@ import {
   Target,
   Eye,
   Edit,
-  Trash2
+  Trash2,
+  ArrowLeft
 } from 'lucide-react';
 import Link from 'next/link';
 import { useToast } from '@/hooks/use-toast';
@@ -225,6 +227,28 @@ export default function PledgesPage() {
 
   const columns: ColumnDef<PledgeData>[] = [
     {
+      id: 'select',
+      header: ({ table }) => (
+        <Checkbox
+          checked={
+            table.getIsAllPageRowsSelected() ||
+            (table.getIsSomePageRowsSelected() && 'indeterminate')
+          }
+          onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+          aria-label="Select all"
+        />
+      ),
+      cell: ({ row }) => (
+        <Checkbox
+          checked={row.getIsSelected()}
+          onCheckedChange={(value) => row.toggleSelected(!!value)}
+          aria-label="Select row"
+        />
+      ),
+      enableSorting: false,
+      enableHiding: false,
+    },
+    {
       accessorKey: 'receiptNumber',
       header: 'Receipt #',
       cell: ({ row }) => {
@@ -305,9 +329,9 @@ export default function PledgesPage() {
         const isOverdue = dueDate < today;
         
         return (
-          <div className={`text-sm ${isOverdue ? 'text-red-600 font-medium' : 'text-muted-foreground'}`}>
+          <div className={`text-sm ${isOverdue ? 'text-destructive font-medium' : 'text-muted-foreground'}`}>
             {dueDate.toLocaleDateString()}
-            {isOverdue && <div className="text-xs text-red-500">Overdue</div>}
+            {isOverdue && <div className="text-xs text-destructive">Overdue</div>}
           </div>
         );
       },
@@ -350,7 +374,7 @@ export default function PledgesPage() {
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem 
-                className="text-red-600"
+                className="text-destructive focus:text-destructive"
                 onClick={() => deleteDialog.openDialog(pledge)}
               >
                 <Trash2 className="mr-2 h-4 w-4" />
@@ -377,18 +401,26 @@ export default function PledgesPage() {
 
   return (
     <div className="space-y-6">
-      <PageHeader
-        title="Pledges"
-        description="Manage and track all giving pledges"
-        actions={
-          <Button asChild>
-            <Link href="/dashboard/finance/giving/pledges/add">
-              <Plus className="mr-2 h-4 w-4" />
-              Record Pledge
-            </Link>
-          </Button>
-        }
-      />
+      <div className="flex items-center gap-4">
+        <Button variant="outline" size="icon" className="h-9 w-9" asChild>
+          <Link href="/dashboard/finance/giving" aria-label="Back to Giving">
+            <ArrowLeft className="h-4 w-4" />
+          </Link>
+        </Button>
+        <div className="flex-1">
+          <PageHeader
+            title="Pledges"
+            actions={
+              <Button asChild>
+                <Link href="/dashboard/finance/giving/pledges/add">
+                  <Plus className="mr-2 h-4 w-4" />
+                  Record Pledge
+                </Link>
+              </Button>
+            }
+          />
+        </div>
+      </div>
 
       {/* Statistics Cards */}
       <LazySection
@@ -404,7 +436,6 @@ export default function PledgesPage() {
           value={totalPledges}
           icon={Target}
           accent="primary"
-          description={`${activePledges} active, ${completedPledges} completed`}
         />
 
         <StatCard
@@ -412,7 +443,6 @@ export default function PledgesPage() {
           value={formatCurrency(totalAmount)}
           icon={BadgeCent}
           accent="secondary"
-          description="All pledges combined"
         />
 
         <StatCard
@@ -420,7 +450,6 @@ export default function PledgesPage() {
           value={formatCurrency(totalPaid)}
           icon={TrendingUp}
           accent="success"
-          description={`${totalAmount > 0 ? ((totalPaid / totalAmount) * 100).toFixed(1) : 0}% of total pledged`}
         />
 
         <StatCard
@@ -428,13 +457,6 @@ export default function PledgesPage() {
           value={formatCurrency(totalRemaining)}
           icon={Calendar}
           accent="accent"
-          description={
-            overduePledges > 0 ? (
-              <span className="text-red-600">{overduePledges} overdue</span>
-            ) : (
-              'All on track'
-            )
-          }
         />
       </LazySection>
 

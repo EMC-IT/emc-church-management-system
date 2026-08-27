@@ -177,7 +177,7 @@ export default function GroupEventsPage() {
         <StatCard title="Total Events" value={events.length} icon={CalendarDays} />
         <StatCard title="Upcoming" value={upcoming} icon={Calendar} />
         <StatCard title="Total Registrations" value={totalAttendees} icon={Users} />
-        <StatCard title="Avg Attendance" value={averageAttendance} icon={UserCheck} description="Per event" />
+        <StatCard title="Avg Attendance" value={averageAttendance} icon={UserCheck} />
       </div>
 
       {/* Events List */}

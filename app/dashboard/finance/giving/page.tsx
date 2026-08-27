@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { PageHeader } from '@/components/ui/page-header';
 import { StatCard } from '@/components/ui/stat-card';
 import { Badge } from '@/components/ui/badge';
+import { Checkbox } from '@/components/ui/checkbox';
 import { StatusBadge } from '@/components/ui/status-badge';
 import { DataTable } from '@/components/ui/data-table';
 import { SearchInput } from '@/components/ui/search-input';
@@ -173,15 +174,15 @@ export default function GivingOverviewPage() {
   const getTypeIcon = (type: GivingType) => {
     switch (type) {
       case GivingType.TITHE:
-        return <BadgeCent className="h-4 w-4 text-blue-500" />;
+        return <BadgeCent className="h-4 w-4 text-brand-primary" />;
       case GivingType.OFFERING:
-        return <Gift className="h-4 w-4 text-green-500" />;
+        return <Gift className="h-4 w-4 text-brand-success" />;
       case GivingType.DONATION:
-        return <Heart className="h-4 w-4 text-red-500" />;
+        return <Heart className="h-4 w-4 text-brand-gold" />;
       case GivingType.PLEDGE:
-        return <Target className="h-4 w-4 text-purple-500" />;
+        return <Target className="h-4 w-4 text-brand-secondary" />;
       default:
-        return <BadgeCent className="h-4 w-4 text-gray-500" />;
+        return <BadgeCent className="h-4 w-4 text-muted-foreground" />;
     }
   };
 
@@ -189,15 +190,34 @@ export default function GivingOverviewPage() {
 
   const columns: ColumnDef<Giving>[] = [
     {
+      id: 'select',
+      header: ({ table }) => (
+        <Checkbox
+          checked={
+            table.getIsAllPageRowsSelected() ||
+            (table.getIsSomePageRowsSelected() && 'indeterminate')
+          }
+          onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+          aria-label="Select all"
+        />
+      ),
+      cell: ({ row }) => (
+        <Checkbox
+          checked={row.getIsSelected()}
+          onCheckedChange={(value) => row.toggleSelected(!!value)}
+          aria-label="Select row"
+        />
+      ),
+      enableSorting: false,
+      enableHiding: false,
+    },
+    {
       accessorKey: 'type',
       header: 'Type',
       cell: ({ row }) => {
         const giving = row.original;
         return (
-          <div className="flex items-center space-x-2">
-            {getTypeIcon(giving.type)}
-            <span className="font-medium capitalize">{giving.type.replace('_', ' ')}</span>
-          </div>
+          <span className="font-medium capitalize">{giving.type.replace('_', ' ')}</span>
         );
       },
     },
@@ -297,7 +317,6 @@ export default function GivingOverviewPage() {
           value={formatCurrency(stats.totalAmount)}
           icon={BadgeCent}
           accent="primary"
-          description={`${stats.totalCount} transactions`}
         />
 
         <StatCard
@@ -313,7 +332,6 @@ export default function GivingOverviewPage() {
           value={formatCurrency(stats.averageAmount)}
           icon={Users}
           accent="success"
-          description="Per transaction"
         />
 
         <StatCard
@@ -321,7 +339,6 @@ export default function GivingOverviewPage() {
           value="25"
           icon={Target}
           accent="accent"
-          description={`${formatCurrency(45000)} committed`}
         />
       </LazySection>
 

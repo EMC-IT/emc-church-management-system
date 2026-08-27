@@ -127,7 +127,6 @@ export default function GroupDetailsPage() {
           title="Members"
           value={`${group.members} / ${group.maxMembers}`}
           icon={Users}
-          description={`${Math.round((group.members / group.maxMembers) * 100)}% capacity`}
         />
         <StatCard
           title="Engagement"

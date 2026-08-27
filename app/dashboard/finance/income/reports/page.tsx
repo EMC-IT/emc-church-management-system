@@ -354,15 +354,8 @@ export default function IncomeReportsPage() {
         skeletonCount={1}
         threshold={0.1}
       >
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center">
-              <Filter className="mr-2 h-5 w-5" />
-              Report Filters
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <Card className="p-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               {/* Date Range */}
               <div className="space-y-2">
                 <Label>Date Range</Label>
@@ -450,7 +443,6 @@ export default function IncomeReportsPage() {
                 </div>
               </div>
             </div>
-          </CardContent>
         </Card>
       </LazySection>
 
@@ -468,7 +460,6 @@ export default function IncomeReportsPage() {
           value={formatCurrency(summaryStats.totalReceived)}
           icon={BadgeCent}
           accent="success"
-          description={`${summaryStats.receivedCount} transactions`}
         />
 
         <StatCard
@@ -476,7 +467,6 @@ export default function IncomeReportsPage() {
           value={formatCurrency(summaryStats.totalPending)}
           icon={TrendingUp}
           accent="accent"
-          description={`${summaryStats.pendingCount} pending`}
         />
 
         <StatCard
@@ -484,7 +474,6 @@ export default function IncomeReportsPage() {
           value={summaryStats.totalRecords}
           icon={FileText}
           accent="primary"
-          description="Income entries"
         />
 
         <StatCard
@@ -492,7 +481,6 @@ export default function IncomeReportsPage() {
           value={formatCurrency(summaryStats.avgIncome)}
           icon={BarChart3}
           accent="secondary"
-          description="Per transaction"
         />
       </LazySection>
 

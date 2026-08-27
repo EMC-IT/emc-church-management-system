@@ -489,27 +489,23 @@ export default function PermissionsPage() {
           title="Total Permissions"
           value={totalCount}
           icon={Shield}
-          description={`Across ${permissionCategories.length} categories`}
         />
         <StatCard
           title="Selected"
           value={selectedCount}
           icon={CheckSquare}
           accent="primary"
-          description={`${Math.round((selectedCount / totalCount) * 100)}% of total`}
         />
         <StatCard
           title="Categories"
           value={permissionCategories.length}
           icon={Folder}
-          description="Feature categories"
         />
         <StatCard
           title="Coverage"
           value={permissionCategories.filter(c => isCategoryFullySelected(c.id)).length}
           icon={TrendingUp}
           accent="success"
-          description="Fully enabled categories"
         />
       </div>
 

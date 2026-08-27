@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { GivingCategoryBadge, PaymentMethodBadge } from '@/components/ui/finance-badges';
 import { StatusBadge } from '@/components/ui/status-badge';
@@ -23,7 +24,8 @@ import {
   Eye,
   Edit,
   Trash2,
-  Download
+  Download,
+  ArrowLeft
 } from 'lucide-react';
 import Link from 'next/link';
 import { useToast } from '@/hooks/use-toast';
@@ -255,6 +257,28 @@ export default function DonationsPage() {
 
   const columns: ColumnDef<Giving>[] = [
     {
+      id: 'select',
+      header: ({ table }) => (
+        <Checkbox
+          checked={
+            table.getIsAllPageRowsSelected() ||
+            (table.getIsSomePageRowsSelected() && 'indeterminate')
+          }
+          onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+          aria-label="Select all"
+        />
+      ),
+      cell: ({ row }) => (
+        <Checkbox
+          checked={row.getIsSelected()}
+          onCheckedChange={(value) => row.toggleSelected(!!value)}
+          aria-label="Select row"
+        />
+      ),
+      enableSorting: false,
+      enableHiding: false,
+    },
+    {
       accessorKey: 'receiptNumber',
       header: 'Receipt #',
       cell: ({ row }) => {
@@ -348,7 +372,7 @@ export default function DonationsPage() {
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem 
-                className="text-red-600"
+                className="text-destructive focus:text-destructive"
                 onClick={() => deleteDialog.openDialog(donation)}
               >
                 <Trash2 className="mr-2 h-4 w-4" />
@@ -376,24 +400,32 @@ export default function DonationsPage() {
 
   return (
     <div className="space-y-6">
-      <PageHeader
-        title="Donations"
-        description="Manage and track all giving donations"
-        actions={
-          <>
-            <Button variant="outline" onClick={handleExport}>
-              <Download className="mr-2 h-4 w-4" />
-              Export
-            </Button>
-            <Button asChild>
-              <Link href="/dashboard/finance/giving/donations/add">
-                <Plus className="mr-2 h-4 w-4" />
-                Record Donation
-              </Link>
-            </Button>
-          </>
-        }
-      />
+      <div className="flex items-center gap-4">
+        <Button variant="outline" size="icon" className="h-9 w-9" asChild>
+          <Link href="/dashboard/finance/giving" aria-label="Back to Giving">
+            <ArrowLeft className="h-4 w-4" />
+          </Link>
+        </Button>
+        <div className="flex-1">
+          <PageHeader
+            title="Donations"
+            actions={
+              <>
+                <Button variant="outline" onClick={handleExport}>
+                  <Download className="mr-2 h-4 w-4" />
+                  Export
+                </Button>
+                <Button asChild>
+                  <Link href="/dashboard/finance/giving/donations/add">
+                    <Plus className="mr-2 h-4 w-4" />
+                    Record Donation
+                  </Link>
+                </Button>
+              </>
+            }
+          />
+        </div>
+      </div>
 
       {/* Statistics Cards */}
       <LazySection
@@ -409,7 +441,6 @@ export default function DonationsPage() {
           value={totalDonations}
           icon={BadgeCent}
           accent="primary"
-          description={`${completedDonations} completed, ${pendingDonations} pending`}
         />
 
         <StatCard
@@ -417,7 +448,6 @@ export default function DonationsPage() {
           value={formatCurrency(totalAmount)}
           icon={TrendingUp}
           accent="success"
-          description="All donations combined"
         />
 
         <StatCard
@@ -425,7 +455,6 @@ export default function DonationsPage() {
           value={formatCurrency(averageAmount)}
           icon={Users}
           accent="secondary"
-          description="Per donation"
         />
 
         <StatCard
@@ -433,7 +462,6 @@ export default function DonationsPage() {
           value={formatCurrency(thisMonthAmount)}
           icon={CalendarIcon}
           accent="accent"
-          description={`${thisMonthDonations.length} donations`}
         />
       </LazySection>
 

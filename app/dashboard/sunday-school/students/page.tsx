@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -32,7 +33,6 @@ import {
   ArrowLeft,
   Calendar
 } from 'lucide-react';
-import Link from 'next/link';
 import { sundaySchoolService } from '@/services';
 import { Student } from '@/lib/types/sunday-school';
 import { toast } from 'sonner';
@@ -104,15 +104,16 @@ export default function StudentsPage() {
     <div className="space-y-6">
       {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-3">
           <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => router.push('/dashboard/sunday-school')}
-            className="text-muted-foreground hover:text-foreground"
+            variant="outline"
+            size="icon"
+            className="h-9 w-9"
+            asChild
           >
-            <ArrowLeft className="h-4 w-4 mr-1.5" />
-            Back
+            <Link href="/dashboard/sunday-school" aria-label="Back to Sunday School">
+              <ArrowLeft className="h-4 w-4" />
+            </Link>
           </Button>
           <h1 className="font-heading text-2xl font-bold tracking-tight">Sunday School Students</h1>
         </div>

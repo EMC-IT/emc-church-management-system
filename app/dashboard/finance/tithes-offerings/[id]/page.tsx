@@ -132,10 +132,12 @@ export default function TitheOfferingDetailsPage() {
           <Button
             variant="outline"
             size="icon"
-            onClick={() => router.back()}
-            className="h-12 w-12"
+            className="h-9 w-9"
+            asChild
           >
-            <ArrowLeft className="h-4 w-4" />
+            <Link href="/dashboard/finance/tithes-offerings" aria-label="Back to Tithes & Offerings">
+              <ArrowLeft className="h-4 w-4" />
+            </Link>
           </Button>
           <div>
             <h1 className="text-2xl font-bold tracking-tight">Record Not Found</h1>
@@ -153,10 +155,12 @@ export default function TitheOfferingDetailsPage() {
         <Button
           variant="outline"
           size="icon"
-          onClick={() => router.back()}
-          className="h-12 w-12"
+          className="h-9 w-9"
+          asChild
         >
-          <ArrowLeft className="h-4 w-4" />
+          <Link href="/dashboard/finance/tithes-offerings" aria-label="Back to Tithes & Offerings">
+            <ArrowLeft className="h-4 w-4" />
+          </Link>
         </Button>
         
         <div className="flex items-center gap-3">

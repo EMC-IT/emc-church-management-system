@@ -123,8 +123,8 @@ export default function MaterialDetailsPage() {
       {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-4">
-          <Button variant="ghost" size="icon" asChild>
-            <Link href="/dashboard/sunday-school/materials">
+          <Button variant="outline" size="icon" className="h-9 w-9" asChild>
+            <Link href="/dashboard/sunday-school/materials" aria-label="Back to Materials">
               <ArrowLeft className="h-4 w-4" />
             </Link>
           </Button>

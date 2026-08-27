@@ -441,51 +441,43 @@ export default function CommunicationsPage() {
               title="Messages Sent"
               value={communicationStats.messagesSent.toLocaleString()}
               icon={MessageSquare}
-              description="This month"
             />
             <StatCard
               title="Open Rate"
               value={`${communicationStats.openRate}%`}
               icon={Eye}
               accent="primary"
-              description="Average open rate"
             />
             <StatCard
               title="Active Campaigns"
               value={communicationStats.activeCampaigns}
               icon={Activity}
-              description="Running campaigns"
             />
             <StatCard
               title="Member Reach"
               value={communicationStats.memberReach}
               icon={Users}
-              description="Active subscribers"
             />
             <StatCard
               title="Delivery Rate"
               value={`${communicationStats.deliveryRate}%`}
               icon={CheckCircle}
               accent="success"
-              description="Success rate"
             />
             <StatCard
               title="Click Rate"
               value={`${communicationStats.clickRate}%`}
               icon={MousePointer}
-              description="Click-through rate"
             />
             <StatCard
               title="Response Rate"
               value={`${communicationStats.responseRate}%`}
               icon={TrendingUp}
-              description="Member responses"
             />
             <StatCard
               title="Unsubscribe Rate"
               value={`${communicationStats.unsubscribeRate}%`}
               icon={XCircle}
-              description="Monthly average"
             />
           </div>
 

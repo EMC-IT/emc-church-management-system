@@ -264,25 +264,21 @@ export default function MemberHistoryPage() {
           title="Attendance Rate"
           value={`${attendanceStats.attendanceRate}%`}
           icon={TrendingUp}
-          description={`${attendanceStats.attendedServices} of ${attendanceStats.totalServices} services`}
         />
         <StatCard
           title="Current Streak"
           value={attendanceStats.currentStreak}
           icon={CalendarDays}
-          description="consecutive services"
         />
         <StatCard
           title="Volunteer Hours"
           value={attendanceStats.volunteerHours}
           icon={Users}
-          description="hours this year"
         />
         <StatCard
           title="Events Participated"
           value={attendanceStats.eventsParticipated}
           icon={Award}
-          description="events this year"
         />
       </div>
 

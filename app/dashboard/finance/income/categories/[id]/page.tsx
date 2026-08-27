@@ -30,6 +30,7 @@ import {
 } from '@tanstack/react-table';
 
 import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { StatusBadge } from '@/components/ui/status-badge';
 import { Separator } from '@/components/ui/separator';
@@ -180,6 +181,28 @@ export default function IncomeCategoryDetailsPage() {
 
   // Table columns
   const columns: ColumnDef<IncomeRecord>[] = [
+    {
+      id: 'select',
+      header: ({ table }) => (
+        <Checkbox
+          checked={
+            table.getIsAllPageRowsSelected() ||
+            (table.getIsSomePageRowsSelected() && 'indeterminate')
+          }
+          onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+          aria-label="Select all"
+        />
+      ),
+      cell: ({ row }) => (
+        <Checkbox
+          checked={row.getIsSelected()}
+          onCheckedChange={(value) => row.toggleSelected(!!value)}
+          aria-label="Select row"
+        />
+      ),
+      enableSorting: false,
+      enableHiding: false,
+    },
     {
       accessorKey: 'description',
       header: 'Description',
@@ -462,7 +485,6 @@ export default function IncomeCategoryDetailsPage() {
           value={formatCurrency(statistics.totalIncome)}
           icon={BadgeCent}
           accent="success"
-          description="Received income only"
         />
 
         <StatCard
@@ -470,7 +492,6 @@ export default function IncomeCategoryDetailsPage() {
           value={formatCurrency(statistics.pendingIncome)}
           icon={TrendingUp}
           accent="accent"
-          description="Awaiting receipt"
         />
 
         <StatCard
@@ -478,7 +499,6 @@ export default function IncomeCategoryDetailsPage() {
           value={statistics.recordCount}
           icon={FileText}
           accent="primary"
-          description="Total entries"
         />
 
         <StatCard
@@ -490,7 +510,6 @@ export default function IncomeCategoryDetailsPage() {
           }
           icon={Calendar}
           accent="secondary"
-          description="Most recent"
         />
       </LazySection>
 

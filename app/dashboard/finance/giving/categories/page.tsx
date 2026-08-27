@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Checkbox } from '@/components/ui/checkbox';
 import { StatusBadge } from '@/components/ui/status-badge';
 import { DataTable } from '@/components/ui/data-table';
 import { SearchInput } from '@/components/ui/search-input';
@@ -29,7 +30,8 @@ import {
   BadgeCent,
   TrendingUp,
   Users,
-  PieChart
+  PieChart,
+  ArrowLeft
 } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -200,34 +202,38 @@ export default function GivingCategoriesPage() {
     }).format(amount);
   };
 
-  const getCategoryIcon = (category: GivingCategory) => {
-    switch (category) {
-      case GivingCategory.GENERAL:
-        return <BadgeCent className="h-4 w-4 text-blue-500" />;
-      case GivingCategory.BUILDING_FUND:
-        return <PieChart className="h-4 w-4 text-green-500" />;
-      case GivingCategory.MISSIONARY:
-        return <Users className="h-4 w-4 text-purple-500" />;
-      case GivingCategory.YOUTH:
-        return <TrendingUp className="h-4 w-4 text-orange-500" />;
-      default:
-        return <BadgeCent className="h-4 w-4 text-gray-500" />;
-    }
-  };
-
   const columns: ColumnDef<CategoryData>[] = [
+    {
+      id: 'select',
+      header: ({ table }) => (
+        <Checkbox
+          checked={
+            table.getIsAllPageRowsSelected() ||
+            (table.getIsSomePageRowsSelected() && 'indeterminate')
+          }
+          onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+          aria-label="Select all"
+        />
+      ),
+      cell: ({ row }) => (
+        <Checkbox
+          checked={row.getIsSelected()}
+          onCheckedChange={(value) => row.toggleSelected(!!value)}
+          aria-label="Select row"
+        />
+      ),
+      enableSorting: false,
+      enableHiding: false,
+    },
     {
       accessorKey: 'name',
       header: 'Category',
       cell: ({ row }) => {
         const category = row.original;
         return (
-          <div className="flex items-center space-x-3">
-            {getCategoryIcon(category.category)}
-            <div>
-              <div className="font-medium">{category.name}</div>
-              <div className="text-sm text-muted-foreground">{category.description}</div>
-            </div>
+          <div>
+            <div className="font-medium">{category.name}</div>
+            <div className="text-sm text-muted-foreground">{category.description}</div>
           </div>
         );
       },
@@ -297,7 +303,7 @@ export default function GivingCategoriesPage() {
               <AlertDialog>
                 <AlertDialogTrigger asChild>
                   <DropdownMenuItem
-                    className="text-red-600"
+                    className="text-destructive focus:text-destructive"
                     onSelect={(e) => e.preventDefault()}
                   >
                     <Trash2 className="mr-2 h-4 w-4" />
@@ -316,7 +322,7 @@ export default function GivingCategoriesPage() {
                     <AlertDialogCancel>Cancel</AlertDialogCancel>
                     <AlertDialogAction
                       onClick={() => handleDeleteCategory(category.id)}
-                      className="bg-red-600 hover:bg-red-700"
+                      className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
                     >
                       Delete
                     </AlertDialogAction>
@@ -337,18 +343,26 @@ export default function GivingCategoriesPage() {
 
   return (
     <div className="space-y-6">
-      <PageHeader
-        title="Giving Categories"
-        description="Manage and organize giving categories"
-        actions={
-          <Button asChild>
-            <Link href="/dashboard/finance/giving/categories/add">
-              <Plus className="mr-2 h-4 w-4" />
-              Add Category
-            </Link>
-          </Button>
-        }
-      />
+      <div className="flex items-center gap-4">
+        <Button variant="outline" size="icon" className="h-9 w-9" asChild>
+          <Link href="/dashboard/finance/giving" aria-label="Back to Giving">
+            <ArrowLeft className="h-4 w-4" />
+          </Link>
+        </Button>
+        <div className="flex-1">
+          <PageHeader
+            title="Giving Categories"
+            actions={
+              <Button asChild>
+                <Link href="/dashboard/finance/giving/categories/add">
+                  <Plus className="mr-2 h-4 w-4" />
+                  Add Category
+                </Link>
+              </Button>
+            }
+          />
+        </div>
+      </div>
 
       {/* Summary Cards */}
       <LazySection
@@ -364,7 +378,6 @@ export default function GivingCategoriesPage() {
           value={categories.length}
           icon={PieChart}
           accent="primary"
-          description={`${activeCategories} active`}
         />
 
         <StatCard
@@ -372,7 +385,6 @@ export default function GivingCategoriesPage() {
           value={formatCurrency(totalAmount)}
           icon={BadgeCent}
           accent="success"
-          description="Across all categories"
         />
 
         <StatCard
@@ -380,7 +392,6 @@ export default function GivingCategoriesPage() {
           value={totalTransactions}
           icon={TrendingUp}
           accent="secondary"
-          description="All time"
         />
       </LazySection>
 

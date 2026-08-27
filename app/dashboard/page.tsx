@@ -158,7 +158,6 @@ export default function DashboardPage() {
           title="Upcoming Events"
           value="8"
           icon={Calendar}
-          description="Scheduled this month"
         />
       </div>
 

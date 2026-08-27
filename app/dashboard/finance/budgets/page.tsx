@@ -242,7 +242,6 @@ export default function BudgetsPage() {
           value={`₵${totalBudget.toLocaleString()}`}
           icon={Target}
           accent="primary"
-          description="Allocated this quarter"
         />
 
         <StatCard
@@ -250,7 +249,6 @@ export default function BudgetsPage() {
           value={`₵${totalSpent.toLocaleString()}`}
           icon={BadgeCent}
           accent="secondary"
-          description="Spent so far"
         />
 
         <StatCard
@@ -258,7 +256,6 @@ export default function BudgetsPage() {
           value={`₵${(totalBudget - totalSpent).toLocaleString()}`}
           icon={Calendar}
           accent="success"
-          description="Available to spend"
         />
 
         <Card>

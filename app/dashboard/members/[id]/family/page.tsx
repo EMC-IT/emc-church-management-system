@@ -358,7 +358,6 @@ export default function FamilyPage() {
           title="Total Family Members"
           value={familyMembers.length + 1}
           icon={Users}
-          description={`Including ${member.firstName} ${member.lastName}`}
         />
         <StatCard
           title="Active Members"

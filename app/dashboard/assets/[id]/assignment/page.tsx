@@ -610,14 +610,12 @@ export default function AssignmentPage() {
           value={activeAssignments.length}
           icon={CheckCircle}
           accent="success"
-          description="Currently assigned"
         />
 
         <StatCard
           title="Overdue Returns"
           value={overdueAssignments.length}
           icon={AlertTriangle}
-          description="Past return date"
         />
 
         <StatCard
@@ -625,7 +623,6 @@ export default function AssignmentPage() {
           value={returnedAssignments.length}
           icon={History}
           accent="secondary"
-          description="Completed assignments"
         />
       </div>
 

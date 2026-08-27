@@ -1,20 +1,19 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState } from 'react';
+import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { PageHeader } from '@/components/ui/page-header';
-import { Badge } from '@/components/ui/badge';
+import { StatusBadge } from '@/components/ui/status-badge';
+import { EventCategoryBadge } from '@/components/ui/category-badges';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
   ArrowLeft,
   Calendar as CalendarIcon,
   ChevronLeft,
   ChevronRight,
   Plus,
-  Filter,
   Download,
   Clock,
   MapPin,
@@ -24,7 +23,6 @@ import {
   MoreHorizontal
 } from 'lucide-react';
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isSameDay, addMonths, subMonths, startOfWeek, endOfWeek, addWeeks, subWeeks } from 'date-fns';
-import Link from 'next/link';
 import { toast } from 'sonner';
 import {
   DropdownMenu,
@@ -32,6 +30,23 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+
+// Category color token mapping
+const CATEGORY_STYLES: Record<string, string> = {
+  worship: 'bg-primary/15 text-primary border-primary/30',
+  study: 'bg-brand-success/15 text-brand-success border-brand-success/30',
+  conference: 'bg-secondary/15 text-secondary border-secondary/30',
+  outreach: 'bg-accent/15 text-accent border-accent/30',
+  prayer: 'bg-primary/15 text-primary border-primary/30',
+  children: 'bg-accent/15 text-accent border-accent/30',
+  music: 'bg-secondary/15 text-secondary border-secondary/30',
+  social: 'bg-secondary/15 text-secondary border-secondary/30',
+  training: 'bg-muted text-foreground border-border',
+};
+
+const getCategoryStyle = (category: string) => {
+  return CATEGORY_STYLES[category.toLowerCase()] || 'bg-primary/15 text-primary border-primary/30';
+};
 
 // Mock events data
 const mockEvents = [
@@ -48,7 +63,6 @@ const mockEvents = [
     attendees: 450,
     maxAttendees: 500,
     status: 'Upcoming',
-    color: 'bg-blue-500'
   },
   {
     id: '2',
@@ -63,7 +77,6 @@ const mockEvents = [
     attendees: 85,
     maxAttendees: 100,
     status: 'Upcoming',
-    color: 'bg-green-500'
   },
   {
     id: '3',
@@ -78,7 +91,6 @@ const mockEvents = [
     attendees: 0,
     maxAttendees: 200,
     status: 'Planning',
-    color: 'bg-purple-500'
   },
   {
     id: '4',
@@ -93,7 +105,6 @@ const mockEvents = [
     attendees: 25,
     maxAttendees: 50,
     status: 'Upcoming',
-    color: 'bg-orange-500'
   },
   {
     id: '5',
@@ -108,7 +119,6 @@ const mockEvents = [
     attendees: 30,
     maxAttendees: 40,
     status: 'Upcoming',
-    color: 'bg-pink-500'
   },
   {
     id: '6',
@@ -123,7 +133,6 @@ const mockEvents = [
     attendees: 60,
     maxAttendees: 80,
     status: 'Upcoming',
-    color: 'bg-yellow-500'
   },
   {
     id: '7',
@@ -138,7 +147,6 @@ const mockEvents = [
     attendees: 25,
     maxAttendees: 30,
     status: 'Upcoming',
-    color: 'bg-indigo-500'
   },
   {
     id: '8',
@@ -148,59 +156,30 @@ const mockEvents = [
     startTime: '19:00',
     endTime: '21:00',
     location: 'Conference Room',
-    category: 'Meeting',
-    organizer: 'Board Chairman',
+    category: 'Training',
+    organizer: 'Church Board',
     attendees: 12,
     maxAttendees: 15,
     status: 'Upcoming',
-    color: 'bg-gray-500'
-  },
-  {
-    id: '9',
-    title: 'Baptism Service',
-    description: 'Special baptism ceremony',
-    date: '2025-09-28',
-    startTime: '11:00',
-    endTime: '12:30',
-    location: 'Main Sanctuary',
-    category: 'Worship',
-    organizer: 'Pastor John',
-    attendees: 200,
-    maxAttendees: 300,
-    status: 'Upcoming',
-    color: 'bg-blue-500'
   }
 ];
 
-const categories = ['All', 'Worship', 'Study', 'Conference', 'Outreach', 'Prayer', 'Children', 'Music', 'Social', 'Training'];
+const categories = ['All', 'Worship', 'Study', 'Conference', 'Outreach', 'Prayer', 'Children', 'Music', 'Training'];
 
 export default function EventsCalendarPage() {
-  const router = useRouter();
-  const [currentDate, setCurrentDate] = useState(new Date());
+  const [currentDate, setCurrentDate] = useState(new Date('2025-09-01'));
   const [viewMode, setViewMode] = useState<'month' | 'week'>('month');
   const [categoryFilter, setCategoryFilter] = useState('All');
   const [selectedEvent, setSelectedEvent] = useState<any>(null);
-  const [events, setEvents] = useState(mockEvents);
 
-  const filteredEvents = events.filter(event => {
-    const matchesCategory = categoryFilter === 'All' || event.category === categoryFilter;
-    return matchesCategory;
+  const filteredEvents = mockEvents.filter(event => {
+    return categoryFilter === 'All' || event.category === categoryFilter;
   });
 
   const getEventsForDate = (date: Date) => {
     return filteredEvents.filter(event => 
       isSameDay(new Date(event.date), date)
     );
-  };
-
-  const getStatusColor = (status: string) => {
-    switch (status.toLowerCase()) {
-      case 'upcoming': return 'primary';
-      case 'planning': return 'neutral';
-      case 'completed': return 'neutral';
-      case 'cancelled': return 'danger';
-      default: return 'primary';
-    }
   };
 
   const navigateMonth = (direction: 'prev' | 'next') => {
@@ -226,7 +205,7 @@ export default function EventsCalendarPage() {
       <div className="grid grid-cols-7 gap-1">
         {/* Header */}
         {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
-          <div key={day} className="p-2 text-center font-medium text-sm text-muted-foreground border-b">
+          <div key={day} className="p-2 text-center font-medium text-xs text-muted-foreground border-b">
             {day}
           </div>
         ))}
@@ -240,13 +219,13 @@ export default function EventsCalendarPage() {
           return (
             <div
               key={day.toISOString()}
-              className={`min-h-[120px] p-1 border border-border ${
-                isCurrentMonth ? 'bg-background' : 'bg-muted/30'
-              } ${isToday ? 'bg-brand-primary/5 border-brand-primary' : ''}`}
+              className={`min-h-[110px] p-1.5 border border-border/60 rounded-md transition-colors ${
+                isCurrentMonth ? 'bg-card' : 'bg-muted/30 opacity-60'
+              } ${isToday ? 'border-primary/60 bg-primary/5' : ''}`}
             >
-              <div className={`text-sm font-medium mb-1 ${
+              <div className={`text-xs font-semibold mb-1 ${
                 isCurrentMonth ? 'text-foreground' : 'text-muted-foreground'
-              } ${isToday ? 'text-brand-primary font-bold' : ''}`}>
+              } ${isToday ? 'text-primary' : ''}`}>
                 {format(day, 'd')}
               </div>
               
@@ -254,18 +233,15 @@ export default function EventsCalendarPage() {
                 {dayEvents.slice(0, 3).map(event => (
                   <div
                     key={event.id}
-                    className={`text-xs p-1 rounded cursor-pointer hover:opacity-80 text-white ${
-                      event.color
-                    }`}
+                    className={`text-[11px] px-1.5 py-0.5 rounded border cursor-pointer hover:opacity-90 font-medium truncate ${getCategoryStyle(event.category)}`}
                     onClick={() => setSelectedEvent(event)}
                   >
-                    <div className="font-medium truncate">{event.title}</div>
-                    <div className="truncate opacity-90">{event.startTime}</div>
+                    <div className="truncate">{event.title}</div>
                   </div>
                 ))}
                 
                 {dayEvents.length > 3 && (
-                  <div className="text-xs text-muted-foreground p-1">
+                  <div className="text-[10px] text-muted-foreground px-1">
                     +{dayEvents.length - 3} more
                   </div>
                 )}
@@ -285,18 +261,18 @@ export default function EventsCalendarPage() {
     return (
       <div className="space-y-4">
         {/* Week Header */}
-        <div className="grid grid-cols-7 gap-4">
+        <div className="grid grid-cols-7 gap-3">
           {days.map(day => {
             const isToday = isSameDay(day, new Date());
             return (
-              <div key={day.toISOString()} className="text-center">
-                <div className={`text-sm font-medium ${
-                  isToday ? 'text-brand-primary' : 'text-muted-foreground'
+              <div key={day.toISOString()} className="text-center p-2 rounded-lg border border-border/50">
+                <div className={`text-xs font-medium ${
+                  isToday ? 'text-primary' : 'text-muted-foreground'
                 }`}>
                   {format(day, 'EEE')}
                 </div>
-                <div className={`text-2xl font-bold ${
-                  isToday ? 'text-brand-primary' : 'text-foreground'
+                <div className={`text-xl font-bold ${
+                  isToday ? 'text-primary' : 'text-foreground'
                 }`}>
                   {format(day, 'd')}
                 </div>
@@ -306,26 +282,26 @@ export default function EventsCalendarPage() {
         </div>
         
         {/* Week Events */}
-        <div className="grid grid-cols-7 gap-4">
+        <div className="grid grid-cols-7 gap-3">
           {days.map(day => {
             const dayEvents = getEventsForDate(day);
             
             return (
-              <div key={day.toISOString()} className="space-y-2">
+              <div key={day.toISOString()} className="space-y-2 min-h-[200px]">
                 {dayEvents.map(event => (
                   <Card
                     key={event.id}
-                    className="cursor-pointer hover:shadow-md transition-shadow"
+                    className="cursor-pointer hover:border-foreground/20 transition-colors"
                     onClick={() => setSelectedEvent(event)}
                   >
-                    <CardContent className="p-3">
-                      <div className={`w-2 h-2 rounded-full ${event.color} mb-2`} />
-                      <h4 className="font-medium text-sm mb-1">{event.title}</h4>
-                      <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                    <CardContent className="p-2.5 space-y-1">
+                      <EventCategoryBadge category={event.category} />
+                      <h4 className="font-medium text-xs truncate pt-1">{event.title}</h4>
+                      <div className="flex items-center gap-1 text-[11px] text-muted-foreground">
                         <Clock className="h-3 w-3" />
                         <span>{event.startTime}</span>
                       </div>
-                      <div className="flex items-center gap-1 text-xs text-muted-foreground mt-1">
+                      <div className="flex items-center gap-1 text-[11px] text-muted-foreground">
                         <MapPin className="h-3 w-3" />
                         <span className="truncate">{event.location}</span>
                       </div>
@@ -346,40 +322,53 @@ export default function EventsCalendarPage() {
 
   return (
     <div className="space-y-6">
-      {/* Back Navigation */}
-      <div className="flex items-center gap-4 mb-6">
-        <Button
-          variant="outline"
-          size="icon"
-          className="h-12 w-12"
-          onClick={() => router.back()}
-        >
-          <ArrowLeft className="h-4 w-4" />
-        </Button>
-        
+      {/* Header */}
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-3">
-          <div className="p-2 bg-brand-primary/10 rounded-lg">
-            <CalendarIcon className="h-6 w-6 text-brand-primary" />
-          </div>
-          <PageHeader title="Events Calendar" />
+          <Button
+            variant="outline"
+            size="icon"
+            className="h-9 w-9"
+            asChild
+          >
+            <Link href="/dashboard/events" aria-label="Back to Events">
+              <ArrowLeft className="h-4 w-4" />
+            </Link>
+          </Button>
+          <h1 className="font-heading text-2xl font-bold tracking-tight">Events Calendar</h1>
+        </div>
+
+        <div className="flex flex-wrap items-center gap-2">
+          <Button variant="outline" size="sm" onClick={exportCalendar}>
+            <Download className="mr-1.5 h-4 w-4" />
+            Export
+          </Button>
+          <Button size="sm" asChild>
+            <Link href="/dashboard/events/add">
+              <Plus className="mr-1.5 h-4 w-4" />
+              Add Event
+            </Link>
+          </Button>
         </div>
       </div>
 
       {/* Calendar Controls */}
       <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <div className="flex items-center gap-2">
+        <CardHeader className="pb-4">
+          <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+            <div className="flex items-center gap-3">
+              <div className="flex items-center gap-1">
                 <Button
                   variant="outline"
                   size="icon"
+                  className="h-8 w-8"
                   onClick={() => viewMode === 'month' ? navigateMonth('prev') : navigateWeek('prev')}
+                  aria-label="Previous"
                 >
                   <ChevronLeft className="h-4 w-4" />
                 </Button>
                 
-                <h2 className="text-xl font-semibold min-w-[200px] text-center">
+                <h2 className="text-base font-semibold min-w-[160px] text-center">
                   {viewMode === 'month' 
                     ? format(currentDate, 'MMMM yyyy')
                     : `Week of ${format(startOfWeek(currentDate), 'MMM d, yyyy')}`
@@ -389,7 +378,9 @@ export default function EventsCalendarPage() {
                 <Button
                   variant="outline"
                   size="icon"
+                  className="h-8 w-8"
                   onClick={() => viewMode === 'month' ? navigateMonth('next') : navigateWeek('next')}
+                  aria-label="Next"
                 >
                   <ChevronRight className="h-4 w-4" />
                 </Button>
@@ -397,15 +388,17 @@ export default function EventsCalendarPage() {
               
               <Button
                 variant="outline"
-                onClick={() => setCurrentDate(new Date())}
+                size="sm"
+                className="h-8"
+                onClick={() => setCurrentDate(new Date('2025-09-01'))}
               >
                 Today
               </Button>
             </div>
             
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center gap-2">
               <Select value={categoryFilter} onValueChange={setCategoryFilter}>
-                <SelectTrigger className="w-40">
+                <SelectTrigger className="w-36 h-8 text-xs">
                   <SelectValue placeholder="Category" />
                 </SelectTrigger>
                 <SelectContent>
@@ -418,23 +411,11 @@ export default function EventsCalendarPage() {
               </Select>
               
               <Tabs value={viewMode} onValueChange={(value) => setViewMode(value as 'month' | 'week')}>
-                <TabsList>
-                  <TabsTrigger value="month">Month</TabsTrigger>
-                  <TabsTrigger value="week">Week</TabsTrigger>
+                <TabsList className="h-8">
+                  <TabsTrigger value="month" className="text-xs h-7">Month</TabsTrigger>
+                  <TabsTrigger value="week" className="text-xs h-7">Week</TabsTrigger>
                 </TabsList>
               </Tabs>
-              
-              <Button variant="outline" onClick={exportCalendar}>
-                <Download className="mr-2 h-4 w-4" />
-                Export
-              </Button>
-              
-              <Button asChild className="bg-brand-primary hover:bg-brand-primary/90">
-                <Link href="/dashboard/events/add">
-                  <Plus className="mr-2 h-4 w-4" />
-                  Add Event
-                </Link>
-              </Button>
             </div>
           </div>
         </CardHeader>
@@ -448,25 +429,14 @@ export default function EventsCalendarPage() {
       <div className="grid gap-6 md:grid-cols-3">
         <div className="md:col-span-2">
           <Card>
-            <CardHeader>
-              <CardTitle>Event Legend</CardTitle>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base">Event Categories</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
-                {[
-                  { category: 'Worship', color: 'bg-blue-500' },
-                  { category: 'Study', color: 'bg-green-500' },
-                  { category: 'Conference', color: 'bg-purple-500' },
-                  { category: 'Outreach', color: 'bg-orange-500' },
-                  { category: 'Prayer', color: 'bg-pink-500' },
-                  { category: 'Children', color: 'bg-yellow-500' },
-                  { category: 'Music', color: 'bg-indigo-500' },
-                  { category: 'Social', color: 'bg-red-500' },
-                  { category: 'Training', color: 'bg-teal-500' }
-                ].map(({ category, color }) => (
-                  <div key={category} className="flex items-center gap-2">
-                    <div className={`w-3 h-3 rounded-full ${color}`} />
-                    <span className="text-sm">{category}</span>
+              <div className="flex flex-wrap gap-2">
+                {categories.filter(c => c !== 'All').map((category) => (
+                  <div key={category} className={`px-2.5 py-1 rounded border text-xs font-medium ${getCategoryStyle(category)}`}>
+                    {category}
                   </div>
                 ))}
               </div>
@@ -475,26 +445,26 @@ export default function EventsCalendarPage() {
         </div>
         
         <Card>
-          <CardHeader>
-            <CardTitle>Upcoming Events</CardTitle>
-            <CardDescription>Next 5 events</CardDescription>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-base">Upcoming Events</CardTitle>
+            <CardDescription className="text-xs">Next scheduled activities</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="space-y-3">
+            <div className="space-y-2.5">
               {filteredEvents
-                .filter(event => new Date(event.date) >= new Date())
-                .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
                 .slice(0, 5)
                 .map(event => (
-                  <div key={event.id} className="flex items-start gap-3 p-2 rounded-lg hover:bg-muted/50 cursor-pointer"
-                       onClick={() => setSelectedEvent(event)}>
-                    <div className={`w-2 h-2 rounded-full mt-2 ${event.color}`} />
+                  <div 
+                    key={event.id} 
+                    className="flex items-start gap-2.5 p-2 rounded-lg hover:bg-muted/50 cursor-pointer transition-colors"
+                    onClick={() => setSelectedEvent(event)}
+                  >
+                    <div className="w-1.5 h-1.5 rounded-full mt-1.5 bg-primary shrink-0" />
                     <div className="flex-1 min-w-0">
-                      <p className="font-medium text-sm truncate">{event.title}</p>
-                      <p className="text-xs text-muted-foreground">
+                      <p className="font-medium text-xs truncate">{event.title}</p>
+                      <p className="text-[11px] text-muted-foreground">
                         {format(new Date(event.date), 'MMM dd')} at {event.startTime}
                       </p>
-                      <p className="text-xs text-muted-foreground truncate">{event.location}</p>
                     </div>
                   </div>
                 ))}
@@ -505,20 +475,17 @@ export default function EventsCalendarPage() {
 
       {/* Event Details Modal */}
       {selectedEvent && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50" onClick={() => setSelectedEvent(null)}>
-          <Card className="w-full max-w-md mx-4" onClick={(e) => e.stopPropagation()}>
-            <CardHeader>
-              <div className="flex items-start justify-between">
-                <div>
-                  <CardTitle className="flex items-center gap-2">
-                    <div className={`w-3 h-3 rounded-full ${selectedEvent.color}`} />
-                    {selectedEvent.title}
-                  </CardTitle>
-                  <CardDescription>{selectedEvent.description}</CardDescription>
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" onClick={() => setSelectedEvent(null)}>
+          <Card className="w-full max-w-md" onClick={(e) => e.stopPropagation()}>
+            <CardHeader className="pb-3">
+              <div className="flex items-start justify-between gap-2">
+                <div className="min-w-0">
+                  <CardTitle className="text-base truncate">{selectedEvent.title}</CardTitle>
+                  <CardDescription className="text-xs line-clamp-2 mt-1">{selectedEvent.description}</CardDescription>
                 </div>
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="icon">
+                    <Button variant="ghost" size="icon" className="h-8 w-8">
                       <MoreHorizontal className="h-4 w-4" />
                     </Button>
                   </DropdownMenuTrigger>
@@ -540,42 +507,38 @@ export default function EventsCalendarPage() {
               </div>
             </CardHeader>
             <CardContent className="space-y-3">
-              <div className="flex items-center gap-2">
-                <CalendarIcon className="h-4 w-4 text-muted-foreground" />
-                <span className="text-sm">{format(new Date(selectedEvent.date), 'EEEE, MMMM dd, yyyy')}</span>
+              <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                <CalendarIcon className="h-3.5 w-3.5 shrink-0" />
+                <span>{format(new Date(selectedEvent.date), 'EEEE, MMMM dd, yyyy')}</span>
               </div>
               
-              <div className="flex items-center gap-2">
-                <Clock className="h-4 w-4 text-muted-foreground" />
-                <span className="text-sm">{selectedEvent.startTime} - {selectedEvent.endTime}</span>
+              <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                <Clock className="h-3.5 w-3.5 shrink-0" />
+                <span>{selectedEvent.startTime} - {selectedEvent.endTime}</span>
               </div>
               
-              <div className="flex items-center gap-2">
-                <MapPin className="h-4 w-4 text-muted-foreground" />
-                <span className="text-sm">{selectedEvent.location}</span>
+              <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                <MapPin className="h-3.5 w-3.5 shrink-0" />
+                <span className="truncate">{selectedEvent.location}</span>
               </div>
               
-              <div className="flex items-center gap-2">
-                <Users className="h-4 w-4 text-muted-foreground" />
-                <span className="text-sm">{selectedEvent.attendees} / {selectedEvent.maxAttendees} attendees</span>
+              <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                <Users className="h-3.5 w-3.5 shrink-0" />
+                <span>{selectedEvent.attendees} / {selectedEvent.maxAttendees} attendees</span>
               </div>
               
-              <div className="flex items-center justify-between pt-2">
-                <Badge variant={getStatusColor(selectedEvent.status)}>
-                  {selectedEvent.status}
-                </Badge>
-                <Badge variant="neutral">
-                  {selectedEvent.category}
-                </Badge>
+              <div className="flex items-center justify-between pt-2 border-t border-border/50">
+                <StatusBadge status={selectedEvent.status} />
+                <EventCategoryBadge category={selectedEvent.category} />
               </div>
               
               <div className="flex gap-2 pt-2">
-                <Button asChild className="flex-1">
+                <Button size="sm" asChild className="flex-1">
                   <Link href={`/dashboard/events/${selectedEvent.id}`}>
                     View Details
                   </Link>
                 </Button>
-                <Button variant="outline" onClick={() => setSelectedEvent(null)}>
+                <Button variant="outline" size="sm" onClick={() => setSelectedEvent(null)}>
                   Close
                 </Button>
               </div>

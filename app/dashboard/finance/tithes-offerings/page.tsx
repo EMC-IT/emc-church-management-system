@@ -18,6 +18,7 @@ import {
 } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { DataTable } from '@/components/ui/data-table';
 import { Badge } from '@/components/ui/badge';
@@ -153,6 +154,28 @@ export default function TithesOfferingsOverviewPage() {
 
   const columns: ColumnDef<TitheOfferingRecord>[] = [
     {
+      id: 'select',
+      header: ({ table }) => (
+        <Checkbox
+          checked={
+            table.getIsAllPageRowsSelected() ||
+            (table.getIsSomePageRowsSelected() && 'indeterminate')
+          }
+          onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+          aria-label="Select all"
+        />
+      ),
+      cell: ({ row }) => (
+        <Checkbox
+          checked={row.getIsSelected()}
+          onCheckedChange={(value) => row.toggleSelected(!!value)}
+          aria-label="Select row"
+        />
+      ),
+      enableSorting: false,
+      enableHiding: false,
+    },
+    {
       accessorKey: 'memberName',
       header: 'Member',
       cell: ({ row }) => {
@@ -244,7 +267,6 @@ export default function TithesOfferingsOverviewPage() {
           value={formatCurrency(titheOfferingStats.totalAmount)}
           icon={Wallet}
           accent="success"
-          description={`${titheOfferingStats.totalCount} transactions`}
         />
 
         <StatCard
@@ -263,7 +285,6 @@ export default function TithesOfferingsOverviewPage() {
           value={formatCurrency(titheOfferingStats.averageAmount)}
           icon={Heart}
           accent="primary"
-          description="Per transaction"
         />
 
         <StatCard
@@ -271,7 +292,6 @@ export default function TithesOfferingsOverviewPage() {
           value={titheOfferingStats.categoriesCount}
           icon={PieChart}
           accent="secondary"
-          description="Active categories"
         />
       </LazySection>
 

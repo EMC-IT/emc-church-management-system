@@ -160,8 +160,8 @@ export default function AddStudentsToClassPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div className="flex items-center gap-4">
-          <Button variant="ghost" size="icon" asChild>
-            <Link href={`/dashboard/sunday-school/classes/${classId}/students`}>
+          <Button variant="outline" size="icon" className="h-9 w-9" asChild>
+            <Link href={`/dashboard/sunday-school/classes/${classId}/students`} aria-label="Back to Class Students">
               <ArrowLeft className="h-4 w-4" />
             </Link>
           </Button>

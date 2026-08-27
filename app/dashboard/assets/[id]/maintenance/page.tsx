@@ -724,14 +724,12 @@ export default function MaintenancePage() {
           title="Upcoming"
           value={upcomingMaintenance.length}
           icon={Calendar}
-          description="Scheduled maintenance tasks"
         />
 
         <StatCard
           title="Overdue"
           value={overdueMaintenance.length}
           icon={AlertTriangle}
-          description="Past due maintenance"
         />
 
         <StatCard
@@ -739,7 +737,6 @@ export default function MaintenancePage() {
           value={inProgressMaintenance.length}
           icon={Clock}
           accent="secondary"
-          description="Currently being worked on"
         />
 
         <StatCard
@@ -747,7 +744,6 @@ export default function MaintenancePage() {
           value={completedMaintenance.length}
           icon={CheckCircle}
           accent="success"
-          description="Finished this year"
         />
       </div>
 

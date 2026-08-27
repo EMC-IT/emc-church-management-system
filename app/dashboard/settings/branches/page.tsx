@@ -154,25 +154,21 @@ export default function BranchesPage() {
           title="Total Branches"
           value={mockBranches.length}
           icon={Building2}
-          description={`${activeBranches} active`}
         />
         <StatCard
           title="Total Members"
           value={totalMembers}
           icon={Users}
-          description="Across all branches"
         />
         <StatCard
           title="Total Capacity"
           value={totalCapacity}
           icon={MapPin}
-          description="Combined seating"
         />
         <StatCard
           title="Average Occupancy"
           value={`${Math.round((totalMembers / totalCapacity) * 100)}%`}
           icon={Users}
-          description="Utilization rate"
         />
       </div>
 

@@ -145,8 +145,8 @@ export default function AddDonationPage() {
     <div className="space-y-6 max-w-6xl">
       {/* Header */}
       <div className="flex items-center gap-4">
-        <Button variant="ghost" size="icon" asChild>
-          <Link href="/dashboard/finance/giving/donations">
+        <Button variant="outline" size="icon" className="h-9 w-9" asChild>
+          <Link href="/dashboard/finance/giving/donations" aria-label="Back to Donations">
             <ArrowLeft className="h-4 w-4" />
           </Link>
         </Button>
@@ -324,9 +324,11 @@ export default function AddDonationPage() {
           <Button
             type="button"
             variant="outline"
-            onClick={() => router.push('/dashboard/finance/giving/donations')}
+            asChild
           >
-            Cancel
+            <Link href="/dashboard/finance/giving/donations">
+              Cancel
+            </Link>
           </Button>
           <Button type="submit" disabled={loading}>
             {loading ? (

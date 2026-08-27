@@ -233,10 +233,9 @@ export default function DonationDetailsPage() {
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center gap-4">
-        <Button variant="outline" size="sm" asChild>
-          <Link href="/dashboard/finance/giving/donations">
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Back
+        <Button variant="outline" size="icon" className="h-9 w-9" asChild>
+          <Link href="/dashboard/finance/giving/donations" aria-label="Back to Donations">
+            <ArrowLeft className="h-4 w-4" />
           </Link>
         </Button>
         <div className="flex-1">
@@ -573,7 +572,7 @@ export default function DonationDetailsPage() {
             <CardContent>
               <div className="space-y-4">
                 <div className="flex items-start space-x-3">
-                  <div className="w-2 h-2 bg-green-500 rounded-full mt-2" />
+                  <div className="w-2 h-2 bg-brand-success rounded-full mt-2" />
                   <div className="flex-1">
                     <p className="text-sm font-medium">Donation Created</p>
                     <p className="text-xs text-muted-foreground">
@@ -584,7 +583,7 @@ export default function DonationDetailsPage() {
                 
                 {donation.status === GivingStatus.COMPLETED && (
                   <div className="flex items-start space-x-3">
-                    <div className="w-2 h-2 bg-blue-500 rounded-full mt-2" />
+                    <div className="w-2 h-2 bg-brand-primary rounded-full mt-2" />
                     <div className="flex-1">
                       <p className="text-sm font-medium">Status Updated to Completed</p>
                       <p className="text-xs text-muted-foreground">

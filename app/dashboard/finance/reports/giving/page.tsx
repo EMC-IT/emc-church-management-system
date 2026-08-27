@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -46,8 +47,8 @@ const givingByCategory = [
   { category: 'Tithes', amount: 180000, percentage: 66.7, donors: 245, avgDonation: 735, color: '#2E8DB0' },
   { category: 'General Offerings', amount: 45000, percentage: 16.7, donors: 180, avgDonation: 250, color: '#C49831' },
   { category: 'Special Offerings', amount: 25000, percentage: 9.3, donors: 95, avgDonation: 263, color: '#A5CF5D' },
-  { category: 'Mission Offerings', amount: 12000, percentage: 4.4, donors: 65, avgDonation: 185, color: '#E74C3C' },
-  { category: 'Building Fund', amount: 8000, percentage: 3.0, donors: 40, avgDonation: 200, color: '#9B59B6' },
+  { category: 'Mission Offerings', amount: 12000, percentage: 4.4, donors: 65, avgDonation: 185, color: '#28ACD1' },
+  { category: 'Building Fund', amount: 8000, percentage: 3.0, donors: 40, avgDonation: 200, color: '#1e627c' },
 ];
 
 const monthlyGivingData = [
@@ -130,10 +131,12 @@ export default function GivingReportsPage() {
         <Button
           variant="outline"
           size="icon"
-          className="h-12 w-12"
-          onClick={() => router.back()}
+          className="h-9 w-9"
+          asChild
         >
-          <ArrowLeft className="h-4 w-4" />
+          <Link href="/dashboard/finance/reports" aria-label="Back to Finance Reports">
+            <ArrowLeft className="h-4 w-4" />
+          </Link>
         </Button>
         <PageHeader title="Giving Reports" />
       </div>
@@ -170,37 +173,31 @@ export default function GivingReportsPage() {
           title="Total Giving"
           value={`₵${givingSummary.totalGiving.toLocaleString()}`}
           icon={Heart}
-          description="This year"
         />
         <StatCard
           title="Monthly Average"
           value={`₵${givingSummary.monthlyAverage.toLocaleString()}`}
           icon={Calendar}
-          description="Per month"
         />
         <StatCard
           title="YoY Growth"
           value={`+${givingSummary.yearOverYearGrowth}%`}
           icon={TrendingUp}
-          description="Year over year"
         />
         <StatCard
           title="Total Givers"
           value={givingSummary.totalDonors}
           icon={Users}
-          description="Active givers"
         />
         <StatCard
           title="Average Gift"
           value={`₵${givingSummary.averageGift}`}
           icon={Gift}
-          description="Per gift"
         />
         <StatCard
           title="Recurring Givers"
           value={givingSummary.recurringGivers}
           icon={Target}
-          description={`${((givingSummary.recurringGivers / givingSummary.totalDonors) * 100).toFixed(1)}% of total`}
         />
       </div>
 

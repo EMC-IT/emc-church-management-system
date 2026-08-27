@@ -107,8 +107,8 @@ export default function ClassDetailsPage() {
       {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-4">
-          <Button variant="ghost" size="icon" asChild>
-            <Link href="/dashboard/sunday-school/classes">
+          <Button variant="outline" size="icon" className="h-9 w-9" asChild>
+            <Link href="/dashboard/sunday-school/classes" aria-label="Back to Classes">
               <ArrowLeft className="h-4 w-4" />
             </Link>
           </Button>
@@ -136,13 +136,11 @@ export default function ClassDetailsPage() {
           title="Students"
           value={students.length}
           icon={Users}
-          description={`of ${classData.maxStudents || 20} capacity`}
         />
         <StatCard
           title="Attendance Rate"
           value={`${getAttendanceRate()}%`}
           icon={TrendingUp}
-          description="Recent sessions"
         />
         <StatCard
           title="Age Group"

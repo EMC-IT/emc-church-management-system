@@ -2,17 +2,16 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { PageHeader } from '@/components/ui/page-header';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { EventCategoryBadge } from '@/components/ui/category-badges';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from '@/components/ui/dialog';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { 
   ArrowLeft, 
-  FileText, 
   Plus, 
   Search, 
   Eye, 
@@ -22,8 +21,9 @@ import {
   Clock,
   MapPin,
   Users,
-  Calendar
+  FileText
 } from 'lucide-react';
+import { toast } from 'sonner';
 
 interface EventTemplate {
   id: string;
@@ -126,7 +126,6 @@ export default function EventTemplatesPage() {
     const matchesSearch = template.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          template.description.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesCategory = categoryFilter === 'All' || template.category === categoryFilter;
-    
     return matchesSearch && matchesCategory;
   });
 
@@ -148,6 +147,7 @@ export default function EventTemplatesPage() {
       maxAttendees: 100,
       defaultTime: ''
     });
+    toast.success('Template created successfully');
   };
 
   const handleEditTemplate = (template: EventTemplate) => {
@@ -166,7 +166,6 @@ export default function EventTemplatesPage() {
 
   const handleUpdateTemplate = () => {
     if (!editingTemplate) return;
-    
     const updatedTemplates = templates.map(template => 
       template.id === editingTemplate.id 
         ? { ...template, ...editTemplate }
@@ -175,15 +174,7 @@ export default function EventTemplatesPage() {
     setTemplates(updatedTemplates);
     setShowEditDialog(false);
     setEditingTemplate(null);
-    setEditTemplate({
-      name: '',
-      description: '',
-      category: 'Worship',
-      duration: '',
-      location: '',
-      maxAttendees: 100,
-      defaultTime: ''
-    });
+    toast.success('Template updated successfully');
   };
 
   const handleDeleteTemplate = (template: EventTemplate) => {
@@ -191,113 +182,70 @@ export default function EventTemplatesPage() {
     setShowDeleteDialog(true);
   };
 
-  const confirmDeleteTemplate = () => {
+  const confirmDelete = () => {
     if (!templateToDelete) return;
-    
-    const updatedTemplates = templates.filter(template => template.id !== templateToDelete.id);
-    setTemplates(updatedTemplates);
+    setTemplates(templates.filter(t => t.id !== templateToDelete.id));
     setShowDeleteDialog(false);
     setTemplateToDelete(null);
+    toast.success('Template deleted successfully');
   };
 
   const handleUseTemplate = (template: EventTemplate) => {
-    // In a real implementation, this would navigate to create event with template data
     router.push(`/dashboard/events/add?template=${template.id}`);
   };
 
-
-
   return (
     <div className="space-y-6">
-      {/* Back Navigation */}
-      <div className="flex items-center gap-4 mb-6">
-        <Button
-          variant="outline"
-          size="icon"
-          className="h-12 w-12"
-          onClick={() => router.back()}
-        >
-          <ArrowLeft className="h-4 w-4" />
-        </Button>
-        
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-3">
-          <div className="p-2 bg-brand-primary/10 rounded-lg">
-            <FileText className="h-6 w-6 text-brand-primary" />
-          </div>
-          <PageHeader title="Event Templates" />
-        </div>
-      </div>
-
-      {/* Header Actions */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center space-x-4">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder="Search templates..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10 w-80"
-            />
-          </div>
-          
-          <Select value={categoryFilter} onValueChange={setCategoryFilter}>
-            <SelectTrigger className="w-48">
-              <SelectValue placeholder="Filter by category" />
-            </SelectTrigger>
-            <SelectContent>
-              {categories.map((category) => (
-                <SelectItem key={category} value={category}>
-                  {category}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <Button variant="outline" size="icon" className="h-9 w-9" asChild>
+            <Link href="/dashboard/events" aria-label="Back to Events">
+              <ArrowLeft className="h-4 w-4" />
+            </Link>
+          </Button>
+          <h1 className="font-heading text-2xl font-bold tracking-tight">Event Templates</h1>
         </div>
 
         <Dialog open={showCreateDialog} onOpenChange={setShowCreateDialog}>
           <DialogTrigger asChild>
-            <Button className="bg-brand-primary hover:bg-brand-primary/90">
-              <Plus className="mr-2 h-4 w-4" />
+            <Button size="sm">
+              <Plus className="mr-1.5 h-4 w-4" />
               Create Template
             </Button>
           </DialogTrigger>
-          <DialogContent className="max-w-2xl">
+          <DialogContent className="max-w-xl">
             <DialogHeader>
               <DialogTitle>Create Event Template</DialogTitle>
               <DialogDescription>
-                Create a reusable template for future events
+                Create a reusable template for recurring or standard events
               </DialogDescription>
             </DialogHeader>
-            <div className="space-y-4">
-              <div className="grid gap-4 md:grid-cols-2">
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">Template Name</label>
+            <div className="space-y-4 py-2">
+              <div className="grid gap-3 sm:grid-cols-2">
+                <div className="space-y-1.5">
+                  <label className="text-xs font-medium text-foreground">Template Name *</label>
                   <Input
                     value={newTemplate.name}
                     onChange={(e) => setNewTemplate({...newTemplate, name: e.target.value})}
-                    placeholder="e.g., Sunday Service"
+                    placeholder="e.g. Sunday Service"
                   />
                 </div>
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">Category</label>
+                <div className="space-y-1.5">
+                  <label className="text-xs font-medium text-foreground">Category</label>
                   <Select value={newTemplate.category} onValueChange={(value) => setNewTemplate({...newTemplate, category: value})}>
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
                       {categories.filter(c => c !== 'All').map((category) => (
-                        <SelectItem key={category} value={category}>
-                          {category}
-                        </SelectItem>
+                        <SelectItem key={category} value={category}>{category}</SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
                 </div>
               </div>
-              
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Description</label>
+              <div className="space-y-1.5">
+                <label className="text-xs font-medium text-foreground">Description</label>
                 <Textarea
                   value={newTemplate.description}
                   onChange={(e) => setNewTemplate({...newTemplate, description: e.target.value})}
@@ -305,26 +253,25 @@ export default function EventTemplatesPage() {
                   rows={3}
                 />
               </div>
-              
-              <div className="grid gap-4 md:grid-cols-3">
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">Duration</label>
+              <div className="grid gap-3 sm:grid-cols-3">
+                <div className="space-y-1.5">
+                  <label className="text-xs font-medium text-foreground">Duration</label>
                   <Input
                     value={newTemplate.duration}
                     onChange={(e) => setNewTemplate({...newTemplate, duration: e.target.value})}
-                    placeholder="e.g., 90 minutes"
+                    placeholder="e.g. 90 mins"
                   />
                 </div>
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">Default Time</label>
+                <div className="space-y-1.5">
+                  <label className="text-xs font-medium text-foreground">Default Time</label>
                   <Input
                     value={newTemplate.defaultTime}
                     onChange={(e) => setNewTemplate({...newTemplate, defaultTime: e.target.value})}
-                    placeholder="e.g., 10:00 AM"
+                    placeholder="e.g. 10:00 AM"
                   />
                 </div>
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">Max Attendees</label>
+                <div className="space-y-1.5">
+                  <label className="text-xs font-medium text-foreground">Max Attendees</label>
                   <Input
                     type="number"
                     value={newTemplate.maxAttendees}
@@ -332,98 +279,87 @@ export default function EventTemplatesPage() {
                   />
                 </div>
               </div>
-              
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Default Location</label>
+              <div className="space-y-1.5">
+                <label className="text-xs font-medium text-foreground">Default Location</label>
                 <Input
                   value={newTemplate.location}
                   onChange={(e) => setNewTemplate({...newTemplate, location: e.target.value})}
-                  placeholder="e.g., Main Sanctuary"
+                  placeholder="e.g. Main Sanctuary"
                 />
               </div>
-              
-              <div className="flex justify-end space-x-2">
-                <Button variant="outline" onClick={() => setShowCreateDialog(false)}>
-                  Cancel
-                </Button>
-                <Button onClick={handleCreateTemplate} className="bg-brand-primary hover:bg-brand-primary/90">
-                  Create Template
-                </Button>
-              </div>
             </div>
+            <DialogFooter>
+              <Button variant="outline" size="sm" onClick={() => setShowCreateDialog(false)}>Cancel</Button>
+              <Button size="sm" onClick={handleCreateTemplate} disabled={!newTemplate.name.trim()}>Create Template</Button>
+            </DialogFooter>
           </DialogContent>
         </Dialog>
       </div>
 
-      {/* Templates Grid */}
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+        <div className="relative flex-1">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input
+            placeholder="Search templates..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="pl-9 h-9"
+          />
+        </div>
+        <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+          <SelectTrigger className="w-full sm:w-40 h-9">
+            <SelectValue placeholder="Category" />
+          </SelectTrigger>
+          <SelectContent>
+            {categories.map((category) => (
+              <SelectItem key={category} value={category}>{category}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         {filteredTemplates.map((template) => (
-          <Card key={template.id} className="hover:shadow-lg transition-shadow">
-            <CardHeader className="pb-3">
-              <div className="flex items-start justify-between">
-                <div className="space-y-1">
-                  <CardTitle className="text-lg">{template.name}</CardTitle>
+          <Card key={template.id} className="transition-colors hover:border-foreground/20">
+            <CardHeader className="pb-2.5">
+              <div className="flex items-start justify-between gap-2">
+                <div className="space-y-1 min-w-0">
+                  <CardTitle className="text-base truncate">{template.name}</CardTitle>
                   <EventCategoryBadge category={template.category} />
                 </div>
-                <div className="flex space-x-1">
-                  <Button 
-                    variant="ghost" 
-                    size="icon"
-                    onClick={() => {
-                      setSelectedTemplate(template);
-                      setShowPreviewDialog(true);
-                    }}
-                  >
-                    <Eye className="h-4 w-4" />
+                <div className="flex items-center gap-0.5 shrink-0">
+                  <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => { setSelectedTemplate(template); setShowPreviewDialog(true); }} aria-label="Preview template">
+                    <Eye className="h-3.5 w-3.5" />
                   </Button>
-                  <Button 
-                    variant="ghost" 
-                    size="icon"
-                    onClick={() => handleEditTemplate(template)}
-                  >
-                    <Edit className="h-4 w-4" />
+                  <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleEditTemplate(template)} aria-label="Edit template">
+                    <Edit className="h-3.5 w-3.5" />
                   </Button>
-                  <Button 
-                    variant="ghost" 
-                    size="icon"
-                    onClick={() => handleDeleteTemplate(template)}
-                  >
-                    <Trash2 className="h-4 w-4" />
+                  <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive focus:text-destructive" onClick={() => handleDeleteTemplate(template)} aria-label="Delete template">
+                    <Trash2 className="h-3.5 w-3.5" />
                   </Button>
                 </div>
               </div>
             </CardHeader>
             <CardContent className="space-y-3">
-              <p className="text-sm text-muted-foreground">{template.description}</p>
-              
-              <div className="space-y-2 text-sm">
-                <div className="flex items-center space-x-2">
-                  <Clock className="h-4 w-4 text-muted-foreground" />
+              <p className="text-xs text-muted-foreground line-clamp-2">{template.description}</p>
+              <div className="space-y-1.5 text-xs text-muted-foreground">
+                <div className="flex items-center gap-1.5">
+                  <Clock className="h-3.5 w-3.5 shrink-0" />
                   <span>{template.duration} • {template.defaultTime}</span>
                 </div>
-                
-                <div className="flex items-center space-x-2">
-                  <MapPin className="h-4 w-4 text-muted-foreground" />
-                  <span>{template.location}</span>
+                <div className="flex items-center gap-1.5">
+                  <MapPin className="h-3.5 w-3.5 shrink-0" />
+                  <span className="truncate">{template.location}</span>
                 </div>
-                
-                <div className="flex items-center space-x-2">
-                  <Users className="h-4 w-4 text-muted-foreground" />
+                <div className="flex items-center gap-1.5">
+                  <Users className="h-3.5 w-3.5 shrink-0" />
                   <span>Up to {template.maxAttendees} attendees</span>
                 </div>
               </div>
-              
-              <div className="flex items-center justify-between pt-2">
-                <div className="text-xs text-muted-foreground">
-                  Used {template.usageCount} times
-                </div>
-                
-                <Button 
-                  size="sm" 
-                  className="bg-brand-primary hover:bg-brand-primary/90"
-                  onClick={() => handleUseTemplate(template)}
-                >
-                  <Copy className="mr-1 h-3 w-3" />
+              <div className="flex items-center justify-between pt-2 border-t border-border/50">
+                <div className="text-[11px] text-muted-foreground">Used {template.usageCount} times</div>
+                <Button size="sm" onClick={() => handleUseTemplate(template)}>
+                  <Copy className="mr-1.5 h-3.5 w-3.5" />
                   Use Template
                 </Button>
               </div>
@@ -432,209 +368,123 @@ export default function EventTemplatesPage() {
         ))}
       </div>
 
-      {/* Edit Dialog */}
+      {filteredTemplates.length === 0 && (
+        <div className="text-center py-12 text-muted-foreground">
+          <p className="text-sm font-medium">No templates found matching your criteria.</p>
+        </div>
+      )}
+
       <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
-        <DialogContent className="max-w-2xl">
+        <DialogContent className="max-w-xl">
           <DialogHeader>
             <DialogTitle>Edit Event Template</DialogTitle>
-            <DialogDescription>
-              Update the template details
-            </DialogDescription>
+            <DialogDescription>Update the template details</DialogDescription>
           </DialogHeader>
-          <div className="space-y-4">
-            <div className="grid gap-4 md:grid-cols-2">
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Template Name</label>
-                <Input
-                  value={editTemplate.name}
-                  onChange={(e) => setEditTemplate({...editTemplate, name: e.target.value})}
-                  placeholder="e.g., Sunday Service"
-                />
+          <div className="space-y-4 py-2">
+            <div className="grid gap-3 sm:grid-cols-2">
+              <div className="space-y-1.5">
+                <label className="text-xs font-medium text-foreground">Template Name *</label>
+                <Input value={editTemplate.name} onChange={(e) => setEditTemplate({...editTemplate, name: e.target.value})} />
               </div>
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Category</label>
+              <div className="space-y-1.5">
+                <label className="text-xs font-medium text-foreground">Category</label>
                 <Select value={editTemplate.category} onValueChange={(value) => setEditTemplate({...editTemplate, category: value})}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
                     {categories.filter(c => c !== 'All').map((category) => (
-                      <SelectItem key={category} value={category}>
-                        {category}
-                      </SelectItem>
+                      <SelectItem key={category} value={category}>{category}</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
               </div>
             </div>
-            
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Description</label>
-              <Textarea
-                value={editTemplate.description}
-                onChange={(e) => setEditTemplate({...editTemplate, description: e.target.value})}
-                placeholder="Describe the event template..."
-                rows={3}
-              />
+            <div className="space-y-1.5">
+              <label className="text-xs font-medium text-foreground">Description</label>
+              <Textarea value={editTemplate.description} onChange={(e) => setEditTemplate({...editTemplate, description: e.target.value})} rows={3} />
             </div>
-            
-            <div className="grid gap-4 md:grid-cols-3">
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Duration</label>
-                <Input
-                  value={editTemplate.duration}
-                  onChange={(e) => setEditTemplate({...editTemplate, duration: e.target.value})}
-                  placeholder="e.g., 90 minutes"
-                />
+            <div className="grid gap-3 sm:grid-cols-3">
+              <div className="space-y-1.5">
+                <label className="text-xs font-medium text-foreground">Duration</label>
+                <Input value={editTemplate.duration} onChange={(e) => setEditTemplate({...editTemplate, duration: e.target.value})} />
               </div>
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Default Time</label>
-                <Input
-                  value={editTemplate.defaultTime}
-                  onChange={(e) => setEditTemplate({...editTemplate, defaultTime: e.target.value})}
-                  placeholder="e.g., 10:00 AM"
-                />
+              <div className="space-y-1.5">
+                <label className="text-xs font-medium text-foreground">Default Time</label>
+                <Input value={editTemplate.defaultTime} onChange={(e) => setEditTemplate({...editTemplate, defaultTime: e.target.value})} />
               </div>
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Max Attendees</label>
-                <Input
-                  type="number"
-                  value={editTemplate.maxAttendees}
-                  onChange={(e) => setEditTemplate({...editTemplate, maxAttendees: parseInt(e.target.value) || 0})}
-                />
+              <div className="space-y-1.5">
+                <label className="text-xs font-medium text-foreground">Max Attendees</label>
+                <Input type="number" value={editTemplate.maxAttendees} onChange={(e) => setEditTemplate({...editTemplate, maxAttendees: parseInt(e.target.value) || 0})} />
               </div>
             </div>
-            
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Default Location</label>
-              <Input
-                value={editTemplate.location}
-                onChange={(e) => setEditTemplate({...editTemplate, location: e.target.value})}
-                placeholder="e.g., Main Sanctuary"
-              />
-            </div>
-            
-            <div className="flex justify-end space-x-2">
-              <Button variant="outline" onClick={() => setShowEditDialog(false)}>
-                Cancel
-              </Button>
-              <Button onClick={handleUpdateTemplate} className="bg-brand-primary hover:bg-brand-primary/90">
-                Update Template
-              </Button>
+            <div className="space-y-1.5">
+              <label className="text-xs font-medium text-foreground">Default Location</label>
+              <Input value={editTemplate.location} onChange={(e) => setEditTemplate({...editTemplate, location: e.target.value})} />
             </div>
           </div>
+          <DialogFooter>
+            <Button variant="outline" size="sm" onClick={() => setShowEditDialog(false)}>Cancel</Button>
+            <Button size="sm" onClick={handleUpdateTemplate} disabled={!editTemplate.name.trim()}>Save Changes</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={showPreviewDialog} onOpenChange={setShowPreviewDialog}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Template Preview</DialogTitle>
+            <DialogDescription>Details of the selected template</DialogDescription>
+          </DialogHeader>
+          {selectedTemplate && (
+            <div className="space-y-3 py-2 text-xs">
+              <div>
+                <h3 className="font-semibold text-sm text-foreground">{selectedTemplate.name}</h3>
+                <p className="text-muted-foreground mt-1">{selectedTemplate.description}</p>
+              </div>
+              <div className="pt-1"><EventCategoryBadge category={selectedTemplate.category} /></div>
+              <div className="space-y-2 pt-2 border-t border-border/50 text-muted-foreground">
+                <div className="flex justify-between"><span>Duration:</span><span className="font-medium text-foreground">{selectedTemplate.duration}</span></div>
+                <div className="flex justify-between"><span>Default Time:</span><span className="font-medium text-foreground">{selectedTemplate.defaultTime}</span></div>
+                <div className="flex justify-between"><span>Location:</span><span className="font-medium text-foreground">{selectedTemplate.location}</span></div>
+                <div className="flex justify-between"><span>Max Attendees:</span><span className="font-medium text-foreground">{selectedTemplate.maxAttendees}</span></div>
+                <div className="flex justify-between"><span>Usage Count:</span><span className="font-medium text-foreground">{selectedTemplate.usageCount} times</span></div>
+              </div>
+            </div>
+          )}
+          <DialogFooter>
+            <Button variant="outline" size="sm" onClick={() => setShowPreviewDialog(false)}>
+              Close
+            </Button>
+            {selectedTemplate && (
+              <Button size="sm" onClick={() => {
+                setShowPreviewDialog(false);
+                handleUseTemplate(selectedTemplate);
+              }}>
+                Use Template
+              </Button>
+            )}
+          </DialogFooter>
         </DialogContent>
       </Dialog>
 
       {/* Delete Confirmation Dialog */}
       <Dialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
-        <DialogContent>
+        <DialogContent className="max-w-md">
           <DialogHeader>
             <DialogTitle>Delete Template</DialogTitle>
             <DialogDescription>
-              Are you sure you want to delete the template "{templateToDelete?.name}"? This action cannot be undone.
+              Are you sure you want to delete &quot;{templateToDelete?.name}&quot;? This action cannot be undone.
             </DialogDescription>
           </DialogHeader>
-          <div className="flex justify-end space-x-2">
-            <Button variant="outline" onClick={() => setShowDeleteDialog(false)}>
+          <DialogFooter>
+            <Button variant="outline" size="sm" onClick={() => setShowDeleteDialog(false)}>
               Cancel
             </Button>
-            <Button variant="destructive" onClick={confirmDeleteTemplate}>
+            <Button variant="destructive" size="sm" onClick={confirmDelete}>
               Delete Template
             </Button>
-          </div>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
-
-      {/* Preview Dialog */}
-      <Dialog open={showPreviewDialog} onOpenChange={setShowPreviewDialog}>
-        <DialogContent className="max-w-2xl">
-          <DialogHeader>
-            <DialogTitle>Template Preview</DialogTitle>
-            <DialogDescription>
-              Preview of the {selectedTemplate?.name} template
-            </DialogDescription>
-          </DialogHeader>
-          {selectedTemplate && (
-            <div className="space-y-4">
-              <div className="grid gap-4 md:grid-cols-2">
-                <div>
-                  <label className="text-sm font-medium text-muted-foreground">Template Name</label>
-                  <p className="font-medium">{selectedTemplate.name}</p>
-                </div>
-                <div>
-                  <label className="text-sm font-medium text-muted-foreground">Category</label>
-                  <EventCategoryBadge category={selectedTemplate.category} />
-                </div>
-              </div>
-              
-              <div>
-                <label className="text-sm font-medium text-muted-foreground">Description</label>
-                <p>{selectedTemplate.description}</p>
-              </div>
-              
-              <div className="grid gap-4 md:grid-cols-3">
-                <div>
-                  <label className="text-sm font-medium text-muted-foreground">Duration</label>
-                  <p>{selectedTemplate.duration}</p>
-                </div>
-                <div>
-                  <label className="text-sm font-medium text-muted-foreground">Default Time</label>
-                  <p>{selectedTemplate.defaultTime}</p>
-                </div>
-                <div>
-                  <label className="text-sm font-medium text-muted-foreground">Max Attendees</label>
-                  <p>{selectedTemplate.maxAttendees}</p>
-                </div>
-              </div>
-              
-              <div>
-                <label className="text-sm font-medium text-muted-foreground">Default Location</label>
-                <p>{selectedTemplate.location}</p>
-              </div>
-              
-              <div className="flex justify-end space-x-2">
-                <Button variant="outline" onClick={() => setShowPreviewDialog(false)}>
-                  Close
-                </Button>
-                <Button 
-                  onClick={() => {
-                    handleUseTemplate(selectedTemplate);
-                    setShowPreviewDialog(false);
-                  }}
-                  className="bg-brand-primary hover:bg-brand-primary/90"
-                >
-                  <Copy className="mr-2 h-4 w-4" />
-                  Use This Template
-                </Button>
-              </div>
-            </div>
-          )}
-        </DialogContent>
-      </Dialog>
-
-      {/* Empty State */}
-      {filteredTemplates.length === 0 && (
-        <Card>
-          <CardContent className="flex flex-col items-center justify-center py-12">
-            <FileText className="h-12 w-12 text-muted-foreground mb-4" />
-            <h3 className="text-lg font-medium mb-2">No templates found</h3>
-            <p className="text-muted-foreground text-center mb-4">
-              {searchTerm || categoryFilter !== 'All' 
-                ? 'Try adjusting your search or filter criteria'
-                : 'Create your first event template to get started'
-              }
-            </p>
-            <Button 
-              onClick={() => setShowCreateDialog(true)}
-              className="bg-brand-primary hover:bg-brand-primary/90"
-            >
-              <Plus className="mr-2 h-4 w-4" />
-              Create Template
-            </Button>
-          </CardContent>
-        </Card>
-      )}
     </div>
   );
 }

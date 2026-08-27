@@ -372,28 +372,24 @@ export default function AssetsOverviewPage() {
             title="Total Assets"
             value={assetStats.totalAssets}
             icon={Package}
-            description={`${assetStats.categoriesCount} categories`}
           />
 
           <StatCard
             title="Total Value"
             value={formatCurrency(assetStats.totalValue)}
             icon={TrendingUp}
-            description={`Avg: ${formatCurrency(assetStats.averageValue)}`}
           />
 
           <StatCard
             title="Active Assets"
             value={assetStats.activeAssets}
             icon={Users}
-            description={`${((assetStats.activeAssets / assetStats.totalAssets) * 100).toFixed(1)}% of total`}
           />
 
           <StatCard
             title="Needs Attention"
             value={assetStats.maintenanceNeeded + assetStats.warrantyExpiring}
             icon={AlertTriangle}
-            description={`${assetStats.maintenanceNeeded} maintenance, ${assetStats.warrantyExpiring} warranty`}
           />
         </div>
       </LazySection>

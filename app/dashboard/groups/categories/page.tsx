@@ -233,7 +233,6 @@ export default function GroupCategoriesPage() {
           title="Coverage"
           value={totalCategories > 0 ? `${Math.round((activeCategories / totalCategories) * 100)}%` : '0%'}
           icon={TrendingUp}
-          description="Active ratio"
         />
       </div>
 

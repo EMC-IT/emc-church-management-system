@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Link from 'next/link';
 import { useRouter, useParams } from 'next/navigation';
 import { ArrowLeft, BarChart3, Download, TrendingUp, TrendingDown, AlertTriangle } from 'lucide-react';
 
@@ -194,10 +195,12 @@ export default function BudgetReportsPage() {
         <Button
           variant="outline"
           size="icon"
-          className="h-12 w-12"
-          onClick={() => router.back()}
+          className="h-9 w-9"
+          asChild
         >
-          <ArrowLeft className="h-4 w-4" />
+          <Link href={`/dashboard/finance/budgets/${params.id}`} aria-label="Back to Budget Details">
+            <ArrowLeft className="h-4 w-4" />
+          </Link>
         </Button>
         
         <div className="flex items-center gap-3 flex-1">

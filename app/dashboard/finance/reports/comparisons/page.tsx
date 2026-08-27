@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -195,10 +196,12 @@ export default function ComparisonReportsPage() {
         <Button
           variant="outline"
           size="icon"
-          className="h-12 w-12"
-          onClick={() => router.back()}
+          className="h-9 w-9"
+          asChild
         >
-          <ArrowLeft className="h-4 w-4" />
+          <Link href="/dashboard/finance/reports" aria-label="Back to Finance Reports">
+            <ArrowLeft className="h-4 w-4" />
+          </Link>
         </Button>
         <PageHeader title="Comparison Reports" />
       </div>
@@ -234,37 +237,31 @@ export default function ComparisonReportsPage() {
           title="Income Growth"
           value={`+${comparisonSummary.totalIncomeGrowth}%`}
           icon={TrendingUp}
-          description="Year over year"
         />
         <StatCard
           title="Expense Growth"
           value={`${comparisonSummary.totalExpenseGrowth}%`}
           icon={TrendingDown}
-          description="Year over year"
         />
         <StatCard
           title="Net Growth"
           value={`+${comparisonSummary.netIncomeGrowth}%`}
           icon={Activity}
-          description="Year over year"
         />
         <StatCard
           title="Profit Margin"
           value={`${comparisonSummary.profitMargin}%`}
           icon={Percent}
-          description={`+${(comparisonSummary.profitMargin - comparisonSummary.previousProfitMargin).toFixed(1)}% vs last year`}
         />
         <StatCard
           title="Best Category"
           value={comparisonSummary.bestPerformingCategory}
           icon={Target}
-          description="Top performer"
         />
         <StatCard
           title="Overall Health"
           value="Excellent"
           icon={Activity}
-          description="Financial health"
         />
       </div>
 

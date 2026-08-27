@@ -95,8 +95,8 @@ export default function AddTeacherPage() {
     <div className="space-y-6 max-w-6xl">
       {/* Header */}
       <div className="flex items-center gap-4">
-        <Button variant="ghost" size="icon" asChild>
-          <Link href="/dashboard/sunday-school/teachers">
+        <Button variant="outline" size="icon" className="h-9 w-9" asChild>
+          <Link href="/dashboard/sunday-school/teachers" aria-label="Back to Teachers">
             <ArrowLeft className="h-4 w-4" />
           </Link>
         </Button>

@@ -304,7 +304,6 @@ export default function CategoryDetailsPage() {
             value={category.assetCount}
             icon={Package}
             accent="primary"
-            description={`${category.activeAssets} active`}
           />
 
           <StatCard
@@ -312,7 +311,6 @@ export default function CategoryDetailsPage() {
             value={formatCurrency(category.totalValue)}
             icon={Banknote}
             accent="secondary"
-            description="Current market value"
           />
 
           <StatCard
@@ -320,7 +318,6 @@ export default function CategoryDetailsPage() {
             value={`${category.averageAge} years`}
             icon={Calendar}
             accent="success"
-            description="Across all assets"
           />
 
           <StatCard
@@ -328,7 +325,6 @@ export default function CategoryDetailsPage() {
             value={category.maintenanceAssets}
             icon={Package}
             accent="accent"
-            description="Assets under maintenance"
           />
         </div>
       </LazySection>

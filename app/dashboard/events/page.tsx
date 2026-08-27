@@ -4,11 +4,11 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { PageHeader } from '@/components/ui/page-header';
 import { StatCard } from '@/components/ui/stat-card';
-import { Badge } from '@/components/ui/badge';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { 
+import { StatusBadge } from '@/components/ui/status-badge';
+import { EventCategoryBadge } from '@/components/ui/category-badges';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import {
   Select,
   SelectContent,
   SelectItem,
@@ -16,25 +16,38 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { DatePicker } from '@/components/ui/date-picker';
-import { 
+import {
   Calendar as CalendarIcon,
-  Plus, 
-  Search, 
-  MapPin, 
-  Clock, 
-  Users, 
-  Filter, 
-  Eye, 
-  Edit, 
-  Trash2, 
-  Download, 
-  FileText, 
-  CheckSquare 
+  Plus,
+  Search,
+  MapPin,
+  Clock,
+  Users,
+  Filter,
+  Eye,
+  Edit,
+  Trash2,
+  Download,
+  FileText
 } from 'lucide-react';
 import { format } from 'date-fns';
 import Link from 'next/link';
 
-const events = [
+interface EventItem {
+  id: string;
+  title: string;
+  description: string;
+  date: string;
+  time: string;
+  location: string;
+  category: string;
+  organizer: string;
+  attendees: number;
+  maxAttendees: number;
+  status: string;
+}
+
+const events: EventItem[] = [
   {
     id: '1',
     title: 'Sunday Service',
@@ -98,282 +111,165 @@ export default function EventsPage() {
 
   const filteredEvents = events.filter(event => {
     const matchesSearch = event.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         event.description.toLowerCase().includes(searchTerm.toLowerCase());
+      event.description.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesCategory = categoryFilter === 'All' || event.category === categoryFilter;
-    const matchesDate = !selectedDate || 
-                       format(new Date(event.date), 'yyyy-MM-dd') === format(selectedDate, 'yyyy-MM-dd');
-    
+    const matchesDate = !selectedDate ||
+      format(new Date(event.date), 'yyyy-MM-dd') === format(selectedDate, 'yyyy-MM-dd');
+
     return matchesSearch && matchesCategory && matchesDate;
   });
 
-  const getStatusColor = (status: string) => {
-    switch (status.toLowerCase()) {
-      case 'upcoming': return 'primary';
-      case 'planning': return 'neutral';
-      case 'completed': return 'neutral';
-      case 'cancelled': return 'danger';
-      default: return 'primary';
-    }
-  };
-
-  const upcomingEvents = events.filter(e => e.status === 'Upcoming').length;
+  const upcomingEvents = events.filter(e => e.status.toLowerCase() === 'upcoming').length;
   const totalAttendees = events.reduce((sum, event) => sum + event.attendees, 0);
 
   return (
     <div className="space-y-6">
-      <PageHeader
-        title="Events"
-        actions={
-          <>
-            <Button variant="outline" asChild>
-              <Link href="/dashboard/events/calendar">
-                <CalendarIcon className="mr-2 h-4 w-4" />
-                Calendar View
-              </Link>
-            </Button>
-            <Button variant="outline" asChild>
-              <Link href="/dashboard/events/categories">
-                <Filter className="mr-2 h-4 w-4" />
-                Categories
-              </Link>
-            </Button>
-            <Button asChild className="bg-brand-primary hover:bg-brand-primary/90">
-              <Link href="/dashboard/events/add">
-                <Plus className="mr-2 h-4 w-4" />
-                Create Event
-              </Link>
-            </Button>
-          </>
-        }
-      />
+      {/* Header */}
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <h1 className="font-heading text-2xl font-bold tracking-tight">Events</h1>
+
+        <div className="flex flex-wrap items-center gap-2">
+          <Button variant="outline" size="sm" asChild>
+            <Link href="/dashboard/events/calendar">
+              <CalendarIcon className="mr-1.5 h-4 w-4" />
+              Calendar
+            </Link>
+          </Button>
+          <Button variant="outline" size="sm" asChild>
+            <Link href="/dashboard/events/categories">
+              <Filter className="mr-1.5 h-4 w-4" />
+              Categories
+            </Link>
+          </Button>
+          <Button variant="outline" size="sm" asChild>
+            <Link href="/dashboard/events/templates">
+              <FileText className="mr-1.5 h-4 w-4" />
+              Templates
+            </Link>
+          </Button>
+          <Button variant="outline" size="sm" asChild>
+            <Link href="/dashboard/events/export">
+              <Download className="mr-1.5 h-4 w-4" />
+              Export
+            </Link>
+          </Button>
+          <Button size="sm" asChild>
+            <Link href="/dashboard/events/add">
+              <Plus className="mr-1.5 h-4 w-4" />
+              Create Event
+            </Link>
+          </Button>
+        </div>
+      </div>
 
       {/* Stats Cards */}
-      <div className="grid gap-4 md:grid-cols-4">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard title="Total Events" value={events.length} icon={CalendarIcon} />
         <StatCard title="Upcoming Events" value={upcomingEvents} icon={Clock} />
         <StatCard title="Total Attendees" value={totalAttendees} icon={Users} />
-        <StatCard title="This Week" value={3} icon={CalendarIcon} description="Events scheduled" />
+        <StatCard title="This Week" value={3} icon={CalendarIcon} />
       </div>
 
-      {/* Quick Actions */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Quick Actions</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            <Card className="hover:shadow-md transition-shadow cursor-pointer group">
-              <Link href="/dashboard/events/add" className="block">
-                <CardContent className="p-4">
-                  <div className="flex items-center space-x-3">
-                    <div className="p-2 bg-brand-primary/10 rounded-lg group-hover:bg-brand-primary/20 transition-colors">
-                      <Plus className="h-5 w-5 text-brand-primary" />
-                    </div>
-                    <div>
-                      <h3 className="font-medium">Create New Event</h3>
-                      <p className="text-sm text-muted-foreground">Add a new church event</p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Link>
-            </Card>
+      {/* Filter Toolbar */}
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+        <div className="relative flex-1">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input
+            placeholder="Search events by title or description..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="pl-9 h-9"
+          />
+        </div>
 
-            <Card className="hover:shadow-md transition-shadow cursor-pointer group">
-              <Link href="/dashboard/events/calendar" className="block">
-                <CardContent className="p-4">
-                  <div className="flex items-center space-x-3">
-                    <div className="p-2 bg-blue-100 rounded-lg group-hover:bg-blue-200 transition-colors">
-                      <CalendarIcon className="h-5 w-5 text-blue-600" />
-                    </div>
-                    <div>
-                      <h3 className="font-medium">Calendar View</h3>
-                      <p className="text-sm text-muted-foreground">View events in calendar</p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Link>
-            </Card>
-
-            <Card className="hover:shadow-md transition-shadow cursor-pointer group">
-              <Link href="/dashboard/events/categories" className="block">
-                <CardContent className="p-4">
-                  <div className="flex items-center space-x-3">
-                    <div className="p-2 bg-purple-100 rounded-lg group-hover:bg-purple-200 transition-colors">
-                      <Filter className="h-5 w-5 text-purple-600" />
-                    </div>
-                    <div>
-                      <h3 className="font-medium">Event Categories</h3>
-                      <p className="text-sm text-muted-foreground">Manage event categories</p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Link>
-            </Card>
-
-            <Card className="hover:shadow-md transition-shadow cursor-pointer group">
-              <Link href="/dashboard/events/export" className="block">
-                <CardContent className="p-4">
-                  <div className="flex items-center space-x-3">
-                    <div className="p-2 bg-green-100 rounded-lg group-hover:bg-green-200 transition-colors">
-                      <Download className="h-5 w-5 text-green-600" />
-                    </div>
-                    <div>
-                      <h3 className="font-medium">Export Events</h3>
-                      <p className="text-sm text-muted-foreground">Export event data</p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Link>
-            </Card>
-
-            <Card className="hover:shadow-md transition-shadow cursor-pointer group">
-              <Link href="/dashboard/events/templates" className="block">
-                <CardContent className="p-4">
-                  <div className="flex items-center space-x-3">
-                    <div className="p-2 bg-orange-100 rounded-lg group-hover:bg-orange-200 transition-colors">
-                      <FileText className="h-5 w-5 text-orange-600" />
-                    </div>
-                    <div>
-                      <h3 className="font-medium">Event Templates</h3>
-                      <p className="text-sm text-muted-foreground">Manage event templates</p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Link>
-            </Card>
-
-            <Card className="hover:shadow-md transition-shadow cursor-pointer group">
-              <Link href="/dashboard/events/bulk-actions" className="block">
-                <CardContent className="p-4">
-                  <div className="flex items-center space-x-3">
-                    <div className="p-2 bg-red-100 rounded-lg group-hover:bg-red-200 transition-colors">
-                      <CheckSquare className="h-5 w-5 text-red-600" />
-                    </div>
-                    <div>
-                      <h3 className="font-medium">Bulk Actions</h3>
-                      <p className="text-sm text-muted-foreground">Perform bulk operations</p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Link>
-            </Card>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Event Management */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Event Management</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="flex items-center space-x-4 mb-6">
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="Search events..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10"
-              />
-            </div>
-            
-            <Select value={categoryFilter} onValueChange={setCategoryFilter}>
-              <SelectTrigger className="w-48">
-                <SelectValue placeholder="Filter by category" />
-              </SelectTrigger>
-              <SelectContent>
-                {categories.map((category) => (
-                  <SelectItem key={category} value={category}>
-                    {category}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            
-            <DatePicker
-              value={selectedDate}
-              onChange={setSelectedDate}
-              placeholder="Filter by date"
-              clearable
-              className="w-48"
-            />
-          </div>
-
-          {/* Events Grid */}
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {filteredEvents.map((event) => (
-              <Card key={event.id} className="hover:shadow-lg transition-shadow">
-                <CardHeader className="pb-3">
-                  <div className="flex items-start justify-between">
-                    <div className="space-y-1">
-                      <CardTitle className="text-lg">{event.title}</CardTitle>
-                      <Badge variant={getStatusColor(event.status)}>
-                        {event.status}
-                      </Badge>
-                    </div>
-                    <div className="flex space-x-1">
-                      <Button variant="ghost" size="icon" asChild>
-                        <Link href={`/dashboard/events/${event.id}`}>
-                          <Eye className="h-4 w-4" />
-                        </Link>
-                      </Button>
-                      <Button variant="ghost" size="icon" asChild>
-                        <Link href={`/dashboard/events/${event.id}/edit`}>
-                          <Edit className="h-4 w-4" />
-                        </Link>
-                      </Button>
-                      <Button variant="ghost" size="icon">
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </div>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  <p className="text-sm text-muted-foreground">{event.description}</p>
-                  
-                  <div className="space-y-2 text-sm">
-                    <div className="flex items-center space-x-2">
-                      <CalendarIcon className="h-4 w-4 text-muted-foreground" />
-                      <span>{format(new Date(event.date), 'MMM dd, yyyy')}</span>
-                    </div>
-                    
-                    <div className="flex items-center space-x-2">
-                      <Clock className="h-4 w-4 text-muted-foreground" />
-                      <span>{event.time}</span>
-                    </div>
-                    
-                    <div className="flex items-center space-x-2">
-                      <MapPin className="h-4 w-4 text-muted-foreground" />
-                      <span>{event.location}</span>
-                    </div>
-                    
-                    <div className="flex items-center space-x-2">
-                      <Users className="h-4 w-4 text-muted-foreground" />
-                      <span>{event.attendees} / {event.maxAttendees} attendees</span>
-                    </div>
-                  </div>
-                  
-                  <div className="flex items-center justify-between pt-2">
-                    <div className="flex items-center space-x-2">
-                      <Avatar className="h-6 w-6">
-                        <AvatarFallback className="text-xs">
-                          {event.organizer.split(' ').map(n => n[0]).join('')}
-                        </AvatarFallback>
-                      </Avatar>
-                      <span className="text-xs text-muted-foreground">{event.organizer}</span>
-                    </div>
-                    
-                    <Badge variant="neutral" className="text-xs">
-                      {event.category}
-                    </Badge>
-                  </div>
-                </CardContent>
-              </Card>
+        <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+          <SelectTrigger className="w-full sm:w-44 h-9">
+            <SelectValue placeholder="Category" />
+          </SelectTrigger>
+          <SelectContent>
+            {categories.map((category) => (
+              <SelectItem key={category} value={category}>
+                {category}
+              </SelectItem>
             ))}
-          </div>
-        </CardContent>
-      </Card>
+          </SelectContent>
+        </Select>
+
+        <DatePicker
+          value={selectedDate}
+          onChange={setSelectedDate}
+          placeholder="Filter date"
+          clearable
+          className="w-full sm:w-44 h-9"
+        />
+      </div>
+
+      {/* Events Grid */}
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        {filteredEvents.map((event) => (
+          <Card key={event.id} className="transition-colors hover:border-foreground/20">
+            <CardHeader className="pb-3">
+              <div className="flex items-start justify-between gap-2">
+                <div className="space-y-1 min-w-0">
+                  <CardTitle className="text-base font-semibold truncate">{event.title}</CardTitle>
+                  <div className="flex items-center gap-2 pt-0.5">
+                    <StatusBadge status={event.status} />
+                    <EventCategoryBadge category={event.category} />
+                  </div>
+                </div>
+                <div className="flex items-center gap-1 shrink-0">
+                  <Button variant="ghost" size="icon" className="h-8 w-8" asChild>
+                    <Link href={`/dashboard/events/${event.id}`} aria-label="View event details">
+                      <Eye className="h-4 w-4" />
+                    </Link>
+                  </Button>
+                  <Button variant="ghost" size="icon" className="h-8 w-8" asChild>
+                    <Link href={`/dashboard/events/${event.id}/edit`} aria-label="Edit event">
+                      <Edit className="h-4 w-4" />
+                    </Link>
+                  </Button>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <p className="text-xs text-muted-foreground line-clamp-2">{event.description}</p>
+
+              <div className="space-y-1.5 text-xs">
+                <div className="flex items-center gap-2 text-muted-foreground">
+                  <CalendarIcon className="h-3.5 w-3.5 shrink-0" />
+                  <span>{format(new Date(event.date), 'MMM dd, yyyy')}</span>
+                </div>
+
+                <div className="flex items-center gap-2 text-muted-foreground">
+                  <Clock className="h-3.5 w-3.5 shrink-0" />
+                  <span>{event.time}</span>
+                </div>
+
+                <div className="flex items-center gap-2 text-muted-foreground">
+                  <MapPin className="h-3.5 w-3.5 shrink-0" />
+                  <span className="truncate">{event.location}</span>
+                </div>
+
+                <div className="flex items-center gap-2 text-muted-foreground">
+                  <Users className="h-3.5 w-3.5 shrink-0" />
+                  <span>{event.attendees} / {event.maxAttendees} attendees</span>
+                </div>
+              </div>
+
+              <div className="flex items-center justify-between pt-2 border-t border-border/50">
+                <div className="flex items-center gap-2">
+                  <Avatar className="h-5 w-5">
+                    <AvatarFallback className="text-[10px]">
+                      {event.organizer.split(' ').map(n => n[0]).join('')}
+                    </AvatarFallback>
+                  </Avatar>
+                  <span className="text-xs text-muted-foreground truncate">{event.organizer}</span>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
     </div>
   );
 }

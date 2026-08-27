@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { ArrowLeft, Wallet, Plus, TrendingUp, Users, Calendar, BarChart3, DollarSign } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -123,10 +124,12 @@ export default function AllocationsOverviewPage() {
         <Button
           variant="outline"
           size="icon"
-          className="h-12 w-12"
-          onClick={() => router.back()}
+          className="h-9 w-9"
+          asChild
         >
-          <ArrowLeft className="h-4 w-4" />
+          <Link href="/dashboard/finance/budgets" aria-label="Back to Budgets">
+            <ArrowLeft className="h-4 w-4" />
+          </Link>
         </Button>
         
         <div className="flex items-center gap-3">

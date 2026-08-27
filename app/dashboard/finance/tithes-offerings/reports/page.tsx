@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import {
   ArrowLeft,
@@ -47,8 +48,8 @@ const mockReportData = {
     { name: 'Sunday Offering', amount: 25000, percentage: 20, color: '#28ACD1' },
     { name: 'Building Fund', amount: 20000, percentage: 16, color: '#C49831' },
     { name: 'First Fruits', amount: 15000, percentage: 12, color: '#A5CF5D' },
-    { name: 'Missions', amount: 12000, percentage: 10, color: '#6366F1' },
-    { name: 'Youth Ministry', amount: 8000, percentage: 6, color: '#EC4899' }
+    { name: 'Missions', amount: 12000, percentage: 10, color: '#1e627c' },
+    { name: 'Youth Ministry', amount: 8000, percentage: 6, color: '#475569' }
   ],
   topGivers: [
     { name: 'John Smith', amount: 5200, records: 12 },
@@ -99,7 +100,7 @@ export default function TitheOfferingReportsPage() {
     return growth > 0 ? (
       <TrendingUp className="h-4 w-4 text-brand-success" />
     ) : (
-      <TrendingUp className="h-4 w-4 text-red-500 rotate-180" />
+      <TrendingUp className="h-4 w-4 text-destructive rotate-180" />
     );
   };
 
@@ -110,25 +111,20 @@ export default function TitheOfferingReportsPage() {
         <Button
           variant="outline"
           size="icon"
-          onClick={() => router.back()}
-          className="h-12 w-12"
+          className="h-9 w-9"
+          asChild
         >
-          <ArrowLeft className="h-4 w-4" />
+          <Link href="/dashboard/finance/tithes-offerings" aria-label="Back to Tithes & Offerings">
+            <ArrowLeft className="h-4 w-4" />
+          </Link>
         </Button>
         <PageHeader title="Giving Reports" />
       </div>
 
       {/* Filters */}
       <LazySection>
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Filter className="h-5 w-5" />
-              Report Filters
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <Card className="p-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="space-y-2">
                 <label className="text-sm font-medium">Date Range</label>
                 <DatePickerWithRange
@@ -172,7 +168,6 @@ export default function TitheOfferingReportsPage() {
                 </div>
               </div>
             </div>
-          </CardContent>
         </Card>
       </LazySection>
 
@@ -196,19 +191,16 @@ export default function TitheOfferingReportsPage() {
           title="Total Records"
           value={mockReportData.summary.totalRecords}
           icon={FileText}
-          description="Giving transactions"
         />
         <StatCard
           title="Average Amount"
           value={formatCurrency(mockReportData.summary.averageAmount)}
           icon={TrendingUp}
-          description="Per transaction"
         />
         <StatCard
           title="Growth Rate"
           value={`+${mockReportData.summary.growth}%`}
           icon={Calendar}
-          description="Compared to last period"
         />
       </LazySection>
 
@@ -216,11 +208,8 @@ export default function TitheOfferingReportsPage() {
         {/* Monthly Trends */}
         <LazySection>
           <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <TrendingUp className="h-5 w-5" />
-                Monthly Trends
-              </CardTitle>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base font-semibold">Monthly Trends</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
@@ -251,11 +240,8 @@ export default function TitheOfferingReportsPage() {
         {/* Category Breakdown */}
         <LazySection>
           <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <PieChart className="h-5 w-5" />
-                Category Breakdown
-              </CardTitle>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base font-semibold">Category Breakdown</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">

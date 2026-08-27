@@ -506,25 +506,21 @@ export default function DocumentsPage() {
           title="Total Documents"
           value={documents.length}
           icon={FileText}
-          description="All document types"
         />
         <StatCard
           title="Total Size"
           value={formatFileSize(documents.reduce((total, doc) => total + doc.fileSize, 0))}
           icon={HardDrive}
-          description="Combined file size"
         />
         <StatCard
           title="Public Documents"
           value={documents.filter(d => d.isPublic).length}
           icon={Eye}
-          description="Visible to all"
         />
         <StatCard
           title="Categories"
           value={new Set(documents.map(d => d.category)).size}
           icon={FolderOpen}
-          description="Document categories"
         />
       </div>
 

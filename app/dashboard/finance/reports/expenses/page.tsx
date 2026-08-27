@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -130,10 +131,12 @@ export default function ExpenseReportsPage() {
         <Button
           variant="outline"
           size="icon"
-          className="h-12 w-12"
-          onClick={() => router.back()}
+          className="h-9 w-9"
+          asChild
         >
-          <ArrowLeft className="h-4 w-4" />
+          <Link href="/dashboard/finance/reports" aria-label="Back to Finance Reports">
+            <ArrowLeft className="h-4 w-4" />
+          </Link>
         </Button>
         <PageHeader title="Expense Reports" />
       </div>
@@ -170,37 +173,31 @@ export default function ExpenseReportsPage() {
           title="Total Expenses"
           value={`₵${expenseSummary.totalExpenses.toLocaleString()}`}
           icon={Receipt}
-          description="This year"
         />
         <StatCard
           title="Monthly Average"
           value={`₵${expenseSummary.monthlyAverage.toLocaleString()}`}
           icon={Calendar}
-          description="Per month"
         />
         <StatCard
           title="YoY Growth"
           value={`+${expenseSummary.yearOverYearGrowth}%`}
           icon={TrendingDown}
-          description="Year over year"
         />
         <StatCard
           title="Budget Used"
           value={`${expenseSummary.budgetUtilization}%`}
           icon={BarChart3}
-          description="Of total budget"
         />
         <StatCard
           title="Largest Category"
           value={expenseSummary.largestCategory}
           icon={Settings}
-          description="49% of expenses"
         />
         <StatCard
           title="Departments"
           value={expenseSummary.departmentCount}
           icon={Building}
-          description="Active departments"
         />
       </div>
 

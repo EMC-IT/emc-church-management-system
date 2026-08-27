@@ -29,6 +29,7 @@ import {
 } from '@tanstack/react-table';
 
 import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
@@ -185,22 +186,37 @@ export default function IncomeCategoriesPage() {
   // Table columns
   const columns: ColumnDef<IncomeCategory>[] = [
     {
+      id: 'select',
+      header: ({ table }) => (
+        <Checkbox
+          checked={
+            table.getIsAllPageRowsSelected() ||
+            (table.getIsSomePageRowsSelected() && 'indeterminate')
+          }
+          onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+          aria-label="Select all"
+        />
+      ),
+      cell: ({ row }) => (
+        <Checkbox
+          checked={row.getIsSelected()}
+          onCheckedChange={(value) => row.toggleSelected(!!value)}
+          aria-label="Select row"
+        />
+      ),
+      enableSorting: false,
+      enableHiding: false,
+    },
+    {
       accessorKey: 'name',
       header: 'Category Name',
       cell: ({ row }) => {
         const category = row.original;
         return (
-          <div className="flex items-center space-x-3">
-            <div className="flex-shrink-0">
-              <div className={`w-3 h-3 rounded-full ${
-                category.isActive ? 'bg-brand-success' : 'bg-gray-400'
-              }`} />
-            </div>
-            <div>
-              <div className="font-medium">{category.name}</div>
-              <div className="text-sm text-muted-foreground truncate max-w-[200px]">
-                {category.description}
-              </div>
+          <div>
+            <div className="font-medium">{category.name}</div>
+            <div className="text-sm text-muted-foreground truncate max-w-[200px]">
+              {category.description}
             </div>
           </div>
         );
@@ -384,7 +400,6 @@ export default function IncomeCategoriesPage() {
           value={summaryStats.totalCategories}
           icon={FileText}
           accent="primary"
-          description={`${summaryStats.activeCategories} active`}
         />
 
         <StatCard
@@ -392,7 +407,6 @@ export default function IncomeCategoriesPage() {
           value={formatCurrency(summaryStats.totalIncome)}
           icon={BadgeCent}
           accent="success"
-          description="Across all categories"
         />
 
         <StatCard
@@ -400,7 +414,6 @@ export default function IncomeCategoriesPage() {
           value={summaryStats.totalRecords}
           icon={TrendingUp}
           accent="secondary"
-          description="Total income entries"
         />
 
         <StatCard
@@ -408,7 +421,6 @@ export default function IncomeCategoriesPage() {
           value={formatCurrency(summaryStats.avgIncomePerCategory)}
           icon={Calendar}
           accent="accent"
-          description="Active categories only"
         />
       </LazySection>
 

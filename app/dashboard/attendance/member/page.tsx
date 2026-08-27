@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -375,15 +376,16 @@ export default function MemberAttendancePage() {
     <div className="space-y-6">
       {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-3">
           <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => router.back()}
-            className="text-muted-foreground hover:text-foreground"
+            variant="outline"
+            size="icon"
+            className="h-9 w-9"
+            asChild
           >
-            <ArrowLeft className="h-4 w-4 mr-1.5" />
-            Back
+            <Link href="/dashboard/attendance" aria-label="Back to Attendance">
+              <ArrowLeft className="h-4 w-4" />
+            </Link>
           </Button>
           <h1 className="font-heading text-2xl font-bold tracking-tight">
             Member Attendance
@@ -419,7 +421,6 @@ export default function MemberAttendancePage() {
           title="Needs Attention"
           value={stats.needsAttention}
           icon={AlertTriangle}
-          description="Rate below 80%"
         />
       </div>
 

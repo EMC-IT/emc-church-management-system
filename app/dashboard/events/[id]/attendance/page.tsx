@@ -1,14 +1,14 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { useRouter, useParams } from 'next/navigation';
+import { useState } from 'react';
+import { useParams } from 'next/navigation';
+import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { PageHeader } from '@/components/ui/page-header';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { StatCard } from '@/components/ui/stat-card';
-import { Badge } from '@/components/ui/badge';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { StatusBadge } from '@/components/ui/status-badge';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -16,14 +16,12 @@ import {
   ArrowLeft,
   UserCheck,
   Search,
-  Filter,
   Download,
   Upload,
   Clock,
   Users,
   CheckCircle2,
   XCircle,
-  AlertCircle,
   MoreHorizontal,
   UserPlus,
   UserMinus,
@@ -130,8 +128,8 @@ const statusOptions = ['All', 'Present', 'Absent', 'Late', 'Excused'];
 const groupOptions = ['All', 'Adult Ministry', 'Youth Ministry', 'Children Ministry', 'Worship Team', 'Ushering Team'];
 
 export default function AttendancePage() {
-  const router = useRouter();
   const params = useParams();
+  const eventId = (params.id as string) || mockEvent.id;
   const [loading, setLoading] = useState(false);
   const [attendees, setAttendees] = useState<Attendee[]>(mockAttendees);
   const [searchTerm, setSearchTerm] = useState('');
@@ -139,6 +137,7 @@ export default function AttendancePage() {
   const [groupFilter, setGroupFilter] = useState('All');
   const [selectedAttendees, setSelectedAttendees] = useState<string[]>([]);
   const [activeTab, setActiveTab] = useState('list');
+  const [quickCheckInInput, setQuickCheckInInput] = useState('');
 
   const filteredAttendees = attendees.filter(attendee => {
     const matchesSearch = attendee.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -155,35 +154,13 @@ export default function AttendancePage() {
     present: attendees.filter(a => a.status === 'Present').length,
     absent: attendees.filter(a => a.status === 'Absent').length,
     late: attendees.filter(a => a.status === 'Late').length,
-    excused: attendees.filter(a => a.status === 'Excused').length
-  };
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'Present': return 'primary';
-      case 'Absent': return 'danger';
-      case 'Late': return 'neutral';
-      case 'Excused': return 'neutral';
-      default: return 'neutral';
-    }
-  };
-
-  const getStatusIcon = (status: string) => {
-    switch (status) {
-      case 'Present': return <CheckCircle2 className="h-4 w-4 text-green-500" />;
-      case 'Absent': return <XCircle className="h-4 w-4 text-red-500" />;
-      case 'Late': return <Clock className="h-4 w-4 text-yellow-500" />;
-      case 'Excused': return <Info className="h-4 w-4 text-blue-500" />;
-      default: return <AlertCircle className="h-4 w-4 text-gray-500" />;
-    }
+    excused: attendees.filter(a => a.status === 'Excused').length,
   };
 
   const handleCheckIn = async (attendeeId: string) => {
     setLoading(true);
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 500));
-      
+      await new Promise(resolve => setTimeout(resolve, 400));
       setAttendees(prev => prev.map(attendee => 
         attendee.id === attendeeId 
           ? { 
@@ -194,9 +171,8 @@ export default function AttendancePage() {
             }
           : attendee
       ));
-      
       toast.success('Member checked in successfully');
-    } catch (error) {
+    } catch {
       toast.error('Failed to check in member');
     } finally {
       setLoading(false);
@@ -206,9 +182,7 @@ export default function AttendancePage() {
   const handleMarkAbsent = async (attendeeId: string) => {
     setLoading(true);
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 500));
-      
+      await new Promise(resolve => setTimeout(resolve, 400));
       setAttendees(prev => prev.map(attendee => 
         attendee.id === attendeeId 
           ? { 
@@ -219,9 +193,8 @@ export default function AttendancePage() {
             }
           : attendee
       ));
-      
-      toast.success('Member marked as absent successfully');
-    } catch (error) {
+      toast.success('Member marked as absent');
+    } catch {
       toast.error('Failed to mark member as absent');
     } finally {
       setLoading(false);
@@ -231,9 +204,7 @@ export default function AttendancePage() {
   const handleMarkLate = async (attendeeId: string) => {
     setLoading(true);
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 500));
-      
+      await new Promise(resolve => setTimeout(resolve, 400));
       setAttendees(prev => prev.map(attendee => 
         attendee.id === attendeeId 
           ? { 
@@ -244,9 +215,8 @@ export default function AttendancePage() {
             }
           : attendee
       ));
-      
       toast.success('Member marked as late');
-    } catch (error) {
+    } catch {
       toast.error('Failed to mark member as late');
     } finally {
       setLoading(false);
@@ -256,9 +226,7 @@ export default function AttendancePage() {
   const handleMarkExcused = async (attendeeId: string) => {
     setLoading(true);
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 500));
-      
+      await new Promise(resolve => setTimeout(resolve, 400));
       setAttendees(prev => prev.map(attendee => 
         attendee.id === attendeeId 
           ? { 
@@ -269,51 +237,20 @@ export default function AttendancePage() {
             }
           : attendee
       ));
-      
       toast.success('Member marked as excused');
-    } catch (error) {
+    } catch {
       toast.error('Failed to mark member as excused');
     } finally {
       setLoading(false);
     }
   };
 
-  const handleMarkPresent = async (attendeeId: string) => {
-    setLoading(true);
-    try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 500));
-      
-      setAttendees(prev => prev.map(attendee => 
-        attendee.id === attendeeId 
-          ? { 
-              ...attendee, 
-              status: 'Present', 
-              checkedInAt: new Date().toISOString(),
-              checkedInBy: 'Admin'
-            }
-          : attendee
-      ));
-      
-      toast.success('Member marked as present');
-    } catch (error) {
-      toast.error('Failed to mark member as present');
-    } finally {
-      setLoading(false);
-    }
-  };
-
   const handleBulkCheckIn = async () => {
-    if (selectedAttendees.length === 0) {
-      toast.error('Please select attendees to check in');
-      return;
-    }
+    if (selectedAttendees.length === 0) return;
 
     setLoading(true);
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
+      await new Promise(resolve => setTimeout(resolve, 600));
       setAttendees(prev => prev.map(attendee => 
         selectedAttendees.includes(attendee.id)
           ? { 
@@ -324,10 +261,9 @@ export default function AttendancePage() {
             }
           : attendee
       ));
-      
       setSelectedAttendees([]);
       toast.success(`${selectedAttendees.length} members checked in successfully`);
-    } catch (error) {
+    } catch {
       toast.error('Failed to check in selected members');
     } finally {
       setLoading(false);
@@ -335,16 +271,11 @@ export default function AttendancePage() {
   };
 
   const handleBulkMarkLate = async () => {
-    if (selectedAttendees.length === 0) {
-      toast.error('Please select attendees to mark as late');
-      return;
-    }
+    if (selectedAttendees.length === 0) return;
 
     setLoading(true);
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
+      await new Promise(resolve => setTimeout(resolve, 600));
       setAttendees(prev => prev.map(attendee => 
         selectedAttendees.includes(attendee.id)
           ? { 
@@ -355,10 +286,9 @@ export default function AttendancePage() {
             }
           : attendee
       ));
-      
       setSelectedAttendees([]);
       toast.success(`${selectedAttendees.length} members marked as late`);
-    } catch (error) {
+    } catch {
       toast.error('Failed to mark selected members as late');
     } finally {
       setLoading(false);
@@ -366,16 +296,11 @@ export default function AttendancePage() {
   };
 
   const handleBulkMarkExcused = async () => {
-    if (selectedAttendees.length === 0) {
-      toast.error('Please select attendees to mark as excused');
-      return;
-    }
+    if (selectedAttendees.length === 0) return;
 
     setLoading(true);
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
+      await new Promise(resolve => setTimeout(resolve, 600));
       setAttendees(prev => prev.map(attendee => 
         selectedAttendees.includes(attendee.id)
           ? { 
@@ -386,10 +311,9 @@ export default function AttendancePage() {
             }
           : attendee
       ));
-      
       setSelectedAttendees([]);
       toast.success(`${selectedAttendees.length} members marked as excused`);
-    } catch (error) {
+    } catch {
       toast.error('Failed to mark selected members as excused');
     } finally {
       setLoading(false);
@@ -413,108 +337,99 @@ export default function AttendancePage() {
   };
 
   const exportAttendance = () => {
-    // Simulate export functionality
     toast.success('Attendance report exported successfully');
+  };
+
+  const handleQuickCheckInSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!quickCheckInInput.trim()) return;
+    
+    const matched = attendees.find(a => 
+      a.memberId.toLowerCase() === quickCheckInInput.toLowerCase() ||
+      a.name.toLowerCase().includes(quickCheckInInput.toLowerCase())
+    );
+    
+    if (matched) {
+      handleCheckIn(matched.id);
+      setQuickCheckInInput('');
+    } else {
+      toast.error('Member not found in attendee list');
+    }
   };
 
   return (
     <div className="space-y-6">
-      {/* Back Navigation */}
-      <div className="flex items-center gap-4 mb-6">
-        <Button
-          variant="outline"
-          size="icon"
-          className="h-12 w-12"
-          onClick={() => router.back()}
-        >
-          <ArrowLeft className="h-4 w-4" />
-        </Button>
-        
+      {/* Header */}
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-3">
-          <div className="p-2 bg-brand-primary/10 rounded-lg">
-            <UserCheck className="h-6 w-6 text-brand-primary" />
+          <Button
+            variant="outline"
+            size="icon"
+            className="h-9 w-9"
+            asChild
+          >
+            <Link href={`/dashboard/events/${eventId}`} aria-label="Back to Event Details">
+              <ArrowLeft className="h-4 w-4" />
+            </Link>
+          </Button>
+          <div>
+            <h1 className="font-heading text-2xl font-bold tracking-tight">Event Attendance</h1>
+            <p className="text-xs text-muted-foreground mt-0.5">
+              {mockEvent.title} • {format(new Date(mockEvent.date), 'MMM dd, yyyy')}
+            </p>
           </div>
-          <PageHeader
-            title="Attendance Tracking"
-            description={`${mockEvent.title} - ${format(new Date(mockEvent.date), 'PPP')}`}
-          />
+        </div>
+
+        <div className="flex items-center gap-2">
+          <Button variant="outline" size="sm" onClick={exportAttendance}>
+            <Download className="mr-1.5 h-4 w-4" />
+            Export
+          </Button>
+          <Button variant="outline" size="sm">
+            <Upload className="mr-1.5 h-4 w-4" />
+            Import
+          </Button>
         </div>
       </div>
 
       {/* Stats Cards */}
-      <div className="grid gap-4 md:grid-cols-5">
-        <StatCard title="Total" value={stats.total} icon={Users} />
-        <StatCard
-          title="Present"
-          value={stats.present}
-          icon={CheckCircle2}
-          accent="success"
-          description={`${((stats.present / stats.total) * 100).toFixed(1)}%`}
-        />
-        <StatCard
-          title="Absent"
-          value={stats.absent}
-          icon={XCircle}
-          description={`${((stats.absent / stats.total) * 100).toFixed(1)}%`}
-        />
-        <StatCard
-          title="Late"
-          value={stats.late}
-          icon={Clock}
-          accent="accent"
-          description={`${((stats.late / stats.total) * 100).toFixed(1)}%`}
-        />
-        <StatCard
-          title="Excused"
-          value={stats.excused}
-          icon={Info}
-          accent="secondary"
-          description={`${((stats.excused / stats.total) * 100).toFixed(1)}%`}
-        />
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
+        <StatCard title="Total Expected" value={stats.total} icon={Users} />
+        <StatCard title="Present" value={stats.present} icon={CheckCircle2} />
+        <StatCard title="Absent" value={stats.absent} icon={XCircle} />
+        <StatCard title="Late" value={stats.late} icon={Clock} />
+        <StatCard title="Excused" value={stats.excused} icon={Info} />
       </div>
 
       {/* Main Content */}
       <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <div>
-              <CardTitle>Attendance Management</CardTitle>
-            </div>
-            <div className="flex items-center gap-2">
-              <Button variant="outline" onClick={exportAttendance}>
-                <Download className="mr-2 h-4 w-4" />
-                Export
-              </Button>
-              <Button variant="outline">
-                <Upload className="mr-2 h-4 w-4" />
-                Import
-              </Button>
-            </div>
-          </div>
+        <CardHeader className="pb-3">
+          <CardTitle className="text-base">Attendance Management</CardTitle>
+          <CardDescription className="text-xs">Record and monitor attendee check-ins</CardDescription>
         </CardHeader>
         
         <CardContent>
           <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
-            <TabsList>
-              <TabsTrigger value="list">List View</TabsTrigger>
-              <TabsTrigger value="checkin">Quick Check-in</TabsTrigger>
+            <TabsList className="h-9">
+              <TabsTrigger value="list" className="text-xs">List View</TabsTrigger>
+              <TabsTrigger value="checkin" className="text-xs">Quick Check-in</TabsTrigger>
             </TabsList>
 
-            <TabsContent value="list" className="space-y-4">
+            <TabsContent value="list" className="space-y-4 pt-1">
               {/* Filters and Search */}
-              <div className="flex items-center gap-4 mb-4">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
                 <div className="relative flex-1">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                   <Input
                     placeholder="Search by name, email, or member ID..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="pl-10"
+                    className="pl-9 h-9"
                   />
                 </div>
                 
                 <Select value={statusFilter} onValueChange={setStatusFilter}>
-                  <SelectTrigger className="w-40">
+                  <SelectTrigger className="w-full sm:w-36 h-9">
                     <SelectValue placeholder="Status" />
                   </SelectTrigger>
                   <SelectContent>
@@ -527,7 +442,7 @@ export default function AttendancePage() {
                 </Select>
                 
                 <Select value={groupFilter} onValueChange={setGroupFilter}>
-                  <SelectTrigger className="w-48">
+                  <SelectTrigger className="w-full sm:w-44 h-9">
                     <SelectValue placeholder="Group" />
                   </SelectTrigger>
                   <SelectContent>
@@ -542,20 +457,20 @@ export default function AttendancePage() {
 
               {/* Bulk Actions */}
               {selectedAttendees.length > 0 && (
-                <div className="flex items-center gap-2 p-3 bg-muted rounded-lg">
-                  <span className="text-sm font-medium">
+                <div className="flex flex-wrap items-center gap-2 p-2.5 bg-muted/60 rounded-lg border border-border">
+                  <span className="text-xs font-semibold text-foreground mr-2">
                     {selectedAttendees.length} selected
                   </span>
                   <Button size="sm" onClick={handleBulkCheckIn} disabled={loading}>
-                    <UserPlus className="mr-2 h-4 w-4" />
-                    Check In Selected
+                    <UserPlus className="mr-1.5 h-3.5 w-3.5" />
+                    Check In
                   </Button>
                   <Button size="sm" variant="outline" onClick={handleBulkMarkLate} disabled={loading}>
-                    <Clock className="mr-2 h-4 w-4" />
+                    <Clock className="mr-1.5 h-3.5 w-3.5" />
                     Mark Late
                   </Button>
                   <Button size="sm" variant="outline" onClick={handleBulkMarkExcused} disabled={loading}>
-                    <Info className="mr-2 h-4 w-4" />
+                    <Info className="mr-1.5 h-3.5 w-3.5" />
                     Mark Excused
                   </Button>
                 </div>
@@ -563,9 +478,9 @@ export default function AttendancePage() {
 
               {/* Attendees List */}
               <div className="space-y-2">
-                {/* Header */}
-                <div className="flex items-center p-3 bg-muted/50 rounded-lg font-medium text-sm">
-                  <div className="flex items-center space-x-3 flex-1">
+                {/* Table Header */}
+                <div className="hidden sm:flex items-center p-2.5 bg-muted/50 rounded-lg font-medium text-xs text-muted-foreground border border-border/40">
+                  <div className="flex items-center gap-3 flex-1">
                     <Checkbox
                       checked={selectedAttendees.length === filteredAttendees.length && filteredAttendees.length > 0}
                       onCheckedChange={handleSelectAll}
@@ -575,125 +490,76 @@ export default function AttendancePage() {
                   <div className="w-32">Group</div>
                   <div className="w-24">Status</div>
                   <div className="w-32">Check-in Time</div>
-                  <div className="w-20">Actions</div>
+                  <div className="w-12 text-right">Action</div>
                 </div>
 
                 {/* Attendee Rows */}
                 {filteredAttendees.map((attendee) => (
-                  <div key={attendee.id} className="flex items-center p-3 border rounded-lg hover:bg-muted/50">
-                    <div className="flex items-center space-x-3 flex-1">
+                  <div key={attendee.id} className="flex flex-col sm:flex-row sm:items-center p-3 border rounded-lg hover:border-foreground/20 transition-colors gap-3">
+                    <div className="flex items-center gap-3 flex-1 min-w-0">
                       <Checkbox
                         checked={selectedAttendees.includes(attendee.id)}
                         onCheckedChange={() => handleSelectAttendee(attendee.id)}
                       />
                       <Avatar className="h-8 w-8">
-                        <AvatarFallback className="text-xs">
+                        <AvatarFallback className="text-xs bg-primary/10 text-primary">
                           {attendee.name.split(' ').map(n => n[0]).join('')}
                         </AvatarFallback>
                       </Avatar>
-                      <div>
-                        <p className="font-medium">{attendee.name}</p>
-                        <p className="text-sm text-muted-foreground">{attendee.email}</p>
+                      <div className="min-w-0">
+                        <p className="font-medium text-xs text-foreground truncate">{attendee.name}</p>
+                        <p className="text-[11px] text-muted-foreground truncate">{attendee.email} • {attendee.memberId}</p>
                       </div>
                     </div>
                     
-                    <div className="w-32">
-                      <Badge variant="neutral" className="text-xs">
-                        {attendee.group}
-                      </Badge>
+                    <div className="sm:w-32 text-xs text-muted-foreground">
+                      {attendee.group}
                     </div>
                     
-                    <div className="w-24">
-                      <div className="flex items-center gap-1">
-                        {getStatusIcon(attendee.status)}
-                        <Badge variant={getStatusColor(attendee.status)} className="text-xs">
-                          {attendee.status}
-                        </Badge>
-                      </div>
+                    <div className="sm:w-24">
+                      <StatusBadge status={attendee.status} />
                     </div>
                     
-                    <div className="w-32 text-sm text-muted-foreground">
+                    <div className="sm:w-32 text-xs text-muted-foreground">
                       {attendee.checkedInAt ? (
-                        <div>
-                          <div>{format(new Date(attendee.checkedInAt), 'HH:mm')}</div>
-                          <div className="text-xs">{format(new Date(attendee.checkedInAt), 'MMM dd')}</div>
-                        </div>
+                        <span>{format(new Date(attendee.checkedInAt), 'HH:mm • MMM dd')}</span>
                       ) : (
-                        '-'
+                        <span className="text-muted-foreground/60">—</span>
                       )}
                     </div>
                     
-                    <div className="w-20">
+                    <div className="sm:w-12 flex justify-end">
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                           <Button variant="ghost" size="icon" className="h-8 w-8">
                             <MoreHorizontal className="h-4 w-4" />
+                            <span className="sr-only">Open menu</span>
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
-                          {attendee.status === 'Present' && (
-                            <>
-                              <DropdownMenuItem onClick={() => handleMarkLate(attendee.id)}>
-                                <Clock className="mr-2 h-4 w-4" />
-                                Mark Late
-                              </DropdownMenuItem>
-                              <DropdownMenuItem onClick={() => handleMarkExcused(attendee.id)}>
-                                <Info className="mr-2 h-4 w-4" />
-                                Mark Excused
-                              </DropdownMenuItem>
-                              <DropdownMenuItem onClick={() => handleMarkAbsent(attendee.id)}>
-                                <UserMinus className="mr-2 h-4 w-4" />
-                                Mark Absent
-                              </DropdownMenuItem>
-                            </>
+                          {attendee.status !== 'Present' && (
+                            <DropdownMenuItem onClick={() => handleCheckIn(attendee.id)}>
+                              <UserPlus className="mr-2 h-4 w-4" />
+                              Mark Present
+                            </DropdownMenuItem>
                           )}
-                          {attendee.status === 'Absent' && (
-                            <>
-                              <DropdownMenuItem onClick={() => handleCheckIn(attendee.id)}>
-                                <UserPlus className="mr-2 h-4 w-4" />
-                                Mark Present
-                              </DropdownMenuItem>
-                              <DropdownMenuItem onClick={() => handleMarkLate(attendee.id)}>
-                                <Clock className="mr-2 h-4 w-4" />
-                                Mark Late
-                              </DropdownMenuItem>
-                              <DropdownMenuItem onClick={() => handleMarkExcused(attendee.id)}>
-                                <Info className="mr-2 h-4 w-4" />
-                                Mark Excused
-                              </DropdownMenuItem>
-                            </>
+                          {attendee.status !== 'Late' && (
+                            <DropdownMenuItem onClick={() => handleMarkLate(attendee.id)}>
+                              <Clock className="mr-2 h-4 w-4" />
+                              Mark Late
+                            </DropdownMenuItem>
                           )}
-                          {attendee.status === 'Late' && (
-                            <>
-                              <DropdownMenuItem onClick={() => handleMarkPresent(attendee.id)}>
-                                <CheckCircle2 className="mr-2 h-4 w-4" />
-                                Mark Present
-                              </DropdownMenuItem>
-                              <DropdownMenuItem onClick={() => handleMarkExcused(attendee.id)}>
-                                <Info className="mr-2 h-4 w-4" />
-                                Mark Excused
-                              </DropdownMenuItem>
-                              <DropdownMenuItem onClick={() => handleMarkAbsent(attendee.id)}>
-                                <UserMinus className="mr-2 h-4 w-4" />
-                                Mark Absent
-                              </DropdownMenuItem>
-                            </>
+                          {attendee.status !== 'Excused' && (
+                            <DropdownMenuItem onClick={() => handleMarkExcused(attendee.id)}>
+                              <Info className="mr-2 h-4 w-4" />
+                              Mark Excused
+                            </DropdownMenuItem>
                           )}
-                          {attendee.status === 'Excused' && (
-                            <>
-                              <DropdownMenuItem onClick={() => handleCheckIn(attendee.id)}>
-                                <UserPlus className="mr-2 h-4 w-4" />
-                                Check In
-                              </DropdownMenuItem>
-                              <DropdownMenuItem onClick={() => handleMarkLate(attendee.id)}>
-                                <Clock className="mr-2 h-4 w-4" />
-                                Mark Late
-                              </DropdownMenuItem>
-                              <DropdownMenuItem onClick={() => handleMarkPresent(attendee.id)}>
-                                <CheckCircle2 className="mr-2 h-4 w-4" />
-                                Mark Present
-                              </DropdownMenuItem>
-                            </>
+                          {attendee.status !== 'Absent' && (
+                            <DropdownMenuItem onClick={() => handleMarkAbsent(attendee.id)}>
+                              <UserMinus className="mr-2 h-4 w-4" />
+                              Mark Absent
+                            </DropdownMenuItem>
                           )}
                         </DropdownMenuContent>
                       </DropdownMenu>
@@ -703,30 +569,32 @@ export default function AttendancePage() {
               </div>
 
               {filteredAttendees.length === 0 && (
-                <div className="text-center py-8 text-muted-foreground">
-                  No attendees found matching your criteria.
+                <div className="text-center py-12 text-muted-foreground">
+                  <p className="text-sm font-medium">No attendees found matching your criteria.</p>
                 </div>
               )}
             </TabsContent>
 
-            <TabsContent value="checkin" className="space-y-4">
-              <div className="text-center py-8">
-                <UserCheck className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                <h3 className="text-lg font-semibold mb-2">Quick Check-in</h3>
-                <p className="text-muted-foreground mb-4">
-                  Scan member ID or search by name for quick check-in
+            <TabsContent value="checkin" className="space-y-4 pt-4">
+              <div className="text-center py-8 max-w-md mx-auto">
+                <UserCheck className="h-10 w-10 text-muted-foreground mx-auto mb-3 opacity-60" />
+                <h3 className="text-base font-semibold mb-1">Quick Check-in</h3>
+                <p className="text-xs text-muted-foreground mb-4">
+                  Enter member ID or full name to instantly record check-in
                 </p>
                 
-                <div className="max-w-md mx-auto space-y-4">
+                <form onSubmit={handleQuickCheckInSubmit} className="space-y-3">
                   <Input
-                    placeholder="Enter member ID or name..."
-                    className="text-center"
+                    placeholder="Enter member ID (e.g. M001) or name..."
+                    className="text-center h-10"
+                    value={quickCheckInInput}
+                    onChange={(e) => setQuickCheckInInput(e.target.value)}
                   />
-                  <Button className="w-full bg-brand-primary hover:bg-brand-primary/90">
-                    <UserPlus className="mr-2 h-4 w-4" />
+                  <Button type="submit" className="w-full" disabled={loading || !quickCheckInInput.trim()}>
+                    <UserPlus className="mr-1.5 h-4 w-4" />
                     Check In Member
                   </Button>
-                </div>
+                </form>
               </div>
             </TabsContent>
           </Tabs>

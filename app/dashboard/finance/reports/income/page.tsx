@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -146,10 +147,12 @@ export default function IncomeReportsPage() {
         <Button
           variant="outline"
           size="icon"
-          className="h-12 w-12"
-          onClick={() => router.back()}
+          className="h-9 w-9"
+          asChild
         >
-          <ArrowLeft className="h-4 w-4" />
+          <Link href="/dashboard/finance/reports" aria-label="Back to Finance Reports">
+            <ArrowLeft className="h-4 w-4" />
+          </Link>
         </Button>
         <PageHeader title="Income Reports" />
       </div>
@@ -186,37 +189,31 @@ export default function IncomeReportsPage() {
           title="Total Income"
           value={`₵${incomeSummary.totalIncome.toLocaleString()}`}
           icon={Wallet}
-          description="This year"
         />
         <StatCard
           title="Monthly Average"
           value={`₵${incomeSummary.monthlyAverage.toLocaleString()}`}
           icon={Calendar}
-          description="Per month"
         />
         <StatCard
           title="YoY Growth"
           value={`+${incomeSummary.yearOverYearGrowth}%`}
           icon={TrendingUp}
-          description="Year over year"
         />
         <StatCard
           title="Total Donors"
           value={incomeSummary.donorCount}
           icon={Users}
-          description="Active donors"
         />
         <StatCard
           title="Average Donation"
           value={`₵${incomeSummary.averageDonation}`}
           icon={Gift}
-          description="Per donation"
         />
         <StatCard
           title="Recurring Donors"
           value={incomeSummary.recurringDonors}
           icon={Heart}
-          description={`${((incomeSummary.recurringDonors / incomeSummary.donorCount) * 100).toFixed(1)}% of total`}
         />
       </div>
 

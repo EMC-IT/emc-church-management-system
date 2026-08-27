@@ -18,6 +18,7 @@ import {
 } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { DataTable } from '@/components/ui/data-table';
 import { Badge } from '@/components/ui/badge';
@@ -144,6 +145,28 @@ export default function IncomeOverviewPage() {
 
   const columns: ColumnDef<IncomeRecord>[] = [
     {
+      id: 'select',
+      header: ({ table }) => (
+        <Checkbox
+          checked={
+            table.getIsAllPageRowsSelected() ||
+            (table.getIsSomePageRowsSelected() && 'indeterminate')
+          }
+          onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+          aria-label="Select all"
+        />
+      ),
+      cell: ({ row }) => (
+        <Checkbox
+          checked={row.getIsSelected()}
+          onCheckedChange={(value) => row.toggleSelected(!!value)}
+          aria-label="Select row"
+        />
+      ),
+      enableSorting: false,
+      enableHiding: false,
+    },
+    {
       accessorKey: 'description',
       header: 'Description',
       cell: ({ row }) => {
@@ -226,7 +249,6 @@ export default function IncomeOverviewPage() {
           value={formatCurrency(incomeStats.totalAmount)}
           icon={BadgeCent}
           accent="primary"
-          description={`${incomeStats.totalCount} transactions`}
         />
 
         <StatCard
@@ -245,7 +267,6 @@ export default function IncomeOverviewPage() {
           value={formatCurrency(incomeStats.averageAmount)}
           icon={TrendingUp}
           accent="success"
-          description="Per transaction"
         />
 
         <StatCard
@@ -253,7 +274,6 @@ export default function IncomeOverviewPage() {
           value={incomeStats.categoriesCount}
           icon={PieChart}
           accent="accent"
-          description="Active categories"
         />
       </LazySection>
 

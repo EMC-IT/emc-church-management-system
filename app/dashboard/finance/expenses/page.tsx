@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { DataTable } from '@/components/ui/data-table';
 import { Badge } from '@/components/ui/badge';
@@ -147,6 +148,28 @@ export default function ExpensesOverviewPage() {
 
   const columns: ColumnDef<ExpenseRecord>[] = [
     {
+      id: 'select',
+      header: ({ table }) => (
+        <Checkbox
+          checked={
+            table.getIsAllPageRowsSelected() ||
+            (table.getIsSomePageRowsSelected() && 'indeterminate')
+          }
+          onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+          aria-label="Select all"
+        />
+      ),
+      cell: ({ row }) => (
+        <Checkbox
+          checked={row.getIsSelected()}
+          onCheckedChange={(value) => row.toggleSelected(!!value)}
+          aria-label="Select row"
+        />
+      ),
+      enableSorting: false,
+      enableHiding: false,
+    },
+    {
       accessorKey: 'description',
       header: 'Description',
       cell: ({ row }) => {
@@ -172,7 +195,7 @@ export default function ExpensesOverviewPage() {
       header: 'Amount',
       cell: ({ row }) => {
         const amount = parseFloat(row.getValue('amount'));
-        return <div className="font-medium text-red-600">{formatCurrency(amount)}</div>;
+        return <div className="font-medium text-destructive">{formatCurrency(amount)}</div>;
       },
     },
     {
@@ -230,7 +253,6 @@ export default function ExpensesOverviewPage() {
           value={formatCurrency(expenseStats.totalAmount)}
           icon={Wallet}
           accent="accent"
-          description={`${expenseStats.totalCount} transactions`}
         />
 
         <StatCard
@@ -249,7 +271,6 @@ export default function ExpensesOverviewPage() {
           value={formatCurrency(expenseStats.averageAmount)}
           icon={Receipt}
           accent="primary"
-          description="Per transaction"
         />
 
         <StatCard
@@ -257,7 +278,6 @@ export default function ExpensesOverviewPage() {
           value={expenseStats.categoriesCount}
           icon={PieChart}
           accent="secondary"
-          description="Active categories"
         />
       </LazySection>
 

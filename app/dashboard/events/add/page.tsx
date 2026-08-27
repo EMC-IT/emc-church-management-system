@@ -144,15 +144,13 @@ export default function AddEventPage() {
   return (
     <div className="space-y-6 max-w-6xl">
       {/* Header */}
-      <div className="flex items-center gap-4">
-        <Button variant="ghost" size="icon" asChild>
-          <Link href="/dashboard/events">
+      <div className="flex items-center gap-3">
+        <Button variant="outline" size="icon" className="h-9 w-9" asChild>
+          <Link href="/dashboard/events" aria-label="Back to Events">
             <ArrowLeft className="h-4 w-4" />
           </Link>
         </Button>
-        <div>
-          <h1 className="font-heading text-2xl font-bold tracking-tight">Create Event</h1>
-        </div>
+        <h1 className="font-heading text-2xl font-bold tracking-tight">Create Event</h1>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">

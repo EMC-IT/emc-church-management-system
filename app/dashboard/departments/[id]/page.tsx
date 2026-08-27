@@ -154,25 +154,21 @@ export default function DepartmentDetailsPage() {
           title="Total Members"
           value={stats?.totalMembers || 0}
           icon={Users}
-          description={`${stats?.activeMembers || 0} active members`}
         />
         <StatCard
           title="Attendance Rate"
           value={`${stats?.attendanceRate || 0}%`}
           icon={TrendingUp}
-          description="Average meeting attendance"
         />
         <StatCard
           title="Total Meetings"
           value={stats?.totalMeetings || 0}
           icon={Calendar}
-          description="Meetings recorded"
         />
         <StatCard
           title="Leader"
           value={department.leader}
           icon={UserCheck}
-          description="Department Head"
         />
       </div>
 

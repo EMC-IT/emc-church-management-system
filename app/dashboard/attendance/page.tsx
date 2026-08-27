@@ -210,7 +210,6 @@ export default function AttendancePage() {
           title="Total Members"
           value={attendanceOverviewStats.totalMembers}
           icon={Users}
-          description="Active registry"
         />
         <StatCard
           title="Present Today"
@@ -222,13 +221,11 @@ export default function AttendancePage() {
           title="Attendance Rate"
           value={`${attendanceOverviewStats.attendanceRate}%`}
           icon={UserCheck}
-          description={`Monthly avg: ${attendanceOverviewStats.monthlyAverage}%`}
         />
         <StatCard
           title="Late Arrivals"
           value={attendanceOverviewStats.lateToday}
           icon={Clock}
-          description={`${Math.round((attendanceOverviewStats.lateToday / attendanceOverviewStats.presentToday) * 100)}% of present`}
         />
       </div>
 

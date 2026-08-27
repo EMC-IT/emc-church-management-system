@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { PageHeader } from '@/components/ui/page-header';
 import { StatCard } from '@/components/ui/stat-card';
@@ -27,9 +28,11 @@ import {
   Target,
   PieChart,
   BarChart3,
-  Filter,
-  RefreshCw
+  Filter, 
+  RefreshCw,
+  ArrowLeft
 } from 'lucide-react';
+import Link from 'next/link';
 import { useToast } from '@/hooks/use-toast';
 import { givingService } from '@/services';
 import { Giving, GivingType, GivingCategory, GivingStatus } from '@/lib/types';
@@ -277,6 +280,28 @@ export default function GivingReportsPage() {
 
   const columns: ColumnDef<Giving>[] = [
     {
+      id: 'select',
+      header: ({ table }) => (
+        <Checkbox
+          checked={
+            table.getIsAllPageRowsSelected() ||
+            (table.getIsSomePageRowsSelected() && 'indeterminate')
+          }
+          onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+          aria-label="Select all"
+        />
+      ),
+      cell: ({ row }) => (
+        <Checkbox
+          checked={row.getIsSelected()}
+          onCheckedChange={(value) => row.toggleSelected(!!value)}
+          aria-label="Select row"
+        />
+      ),
+      enableSorting: false,
+      enableHiding: false,
+    },
+    {
       accessorKey: 'receiptNumber',
       header: 'Receipt #',
       cell: ({ row }) => {
@@ -305,7 +330,7 @@ export default function GivingReportsPage() {
       header: 'Amount',
       cell: ({ row }) => {
         const amount = parseFloat(row.getValue('amount'));
-        return <div className="font-medium">{formatCurrency(amount)}</div>;
+        return <div className="font-medium text-brand-success">{formatCurrency(amount)}</div>;
       },
     },
     {
@@ -364,36 +389,32 @@ export default function GivingReportsPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <PageHeader
-        title="Giving Reports"
-        actions={
-          <>
-            <Button variant="outline" onClick={() => loadReportData()}>
-              <RefreshCw className="mr-2 h-4 w-4" />
-              Refresh
-            </Button>
-            <Select onValueChange={(value) => handleExport(value as 'pdf' | 'excel' | 'csv')}>
-              <SelectTrigger className="w-32">
-                <SelectValue placeholder="Export" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="pdf">
-                  <Download className="mr-2 h-4 w-4" />
-                  PDF
-                </SelectItem>
-                <SelectItem value="excel">
-                  <Download className="mr-2 h-4 w-4" />
-                  Excel
-                </SelectItem>
-                <SelectItem value="csv">
-                  <Download className="mr-2 h-4 w-4" />
-                  CSV
-                </SelectItem>
-              </SelectContent>
-            </Select>
-          </>
-        }
-      />
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex items-center gap-3">
+          <Button variant="outline" size="icon" className="h-9 w-9" asChild>
+            <Link href="/dashboard/finance/giving" aria-label="Back to Giving">
+              <ArrowLeft className="h-4 w-4" />
+            </Link>
+          </Button>
+          <h1 className="font-heading text-2xl font-bold tracking-tight">Giving Reports</h1>
+        </div>
+        <div className="flex items-center gap-2">
+          <Button variant="outline" size="sm" onClick={() => loadReportData()}>
+            <RefreshCw className="mr-1.5 h-4 w-4" />
+            Refresh
+          </Button>
+          <Select onValueChange={(value) => handleExport(value as 'pdf' | 'excel' | 'csv')}>
+            <SelectTrigger className="w-32 h-9">
+              <SelectValue placeholder="Export" />
+            </SelectTrigger>
+            <SelectContent align="end">
+              <SelectItem value="pdf">PDF</SelectItem>
+              <SelectItem value="excel">Excel</SelectItem>
+              <SelectItem value="csv">CSV</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
 
       {/* Filters */}
       <LazySection
@@ -403,118 +424,110 @@ export default function GivingReportsPage() {
          skeletonCount={1}
          threshold={0.1}
        >
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center space-x-2">
-              <Filter className="h-5 w-5" />
-              <span>Report Filters</span>
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
-              <div className="space-y-2">
-                <Label>Date Range</Label>
-                <Popover open={dateOpen} onOpenChange={setDateOpen}>
-                  <PopoverTrigger asChild>
-                    <Button variant="outline" className="justify-start text-left font-normal w-full">
-                      <CalendarIcon className="mr-2 h-4 w-4" />
-                      {filters.dateRange?.from && filters.dateRange?.to ? (
-                        `${format(filters.dateRange.from, 'MMM dd')} - ${format(filters.dateRange.to, 'MMM dd')}`
-                      ) : (
-                        'Select date range'
-                      )}
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0" align="start">
-                    <Calendar
-                      mode="range"
-                      selected={filters.dateRange ? { from: filters.dateRange.from, to: filters.dateRange.to } : undefined}
-                      onSelect={(range) => {
-                        if (range?.from && range?.to) {
-                          setFilters({ ...filters, dateRange: { from: range.from, to: range.to } });
-                        }
-                        setDateOpen(false);
-                      }}
-                      numberOfMonths={2}
-                      initialFocus
-                    />
-                  </PopoverContent>
-                </Popover>
-              </div>
-              
-              <div className="space-y-2">
-                <Label>Category</Label>
-                <Select value={filters.category} onValueChange={(value) => setFilters({ ...filters, category: value })}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Categories</SelectItem>
-                    <SelectItem value={GivingCategory.GENERAL}>General</SelectItem>
-                    <SelectItem value={GivingCategory.BUILDING_FUND}>Building Fund</SelectItem>
-                    <SelectItem value={GivingCategory.MISSIONARY}>Missionary</SelectItem>
-                    <SelectItem value={GivingCategory.YOUTH}>Youth</SelectItem>
-                    <SelectItem value={GivingCategory.CHILDREN}>Children</SelectItem>
-                    <SelectItem value={GivingCategory.MUSIC}>Music</SelectItem>
-                    <SelectItem value={GivingCategory.OUTREACH}>Outreach</SelectItem>
-                    <SelectItem value={GivingCategory.CHARITY}>Charity</SelectItem>
-                    <SelectItem value={GivingCategory.EDUCATION}>Education</SelectItem>
-                    <SelectItem value={GivingCategory.MEDICAL}>Medical</SelectItem>
-                    <SelectItem value={GivingCategory.DISASTER_RELIEF}>Disaster Relief</SelectItem>
-                    <SelectItem value={GivingCategory.OTHER}>Other</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              
-              <div className="space-y-2">
-                <Label>Type</Label>
-                <Select value={filters.type} onValueChange={(value) => setFilters({ ...filters, type: value })}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Types</SelectItem>
-                    <SelectItem value={GivingType.TITHE}>Tithe</SelectItem>
-                    <SelectItem value={GivingType.OFFERING}>Offering</SelectItem>
-                    <SelectItem value={GivingType.DONATION}>Donation</SelectItem>
-                    <SelectItem value={GivingType.PLEDGE}>Pledge</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              
-              <div className="space-y-2">
-                <Label>Method</Label>
-                <Select value={filters.method} onValueChange={(value) => setFilters({ ...filters, method: value })}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Methods</SelectItem>
-                    <SelectItem value="Cash">Cash</SelectItem>
-                    <SelectItem value="Transfer">Transfer</SelectItem>
-                    <SelectItem value="Online">Online</SelectItem>
-                    <SelectItem value="Check">Check</SelectItem>
-                    <SelectItem value="Card">Card</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              
-              <div className="space-y-2">
-                <Label>Status</Label>
-                <Select value={filters.status} onValueChange={(value) => setFilters({ ...filters, status: value })}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Status</SelectItem>
-                    <SelectItem value={GivingStatus.COMPLETED}>Completed</SelectItem>
-                    <SelectItem value={GivingStatus.PENDING}>Pending</SelectItem>
-                    <SelectItem value={GivingStatus.FAILED}>Failed</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
+        <Card className="p-4">
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
+            <div className="space-y-1.5">
+              <Label className="text-xs font-medium text-muted-foreground">Date Range</Label>
+              <Popover open={dateOpen} onOpenChange={setDateOpen}>
+                <PopoverTrigger asChild>
+                  <Button variant="outline" className="justify-start text-left font-normal w-full h-9 text-xs">
+                    <CalendarIcon className="mr-2 h-3.5 w-3.5 text-muted-foreground" />
+                    {filters.dateRange?.from && filters.dateRange?.to ? (
+                      `${format(filters.dateRange.from, 'MMM dd')} - ${format(filters.dateRange.to, 'MMM dd')}`
+                    ) : (
+                      'Select date range'
+                    )}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <Calendar
+                    mode="range"
+                    selected={filters.dateRange ? { from: filters.dateRange.from, to: filters.dateRange.to } : undefined}
+                    onSelect={(range) => {
+                      if (range?.from && range?.to) {
+                        setFilters({ ...filters, dateRange: { from: range.from, to: range.to } });
+                      }
+                      setDateOpen(false);
+                    }}
+                    numberOfMonths={2}
+                    initialFocus
+                  />
+                </PopoverContent>
+              </Popover>
             </div>
-          </CardContent>
+            
+            <div className="space-y-1.5">
+              <Label className="text-xs font-medium text-muted-foreground">Category</Label>
+              <Select value={filters.category} onValueChange={(value) => setFilters({ ...filters, category: value })}>
+                <SelectTrigger className="h-9 text-xs">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Categories</SelectItem>
+                  <SelectItem value={GivingCategory.GENERAL}>General</SelectItem>
+                  <SelectItem value={GivingCategory.BUILDING_FUND}>Building Fund</SelectItem>
+                  <SelectItem value={GivingCategory.MISSIONARY}>Missionary</SelectItem>
+                  <SelectItem value={GivingCategory.YOUTH}>Youth</SelectItem>
+                  <SelectItem value={GivingCategory.CHILDREN}>Children</SelectItem>
+                  <SelectItem value={GivingCategory.MUSIC}>Music</SelectItem>
+                  <SelectItem value={GivingCategory.OUTREACH}>Outreach</SelectItem>
+                  <SelectItem value={GivingCategory.CHARITY}>Charity</SelectItem>
+                  <SelectItem value={GivingCategory.EDUCATION}>Education</SelectItem>
+                  <SelectItem value={GivingCategory.MEDICAL}>Medical</SelectItem>
+                  <SelectItem value={GivingCategory.DISASTER_RELIEF}>Disaster Relief</SelectItem>
+                  <SelectItem value={GivingCategory.OTHER}>Other</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            
+            <div className="space-y-1.5">
+              <Label className="text-xs font-medium text-muted-foreground">Type</Label>
+              <Select value={filters.type} onValueChange={(value) => setFilters({ ...filters, type: value })}>
+                <SelectTrigger className="h-9 text-xs">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Types</SelectItem>
+                  <SelectItem value={GivingType.TITHE}>Tithe</SelectItem>
+                  <SelectItem value={GivingType.OFFERING}>Offering</SelectItem>
+                  <SelectItem value={GivingType.DONATION}>Donation</SelectItem>
+                  <SelectItem value={GivingType.PLEDGE}>Pledge</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            
+            <div className="space-y-1.5">
+              <Label className="text-xs font-medium text-muted-foreground">Method</Label>
+              <Select value={filters.method} onValueChange={(value) => setFilters({ ...filters, method: value })}>
+                <SelectTrigger className="h-9 text-xs">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Methods</SelectItem>
+                  <SelectItem value="Cash">Cash</SelectItem>
+                  <SelectItem value="Transfer">Transfer</SelectItem>
+                  <SelectItem value="Online">Online</SelectItem>
+                  <SelectItem value="Check">Check</SelectItem>
+                  <SelectItem value="Card">Card</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            
+            <div className="space-y-1.5">
+              <Label className="text-xs font-medium text-muted-foreground">Status</Label>
+              <Select value={filters.status} onValueChange={(value) => setFilters({ ...filters, status: value })}>
+                <SelectTrigger className="h-9 text-xs">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Status</SelectItem>
+                  <SelectItem value={GivingStatus.COMPLETED}>Completed</SelectItem>
+                  <SelectItem value={GivingStatus.PENDING}>Pending</SelectItem>
+                  <SelectItem value={GivingStatus.FAILED}>Failed</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
         </Card>
       </LazySection>
 
@@ -531,46 +544,39 @@ export default function GivingReportsPage() {
             title="Total Amount"
             value={formatCurrency(report.totalAmount)}
             icon={BadgeCent}
-            description={report.period}
           />
           <StatCard
             title="Total Count"
             value={report.totalCount}
             icon={Users}
-            description="Giving transactions"
           />
           <StatCard
             title="Average Amount"
             value={formatCurrency(report.averageAmount)}
             icon={TrendingUp}
-            description="Per transaction"
           />
           <StatCard
             title="Growth"
             value="+12.5%"
             icon={TrendingUp}
-            description="vs previous period"
           />
         </div>
       </LazySection>
 
       <Tabs defaultValue="overview" className="space-y-4">
-        <TabsList>
-          <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="categories">By Category</TabsTrigger>
-          <TabsTrigger value="methods">By Method</TabsTrigger>
-          <TabsTrigger value="details">Detailed Data</TabsTrigger>
+        <TabsList className="h-9">
+          <TabsTrigger value="overview" className="text-xs">Overview</TabsTrigger>
+          <TabsTrigger value="categories" className="text-xs">By Category</TabsTrigger>
+          <TabsTrigger value="methods" className="text-xs">By Method</TabsTrigger>
+          <TabsTrigger value="details" className="text-xs">Detailed Data</TabsTrigger>
         </TabsList>
 
         <TabsContent value="overview" className="space-y-4">
           <LazyLoader threshold={0.2}>
             <div className="grid gap-4 md:grid-cols-2">
               <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center space-x-2">
-                    <PieChart className="h-5 w-5" />
-                    <span>Category Distribution</span>
-                  </CardTitle>
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-base font-semibold">Category Distribution</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   {report.categories.map((category) => (
@@ -590,11 +596,8 @@ export default function GivingReportsPage() {
               </Card>
 
               <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center space-x-2">
-                    <BarChart3 className="h-5 w-5" />
-                    <span>Payment Methods</span>
-                  </CardTitle>
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-base font-semibold">Payment Methods</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   {report.methods.map((method) => (
@@ -678,20 +681,13 @@ export default function GivingReportsPage() {
 
         <TabsContent value="details" className="space-y-4">
           <LazyLoader threshold={0.4}>
-            <Card>
-              <CardHeader>
-                <CardTitle>Detailed Giving Data</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <DataTable
-                  columns={columns}
-                  data={givingData}
-                  recordLabel="giving transaction"
-                  searchKey="description"
-                  searchPlaceholder="Search transactions..."
-                />
-              </CardContent>
-            </Card>
+            <DataTable
+              columns={columns}
+              data={givingData}
+              recordLabel="giving transaction"
+              searchKey="receiptNumber"
+              searchPlaceholder="Search transactions..."
+            />
           </LazyLoader>
         </TabsContent>
       </Tabs>

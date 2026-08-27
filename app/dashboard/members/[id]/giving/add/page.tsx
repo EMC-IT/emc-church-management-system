@@ -241,8 +241,8 @@ export default function AddGivingPage() {
     <div className="space-y-6 max-w-6xl">
       {/* Header */}
       <div className="flex items-center gap-4">
-        <Button variant="ghost" size="icon" asChild>
-          <Link href={`/dashboard/members/${member.id}/giving`}>
+        <Button variant="outline" size="icon" className="h-9 w-9" asChild>
+          <Link href={`/dashboard/members/${memberId}/giving`} aria-label="Back to Member Giving">
             <ArrowLeft className="h-4 w-4" />
           </Link>
         </Button>
@@ -380,10 +380,12 @@ export default function AddGivingPage() {
           <Button
             type="button"
             variant="outline"
-            onClick={() => router.push(`/dashboard/members/${memberId}/giving`)}
+            asChild
             disabled={saving}
           >
-            Cancel
+            <Link href={`/dashboard/members/${memberId}/giving`}>
+              Cancel
+            </Link>
           </Button>
           <Button type="submit" disabled={saving}>
             <Save className="mr-1.5 h-4 w-4" />

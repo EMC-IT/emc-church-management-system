@@ -336,10 +336,9 @@ export default function PledgeDetailsPage() {
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center gap-4">
-        <Button variant="outline" size="sm" asChild>
-          <Link href="/dashboard/finance/giving/pledges">
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Back
+        <Button variant="outline" size="icon" className="h-9 w-9" asChild>
+          <Link href="/dashboard/finance/giving/pledges" aria-label="Back to Pledges">
+            <ArrowLeft className="h-4 w-4" />
           </Link>
         </Button>
         <div className="flex-1">
@@ -432,11 +431,11 @@ export default function PledgeDetailsPage() {
 
       {/* Status Alert */}
       {isOverdue && !isCompleted && (
-        <div className="flex items-center space-x-2 p-4 bg-red-50 border border-red-200 rounded-lg">
-          <AlertCircle className="h-5 w-5 text-red-600" />
+        <div className="flex items-center space-x-3 p-4 bg-destructive/10 border border-destructive/20 rounded-lg">
+          <AlertCircle className="h-5 w-5 text-destructive shrink-0" />
           <div>
-            <p className="font-medium text-red-800">Payment Overdue</p>
-            <p className="text-sm text-red-600">
+            <p className="font-medium text-destructive">Payment Overdue</p>
+            <p className="text-xs text-destructive/90">
               Next payment was due on {new Date(pledge.pledgeDetails.nextDueDate!).toLocaleDateString()}
             </p>
           </div>
@@ -444,11 +443,11 @@ export default function PledgeDetailsPage() {
       )}
 
       {isCompleted && (
-        <div className="flex items-center space-x-2 p-4 bg-green-50 border border-green-200 rounded-lg">
-          <CheckCircle className="h-5 w-5 text-green-600" />
+        <div className="flex items-center space-x-3 p-4 bg-brand-success/10 border border-brand-success/20 rounded-lg">
+          <CheckCircle className="h-5 w-5 text-brand-success shrink-0" />
           <div>
-            <p className="font-medium text-green-800">Pledge Completed</p>
-            <p className="text-sm text-green-600">
+            <p className="font-medium text-brand-success">Pledge Completed</p>
+            <p className="text-xs text-muted-foreground">
               All payments have been received for this pledge
             </p>
           </div>
@@ -470,7 +469,6 @@ export default function PledgeDetailsPage() {
             value={formatCurrency(pledge.pledgeDetails.totalAmount)}
             icon={Target}
             accent="primary"
-            description={`${pledge.pledgeDetails.installments} installments`}
           />
 
           <StatCard
@@ -478,7 +476,6 @@ export default function PledgeDetailsPage() {
             value={formatCurrency(pledge.pledgeDetails.paidAmount)}
             icon={BadgeCent}
             accent="success"
-            description={`${payments.length} payments made`}
           />
 
           <StatCard
@@ -486,7 +483,6 @@ export default function PledgeDetailsPage() {
             value={formatCurrency(pledge.pledgeDetails.remainingAmount)}
             icon={Clock}
             accent="accent"
-            description={isCompleted ? 'Completed' : `${pledge.pledgeDetails.installments - payments.length} payments left`}
           />
 
           <Card>
@@ -601,7 +597,7 @@ export default function PledgeDetailsPage() {
                   {pledge.pledgeDetails.nextDueDate && (
                     <div className="flex justify-between">
                       <span className="text-sm text-muted-foreground">Next Due:</span>
-                      <span className={`font-medium ${isOverdue ? 'text-red-600' : ''}`}>
+                      <span className={`font-medium ${isOverdue ? 'text-destructive' : ''}`}>
                         {new Date(pledge.pledgeDetails.nextDueDate).toLocaleDateString()}
                         {isOverdue && ' (Overdue)'}
                       </span>

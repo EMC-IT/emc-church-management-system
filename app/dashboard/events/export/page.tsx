@@ -1,24 +1,25 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { PageHeader } from '@/components/ui/page-header';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { DateRangePicker } from '@/components/ui/date-range-picker';
 import { type DateRange } from 'react-day-picker';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Badge } from '@/components/ui/badge';
+import { EventCategoryBadge } from '@/components/ui/category-badges';
 import { 
   ArrowLeft, 
   Download, 
   FileText, 
   FileSpreadsheet, 
   Filter,
-  Eye
+  Eye,
+  Loader2
 } from 'lucide-react';
 import { format } from 'date-fns';
+import { toast } from 'sonner';
 
 const exportFormats = [
   { id: 'csv', name: 'CSV', icon: FileSpreadsheet, description: 'Comma-separated values' },
@@ -56,7 +57,6 @@ const mockEvents = [
 ];
 
 export default function ExportEventsPage() {
-  const router = useRouter();
   const [selectedFormat, setSelectedFormat] = useState('csv');
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [dateRange, setDateRange] = useState<DateRange | undefined>();
@@ -89,13 +89,9 @@ export default function ExportEventsPage() {
 
   const handleExport = async () => {
     setIsExporting(true);
-    // Simulate export process
-    await new Promise(resolve => setTimeout(resolve, 2000));
+    await new Promise(resolve => setTimeout(resolve, 1500));
     setIsExporting(false);
-    
-    // In a real implementation, this would trigger the actual download
-    const filename = `events_export_${format(new Date(), 'yyyy-MM-dd')}.${selectedFormat}`;
-    console.log(`Exporting to ${filename}`);
+    toast.success(`Export completed: events_export_${format(new Date(), 'yyyy-MM-dd')}.${selectedFormat}`);
   };
 
   const filteredEvents = mockEvents.filter(event => {
@@ -109,22 +105,20 @@ export default function ExportEventsPage() {
 
   return (
     <div className="space-y-6">
-      {/* Back Navigation */}
-      <div className="flex items-center gap-4 mb-6">
-        <Button
-          variant="outline"
-          size="icon"
-          className="h-12 w-12"
-          onClick={() => router.back()}
-        >
-          <ArrowLeft className="h-4 w-4" />
-        </Button>
-        
+      {/* Header */}
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-3">
-          <div className="p-2 bg-brand-primary/10 rounded-lg">
-            <Download className="h-6 w-6 text-brand-primary" />
-          </div>
-          <PageHeader title="Export Events" />
+          <Button
+            variant="outline"
+            size="icon"
+            className="h-9 w-9"
+            asChild
+          >
+            <Link href="/dashboard/events" aria-label="Back to Events">
+              <ArrowLeft className="h-4 w-4" />
+            </Link>
+          </Button>
+          <h1 className="font-heading text-2xl font-bold tracking-tight">Export Events</h1>
         </div>
       </div>
 
@@ -133,28 +127,29 @@ export default function ExportEventsPage() {
         <div className="lg:col-span-2 space-y-6">
           {/* Export Format */}
           <Card>
-            <CardHeader>
-              <CardTitle>Export Format</CardTitle>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base">Export Format</CardTitle>
+              <CardDescription className="text-xs">Choose the file format for your export</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="grid gap-4 md:grid-cols-3">
+              <div className="grid gap-3 sm:grid-cols-3">
                 {exportFormats.map((format) => {
                   const Icon = format.icon;
                   return (
                     <div
                       key={format.id}
-                      className={`p-4 border rounded-lg cursor-pointer transition-colors ${
+                      className={`p-3.5 border rounded-lg cursor-pointer transition-colors ${
                         selectedFormat === format.id
-                          ? 'border-brand-primary bg-brand-primary/5'
-                          : 'border-border hover:border-brand-primary/50'
+                          ? 'border-primary bg-primary/5 ring-1 ring-primary'
+                          : 'border-border hover:border-foreground/20'
                       }`}
                       onClick={() => setSelectedFormat(format.id)}
                     >
-                      <div className="flex items-center space-x-3">
-                        <Icon className="h-5 w-5 text-brand-primary" />
+                      <div className="flex items-start gap-3">
+                        <Icon className="h-5 w-5 text-primary shrink-0 mt-0.5" />
                         <div>
-                          <div className="font-medium">{format.name}</div>
-                          <div className="text-sm text-muted-foreground">{format.description}</div>
+                          <div className="font-medium text-sm text-foreground">{format.name}</div>
+                          <div className="text-xs text-muted-foreground">{format.description}</div>
                         </div>
                       </div>
                     </div>
@@ -166,18 +161,19 @@ export default function ExportEventsPage() {
 
           {/* Filters */}
           <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Filter className="h-5 w-5" />
-                Filters
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base flex items-center gap-2">
+                <Filter className="h-4 w-4" />
+                Data Filters
               </CardTitle>
+              <CardDescription className="text-xs">Narrow down the events included in the export</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               {/* Category Filter */}
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Category</label>
+              <div className="space-y-1.5">
+                <label className="text-xs font-medium text-foreground">Category</label>
                 <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-                  <SelectTrigger>
+                  <SelectTrigger className="h-9">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -191,8 +187,8 @@ export default function ExportEventsPage() {
               </div>
 
               {/* Date Range */}
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Date Range</label>
+              <div className="space-y-1.5">
+                <label className="text-xs font-medium text-foreground">Date Range</label>
                 <DateRangePicker
                   date={dateRange}
                   onDateChange={setDateRange}
@@ -206,19 +202,20 @@ export default function ExportEventsPage() {
 
           {/* Field Selection */}
           <Card>
-            <CardHeader>
-              <CardTitle>Fields to Export</CardTitle>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base">Fields to Export</CardTitle>
+              <CardDescription className="text-xs">Select data columns to include</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="grid gap-3 md:grid-cols-2">
+              <div className="grid gap-3 sm:grid-cols-2">
                 {availableFields.map((field) => (
-                  <div key={field.id} className="flex items-center space-x-2">
+                  <div key={field.id} className="flex items-center gap-2.5">
                     <Checkbox
                       id={field.id}
                       checked={selectedFields.includes(field.id)}
                       onCheckedChange={() => handleFieldToggle(field.id)}
                     />
-                    <label htmlFor={field.id} className="text-sm font-medium">
+                    <label htmlFor={field.id} className="text-xs font-medium text-foreground cursor-pointer">
                       {field.label}
                     </label>
                   </div>
@@ -232,42 +229,54 @@ export default function ExportEventsPage() {
         <div className="space-y-6">
           {/* Export Summary */}
           <Card>
-            <CardHeader>
-              <CardTitle>Export Summary</CardTitle>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base">Export Summary</CardTitle>
+              <CardDescription className="text-xs">Review before downloading</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <div className="flex justify-between text-sm">
+              <div className="space-y-2 text-xs">
+                <div className="flex justify-between py-1 border-b border-border/50">
                   <span className="text-muted-foreground">Format:</span>
                   <span className="font-medium">{exportFormats.find(f => f.id === selectedFormat)?.name}</span>
                 </div>
-                <div className="flex justify-between text-sm">
+                <div className="flex justify-between py-1 border-b border-border/50">
                   <span className="text-muted-foreground">Events:</span>
                   <span className="font-medium">{filteredEvents.length}</span>
                 </div>
-                <div className="flex justify-between text-sm">
+                <div className="flex justify-between py-1">
                   <span className="text-muted-foreground">Fields:</span>
                   <span className="font-medium">{selectedFields.length}</span>
                 </div>
               </div>
 
-              <div className="space-y-2">
+              <div className="space-y-2 pt-2">
                 <Button
                   variant="outline"
+                  size="sm"
                   className="w-full"
                   onClick={() => setShowPreview(!showPreview)}
                 >
-                  <Eye className="mr-2 h-4 w-4" />
+                  <Eye className="mr-1.5 h-4 w-4" />
                   {showPreview ? 'Hide Preview' : 'Show Preview'}
                 </Button>
 
                 <Button
-                  className="w-full bg-brand-primary hover:bg-brand-primary/90"
+                  size="sm"
+                  className="w-full"
                   onClick={handleExport}
                   disabled={isExporting || filteredEvents.length === 0}
                 >
-                  <Download className="mr-2 h-4 w-4" />
-                  {isExporting ? 'Exporting...' : 'Export Data'}
+                  {isExporting ? (
+                    <>
+                      <Loader2 className="mr-1.5 h-4 w-4 animate-spin" />
+                      Exporting...
+                    </>
+                  ) : (
+                    <>
+                      <Download className="mr-1.5 h-4 w-4" />
+                      Export Data
+                    </>
+                  )}
                 </Button>
               </div>
             </CardContent>
@@ -276,24 +285,25 @@ export default function ExportEventsPage() {
           {/* Preview */}
           {showPreview && (
             <Card>
-              <CardHeader>
-                <CardTitle>Preview</CardTitle>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-base">Preview</CardTitle>
+                <CardDescription className="text-xs">Sample records</CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="space-y-3">
+                <div className="space-y-2.5">
                   {filteredEvents.slice(0, 3).map((event) => (
-                    <div key={event.id} className="p-3 border rounded-lg">
-                      <div className="font-medium">{event.title}</div>
-                      <div className="text-sm text-muted-foreground">
-                        {format(new Date(event.date), 'MMM dd, yyyy')} • {event.category}
+                    <div key={event.id} className="p-2.5 border rounded-lg space-y-1">
+                      <div className="font-medium text-xs truncate">{event.title}</div>
+                      <div className="text-[11px] text-muted-foreground">
+                        {format(new Date(event.date), 'MMM dd, yyyy')}
                       </div>
-                      <Badge variant="neutral" className="mt-1">
-                        {event.attendees} attendees
-                      </Badge>
+                      <div className="pt-0.5">
+                        <EventCategoryBadge category={event.category} />
+                      </div>
                     </div>
                   ))}
                   {filteredEvents.length > 3 && (
-                    <div className="text-sm text-muted-foreground text-center">
+                    <div className="text-xs text-muted-foreground text-center pt-1">
                       +{filteredEvents.length - 3} more events
                     </div>
                   )}

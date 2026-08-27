@@ -5,6 +5,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { StatusBadge } from '@/components/ui/status-badge';
 import { PageHeader } from '@/components/ui/page-header';
 import { useToast } from '@/hooks/use-toast';
 import { givingService } from '@/services';
@@ -238,22 +239,7 @@ export default function GivingDetailPage() {
     return category.charAt(0).toUpperCase() + category.slice(1).replace(/([A-Z])/g, ' $1');
   };
 
-  const getStatusBadge = (status: GivingStatus) => {
-    switch (status) {
-      case GivingStatus.COMPLETED:
-        return <Badge variant="primary">Completed</Badge>;
-      case GivingStatus.PENDING:
-        return <Badge variant="neutral">Pending</Badge>;
-      case GivingStatus.FAILED:
-        return <Badge variant="danger">Failed</Badge>;
-      case GivingStatus.REFUNDED:
-        return <Badge variant="neutral">Refunded</Badge>;
-      case GivingStatus.CANCELLED:
-        return <Badge variant="neutral">Cancelled</Badge>;
-      default:
-        return <Badge variant="neutral">{status}</Badge>;
-    }
-  };
+  const getStatusBadge = (status: GivingStatus) => <StatusBadge status={status} />;
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-GH', {
@@ -292,8 +278,8 @@ export default function GivingDetailPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div className="flex items-center gap-4">
-          <Button variant="ghost" size="icon" asChild>
-            <Link href={`/dashboard/members/${member.id}/giving`}>
+          <Button variant="outline" size="icon" className="h-9 w-9" asChild>
+            <Link href={`/dashboard/members/${member.id}/giving`} aria-label="Back to Member Giving">
               <ArrowLeft className="h-4 w-4" />
             </Link>
           </Button>
@@ -341,7 +327,7 @@ export default function GivingDetailPage() {
               <div className="grid gap-4 md:grid-cols-2">
                 <div>
                   <Label className="text-sm text-muted-foreground">Amount</Label>
-                  <p className="text-2xl font-bold text-green-600">
+                  <p className="text-2xl font-bold text-brand-success">
                     <CurrencyDisplay amount={giving.amount} />
                   </p>
                 </div>

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -158,15 +159,16 @@ export default function QRCheckinPage() {
     <div className="space-y-6">
       {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-3">
           <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => router.back()}
-            className="text-muted-foreground hover:text-foreground"
+            variant="outline"
+            size="icon"
+            className="h-9 w-9"
+            asChild
           >
-            <ArrowLeft className="h-4 w-4 mr-1.5" />
-            Back
+            <Link href="/dashboard/attendance" aria-label="Back to Attendance">
+              <ArrowLeft className="h-4 w-4" />
+            </Link>
           </Button>
           <h1 className="font-heading text-2xl font-bold tracking-tight">
             QR Code Check-in
@@ -193,7 +195,6 @@ export default function QRCheckinPage() {
           title="Total Checked In"
           value={qrSession.stats.totalCheckedIn}
           icon={UserCheck}
-          description={`of ${qrSession.stats.expectedAttendees} expected`}
         />
         <StatCard
           title="Attendance Rate"
@@ -204,13 +205,11 @@ export default function QRCheckinPage() {
           title="Recent Check-ins"
           value={qrSession.stats.recentCheckins}
           icon={Clock}
-          description="In the last 10 minutes"
         />
         <StatCard
           title="Session Expires In"
           value={`${hoursRemaining}h ${minutesRemaining}m`}
           icon={Clock}
-          description={format(new Date(qrSession.expiresAt), 'MMM dd, HH:mm')}
         />
       </div>
 

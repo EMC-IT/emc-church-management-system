@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Link from 'next/link';
 import { useRouter, useParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -282,13 +283,14 @@ export default function MemberAttendanceDetailPage() {
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-3">
           <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => router.back()}
-            className="text-muted-foreground hover:text-foreground"
+            variant="outline"
+            size="icon"
+            className="h-9 w-9"
+            asChild
           >
-            <ArrowLeft className="h-4 w-4 mr-1.5" />
-            Back
+            <Link href="/dashboard/attendance/member" aria-label="Back to Member Attendance">
+              <ArrowLeft className="h-4 w-4" />
+            </Link>
           </Button>
           <div className="flex items-center gap-3">
             <Avatar className="h-10 w-10">
@@ -360,13 +362,11 @@ export default function MemberAttendanceDetailPage() {
           title="Present"
           value={stats.presentSessions}
           icon={UserCheck}
-          description={`of ${stats.totalSessions} sessions`}
         />
         <StatCard
           title="Current Streak"
           value={`${stats.currentStreak} wks`}
           icon={Zap}
-          description={`Longest: ${stats.longestStreak} wks`}
         />
         <StatCard
           title="Late"

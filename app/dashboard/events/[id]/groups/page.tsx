@@ -1,35 +1,30 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { useRouter, useParams } from 'next/navigation';
+import { useState } from 'react';
+import { useParams } from 'next/navigation';
+import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { PageHeader } from '@/components/ui/page-header';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { StatCard } from '@/components/ui/stat-card';
-import { Badge } from '@/components/ui/badge';
+import { StatusBadge } from '@/components/ui/status-badge';
 import { EventGroupRoleBadge } from '@/components/ui/category-badges';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Checkbox } from '@/components/ui/checkbox';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import {
   ArrowLeft,
   Users,
-  Search,
   Plus,
   Trash2,
   Edit,
   Mail,
-  Phone,
   Calendar,
   MapPin,
   Clock,
-  Settings,
   UserCheck,
-  AlertCircle,
-  CheckCircle2
+  CheckCircle2,
+  AlertCircle
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { toast } from 'sonner';
@@ -179,11 +174,10 @@ const roleOptions = ['Leading', 'Supporting', 'Technical', 'Assisting', 'Coordin
 const statusOptions = ['Pending', 'Confirmed', 'Declined'];
 
 export default function EventGroupsPage() {
-  const router = useRouter();
   const params = useParams();
+  const eventId = (params.id as string) || mockEvent.id;
   const [loading, setLoading] = useState(false);
   const [linkedGroups, setLinkedGroups] = useState(mockLinkedGroups);
-  const [searchTerm, setSearchTerm] = useState('');
   const [addGroupDialogOpen, setAddGroupDialogOpen] = useState(false);
   const [editGroupDialogOpen, setEditGroupDialogOpen] = useState(false);
   const [selectedGroup, setSelectedGroup] = useState<LinkedGroup | null>(null);
@@ -195,30 +189,9 @@ export default function EventGroupsPage() {
   });
   const deleteDialog = useDeleteDialog();
 
-  const filteredAvailableGroups = availableGroups.filter(group => {
-    const isNotLinked = !linkedGroups.some(linked => linked.id === group.id);
-    const matchesSearch = group.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         group.description.toLowerCase().includes(searchTerm.toLowerCase());
-    return isNotLinked && matchesSearch;
-  });
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'Confirmed': return 'primary';
-      case 'Pending': return 'neutral';
-      case 'Declined': return 'danger';
-      default: return 'neutral';
-    }
-  };
-
-  const getStatusIcon = (status: string) => {
-    switch (status) {
-      case 'Confirmed': return <CheckCircle2 className="h-4 w-4 text-green-500" />;
-      case 'Pending': return <AlertCircle className="h-4 w-4 text-yellow-500" />;
-      case 'Declined': return <AlertCircle className="h-4 w-4 text-red-500" />;
-      default: return <AlertCircle className="h-4 w-4 text-gray-500" />;
-    }
-  };
+  const availableUnlinkedGroups = availableGroups.filter(
+    group => !linkedGroups.some(linked => linked.id === group.id)
+  );
 
   const handleAddGroup = async () => {
     if (!newGroupAssignment.groupId || !newGroupAssignment.role) {
@@ -228,8 +201,7 @@ export default function EventGroupsPage() {
 
     setLoading(true);
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      await new Promise(resolve => setTimeout(resolve, 600));
       
       const selectedGroupData = availableGroups.find(g => g.id === newGroupAssignment.groupId);
       if (selectedGroupData) {
@@ -249,7 +221,7 @@ export default function EventGroupsPage() {
         setAddGroupDialogOpen(false);
         toast.success('Group assigned to event successfully');
       }
-    } catch (error) {
+    } catch {
       toast.error('Failed to assign group to event');
     } finally {
       setLoading(false);
@@ -261,17 +233,14 @@ export default function EventGroupsPage() {
 
     setLoading(true);
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
+      await new Promise(resolve => setTimeout(resolve, 600));
       setLinkedGroups(prev => prev.map(group => 
         group.id === selectedGroup.id ? selectedGroup : group
       ));
-      
       setEditGroupDialogOpen(false);
       setSelectedGroup(null);
       toast.success('Group assignment updated successfully');
-    } catch (error) {
+    } catch {
       toast.error('Failed to update group assignment');
     } finally {
       setLoading(false);
@@ -287,9 +256,7 @@ export default function EventGroupsPage() {
 
   const confirmRemoveGroup = async (item: { id: string; name: string }) => {
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 500));
-      
+      await new Promise(resolve => setTimeout(resolve, 400));
       setLinkedGroups(prev => prev.filter(group => group.id !== item.id));
       toast.success('Group removed from event successfully');
     } catch (error) {
@@ -301,15 +268,12 @@ export default function EventGroupsPage() {
   const handleStatusChange = async (groupId: string, newStatus: string) => {
     setLoading(true);
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 500));
-      
+      await new Promise(resolve => setTimeout(resolve, 400));
       setLinkedGroups(prev => prev.map(group => 
         group.id === groupId ? { ...group, status: newStatus } : group
       ));
-      
       toast.success(`Group status updated to ${newStatus.toLowerCase()}`);
-    } catch (error) {
+    } catch {
       toast.error('Failed to update group status');
     } finally {
       setLoading(false);
@@ -319,11 +283,9 @@ export default function EventGroupsPage() {
   const sendNotificationToGroups = async () => {
     setLoading(true);
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
+      await new Promise(resolve => setTimeout(resolve, 1000));
       toast.success('Notifications sent to all assigned groups');
-    } catch (error) {
+    } catch {
       toast.error('Failed to send notifications');
     } finally {
       setLoading(false);
@@ -332,55 +294,140 @@ export default function EventGroupsPage() {
 
   return (
     <div className="space-y-6">
-      {/* Back Navigation */}
-      <div className="flex items-center gap-4 mb-6">
-        <Button
-          variant="outline"
-          size="icon"
-          className="h-12 w-12"
-          onClick={() => router.back()}
-        >
-          <ArrowLeft className="h-4 w-4" />
-        </Button>
-        
+      {/* Header */}
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-3">
-          <div className="p-2 bg-brand-primary/10 rounded-lg">
-            <Users className="h-6 w-6 text-brand-primary" />
+          <Button
+            variant="outline"
+            size="icon"
+            className="h-9 w-9"
+            asChild
+          >
+            <Link href={`/dashboard/events/${eventId}`} aria-label="Back to Event Details">
+              <ArrowLeft className="h-4 w-4" />
+            </Link>
+          </Button>
+          <div>
+            <h1 className="font-heading text-2xl font-bold tracking-tight">Event Groups & Departments</h1>
+            <p className="text-xs text-muted-foreground mt-0.5">
+              {mockEvent.title} • {format(new Date(mockEvent.date), 'MMM dd, yyyy')}
+            </p>
           </div>
-          <PageHeader
-            title="Event Groups & Departments"
-            description={`${mockEvent.title} - ${format(new Date(mockEvent.date), 'PPP')}`}
-          />
+        </div>
+
+        <div className="flex items-center gap-2">
+          <Button variant="outline" size="sm" onClick={sendNotificationToGroups} disabled={loading}>
+            <Mail className="mr-1.5 h-4 w-4" />
+            Notify All Groups
+          </Button>
+          
+          <Dialog open={addGroupDialogOpen} onOpenChange={setAddGroupDialogOpen}>
+            <DialogTrigger asChild>
+              <Button size="sm">
+                <Plus className="mr-1.5 h-4 w-4" />
+                Assign Group
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-md">
+              <DialogHeader>
+                <DialogTitle>Assign Group to Event</DialogTitle>
+                <DialogDescription>
+                  Select a group and define their role in this event
+                </DialogDescription>
+              </DialogHeader>
+              <div className="space-y-3 py-2">
+                <div className="space-y-1.5">
+                  <Label htmlFor="group" className="text-xs">Select Group</Label>
+                  <Select value={newGroupAssignment.groupId} onValueChange={(value) => setNewGroupAssignment(prev => ({ ...prev, groupId: value }))}>
+                    <SelectTrigger className="h-9">
+                      <SelectValue placeholder="Choose a group" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {availableUnlinkedGroups.map((group) => (
+                        <SelectItem key={group.id} value={group.id}>
+                          {group.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                
+                <div className="space-y-1.5">
+                  <Label htmlFor="role" className="text-xs">Role</Label>
+                  <Select value={newGroupAssignment.role} onValueChange={(value) => setNewGroupAssignment(prev => ({ ...prev, role: value }))}>
+                    <SelectTrigger className="h-9">
+                      <SelectValue placeholder="Assign a role" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {roleOptions.map((role) => (
+                        <SelectItem key={role} value={role}>
+                          {role}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                
+                <div className="space-y-1.5">
+                  <Label htmlFor="responsibilities" className="text-xs">Responsibilities</Label>
+                  <Textarea
+                    id="responsibilities"
+                    value={newGroupAssignment.responsibilities}
+                    onChange={(e) => setNewGroupAssignment(prev => ({ ...prev, responsibilities: e.target.value }))}
+                    placeholder="Describe their responsibilities..."
+                    rows={3}
+                  />
+                </div>
+                
+                <div className="space-y-1.5">
+                  <Label htmlFor="notes" className="text-xs">Notes</Label>
+                  <Textarea
+                    id="notes"
+                    value={newGroupAssignment.notes}
+                    onChange={(e) => setNewGroupAssignment(prev => ({ ...prev, notes: e.target.value }))}
+                    placeholder="Additional notes..."
+                    rows={2}
+                  />
+                </div>
+              </div>
+              <DialogFooter>
+                <Button variant="outline" size="sm" onClick={() => setAddGroupDialogOpen(false)}>
+                  Cancel
+                </Button>
+                <Button size="sm" onClick={handleAddGroup} disabled={loading}>
+                  {loading ? 'Assigning...' : 'Assign Group'}
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
         </div>
       </div>
 
       {/* Event Info Card */}
       <Card>
         <CardContent className="p-4">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="flex items-center gap-2">
-              <Calendar className="h-4 w-4 text-muted-foreground" />
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs">
+            <div className="flex items-center gap-2.5">
+              <Calendar className="h-4 w-4 text-muted-foreground shrink-0" />
               <div>
-                <p className="text-sm font-medium">Event Date</p>
-                <p className="text-sm text-muted-foreground">
-                  {format(new Date(mockEvent.date), 'PPP')}
-                </p>
+                <p className="font-medium text-foreground">Event Date</p>
+                <p className="text-muted-foreground">{format(new Date(mockEvent.date), 'MMM dd, yyyy')}</p>
               </div>
             </div>
             
-            <div className="flex items-center gap-2">
-              <Clock className="h-4 w-4 text-muted-foreground" />
+            <div className="flex items-center gap-2.5">
+              <Clock className="h-4 w-4 text-muted-foreground shrink-0" />
               <div>
-                <p className="text-sm font-medium">Start Time</p>
-                <p className="text-sm text-muted-foreground">{mockEvent.startTime}</p>
+                <p className="font-medium text-foreground">Start Time</p>
+                <p className="text-muted-foreground">{mockEvent.startTime}</p>
               </div>
             </div>
             
-            <div className="flex items-center gap-2">
-              <MapPin className="h-4 w-4 text-muted-foreground" />
+            <div className="flex items-center gap-2.5">
+              <MapPin className="h-4 w-4 text-muted-foreground shrink-0" />
               <div>
-                <p className="text-sm font-medium">Location</p>
-                <p className="text-sm text-muted-foreground">{mockEvent.location}</p>
+                <p className="font-medium text-foreground">Location</p>
+                <p className="text-muted-foreground truncate">{mockEvent.location}</p>
               </div>
             </div>
           </div>
@@ -388,22 +435,12 @@ export default function EventGroupsPage() {
       </Card>
 
       {/* Stats Cards */}
-      <div className="grid gap-4 md:grid-cols-4">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard title="Assigned Groups" value={linkedGroups.length} icon={Users} />
+        <StatCard title="Confirmed" value={linkedGroups.filter(g => g.status === 'Confirmed').length} icon={CheckCircle2} />
+        <StatCard title="Pending" value={linkedGroups.filter(g => g.status === 'Pending').length} icon={AlertCircle} />
         <StatCard
-          title="Confirmed"
-          value={linkedGroups.filter(g => g.status === 'Confirmed').length}
-          icon={CheckCircle2}
-          accent="success"
-        />
-        <StatCard
-          title="Pending"
-          value={linkedGroups.filter(g => g.status === 'Pending').length}
-          icon={AlertCircle}
-          accent="accent"
-        />
-        <StatCard
-          title="Total Members"
+          title="Total Group Members"
           value={linkedGroups.reduce((total, group) => {
             const groupData = availableGroups.find(g => g.id === group.id);
             return total + (groupData?.memberCount || 0);
@@ -412,217 +449,110 @@ export default function EventGroupsPage() {
         />
       </div>
 
-      {/* Assigned Groups */}
+      {/* Assigned Groups List */}
       <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <div>
-              <CardTitle>Assigned Groups</CardTitle>
-            </div>
-            <div className="flex items-center gap-2">
-              <Button variant="outline" onClick={sendNotificationToGroups} disabled={loading}>
-                <Mail className="mr-2 h-4 w-4" />
-                Notify All Groups
-              </Button>
-              
-              <Dialog open={addGroupDialogOpen} onOpenChange={setAddGroupDialogOpen}>
-                <DialogTrigger asChild>
-                  <Button className="bg-brand-primary hover:bg-brand-primary/90">
-                    <Plus className="mr-2 h-4 w-4" />
-                    Assign Group
-                  </Button>
-                </DialogTrigger>
-                <DialogContent className="sm:max-w-md">
-                  <DialogHeader>
-                    <DialogTitle>Assign Group to Event</DialogTitle>
-                    <DialogDescription>
-                      Select a group and define their role in this event
-                    </DialogDescription>
-                  </DialogHeader>
-                  <div className="space-y-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="group">Select Group</Label>
-                      <Select value={newGroupAssignment.groupId} onValueChange={(value) => setNewGroupAssignment(prev => ({ ...prev, groupId: value }))}>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Choose a group" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {filteredAvailableGroups.map((group) => (
-                            <SelectItem key={group.id} value={group.id}>
-                              {group.name}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    
-                    <div className="space-y-2">
-                      <Label htmlFor="role">Role</Label>
-                      <Select value={newGroupAssignment.role} onValueChange={(value) => setNewGroupAssignment(prev => ({ ...prev, role: value }))}>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Assign a role" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {roleOptions.map((role) => (
-                            <SelectItem key={role} value={role}>
-                              {role}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    
-                    <div className="space-y-2">
-                      <Label htmlFor="responsibilities">Responsibilities</Label>
-                      <Textarea
-                        id="responsibilities"
-                        value={newGroupAssignment.responsibilities}
-                        onChange={(e) => setNewGroupAssignment(prev => ({ ...prev, responsibilities: e.target.value }))}
-                        placeholder="Describe their responsibilities..."
-                        rows={3}
-                      />
-                    </div>
-                    
-                    <div className="space-y-2">
-                      <Label htmlFor="notes">Notes</Label>
-                      <Textarea
-                        id="notes"
-                        value={newGroupAssignment.notes}
-                        onChange={(e) => setNewGroupAssignment(prev => ({ ...prev, notes: e.target.value }))}
-                        placeholder="Additional notes..."
-                        rows={2}
-                      />
-                    </div>
-                  </div>
-                  <DialogFooter>
-                    <Button variant="outline" onClick={() => setAddGroupDialogOpen(false)}>
-                      Cancel
-                    </Button>
-                    <Button onClick={handleAddGroup} disabled={loading}>
-                      {loading ? 'Assigning...' : 'Assign Group'}
-                    </Button>
-                  </DialogFooter>
-                </DialogContent>
-              </Dialog>
-            </div>
-          </div>
+        <CardHeader className="pb-3">
+          <CardTitle className="text-base">Assigned Groups</CardTitle>
+          <CardDescription className="text-xs">Departments and teams assigned to this event</CardDescription>
         </CardHeader>
         
-        <CardContent>
-          <div className="space-y-4">
+        <CardContent className="space-y-4">
+          <div className="space-y-3">
             {linkedGroups.map((linkedGroup) => {
               const groupData = availableGroups.find(g => g.id === linkedGroup.id);
               if (!groupData) return null;
               
               return (
-                <Card key={linkedGroup.id} className="border-l-4 border-l-brand-primary">
-                  <CardContent className="p-4">
-                    <div className="flex items-start justify-between">
-                      <div className="flex items-start gap-4 flex-1">
-                        <Avatar className="h-12 w-12">
-                          <AvatarFallback>
-                            {groupData.name.split(' ').map(n => n[0]).join('')}
-                          </AvatarFallback>
-                        </Avatar>
-                        
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2 mb-2">
-                            <h3 className="font-semibold">{groupData.name}</h3>
-                            <EventGroupRoleBadge role={linkedGroup.role} />
-                            <div className="flex items-center gap-1">
-                              {getStatusIcon(linkedGroup.status)}
-                              <Badge variant={getStatusColor(linkedGroup.status)}>
-                                {linkedGroup.status}
-                              </Badge>
-                            </div>
-                          </div>
-                          
-                          <p className="text-sm text-muted-foreground mb-2">
-                            {groupData.description}
-                          </p>
-                          
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-3">
-                            <div>
-                              <p className="text-sm font-medium">Leader</p>
-                              <p className="text-sm text-muted-foreground">{groupData.leader}</p>
-                            </div>
-                            <div>
-                              <p className="text-sm font-medium">Members</p>
-                              <p className="text-sm text-muted-foreground">{groupData.memberCount} members</p>
-                            </div>
-                            <div>
-                              <p className="text-sm font-medium">Contact</p>
-                              <p className="text-sm text-muted-foreground">{groupData.contactEmail}</p>
-                            </div>
-                            <div>
-                              <p className="text-sm font-medium">Assigned</p>
-                              <p className="text-sm text-muted-foreground">
-                                {format(new Date(linkedGroup.assignedAt), 'PPP')}
-                              </p>
-                            </div>
-                          </div>
-                          
-                          {linkedGroup.responsibilities && (
-                            <div className="mb-3">
-                              <p className="text-sm font-medium">Responsibilities</p>
-                              <p className="text-sm text-muted-foreground">{linkedGroup.responsibilities}</p>
-                            </div>
-                          )}
-                          
-                          {linkedGroup.notes && (
-                            <div>
-                              <p className="text-sm font-medium">Notes</p>
-                              <p className="text-sm text-muted-foreground">{linkedGroup.notes}</p>
-                            </div>
-                          )}
-                        </div>
-                      </div>
+                <div key={linkedGroup.id} className="p-4 border rounded-lg hover:border-foreground/20 transition-colors">
+                  <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
+                    <div className="flex items-start gap-3.5 flex-1 min-w-0">
+                      <Avatar className="h-10 w-10 shrink-0">
+                        <AvatarFallback className="text-xs bg-primary/10 text-primary">
+                          {groupData.name.split(' ').map(n => n[0]).join('')}
+                        </AvatarFallback>
+                      </Avatar>
                       
-                      <div className="flex items-center gap-2">
-                        <Select value={linkedGroup.status} onValueChange={(value) => handleStatusChange(linkedGroup.id, value)}>
-                          <SelectTrigger className="w-32">
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {statusOptions.map((status) => (
-                              <SelectItem key={status} value={status}>
-                                {status}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
+                      <div className="flex-1 min-w-0 space-y-2">
+                        <div className="flex flex-wrap items-center gap-2">
+                          <h3 className="font-semibold text-sm text-foreground">{groupData.name}</h3>
+                          <EventGroupRoleBadge role={linkedGroup.role} />
+                          <StatusBadge status={linkedGroup.status} />
+                        </div>
                         
-                        <Button
-                          variant="outline"
-                          size="icon"
-                          onClick={() => {
-                            setSelectedGroup(linkedGroup);
-                            setEditGroupDialogOpen(true);
-                          }}
-                        >
-                          <Edit className="h-4 w-4" />
-                        </Button>
+                        <p className="text-xs text-muted-foreground">
+                          {groupData.description}
+                        </p>
                         
-                        <Button
-                          variant="outline"
-                          size="icon"
-                          onClick={() => handleRemoveGroup(linkedGroup.id)}
-                          disabled={loading}
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
+                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs text-muted-foreground pt-1">
+                          <div>
+                            <span className="font-medium text-foreground">Leader:</span> {groupData.leader}
+                          </div>
+                          <div>
+                            <span className="font-medium text-foreground">Members:</span> {groupData.memberCount}
+                          </div>
+                          <div>
+                            <span className="font-medium text-foreground">Contact:</span> {groupData.contactEmail}
+                          </div>
+                          <div>
+                            <span className="font-medium text-foreground">Assigned:</span> {format(new Date(linkedGroup.assignedAt), 'MMM dd, yyyy')}
+                          </div>
+                        </div>
+                        
+                        {linkedGroup.responsibilities && (
+                          <div className="text-xs text-muted-foreground pt-1 border-t border-border/40">
+                            <span className="font-medium text-foreground">Responsibilities:</span> {linkedGroup.responsibilities}
+                          </div>
+                        )}
                       </div>
                     </div>
-                  </CardContent>
-                </Card>
+                    
+                    <div className="flex items-center gap-2 shrink-0 self-end sm:self-start">
+                      <Select value={linkedGroup.status} onValueChange={(value) => handleStatusChange(linkedGroup.id, value)}>
+                        <SelectTrigger className="w-28 h-8 text-xs">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {statusOptions.map((status) => (
+                            <SelectItem key={status} value={status}>
+                              {status}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8"
+                        onClick={() => {
+                          setSelectedGroup(linkedGroup);
+                          setEditGroupDialogOpen(true);
+                        }}
+                        aria-label="Edit group assignment"
+                      >
+                        <Edit className="h-3.5 w-3.5" />
+                      </Button>
+                      
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 text-destructive focus:text-destructive"
+                        onClick={() => handleRemoveGroup(linkedGroup.id)}
+                        disabled={loading}
+                        aria-label="Remove group"
+                      >
+                        <Trash2 className="h-3.5 w-3.5" />
+                      </Button>
+                    </div>
+                  </div>
+                </div>
               );
             })}
             
             {linkedGroups.length === 0 && (
-              <div className="text-center py-8 text-muted-foreground">
-                <Users className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                <p>No groups assigned to this event yet.</p>
-                <p className="text-sm">Click "Assign Group" to add groups and departments.</p>
+              <div className="text-center py-12 text-muted-foreground">
+                <Users className="h-10 w-10 mx-auto mb-3 opacity-40" />
+                <p className="text-sm font-medium">No groups assigned to this event yet.</p>
               </div>
             )}
           </div>
@@ -635,15 +565,15 @@ export default function EventGroupsPage() {
           <DialogHeader>
             <DialogTitle>Edit Group Assignment</DialogTitle>
             <DialogDescription>
-              Update the group's role and responsibilities
+              Update the group&apos;s role and responsibilities
             </DialogDescription>
           </DialogHeader>
           {selectedGroup && (
-            <div className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="editRole">Role</Label>
+            <div className="space-y-3 py-2">
+              <div className="space-y-1.5">
+                <Label htmlFor="editRole" className="text-xs">Role</Label>
                 <Select value={selectedGroup.role} onValueChange={(value) => setSelectedGroup((prev: LinkedGroup | null) => prev ? ({ ...prev, role: value }) : null)}>
-                  <SelectTrigger>
+                  <SelectTrigger className="h-9">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -656,8 +586,8 @@ export default function EventGroupsPage() {
                 </Select>
               </div>
               
-              <div className="space-y-2">
-                <Label htmlFor="editResponsibilities">Responsibilities</Label>
+              <div className="space-y-1.5">
+                <Label htmlFor="editResponsibilities" className="text-xs">Responsibilities</Label>
                 <Textarea
                   id="editResponsibilities"
                   value={selectedGroup.responsibilities}
@@ -666,8 +596,8 @@ export default function EventGroupsPage() {
                 />
               </div>
               
-              <div className="space-y-2">
-                <Label htmlFor="editNotes">Notes</Label>
+              <div className="space-y-1.5">
+                <Label htmlFor="editNotes" className="text-xs">Notes</Label>
                 <Textarea
                   id="editNotes"
                   value={selectedGroup.notes}
@@ -678,10 +608,10 @@ export default function EventGroupsPage() {
             </div>
           )}
           <DialogFooter>
-            <Button variant="outline" onClick={() => setEditGroupDialogOpen(false)}>
+            <Button variant="outline" size="sm" onClick={() => setEditGroupDialogOpen(false)}>
               Cancel
             </Button>
-            <Button onClick={handleUpdateGroup} disabled={loading}>
+            <Button size="sm" onClick={handleUpdateGroup} disabled={loading}>
               {loading ? 'Updating...' : 'Update Assignment'}
             </Button>
           </DialogFooter>

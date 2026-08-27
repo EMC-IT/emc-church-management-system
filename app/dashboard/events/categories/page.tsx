@@ -1,13 +1,12 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState } from 'react';
+import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { PageHeader } from '@/components/ui/page-header';
 import { StatCard } from '@/components/ui/stat-card';
 import { StatusBadge } from '@/components/ui/status-badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -21,7 +20,6 @@ import {
   MoreHorizontal,
   Tag,
   Calendar,
-  Users,
   Settings
 } from 'lucide-react';
 import { toast } from 'sonner';
@@ -42,13 +40,22 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { DeleteDialog, useDeleteDialog } from '@/components/ui/delete-dialog';
 
+// Brand colors
+const BRAND_CATEGORY_COLORS = [
+  { name: 'Primary Blue', value: '#2E8DB0' },
+  { name: 'Secondary Blue', value: '#28ACD1' },
+  { name: 'Brand Gold', value: '#C49831' },
+  { name: 'Brand Green', value: '#A5CF5D' },
+  { name: 'Slate', value: '#475569' },
+];
+
 // Mock categories data
 const mockCategories = [
   {
     id: '1',
     name: 'Worship',
     description: 'Sunday services, prayer meetings, and worship events',
-    color: '#3B82F6',
+    color: '#2E8DB0',
     icon: '🙏',
     eventCount: 12,
     isActive: true,
@@ -59,7 +66,7 @@ const mockCategories = [
     id: '2',
     name: 'Study',
     description: 'Bible studies, seminars, and educational events',
-    color: '#10B981',
+    color: '#A5CF5D',
     icon: '📖',
     eventCount: 8,
     isActive: true,
@@ -70,7 +77,7 @@ const mockCategories = [
     id: '3',
     name: 'Conference',
     description: 'Large gatherings, conferences, and special events',
-    color: '#8B5CF6',
+    color: '#28ACD1',
     icon: '🎤',
     eventCount: 3,
     isActive: true,
@@ -81,7 +88,7 @@ const mockCategories = [
     id: '4',
     name: 'Outreach',
     description: 'Community service and evangelism activities',
-    color: '#F59E0B',
+    color: '#C49831',
     icon: '🤝',
     eventCount: 6,
     isActive: true,
@@ -92,7 +99,7 @@ const mockCategories = [
     id: '5',
     name: 'Youth',
     description: 'Youth ministry events and activities',
-    color: '#EF4444',
+    color: '#2E8DB0',
     icon: '🎯',
     eventCount: 15,
     isActive: true,
@@ -103,7 +110,7 @@ const mockCategories = [
     id: '6',
     name: 'Children',
     description: 'Children ministry and Sunday school events',
-    color: '#F59E0B',
+    color: '#C49831',
     icon: '🧸',
     eventCount: 10,
     isActive: true,
@@ -114,7 +121,7 @@ const mockCategories = [
     id: '7',
     name: 'Music',
     description: 'Choir practice, concerts, and musical events',
-    color: '#6366F1',
+    color: '#28ACD1',
     icon: '🎵',
     eventCount: 7,
     isActive: true,
@@ -125,26 +132,13 @@ const mockCategories = [
     id: '8',
     name: 'Training',
     description: 'Leadership training and skill development',
-    color: '#059669',
+    color: '#475569',
     icon: '🎓',
     eventCount: 4,
     isActive: false,
     createdAt: '2024-01-08T17:00:00',
     updatedAt: '2024-01-19T12:40:00'
   }
-];
-
-const colorOptions = [
-  { name: 'Blue', value: '#3B82F6' },
-  { name: 'Green', value: '#10B981' },
-  { name: 'Purple', value: '#8B5CF6' },
-  { name: 'Orange', value: '#F59E0B' },
-  { name: 'Red', value: '#EF4444' },
-  { name: 'Indigo', value: '#6366F1' },
-  { name: 'Pink', value: '#EC4899' },
-  { name: 'Teal', value: '#14B8A6' },
-  { name: 'Yellow', value: '#EAB308' },
-  { name: 'Gray', value: '#6B7280' }
 ];
 
 const iconOptions = ['🙏', '📖', '🎤', '🤝', '🎯', '🧸', '🎵', '🎓', '🎉', '💒', '✝️', '🕊️', '❤️', '🌟', '🔥'];
@@ -158,7 +152,6 @@ interface CategoryFormData {
 }
 
 export default function EventCategoriesPage() {
-  const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [categories, setCategories] = useState(mockCategories);
   const [searchTerm, setSearchTerm] = useState('');
@@ -170,7 +163,7 @@ export default function EventCategoriesPage() {
   const [formData, setFormData] = useState<CategoryFormData>({
     name: '',
     description: '',
-    color: '#3B82F6',
+    color: '#2E8DB0',
     icon: '🙏',
     isActive: true
   });
@@ -200,7 +193,6 @@ export default function EventCategoriesPage() {
     if (!formData.color) newErrors.color = 'Color is required';
     if (!formData.icon) newErrors.icon = 'Icon is required';
 
-    // Check for duplicate names (excluding current category when editing)
     const isDuplicate = categories.some(cat => 
       cat.name.toLowerCase() === formData.name.toLowerCase() && 
       cat.id !== selectedCategory?.id
@@ -217,7 +209,7 @@ export default function EventCategoriesPage() {
     setFormData({
       name: '',
       description: '',
-      color: '#3B82F6',
+      color: '#2E8DB0',
       icon: '🙏',
       isActive: true
     });
@@ -232,8 +224,7 @@ export default function EventCategoriesPage() {
 
     setLoading(true);
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      await new Promise(resolve => setTimeout(resolve, 800));
       
       const newCategory = {
         id: Date.now().toString(),
@@ -247,7 +238,7 @@ export default function EventCategoriesPage() {
       setAddDialogOpen(false);
       resetForm();
       toast.success('Category created successfully');
-    } catch (error) {
+    } catch {
       toast.error('Failed to create category');
     } finally {
       setLoading(false);
@@ -262,8 +253,7 @@ export default function EventCategoriesPage() {
 
     setLoading(true);
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      await new Promise(resolve => setTimeout(resolve, 800));
       
       setCategories(prev => prev.map(cat => 
         cat.id === selectedCategory.id 
@@ -275,7 +265,7 @@ export default function EventCategoriesPage() {
       setSelectedCategory(null);
       resetForm();
       toast.success('Category updated successfully');
-    } catch (error) {
+    } catch {
       toast.error('Failed to update category');
     } finally {
       setLoading(false);
@@ -284,9 +274,7 @@ export default function EventCategoriesPage() {
 
   const confirmDeleteCategory = async (item: { id: string; name: string }) => {
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
+      await new Promise(resolve => setTimeout(resolve, 800));
       setCategories(prev => prev.filter(cat => cat.id !== item.id));
       toast.success('Category deleted successfully');
     } catch (error) {
@@ -298,8 +286,7 @@ export default function EventCategoriesPage() {
   const handleToggleStatus = async (categoryId: string) => {
     setLoading(true);
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 500));
+      await new Promise(resolve => setTimeout(resolve, 400));
       
       setCategories(prev => prev.map(cat => 
         cat.id === categoryId 
@@ -308,7 +295,7 @@ export default function EventCategoriesPage() {
       ));
       
       toast.success('Category status updated successfully');
-    } catch (error) {
+    } catch {
       toast.error('Failed to update category status');
     } finally {
       setLoading(false);
@@ -333,239 +320,213 @@ export default function EventCategoriesPage() {
 
   return (
     <div className="space-y-6">
-      {/* Back Navigation */}
-      <div className="flex items-center gap-4 mb-6">
-        <Button
-          variant="outline"
-          size="icon"
-          className="h-12 w-12"
-          onClick={() => router.back()}
-        >
-          <ArrowLeft className="h-4 w-4" />
-        </Button>
-        
+      {/* Header */}
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-3">
-          <div className="p-2 bg-brand-primary/10 rounded-lg">
-            <FolderOpen className="h-6 w-6 text-brand-primary" />
-          </div>
-          <PageHeader title="Event Categories" />
+          <Button
+            variant="outline"
+            size="icon"
+            className="h-9 w-9"
+            asChild
+          >
+            <Link href="/dashboard/events" aria-label="Back to Events">
+              <ArrowLeft className="h-4 w-4" />
+            </Link>
+          </Button>
+          <h1 className="font-heading text-2xl font-bold tracking-tight">Event Categories</h1>
         </div>
+
+        <Dialog open={addDialogOpen} onOpenChange={setAddDialogOpen}>
+          <DialogTrigger asChild>
+            <Button size="sm" onClick={resetForm}>
+              <Plus className="mr-1.5 h-4 w-4" />
+              Add Category
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle>Add New Category</DialogTitle>
+              <DialogDescription>
+                Create a new event category with custom settings
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4 py-2">
+              <div className="space-y-1.5">
+                <Label htmlFor="name">Category Name *</Label>
+                <Input
+                  id="name"
+                  value={formData.name}
+                  onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+                  placeholder="e.g. Worship"
+                />
+                {errors.name && <p className="text-xs text-destructive">{errors.name}</p>}
+              </div>
+              
+              <div className="space-y-1.5">
+                <Label htmlFor="description">Description *</Label>
+                <Textarea
+                  id="description"
+                  value={formData.description}
+                  onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
+                  placeholder="Describe this category"
+                  rows={3}
+                />
+                {errors.description && <p className="text-xs text-destructive">{errors.description}</p>}
+              </div>
+              
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <Label htmlFor="color">Brand Color</Label>
+                  <Select value={formData.color} onValueChange={(value) => setFormData(prev => ({ ...prev, color: value }))}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {BRAND_CATEGORY_COLORS.map((color) => (
+                        <SelectItem key={color.value} value={color.value}>
+                          <div className="flex items-center gap-2">
+                            <div className="w-3.5 h-3.5 rounded-full" style={{ backgroundColor: color.value }} />
+                            <span>{color.name}</span>
+                          </div>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                
+                <div className="space-y-1.5">
+                  <Label htmlFor="icon">Icon</Label>
+                  <Select value={formData.icon} onValueChange={(value) => setFormData(prev => ({ ...prev, icon: value }))}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {iconOptions.map((icon) => (
+                        <SelectItem key={icon} value={icon}>
+                          <span className="text-base mr-2">{icon}</span>
+                          <span>{icon}</span>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+            </div>
+            <DialogFooter>
+              <Button variant="outline" size="sm" onClick={() => setAddDialogOpen(false)}>
+                Cancel
+              </Button>
+              <Button size="sm" onClick={handleAdd} disabled={loading}>
+                {loading ? 'Creating...' : 'Create Category'}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
 
       {/* Stats Cards */}
-      <div className="grid gap-4 md:grid-cols-4">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard title="Total Categories" value={stats.total} icon={Tag} />
-        <StatCard
-          title="Active Categories"
-          value={<span className="text-green-600">{stats.active}</span>}
-          icon={Settings}
-        />
-        <StatCard
-          title="Inactive Categories"
-          value={<span className="text-red-600">{stats.inactive}</span>}
-          icon={Settings}
-        />
+        <StatCard title="Active Categories" value={stats.active} icon={Settings} />
+        <StatCard title="Inactive Categories" value={stats.inactive} icon={Settings} />
         <StatCard title="Total Events" value={stats.totalEvents} icon={Calendar} />
       </div>
 
-      {/* Main Content */}
-      <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <div>
-              <CardTitle>Category Management</CardTitle>
-            </div>
-            
-            <Dialog open={addDialogOpen} onOpenChange={setAddDialogOpen}>
-              <DialogTrigger asChild>
-                <Button className="bg-brand-primary hover:bg-brand-primary/90" onClick={resetForm}>
-                  <Plus className="mr-2 h-4 w-4" />
-                  Add Category
-                </Button>
-              </DialogTrigger>
-              <DialogContent className="sm:max-w-md">
-                <DialogHeader>
-                  <DialogTitle>Add New Category</DialogTitle>
-                  <DialogDescription>
-                    Create a new event category with custom settings
-                  </DialogDescription>
-                </DialogHeader>
-                <div className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="name">Category Name *</Label>
-                    <Input
-                      id="name"
-                      value={formData.name}
-                      onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
-                      placeholder="Enter category name"
-                      className={errors.name ? 'border-red-500' : ''}
-                    />
-                    {errors.name && <p className="text-sm text-red-500">{errors.name}</p>}
+      {/* Filter Toolbar */}
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+        <div className="relative flex-1">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input
+            placeholder="Search categories..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="pl-9 h-9"
+          />
+        </div>
+        
+        <Select value={statusFilter} onValueChange={setStatusFilter}>
+          <SelectTrigger className="w-full sm:w-40 h-9">
+            <SelectValue placeholder="Status" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="All">All</SelectItem>
+            <SelectItem value="Active">Active</SelectItem>
+            <SelectItem value="Inactive">Inactive</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+
+      {/* Categories Grid */}
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        {filteredCategories.map((category) => (
+          <Card key={category.id} className="transition-colors hover:border-foreground/20">
+            <CardContent className="p-4">
+              <div className="flex items-start justify-between gap-2 mb-2.5">
+                <div className="flex items-center gap-3">
+                  <div 
+                    className="w-9 h-9 rounded-lg flex items-center justify-center text-base shrink-0 bg-primary/10 text-primary"
+                  >
+                    {category.icon}
                   </div>
-                  
-                  <div className="space-y-2">
-                    <Label htmlFor="description">Description *</Label>
-                    <Textarea
-                      id="description"
-                      value={formData.description}
-                      onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
-                      placeholder="Describe this category"
-                      rows={3}
-                      className={errors.description ? 'border-red-500' : ''}
-                    />
-                    {errors.description && <p className="text-sm text-red-500">{errors.description}</p>}
-                  </div>
-                  
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="color">Color</Label>
-                      <Select value={formData.color} onValueChange={(value) => setFormData(prev => ({ ...prev, color: value }))}>
-                        <SelectTrigger>
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {colorOptions.map((color) => (
-                            <SelectItem key={color.value} value={color.value}>
-                              <div className="flex items-center gap-2">
-                                <div className="w-4 h-4 rounded-full" style={{ backgroundColor: color.value }} />
-                                {color.name}
-                              </div>
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    
-                    <div className="space-y-2">
-                      <Label htmlFor="icon">Icon</Label>
-                      <Select value={formData.icon} onValueChange={(value) => setFormData(prev => ({ ...prev, icon: value }))}>
-                        <SelectTrigger>
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {iconOptions.map((icon) => (
-                            <SelectItem key={icon} value={icon}>
-                              <div className="flex items-center gap-2">
-                                <span className="text-lg">{icon}</span>
-                                {icon}
-                              </div>
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                  <div>
+                    <h3 className="font-semibold text-sm">{category.name}</h3>
+                    <div className="pt-0.5">
+                      <StatusBadge status={category.isActive ? 'active' : 'inactive'} />
                     </div>
                   </div>
                 </div>
-                <DialogFooter>
-                  <Button variant="outline" onClick={() => setAddDialogOpen(false)}>
-                    Cancel
-                  </Button>
-                  <Button onClick={handleAdd} disabled={loading}>
-                    {loading ? 'Creating...' : 'Create Category'}
-                  </Button>
-                </DialogFooter>
-              </DialogContent>
-            </Dialog>
-          </div>
-        </CardHeader>
-        
-        <CardContent>
-          {/* Filters */}
-          <div className="flex items-center gap-4 mb-6">
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="Search categories..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10"
-              />
-            </div>
-            
-            <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <SelectTrigger className="w-40">
-                <SelectValue placeholder="Status" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="All">All</SelectItem>
-                <SelectItem value="Active">Active</SelectItem>
-                <SelectItem value="Inactive">Inactive</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
+                
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" size="icon" className="h-8 w-8">
+                      <MoreHorizontal className="h-4 w-4" />
+                      <span className="sr-only">Open menu</span>
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuItem onClick={() => openEditDialog(category)}>
+                      <Edit className="mr-2 h-4 w-4" />
+                      Edit
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => handleToggleStatus(category.id)}>
+                      <Settings className="mr-2 h-4 w-4" />
+                      {category.isActive ? 'Deactivate' : 'Activate'}
+                    </DropdownMenuItem>
+                    <DropdownMenuItem 
+                      onClick={() => openDeleteDialog(category)}
+                      className="text-destructive focus:text-destructive"
+                    >
+                      <Trash2 className="mr-2 h-4 w-4" />
+                      Delete
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
+              
+              <p className="text-xs text-muted-foreground mb-3 line-clamp-2">
+                {category.description}
+              </p>
+              
+              <div className="flex items-center justify-between text-xs text-muted-foreground pt-2 border-t border-border/50">
+                <div className="flex items-center gap-1.5">
+                  <Calendar className="h-3.5 w-3.5" />
+                  <span>{category.eventCount} events</span>
+                </div>
+                <span>
+                  Updated {new Date(category.updatedAt).toLocaleDateString()}
+                </span>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
 
-          {/* Categories Grid */}
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {filteredCategories.map((category) => (
-              <Card key={category.id} className="hover:shadow-lg transition-shadow">
-                <CardContent className="p-4">
-                  <div className="flex items-start justify-between mb-3">
-                    <div className="flex items-center gap-3">
-                      <div 
-                        className="w-10 h-10 rounded-lg flex items-center justify-center text-white text-lg"
-                        style={{ backgroundColor: category.color }}
-                      >
-                        {category.icon}
-                      </div>
-                      <div>
-                        <h3 className="font-semibold">{category.name}</h3>
-                        <StatusBadge status={category.isActive ? 'active' : 'inactive'} />
-                      </div>
-                    </div>
-                    
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon" className="h-8 w-8">
-                          <MoreHorizontal className="h-4 w-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem onClick={() => openEditDialog(category)}>
-                          <Edit className="mr-2 h-4 w-4" />
-                          Edit
-                        </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => handleToggleStatus(category.id)}>
-                          <Settings className="mr-2 h-4 w-4" />
-                          {category.isActive ? 'Deactivate' : 'Activate'}
-                        </DropdownMenuItem>
-                        <DropdownMenuItem 
-                          onClick={() => openDeleteDialog(category)}
-                          className="text-red-600"
-                        >
-                          <Trash2 className="mr-2 h-4 w-4" />
-                          Delete
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </div>
-                  
-                  <p className="text-sm text-muted-foreground mb-3">
-                    {category.description}
-                  </p>
-                  
-                  <div className="flex items-center justify-between text-sm">
-                    <div className="flex items-center gap-1">
-                      <Calendar className="h-4 w-4 text-muted-foreground" />
-                      <span>{category.eventCount} events</span>
-                    </div>
-                    <span className="text-muted-foreground">
-                      Updated {new Date(category.updatedAt).toLocaleDateString()}
-                    </span>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-
-          {filteredCategories.length === 0 && (
-            <div className="text-center py-8 text-muted-foreground">
-              <FolderOpen className="h-12 w-12 mx-auto mb-4 opacity-50" />
-              <p>No categories found matching your criteria.</p>
-              <p className="text-sm">Try adjusting your search or filters.</p>
-            </div>
-          )}
-        </CardContent>
-      </Card>
+      {filteredCategories.length === 0 && (
+        <div className="text-center py-12 text-muted-foreground">
+          <FolderOpen className="h-10 w-10 mx-auto mb-3 opacity-40" />
+          <p className="text-sm font-medium">No categories found matching your criteria.</p>
+        </div>
+      )}
 
       {/* Edit Dialog */}
       <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
@@ -576,20 +537,19 @@ export default function EventCategoriesPage() {
               Update category information and settings
             </DialogDescription>
           </DialogHeader>
-          <div className="space-y-4">
-            <div className="space-y-2">
+          <div className="space-y-4 py-2">
+            <div className="space-y-1.5">
               <Label htmlFor="editName">Category Name *</Label>
               <Input
                 id="editName"
                 value={formData.name}
                 onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
                 placeholder="Enter category name"
-                className={errors.name ? 'border-red-500' : ''}
               />
-              {errors.name && <p className="text-sm text-red-500">{errors.name}</p>}
+              {errors.name && <p className="text-xs text-destructive">{errors.name}</p>}
             </div>
             
-            <div className="space-y-2">
+            <div className="space-y-1.5">
               <Label htmlFor="editDescription">Description *</Label>
               <Textarea
                 id="editDescription"
@@ -597,24 +557,23 @@ export default function EventCategoriesPage() {
                 onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
                 placeholder="Describe this category"
                 rows={3}
-                className={errors.description ? 'border-red-500' : ''}
               />
-              {errors.description && <p className="text-sm text-red-500">{errors.description}</p>}
+              {errors.description && <p className="text-xs text-destructive">{errors.description}</p>}
             </div>
             
             <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="editColor">Color</Label>
+              <div className="space-y-1.5">
+                <Label htmlFor="editColor">Brand Color</Label>
                 <Select value={formData.color} onValueChange={(value) => setFormData(prev => ({ ...prev, color: value }))}>
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    {colorOptions.map((color) => (
+                    {BRAND_CATEGORY_COLORS.map((color) => (
                       <SelectItem key={color.value} value={color.value}>
                         <div className="flex items-center gap-2">
-                          <div className="w-4 h-4 rounded-full" style={{ backgroundColor: color.value }} />
-                          {color.name}
+                          <div className="w-3.5 h-3.5 rounded-full" style={{ backgroundColor: color.value }} />
+                          <span>{color.name}</span>
                         </div>
                       </SelectItem>
                     ))}
@@ -622,7 +581,7 @@ export default function EventCategoriesPage() {
                 </Select>
               </div>
               
-              <div className="space-y-2">
+              <div className="space-y-1.5">
                 <Label htmlFor="editIcon">Icon</Label>
                 <Select value={formData.icon} onValueChange={(value) => setFormData(prev => ({ ...prev, icon: value }))}>
                   <SelectTrigger>
@@ -631,10 +590,8 @@ export default function EventCategoriesPage() {
                   <SelectContent>
                     {iconOptions.map((icon) => (
                       <SelectItem key={icon} value={icon}>
-                        <div className="flex items-center gap-2">
-                          <span className="text-lg">{icon}</span>
-                          {icon}
-                        </div>
+                        <span className="text-base mr-2">{icon}</span>
+                        <span>{icon}</span>
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -643,10 +600,10 @@ export default function EventCategoriesPage() {
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setEditDialogOpen(false)}>
+            <Button variant="outline" size="sm" onClick={() => setEditDialogOpen(false)}>
               Cancel
             </Button>
-            <Button onClick={handleEdit} disabled={loading}>
+            <Button size="sm" onClick={handleEdit} disabled={loading}>
               {loading ? 'Updating...' : 'Update Category'}
             </Button>
           </DialogFooter>

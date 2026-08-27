@@ -163,7 +163,6 @@ export default function AssetReportsPage() {
             value={assetStats.totalAssets}
             icon={Package}
             accent="primary"
-            description={`${assetStats.activeAssets} active assets`}
           />
 
           <StatCard
@@ -171,7 +170,6 @@ export default function AssetReportsPage() {
             value={formatCurrency(assetStats.totalValue)}
             icon={Banknote}
             accent="secondary"
-            description="Current market value"
           />
 
           <StatCard
@@ -179,7 +177,6 @@ export default function AssetReportsPage() {
             value={`${assetStats.averageAge} years`}
             icon={Calendar}
             accent="success"
-            description="Across all assets"
           />
 
           <StatCard
@@ -187,7 +184,6 @@ export default function AssetReportsPage() {
             value={`${assetStats.depreciationRate}%`}
             icon={TrendingDown}
             accent="accent"
-            description="Annual average"
           />
         </div>
       </LazySection>

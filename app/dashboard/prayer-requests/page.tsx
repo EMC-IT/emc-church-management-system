@@ -3,35 +3,20 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { PageHeader } from '@/components/ui/page-header';
+import { Checkbox } from '@/components/ui/checkbox';
 import { StatCard } from '@/components/ui/stat-card';
-import { Badge } from '@/components/ui/badge';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { 
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import { 
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Label } from '@/components/ui/label';
+import { StatusBadge, PriorityBadge } from '@/components/ui/status-badge';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { DataTable } from '@/components/ui/data-table';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import { 
   Heart, 
   Plus, 
-  Search, 
-  Filter, 
   Eye,
   Edit,
   CheckCircle,
@@ -39,10 +24,25 @@ import {
   AlertCircle,
   Lock,
   Users,
-  FolderOpen
+  FolderOpen,
+  MoreHorizontal
 } from 'lucide-react';
+import { ColumnDef } from '@tanstack/react-table';
 
-const prayerRequests = [
+interface PrayerRequestItem {
+  id: string;
+  title: string;
+  description: string;
+  requester: string;
+  priority: string;
+  status: string;
+  isConfidential: boolean;
+  assignedTo: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+const prayerRequests: PrayerRequestItem[] = [
   {
     id: '1',
     title: 'Healing for Sister Mary',
@@ -107,279 +107,218 @@ const prayerRequests = [
 
 export default function PrayerRequestsPage() {
   const [searchTerm, setSearchTerm] = useState('');
-  const [statusFilter, setStatusFilter] = useState('all');
-  const [priorityFilter, setPriorityFilter] = useState('all');
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
-
-  const filteredRequests = prayerRequests.filter(request => {
-    const matchesSearch = request.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         request.description.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesStatus = statusFilter === 'all' || request.status.toLowerCase() === statusFilter;
-    const matchesPriority = priorityFilter === 'all' || request.priority.toLowerCase() === priorityFilter;
-    
-    return matchesSearch && matchesStatus && matchesPriority;
-  });
-
-  const getStatusColor = (status: string) => {
-    switch (status.toLowerCase()) {
-      case 'new': return 'primary';
-      case 'in progress': return 'neutral';
-      case 'answered': return 'neutral';
-      case 'closed': return 'danger';
-      default: return 'primary';
-    }
-  };
-
-  const getPriorityColor = (priority: string) => {
-    switch (priority.toLowerCase()) {
-      case 'high': return 'danger';
-      case 'medium': return 'neutral';
-      case 'low': return 'neutral';
-      default: return 'primary';
-    }
-  };
-
-  const getStatusIcon = (status: string) => {
-    switch (status.toLowerCase()) {
-      case 'new': return <AlertCircle className="h-4 w-4" />;
-      case 'in progress': return <Clock className="h-4 w-4" />;
-      case 'answered': return <CheckCircle className="h-4 w-4" />;
-      default: return null;
-    }
-  };
 
   const totalRequests = prayerRequests.length;
   const newRequests = prayerRequests.filter(r => r.status === 'New').length;
   const inProgress = prayerRequests.filter(r => r.status === 'In Progress').length;
   const answered = prayerRequests.filter(r => r.status === 'Answered').length;
 
+  const columns: ColumnDef<PrayerRequestItem>[] = [
+    {
+      id: 'select',
+      header: ({ table }) => (
+        <Checkbox
+          checked={
+            table.getIsAllPageRowsSelected() ||
+            (table.getIsSomePageRowsSelected() && 'indeterminate')
+          }
+          onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+          aria-label="Select all"
+        />
+      ),
+      cell: ({ row }) => (
+        <Checkbox
+          checked={row.getIsSelected()}
+          onCheckedChange={(value) => row.toggleSelected(!!value)}
+          aria-label="Select row"
+        />
+      ),
+      enableSorting: false,
+      enableHiding: false,
+    },
+    {
+      accessorKey: 'title',
+      header: 'Request',
+      cell: ({ row }) => {
+        const request = row.original;
+        return (
+          <div className="space-y-1">
+            <div className="flex items-center space-x-2">
+              <span className="font-medium text-foreground">{request.title}</span>
+              {request.isConfidential && (
+                <Lock className="h-3.5 w-3.5 text-muted-foreground" aria-label="Confidential" />
+              )}
+            </div>
+            <p className="text-xs text-muted-foreground max-w-xs truncate">
+              {request.description}
+            </p>
+          </div>
+        );
+      },
+    },
+    {
+      accessorKey: 'requester',
+      header: 'Requester',
+      cell: ({ row }) => {
+        const request = row.original;
+        return (
+          <div className="flex items-center space-x-2">
+            <Avatar className="h-6 w-6">
+              <AvatarFallback className="text-[10px]">
+                {request.requester === 'Anonymous'
+                  ? 'A'
+                  : request.requester
+                      .split(' ')
+                      .map((n) => n[0])
+                      .join('')}
+              </AvatarFallback>
+            </Avatar>
+            <span className="text-sm">{request.requester}</span>
+          </div>
+        );
+      },
+    },
+    {
+      accessorKey: 'priority',
+      header: 'Priority',
+      cell: ({ row }) => {
+        const priority = row.original.priority.toLowerCase() as any;
+        return <PriorityBadge priority={priority} size="sm" />;
+      },
+    },
+    {
+      accessorKey: 'status',
+      header: 'Status',
+      cell: ({ row }) => {
+        const status = row.original.status.toLowerCase() as any;
+        return <StatusBadge status={status} size="sm" />;
+      },
+    },
+    {
+      accessorKey: 'assignedTo',
+      header: 'Assigned To',
+      cell: ({ row }) => {
+        const assignedTo = row.original.assignedTo;
+        return assignedTo ? (
+          <span className="text-sm text-foreground">{assignedTo}</span>
+        ) : (
+          <span className="text-xs text-muted-foreground">Unassigned</span>
+        );
+      },
+    },
+    {
+      accessorKey: 'createdAt',
+      header: 'Date',
+      cell: ({ row }) => (
+        <span className="text-sm text-muted-foreground">
+          {new Date(row.original.createdAt).toLocaleDateString()}
+        </span>
+      ),
+    },
+    {
+      id: 'actions',
+      header: 'Actions',
+      cell: ({ row }) => {
+        const request = row.original;
+        return (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                <MoreHorizontal className="h-4 w-4" />
+                <span className="sr-only">Open menu</span>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem asChild>
+                <Link href={`/dashboard/prayer-requests/${request.id}`}>
+                  <Eye className="mr-2 h-4 w-4" />
+                  View Details
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link href={`/dashboard/prayer-requests/${request.id}/edit`}>
+                  <Edit className="mr-2 h-4 w-4" />
+                  Edit Request
+                </Link>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        );
+      },
+    },
+  ];
+
+  const searchFilters = [
+    {
+      key: 'status',
+      label: 'Status',
+      type: 'select' as const,
+      options: [
+        { value: 'New', label: 'New' },
+        { value: 'In Progress', label: 'In Progress' },
+        { value: 'Answered', label: 'Answered' },
+        { value: 'Closed', label: 'Closed' },
+      ],
+    },
+    {
+      key: 'priority',
+      label: 'Priority',
+      type: 'select' as const,
+      options: [
+        { value: 'Low', label: 'Low' },
+        { value: 'Medium', label: 'Medium' },
+        { value: 'High', label: 'High' },
+        { value: 'Urgent', label: 'Urgent' },
+      ],
+    },
+  ];
+
   return (
     <div className="space-y-6">
-      <PageHeader
-        title="Prayer Requests"
-        actions={
-          <>
-            <Button variant="outline" asChild>
-              <Link href="/dashboard/prayer-requests/categories">
-                <FolderOpen className="mr-2 h-4 w-4" />
-                Categories
-              </Link>
-            </Button>
-            <Button className="bg-brand-primary hover:bg-brand-primary/90" asChild>
-              <Link href="/dashboard/prayer-requests/add">
-                <Plus className="mr-2 h-4 w-4" />
-                New Request
-              </Link>
-            </Button>
-          </>
-        }
-      />
+      {/* Header */}
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <h1 className="font-heading text-2xl font-bold tracking-tight">Prayer Requests</h1>
 
-      {/* Old dialog kept for backward compatibility but hidden */}
-      <div className="hidden">
-        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-          <DialogTrigger asChild>
-            <Button className="bg-brand-primary hover:bg-brand-primary/90">
-              <Plus className="mr-2 h-4 w-4" />
+        <div className="flex items-center gap-2 flex-wrap">
+          <Button variant="outline" size="sm" asChild>
+            <Link href="/dashboard/prayer-requests/categories">
+              <FolderOpen className="mr-1.5 h-4 w-4" />
+              Categories
+            </Link>
+          </Button>
+          <Button size="sm" asChild>
+            <Link href="/dashboard/prayer-requests/add">
+              <Plus className="mr-1.5 h-4 w-4" />
               New Request
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="sm:max-w-[525px]">
-            <DialogHeader>
-              <DialogTitle>Submit Prayer Request</DialogTitle>
-              <DialogDescription>
-                Share your prayer request with the church community
-              </DialogDescription>
-            </DialogHeader>
-            <div className="space-y-4">
-              <div>
-                <Label htmlFor="title">Title</Label>
-                <Input id="title" placeholder="Brief title for the prayer request" />
-              </div>
-              
-              <div>
-                <Label htmlFor="description">Description</Label>
-                <Textarea 
-                  id="description" 
-                  placeholder="Detailed description of the prayer request"
-                  rows={4}
-                />
-              </div>
-              
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="priority">Priority</Label>
-                  <Select>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select priority" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="low">Low</SelectItem>
-                      <SelectItem value="medium">Medium</SelectItem>
-                      <SelectItem value="high">High</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                
-                <div>
-                  <Label htmlFor="confidential">Confidentiality</Label>
-                  <Select>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select option" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="public">Public</SelectItem>
-                      <SelectItem value="confidential">Confidential</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-              
-              <div className="flex justify-end space-x-2">
-                <Button variant="outline" onClick={() => setIsDialogOpen(false)}>
-                  Cancel
-                </Button>
-                <Button onClick={() => setIsDialogOpen(false)}>
-                  Submit Request
-                </Button>
-              </div>
-            </div>
-          </DialogContent>
-        </Dialog>
+            </Link>
+          </Button>
+        </div>
       </div>
 
       {/* Stats Cards */}
-      <div className="grid gap-4 md:grid-cols-4">
-        <StatCard title="Total Requests" value={totalRequests} icon={Heart} accent="primary" />
-        <StatCard title="New Requests" value={newRequests} icon={AlertCircle} accent="secondary" />
-        <StatCard title="In Progress" value={inProgress} icon={Clock} accent="accent" />
-        <StatCard title="Answered" value={answered} icon={CheckCircle} accent="success" />
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <StatCard title="Total Requests" value={totalRequests} icon={Heart} />
+        <StatCard title="New Requests" value={newRequests} icon={AlertCircle} />
+        <StatCard title="In Progress" value={inProgress} icon={Clock} />
+        <StatCard title="Answered" value={answered} icon={CheckCircle} />
       </div>
 
       {/* Prayer Requests Table */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Prayer Request Management</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="flex items-center space-x-4 mb-4">
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="Search prayer requests..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10"
-              />
-            </div>
-            
-            <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <SelectTrigger className="w-48">
-                <SelectValue placeholder="Filter by status" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Status</SelectItem>
-                <SelectItem value="new">New</SelectItem>
-                <SelectItem value="in progress">In Progress</SelectItem>
-                <SelectItem value="answered">Answered</SelectItem>
-                <SelectItem value="closed">Closed</SelectItem>
-              </SelectContent>
-            </Select>
-            
-            <Select value={priorityFilter} onValueChange={setPriorityFilter}>
-              <SelectTrigger className="w-48">
-                <SelectValue placeholder="Filter by priority" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Priority</SelectItem>
-                <SelectItem value="high">High</SelectItem>
-                <SelectItem value="medium">Medium</SelectItem>
-                <SelectItem value="low">Low</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Request</TableHead>
-                <TableHead>Requester</TableHead>
-                <TableHead>Priority</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Assigned To</TableHead>
-                <TableHead>Date</TableHead>
-                <TableHead>Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filteredRequests.map((request) => (
-                <TableRow key={request.id}>
-                  <TableCell>
-                    <div className="space-y-1">
-                      <div className="flex items-center space-x-2">
-                        <span className="font-medium">{request.title}</span>
-                        {request.isConfidential && (
-                          <Lock className="h-3 w-3 text-muted-foreground" />
-                        )}
-                      </div>
-                      <p className="text-sm text-muted-foreground max-w-xs truncate">
-                        {request.description}
-                      </p>
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex items-center space-x-2">
-                      <Avatar className="h-6 w-6">
-                        <AvatarFallback className="text-xs">
-                          {request.requester === 'Anonymous' ? 'A' : 
-                           request.requester.split(' ').map(n => n[0]).join('')}
-                        </AvatarFallback>
-                      </Avatar>
-                      <span className="text-sm">{request.requester}</span>
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <Badge variant={getPriorityColor(request.priority)}>
-                      {request.priority}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>
-                    <Badge variant={getStatusColor(request.status)} className="flex items-center space-x-1 w-fit">
-                      {getStatusIcon(request.status)}
-                      <span>{request.status}</span>
-                    </Badge>
-                  </TableCell>
-                  <TableCell>
-                    {request.assignedTo ? (
-                      <div className="flex items-center space-x-2">
-                        <Users className="h-3 w-3 text-muted-foreground" />
-                        <span className="text-sm">{request.assignedTo}</span>
-                      </div>
-                    ) : (
-                      <span className="text-sm text-muted-foreground">Unassigned</span>
-                    )}
-                  </TableCell>
-                  <TableCell>{new Date(request.createdAt).toLocaleDateString()}</TableCell>
-                  <TableCell>
-                    <div className="flex space-x-1">
-                      <Button variant="ghost" size="icon" asChild>
-                        <Link href={`/dashboard/prayer-requests/${request.id}`}>
-                          <Eye className="h-4 w-4" />
-                        </Link>
-                      </Button>
-                      <Button variant="ghost" size="icon" asChild>
-                        <Link href={`/dashboard/prayer-requests/${request.id}/edit`}>
-                          <Edit className="h-4 w-4" />
-                        </Link>
-                      </Button>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
+      <DataTable
+        columns={columns}
+        data={prayerRequests}
+        recordLabel="prayer request"
+        recordLabelPlural="prayer requests"
+        searchKey="title"
+        searchValue={searchTerm}
+        onSearchChange={setSearchTerm}
+        searchPlaceholder="Search prayer requests by title..."
+        filters={searchFilters}
+        pagination={{
+          pageSize: 10,
+          pageSizeOptions: [10, 20, 50],
+        }}
+      />
     </div>
   );
 }

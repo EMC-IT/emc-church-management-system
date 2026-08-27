@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { StatusBadge } from '@/components/ui/status-badge';
@@ -187,15 +188,15 @@ export default function CategoryDetailsPage() {
   const getTypeIcon = (type: GivingType) => {
     switch (type) {
       case GivingType.TITHE:
-        return <BadgeCent className="h-4 w-4 text-blue-500" />;
+        return <BadgeCent className="h-4 w-4 text-brand-primary" />;
       case GivingType.OFFERING:
-        return <BadgeCent className="h-4 w-4 text-green-500" />;
+        return <BadgeCent className="h-4 w-4 text-brand-success" />;
       case GivingType.DONATION:
-        return <BadgeCent className="h-4 w-4 text-red-500" />;
+        return <BadgeCent className="h-4 w-4 text-brand-gold" />;
       case GivingType.PLEDGE:
-        return <Target className="h-4 w-4 text-purple-500" />;
+        return <Target className="h-4 w-4 text-brand-secondary" />;
       default:
-        return <BadgeCent className="h-4 w-4 text-gray-500" />;
+        return <BadgeCent className="h-4 w-4 text-muted-foreground" />;
     }
   };
 
@@ -203,15 +204,34 @@ export default function CategoryDetailsPage() {
 
   const columns: ColumnDef<Giving>[] = [
     {
+      id: 'select',
+      header: ({ table }) => (
+        <Checkbox
+          checked={
+            table.getIsAllPageRowsSelected() ||
+            (table.getIsSomePageRowsSelected() && 'indeterminate')
+          }
+          onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+          aria-label="Select all"
+        />
+      ),
+      cell: ({ row }) => (
+        <Checkbox
+          checked={row.getIsSelected()}
+          onCheckedChange={(value) => row.toggleSelected(!!value)}
+          aria-label="Select row"
+        />
+      ),
+      enableSorting: false,
+      enableHiding: false,
+    },
+    {
       accessorKey: 'type',
       header: 'Type',
       cell: ({ row }) => {
         const giving = row.original;
         return (
-          <div className="flex items-center space-x-2">
-            {getTypeIcon(giving.type)}
-            <span className="font-medium capitalize">{giving.type.replace('_', ' ')}</span>
-          </div>
+          <span className="font-medium capitalize">{giving.type.replace('_', ' ')}</span>
         );
       },
     },
@@ -278,10 +298,9 @@ export default function CategoryDetailsPage() {
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center gap-4">
-        <Button variant="outline" size="sm" asChild>
-          <Link href="/dashboard/finance/giving/categories">
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Back
+        <Button variant="outline" size="icon" className="h-9 w-9" asChild>
+          <Link href="/dashboard/finance/giving/categories" aria-label="Back to Giving Categories">
+            <ArrowLeft className="h-4 w-4" />
           </Link>
         </Button>
         <div className="flex-1">
@@ -318,7 +337,6 @@ export default function CategoryDetailsPage() {
           value={formatCurrency(category.totalAmount)}
           icon={BadgeCent}
           accent="success"
-          description="All time"
         />
 
         <StatCard
@@ -326,7 +344,6 @@ export default function CategoryDetailsPage() {
           value={category.transactionCount}
           icon={TrendingUp}
           accent="primary"
-          description="Total count"
         />
 
         <StatCard
@@ -334,7 +351,6 @@ export default function CategoryDetailsPage() {
           value={formatCurrency(category.totalAmount / category.transactionCount)}
           icon={Users}
           accent="secondary"
-          description="Per transaction"
         />
 
         <StatCard
@@ -342,7 +358,6 @@ export default function CategoryDetailsPage() {
           value={`${progress.toFixed(1)}%`}
           icon={Target}
           accent="accent"
-          description={category.targetAmount ? `of ${formatCurrency(category.targetAmount)}` : 'No target set'}
         />
       </div>
 
