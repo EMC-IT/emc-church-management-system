@@ -16,6 +16,7 @@ export { default as departmentsService } from './departments-service';
 export { incomeService, default as defaultIncomeService } from './income-service';
 export { expenseService, default as defaultExpenseService } from './expense-service';
 export { budgetService, default as defaultBudgetService } from './budget-service';
+export { assetService, default as defaultAssetService } from './asset-service';
 
 // Export types from services
 export type {

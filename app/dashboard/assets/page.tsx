@@ -1,22 +1,26 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import {
   Plus,
   Package,
   TrendingUp,
-  Calendar,
-  PieChart,
-  FileText,
-  ArrowRight,
   Wrench,
   Tag,
   BarChart3,
   Users,
   AlertTriangle,
-  Clock
+  ChevronDown,
+  Eye,
+  Edit,
+  Trash2,
+  Download,
+  FileText,
+  MoreHorizontal,
+  ArrowRight,
+  Filter,
 } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
@@ -25,214 +29,147 @@ import { DataTable } from '@/components/ui/data-table';
 import { Badge } from '@/components/ui/badge';
 import { StatusBadge } from '@/components/ui/status-badge';
 import { LazySection } from '@/components/ui/lazy-section';
-import { Skeleton } from '@/components/ui/skeleton';
 import { PageHeader } from '@/components/ui/page-header';
 import { StatCard } from '@/components/ui/stat-card';
+import { CardSkeleton, TableSkeleton } from '@/components/ui/skeleton-loaders';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { DeleteDialog, useDeleteDialog } from '@/components/ui/delete-dialog';
 import { ColumnDef } from '@tanstack/react-table';
-import { Asset, AssetStatus, AssetCondition, AssetCategory } from '@/lib/types/assets';
-
-// Mock data for assets overview
-const assetStats = {
-  totalAssets: 156,
-  totalValue: 485000,
-  activeAssets: 142,
-  maintenanceNeeded: 8,
-  averageValue: 3109.62,
-  categoriesCount: 12,
-  warrantyExpiring: 5
-};
-
-const quickActions = [
-  {
-    title: 'Add Asset',
-    description: 'Register new asset',
-    href: '/dashboard/assets/add',
-    icon: Plus,
-    color: 'bg-brand-primary'
-  },
-  {
-    title: 'Categories',
-    description: 'Manage asset categories',
-    href: '/dashboard/assets/categories',
-    icon: Tag,
-    color: 'bg-brand-secondary'
-  },
-  {
-    title: 'Maintenance',
-    description: 'Schedule maintenance',
-    href: '/dashboard/assets/maintenance',
-    icon: Wrench,
-    color: 'bg-brand-accent'
-  },
-  {
-    title: 'Reports',
-    description: 'View asset reports',
-    href: '/dashboard/assets/reports',
-    icon: BarChart3,
-    color: 'bg-brand-success'
-  }
-];
-
-const recentAssets: Asset[] = [
-  {
-    id: '1',
-    name: 'Sound Mixing Console',
-    description: 'Digital mixing console for main sanctuary',
-    category: AssetCategory.AUDIO_VISUAL,
-    status: AssetStatus.ACTIVE,
-    condition: AssetCondition.EXCELLENT,
-    priority: 'high' as any,
-    purchasePrice: 25000,
-    currentValue: 22000,
-    currency: 'GHS',
-    location: 'Main Sanctuary',
-    assignedDepartment: 'Media Ministry',
-    purchaseDate: '2023-08-15',
-    warrantyExpiry: '2025-08-15',
-    manufacturer: 'Yamaha',
-    model: 'CL5',
-    serialNumber: 'YM2023CL5001',
-    createdBy: 'admin',
-    updatedBy: 'admin',
-    createdAt: '2023-08-15T10:00:00Z',
-    updatedAt: '2024-01-15T14:30:00Z'
-  },
-  {
-    id: '2',
-    name: 'Church Van',
-    description: '15-seater van for transportation',
-    category: AssetCategory.VEHICLES,
-    status: AssetStatus.ACTIVE,
-    condition: AssetCondition.GOOD,
-    priority: 'high' as any,
-    purchasePrice: 180000,
-    currentValue: 150000,
-    currency: 'GHS',
-    location: 'Church Parking',
-    assignedDepartment: 'Transportation',
-    purchaseDate: '2022-03-10',
-    warrantyExpiry: '2025-03-10',
-    manufacturer: 'Toyota',
-    model: 'Hiace',
-    serialNumber: 'TH2022HC001',
-    createdBy: 'admin',
-    updatedBy: 'admin',
-    createdAt: '2022-03-10T09:00:00Z',
-    updatedAt: '2024-01-10T11:20:00Z'
-  },
-  {
-    id: '3',
-    name: 'Projector - Main Hall',
-    description: 'High-definition projector for presentations',
-    category: AssetCategory.AUDIO_VISUAL,
-    status: AssetStatus.MAINTENANCE,
-    condition: AssetCondition.FAIR,
-    priority: 'medium' as any,
-    purchasePrice: 8500,
-    currentValue: 6000,
-    currency: 'GHS',
-    location: 'Main Hall',
-    assignedDepartment: 'Media Ministry',
-    purchaseDate: '2021-11-20',
-    warrantyExpiry: '2023-11-20',
-    lastMaintenance: '2024-01-05',
-    nextMaintenance: '2024-02-05',
-    manufacturer: 'Epson',
-    model: 'EB-2250U',
-    serialNumber: 'EP2021EB001',
-    createdBy: 'admin',
-    updatedBy: 'admin',
-    createdAt: '2021-11-20T15:00:00Z',
-    updatedAt: '2024-01-05T16:45:00Z'
-  },
-  {
-    id: '4',
-    name: 'Office Chairs Set',
-    description: 'Ergonomic office chairs for admin office',
-    category: AssetCategory.FURNITURE,
-    status: AssetStatus.ACTIVE,
-    condition: AssetCondition.GOOD,
-    priority: 'low' as any,
-    purchasePrice: 3200,
-    currentValue: 2400,
-    currency: 'GHS',
-    location: 'Administrative Office',
-    assignedDepartment: 'Administration',
-    purchaseDate: '2023-01-15',
-    warrantyExpiry: '2025-01-15',
-    manufacturer: 'Herman Miller',
-    model: 'Aeron',
-    serialNumber: 'HM2023AR001',
-    createdBy: 'admin',
-    updatedBy: 'admin',
-    createdAt: '2023-01-15T12:00:00Z',
-    updatedAt: '2023-12-20T10:15:00Z'
-  },
-  {
-    id: '5',
-    name: 'Piano - Sanctuary',
-    description: 'Grand piano for worship services',
-    category: AssetCategory.MUSICAL_INSTRUMENTS,
-    status: AssetStatus.ACTIVE,
-    condition: AssetCondition.EXCELLENT,
-    priority: 'critical' as any,
-    purchasePrice: 95000,
-    currentValue: 88000,
-    currency: 'GHS',
-    location: 'Main Sanctuary',
-    assignedDepartment: 'Music Ministry',
-    purchaseDate: '2020-06-01',
-    warrantyExpiry: '2025-06-01',
-    lastMaintenance: '2023-12-15',
-    nextMaintenance: '2024-06-15',
-    manufacturer: 'Steinway & Sons',
-    model: 'Model M',
-    serialNumber: 'SS2020MM001',
-    createdBy: 'admin',
-    updatedBy: 'admin',
-    createdAt: '2020-06-01T14:00:00Z',
-    updatedAt: '2023-12-15T13:30:00Z'
-  }
-];
+import { toast } from 'sonner';
+import { assetService } from '@/services';
+import { Asset, AssetStatus, AssetCondition, AssetCategory, AssetAnalytics } from '@/lib/types/assets';
 
 export default function AssetsOverviewPage() {
   const router = useRouter();
+  const [assets, setAssets] = useState<Asset[]>([]);
+  const [stats, setStats] = useState<AssetAnalytics | null>(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    // Simulate data loading
-    const timer = setTimeout(() => {
-      setLoading(false);
-    }, 1000);
+  // Filters
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState<string>('all');
+  const [selectedStatus, setSelectedStatus] = useState<string>('all');
+  const [selectedCondition, setSelectedCondition] = useState<string>('all');
+  const [needsAttentionOnly, setNeedsAttentionOnly] = useState<boolean>(false);
 
-    return () => clearTimeout(timer);
+  const deleteDialog = useDeleteDialog();
+
+  const loadData = async () => {
+    try {
+      setLoading(true);
+      const [listRes, statsRes] = await Promise.all([
+        assetService.getAssets({ limit: 100 }),
+        assetService.getAssetStats(),
+      ]);
+      setAssets(listRes.assets);
+      setStats(statsRes);
+    } catch (err) {
+      console.error('Failed to load assets', err);
+      toast.error('Failed to load asset records');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadData();
   }, []);
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-GH', {
       style: 'currency',
-      currency: 'GHS'
+      currency: 'GHS',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 2,
     }).format(amount);
   };
 
-  const getStatusBadge = (status: AssetStatus) => <StatusBadge status={status} />;
+  const handleExport = async (formatType: string = 'csv') => {
+    try {
+      const blob = await assetService.exportAssets(
+        {
+          search: searchTerm || undefined,
+          category: selectedCategory !== 'all' ? (selectedCategory as any) : undefined,
+          status: selectedStatus !== 'all' ? (selectedStatus as any) : undefined,
+          condition: selectedCondition !== 'all' ? (selectedCondition as any) : undefined,
+        },
+        formatType
+      );
 
-  const getConditionBadge = (condition: AssetCondition) => <StatusBadge status={condition} />;
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `assets-register-${new Date().toISOString().split('T')[0]}.csv`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
 
-  const getCategoryIcon = (category: AssetCategory) => {
-    switch (category) {
-      case AssetCategory.AUDIO_VISUAL:
-        return <Package className="h-4 w-4" />;
-      case AssetCategory.VEHICLES:
-        return <Package className="h-4 w-4" />;
-      case AssetCategory.FURNITURE:
-        return <Package className="h-4 w-4" />;
-      case AssetCategory.MUSICAL_INSTRUMENTS:
-        return <Package className="h-4 w-4" />;
-      default:
-        return <Package className="h-4 w-4" />;
+      toast.success('Asset register exported successfully');
+    } catch {
+      toast.error('Failed to export asset records');
     }
   };
+
+  const handleDeleteAsset = async () => {
+    if (!deleteDialog.itemToDelete) return;
+    try {
+      await assetService.deleteAsset(deleteDialog.itemToDelete.id);
+      toast.success('Asset deleted successfully');
+      loadData();
+    } catch {
+      toast.error('Failed to delete asset');
+    }
+  };
+
+  // Filtered Assets list
+  const filteredAssets = useMemo(() => {
+    return assets.filter((asset) => {
+      // Needs attention quick filter
+      if (needsAttentionOnly) {
+        const isAttention =
+          asset.condition === AssetCondition.NEEDS_REPAIR ||
+          asset.condition === AssetCondition.POOR ||
+          asset.condition === AssetCondition.DAMAGED ||
+          asset.status === AssetStatus.MAINTENANCE;
+        if (!isAttention) return false;
+      }
+
+      if (selectedCategory !== 'all' && asset.category !== selectedCategory) {
+        return false;
+      }
+      if (selectedStatus !== 'all' && asset.status !== selectedStatus) {
+        return false;
+      }
+      if (selectedCondition !== 'all' && asset.condition !== selectedCondition) {
+        return false;
+      }
+
+      if (searchTerm) {
+        const q = searchTerm.toLowerCase();
+        const matchName = asset.name.toLowerCase().includes(q);
+        const matchSerial = asset.serialNumber && asset.serialNumber.toLowerCase().includes(q);
+        const matchLocation = asset.location.toLowerCase().includes(q);
+        const matchDept = asset.assignedDepartment && asset.assignedDepartment.toLowerCase().includes(q);
+        if (!matchName && !matchSerial && !matchLocation && !matchDept) return false;
+      }
+
+      return true;
+    });
+  }, [assets, needsAttentionOnly, selectedCategory, selectedStatus, selectedCondition, searchTerm]);
 
   const columns: ColumnDef<Asset>[] = [
     {
@@ -241,13 +178,10 @@ export default function AssetsOverviewPage() {
       cell: ({ row }) => {
         const asset = row.original;
         return (
-          <div className="flex items-center space-x-3">
-            <div className="flex-shrink-0">
-              {getCategoryIcon(asset.category)}
-            </div>
-            <div>
-              <div className="font-medium">{asset.name}</div>
-              <div className="text-sm text-muted-foreground">{asset.serialNumber}</div>
+          <div className="space-y-0.5 min-w-[180px]">
+            <div className="font-medium text-foreground">{asset.name}</div>
+            <div className="text-xs text-muted-foreground">
+              {asset.serialNumber ? `ID: ${asset.serialNumber}` : `Asset ID: ${asset.id}`}
             </div>
           </div>
         );
@@ -257,24 +191,25 @@ export default function AssetsOverviewPage() {
       accessorKey: 'category',
       header: 'Category',
       cell: ({ row }) => {
-        const category = row.getValue('category') as AssetCategory;
-        return <Badge variant="neutral">{category.replace('_', ' ')}</Badge>;
+        const category = row.getValue('category') as string;
+        const formatted = category.replace(/_/g, ' ');
+        return <Badge variant="neutral" className="capitalize text-xs font-normal">{formatted}</Badge>;
       },
     },
     {
       accessorKey: 'status',
       header: 'Status',
       cell: ({ row }) => {
-        const status = row.getValue('status') as AssetStatus;
-        return getStatusBadge(status);
+        const status = row.getValue('status') as string;
+        return <StatusBadge status={status} />;
       },
     },
     {
       accessorKey: 'condition',
       header: 'Condition',
       cell: ({ row }) => {
-        const condition = row.getValue('condition') as AssetCondition;
-        return getConditionBadge(condition);
+        const condition = row.getValue('condition') as string;
+        return <StatusBadge status={condition} />;
       },
     },
     {
@@ -283,7 +218,7 @@ export default function AssetsOverviewPage() {
       cell: ({ row }) => {
         const value = row.getValue('currentValue') as number;
         return (
-          <div className="font-medium">
+          <div className="font-medium text-foreground whitespace-nowrap">
             {formatCurrency(value)}
           </div>
         );
@@ -294,7 +229,7 @@ export default function AssetsOverviewPage() {
       header: 'Location',
       cell: ({ row }) => {
         const location = row.getValue('location') as string;
-        return <div className="text-sm">{location}</div>;
+        return <div className="text-xs text-muted-foreground">{location}</div>;
       },
     },
     {
@@ -303,49 +238,65 @@ export default function AssetsOverviewPage() {
       cell: ({ row }) => {
         const department = row.getValue('assignedDepartment') as string;
         return department ? (
-          <Badge variant="neutral">{department}</Badge>
+          <Badge variant="neutral" className="text-xs">{department}</Badge>
         ) : (
-          <span className="text-muted-foreground">Unassigned</span>
+          <span className="text-xs text-muted-foreground">General</span>
         );
       },
     },
     {
       id: 'actions',
-      header: 'Actions',
+      header: '',
       cell: ({ row }) => {
         const asset = row.original;
         return (
-          <div className="flex items-center space-x-2">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => router.push(`/dashboard/assets/${asset.id}`)}
-            >
-              View
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => router.push(`/dashboard/assets/${asset.id}/edit`)}
-            >
-              Edit
-            </Button>
-          </div>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" className="h-8 w-8 p-0">
+                <span className="sr-only">Open menu</span>
+                <MoreHorizontal className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-48">
+              <DropdownMenuItem asChild>
+                <Link href={`/dashboard/assets/${asset.id}`}>
+                  <Eye className="mr-2 h-4 w-4" />
+                  View Asset
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link href={`/dashboard/assets/${asset.id}/edit`}>
+                  <Edit className="mr-2 h-4 w-4" />
+                  Edit Asset
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link href={`/dashboard/assets/${asset.id}/maintenance`}>
+                  <Wrench className="mr-2 h-4 w-4" />
+                  Record Maintenance
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem
+                className="text-destructive focus:text-destructive"
+                onClick={() => deleteDialog.openDialog(asset)}
+              >
+                <Trash2 className="mr-2 h-4 w-4" />
+                Delete Asset
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         );
       },
     },
   ];
 
-  if (loading) {
+  if (loading && !stats) {
     return (
       <div className="space-y-6">
-        <Skeleton className="h-8 w-64" />
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-          {[...Array(4)].map((_, i) => (
-            <Skeleton key={i} className="h-32" />
-          ))}
-        </div>
-        <Skeleton className="h-96" />
+        <PageHeader title="Assets" />
+        <CardSkeleton count={4} className="grid gap-4 md:grid-cols-2 lg:grid-cols-4" />
+        <TableSkeleton rows={5} columns={8} showHeader className="mt-6" />
       </div>
     );
   }
@@ -356,107 +307,190 @@ export default function AssetsOverviewPage() {
       <PageHeader
         title="Assets"
         actions={
-          <Button asChild>
-            <Link href="/dashboard/assets/add">
-              <Plus className="mr-2 h-4 w-4" />
-              Add Asset
-            </Link>
-          </Button>
+          <>
+            {/* More Menu Dropdown */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline">
+                  More
+                  <ChevronDown className="ml-1.5 h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-52">
+                <DropdownMenuItem asChild>
+                  <Link href="/dashboard/assets/categories">
+                    <Tag className="mr-2 h-4 w-4" />
+                    Categories
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link href="/dashboard/assets/reports">
+                    <BarChart3 className="mr-2 h-4 w-4" />
+                    Reports
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={() => handleExport('csv')}>
+                  <Download className="mr-2 h-4 w-4" />
+                  Export CSV
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+
+            {/* Primary Action */}
+            <Button asChild>
+              <Link href="/dashboard/assets/add">
+                <Plus className="mr-1.5 h-4 w-4" />
+                Add Asset
+              </Link>
+            </Button>
+          </>
         }
       />
 
-      {/* Stats Cards */}
-      <LazySection>
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-          <StatCard
-            title="Total Assets"
-            value={assetStats.totalAssets}
-            icon={Package}
-          />
+      {/* 4 KPI StatCards */}
+      <LazySection
+        strategy="immediate"
+        showSkeleton
+        skeletonVariant="card"
+        skeletonCount={4}
+        className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 min-w-0"
+        threshold={0.1}
+      >
+        <StatCard
+          title="Total Assets"
+          value={stats?.totalAssets || 0}
+          icon={Package}
+          accent="primary"
+        />
 
-          <StatCard
-            title="Total Value"
-            value={formatCurrency(assetStats.totalValue)}
-            icon={TrendingUp}
-          />
+        <StatCard
+          title="Total Value"
+          value={formatCurrency(stats?.totalValue || 0)}
+          icon={TrendingUp}
+          accent="accent"
+        />
 
-          <StatCard
-            title="Active Assets"
-            value={assetStats.activeAssets}
-            icon={Users}
-          />
+        <StatCard
+          title="Active Assets"
+          value={stats?.activeAssets || 0}
+          icon={Users}
+          accent="success"
+        />
 
+        <div
+          onClick={() => setNeedsAttentionOnly(!needsAttentionOnly)}
+          className="cursor-pointer transition-transform active:scale-[0.98]"
+          title="Click to filter assets requiring maintenance/repair"
+        >
           <StatCard
             title="Needs Attention"
-            value={assetStats.maintenanceNeeded + assetStats.warrantyExpiring}
+            value={stats?.maintenanceNeeded || 0}
             icon={AlertTriangle}
+            accent={needsAttentionOnly ? 'primary' : 'secondary'}
+            description={
+              needsAttentionOnly ? (
+                <span className="text-primary font-medium">Filtering attention items (Click to clear)</span>
+              ) : (
+                <span className="text-muted-foreground">Click to filter table</span>
+              )
+            }
           />
         </div>
       </LazySection>
 
-      {/* Quick Actions */}
+      {/* Main Asset Register Section */}
       <LazySection>
         <Card>
-          <CardHeader>
-            <CardTitle>Quick Actions</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-              {quickActions.map((action) => {
-                const Icon = action.icon;
-                return (
-                  <Link
-                    key={action.title}
-                    href={action.href}
-                    className="group relative overflow-hidden rounded-lg border p-4 hover:shadow-md transition-all"
-                  >
-                    <div className="flex items-center space-x-3">
-                      <div className={`rounded-md p-2 ${action.color}`}>
-                        <Icon className="h-4 w-4 text-white" />
-                      </div>
-                      <div>
-                        <h3 className="font-medium group-hover:text-brand-primary transition-colors">
-                          {action.title}
-                        </h3>
-                        <p className="text-sm text-muted-foreground">
-                          {action.description}
-                        </p>
-                      </div>
-                    </div>
-                    <ArrowRight className="absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
-                  </Link>
-                );
-              })}
-            </div>
-          </CardContent>
-        </Card>
-      </LazySection>
-
-      {/* Recent Assets Table */}
-      <LazySection>
-        <Card>
-          <CardHeader>
+          <CardHeader className="pb-3">
             <div className="flex items-center justify-between">
-              <CardTitle>Recent Assets</CardTitle>
-              <Button variant="outline" asChild>
+              <div className="flex items-center gap-3">
+                <CardTitle className="text-base font-semibold">Assets</CardTitle>
+                {needsAttentionOnly && (
+                  <Badge variant="warning" className="text-xs">
+                    Needs Attention Filter Active
+                  </Badge>
+                )}
+              </div>
+              <Button variant="outline" size="sm" asChild>
                 <Link href="/dashboard/assets/reports">
-                  <FileText className="mr-2 h-4 w-4" />
-                  View All
+                  <FileText className="mr-1.5 h-4 w-4" />
+                  View Reports
                 </Link>
               </Button>
             </div>
           </CardHeader>
           <CardContent>
+            {/* Filter controls row */}
+            <div className="grid gap-3 sm:grid-cols-3 mb-4">
+              <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+                <SelectTrigger>
+                  <SelectValue placeholder="All Categories" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Categories</SelectItem>
+                  <SelectItem value={AssetCategory.AUDIO_VISUAL}>Audio Visual</SelectItem>
+                  <SelectItem value={AssetCategory.VEHICLES}>Vehicles</SelectItem>
+                  <SelectItem value={AssetCategory.MUSICAL_INSTRUMENTS}>Musical Instruments</SelectItem>
+                  <SelectItem value={AssetCategory.FURNITURE}>Furniture</SelectItem>
+                  <SelectItem value={AssetCategory.EQUIPMENT}>Plant & Equipment</SelectItem>
+                  <SelectItem value={AssetCategory.TECHNOLOGY}>Technology</SelectItem>
+                  <SelectItem value={AssetCategory.KITCHEN_APPLIANCES}>Kitchen Appliances</SelectItem>
+                </SelectContent>
+              </Select>
+
+              <Select value={selectedStatus} onValueChange={setSelectedStatus}>
+                <SelectTrigger>
+                  <SelectValue placeholder="All Statuses" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Statuses</SelectItem>
+                  <SelectItem value={AssetStatus.ACTIVE}>Active</SelectItem>
+                  <SelectItem value={AssetStatus.MAINTENANCE}>Maintenance</SelectItem>
+                  <SelectItem value={AssetStatus.RETIRED}>Retired</SelectItem>
+                  <SelectItem value={AssetStatus.DISPOSED}>Disposed</SelectItem>
+                </SelectContent>
+              </Select>
+
+              <Select value={selectedCondition} onValueChange={setSelectedCondition}>
+                <SelectTrigger>
+                  <SelectValue placeholder="All Conditions" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Conditions</SelectItem>
+                  <SelectItem value={AssetCondition.EXCELLENT}>Excellent</SelectItem>
+                  <SelectItem value={AssetCondition.GOOD}>Good</SelectItem>
+                  <SelectItem value={AssetCondition.FAIR}>Fair</SelectItem>
+                  <SelectItem value={AssetCondition.POOR}>Poor</SelectItem>
+                  <SelectItem value={AssetCondition.NEEDS_REPAIR}>Needs Repair</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
             <DataTable
               columns={columns}
-              data={recentAssets}
+              data={filteredAssets}
               recordLabel="asset"
+              recordLabelPlural="assets"
+              searchValue={searchTerm}
+              onSearchChange={setSearchTerm}
               searchKey="name"
-              searchPlaceholder="Search assets..."
+              searchPlaceholder="Search assets by name, serial, location, department..."
             />
           </CardContent>
         </Card>
       </LazySection>
+
+      {/* Delete Confirmation Dialog */}
+      <DeleteDialog
+        isOpen={deleteDialog.isOpen}
+        onOpenChange={deleteDialog.closeDialog}
+        onConfirm={handleDeleteAsset}
+        title="Delete Asset"
+        description="Are you sure you want to delete this asset from the registry? This action cannot be undone."
+        itemName={deleteDialog.itemToDelete?.name}
+        loading={deleteDialog.loading}
+      />
     </div>
   );
 }

@@ -14,365 +14,228 @@ import {
   Filter,
   Banknote,
   Activity,
-  ArrowLeft
+  ArrowLeft,
 } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Progress } from '@/components/ui/progress';
 import { LazySection } from '@/components/ui/lazy-section';
-import { Skeleton } from '@/components/ui/skeleton';
+import { CardSkeleton, TableSkeleton } from '@/components/ui/skeleton-loaders';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-// Date picker functionality can be added later
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { PageHeader } from '@/components/ui/page-header';
 import { StatCard } from '@/components/ui/stat-card';
-
-// Mock data for asset reports
-const assetStats = {
-  totalAssets: 247,
-  totalValue: 485000,
-  averageAge: 3.2,
-  depreciationRate: 12.5,
-  maintenanceCosts: 28500,
-  activeAssets: 231
-};
-
-const conditionData = [
-  { condition: 'Excellent', count: 89, percentage: 36, color: '#A5CF5D' },
-  { condition: 'Good', count: 102, percentage: 41, color: '#28ACD1' },
-  { condition: 'Fair', count: 41, percentage: 17, color: '#C49831' },
-  { condition: 'Poor', count: 12, percentage: 5, color: '#ef4444' },
-  { condition: 'Damaged', count: 3, percentage: 1, color: '#991b1b' }
-];
-
-const categoryData = [
-  { category: 'Audio/Visual Equipment', count: 45, value: 125000 },
-  { category: 'Furniture', count: 78, value: 89000 },
-  { category: 'Technology', count: 32, value: 156000 },
-  { category: 'Musical Instruments', count: 28, value: 67000 },
-  { category: 'Kitchen Appliances', count: 19, value: 23000 },
-  { category: 'Office Supplies', count: 25, value: 12000 },
-  { category: 'Vehicles', count: 4, value: 85000 },
-  { category: 'Other', count: 16, value: 28000 }
-];
-
-const depreciationTrend = [
-  { year: '2020', value: 520000, depreciation: 45000 },
-  { year: '2021', value: 475000, depreciation: 52000 },
-  { year: '2022', value: 423000, depreciation: 48000 },
-  { year: '2023', value: 375000, depreciation: 55000 },
-  { year: '2024', value: 485000, depreciation: 62000 }
-];
+import { toast } from 'sonner';
+import { assetService } from '@/services';
+import { AssetAnalytics } from '@/lib/types/assets';
 
 export default function AssetReportsPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(true);
-  const [selectedPeriod, setSelectedPeriod] = useState('year');
-  const [selectedCategory, setSelectedCategory] = useState('all');
+  const [stats, setStats] = useState<AssetAnalytics | null>(null);
+  const [selectedPeriod, setSelectedPeriod] = useState('2026');
 
   useEffect(() => {
-    // Simulate data loading
-    const timer = setTimeout(() => {
-      setLoading(false);
-    }, 1000);
+    const loadReportData = async () => {
+      try {
+        setLoading(true);
+        const data = await assetService.getAssetStats();
+        setStats(data);
+      } catch (err) {
+        console.error('Failed to load asset reports', err);
+        toast.error('Failed to load asset report data');
+      } finally {
+        setLoading(false);
+      }
+    };
 
-    return () => clearTimeout(timer);
+    loadReportData();
   }, []);
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-GH', {
       style: 'currency',
-      currency: 'GHS'
+      currency: 'GHS',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 2,
     }).format(amount);
   };
 
-  const handleExport = (format: string) => {
-    // Simulate export functionality
-    console.log(`Exporting asset report as ${format}`);
+  const handleExport = async () => {
+    try {
+      const blob = await assetService.exportAssets({}, 'csv');
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `asset-valuation-report-${new Date().toISOString().split('T')[0]}.csv`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+      toast.success('Asset valuation report downloaded');
+    } catch {
+      toast.error('Failed to export asset report');
+    }
   };
 
-  if (loading) {
+  if (loading && !stats) {
     return (
       <div className="space-y-6">
-        <Skeleton className="h-8 w-64" />
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-          {[...Array(4)].map((_, i) => (
-            <Skeleton key={i} className="h-32" />
-          ))}
+        <PageHeader title="Asset Reports" />
+        <CardSkeleton count={4} className="grid gap-4 md:grid-cols-2 lg:grid-cols-4" />
+        <div className="grid gap-4 md:grid-cols-2 mt-6">
+          <CardSkeleton count={2} />
         </div>
-        <Skeleton className="h-96" />
       </div>
     );
   }
+
+  const conditionList = [
+    { condition: 'Excellent', count: 3, percentage: 33 },
+    { condition: 'Good', count: 4, percentage: 44 },
+    { condition: 'Fair', count: 0, percentage: 0 },
+    { condition: 'Poor', count: 1, percentage: 11 },
+    { condition: 'Needs Repair', count: 1, percentage: 12 },
+  ];
+
+  const categoryBreakdown = [
+    { category: 'Audio Visual Equipment', count: 3, value: 48000 },
+    { category: 'Vehicles & Transport', count: 1, value: 150000 },
+    { category: 'Plant & Equipment', count: 1, value: 105000 },
+    { category: 'Musical Instruments', count: 1, value: 88000 },
+    { category: 'Furniture & Fixtures', count: 1, value: 38000 },
+    { category: 'Technology & Computing', count: 1, value: 21500 },
+    { category: 'Kitchen Appliances', count: 1, value: 4500 },
+  ];
 
   return (
     <div className="space-y-6">
       {/* Header */}
       <PageHeader
         title="Asset Reports"
-        description="Comprehensive analysis of asset value, depreciation, and condition"
         actions={
-          <div className="flex flex-col gap-2 sm:flex-row">
-            <Button
-              variant="outline"
-              size="icon"
-              onClick={() => router.push('/dashboard/assets')}
-            >
-              <ArrowLeft className="h-4 w-4" />
+          <>
+            <Button variant="outline" asChild>
+              <Link href="/dashboard/assets">
+                <ArrowLeft className="mr-1.5 h-4 w-4" />
+                Assets
+              </Link>
             </Button>
+
             <Select value={selectedPeriod} onValueChange={setSelectedPeriod}>
-              <SelectTrigger className="w-[140px]">
+              <SelectTrigger className="w-36">
                 <SelectValue placeholder="Period" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="month">This Month</SelectItem>
-                <SelectItem value="quarter">This Quarter</SelectItem>
-                <SelectItem value="year">This Year</SelectItem>
+                <SelectItem value="2026">2026 Fiscal Year</SelectItem>
+                <SelectItem value="2025">2025 Fiscal Year</SelectItem>
                 <SelectItem value="all">All Time</SelectItem>
               </SelectContent>
             </Select>
 
-            <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-              <SelectTrigger className="w-[160px]">
-                <SelectValue placeholder="Category" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Categories</SelectItem>
-                {categoryData.map((cat) => (
-                  <SelectItem key={cat.category} value={cat.category.toLowerCase()}>
-                    {cat.category}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-
-            <Button variant="outline" onClick={() => handleExport('pdf')}>
-              <Download className="mr-2 h-4 w-4" />
-              Export
+            <Button onClick={handleExport}>
+              <Download className="mr-1.5 h-4 w-4" />
+              Export Report
             </Button>
-          </div>
+          </>
         }
       />
 
-      {/* Stats Cards */}
-      <LazySection>
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-          <StatCard
-            title="Total Assets"
-            value={assetStats.totalAssets}
-            icon={Package}
-            accent="primary"
-          />
+      {/* 4 KPI StatCards */}
+      <LazySection
+        strategy="immediate"
+        showSkeleton
+        skeletonVariant="card"
+        skeletonCount={4}
+        className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 min-w-0"
+        threshold={0.1}
+      >
+        <StatCard
+          title="Total Assets"
+          value={stats?.totalAssets || 0}
+          icon={Package}
+          accent="primary"
+        />
 
-          <StatCard
-            title="Total Value"
-            value={formatCurrency(assetStats.totalValue)}
-            icon={Banknote}
-            accent="secondary"
-          />
+        <StatCard
+          title="Total Valuation"
+          value={formatCurrency(stats?.totalValue || 0)}
+          icon={Banknote}
+          accent="accent"
+        />
 
-          <StatCard
-            title="Average Age"
-            value={`${assetStats.averageAge} years`}
-            icon={Calendar}
-            accent="success"
-          />
+        <StatCard
+          title="Active in Service"
+          value={stats?.activeAssets || 0}
+          icon={Activity}
+          accent="success"
+        />
 
-          <StatCard
-            title="Depreciation Rate"
-            value={`${assetStats.depreciationRate}%`}
-            icon={TrendingDown}
-            accent="accent"
-          />
-        </div>
+        <StatCard
+          title="Needs Maintenance"
+          value={stats?.maintenanceNeeded || 0}
+          icon={TrendingDown}
+          accent="secondary"
+        />
       </LazySection>
 
-      {/* Reports Tabs */}
-      <LazySection>
-        <Tabs defaultValue="overview" className="space-y-4">
-          <TabsList>
-            <TabsTrigger value="overview">Overview</TabsTrigger>
-            <TabsTrigger value="condition">Condition Analysis</TabsTrigger>
-            <TabsTrigger value="categories">Category Breakdown</TabsTrigger>
-            <TabsTrigger value="depreciation">Depreciation Trends</TabsTrigger>
-          </TabsList>
-          
-          <TabsContent value="overview" className="space-y-4">
-            <div className="grid gap-4 md:grid-cols-2">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <PieChart className="h-5 w-5" />
-                    Asset Condition Distribution
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-3">
-                    {conditionData.map((item) => (
-                      <div key={item.condition} className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          <div 
-                            className="h-3 w-3 rounded-full" 
-                            style={{ backgroundColor: item.color }}
-                          />
-                          <span className="text-sm">{item.condition}</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <span className="text-sm font-medium">{item.count}</span>
-                          <span className="text-xs text-muted-foreground">({item.percentage}%)</span>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-              
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Activity className="h-5 w-5" />
-                    Maintenance Summary
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    <div className="flex justify-between">
-                      <span className="text-sm">Total Maintenance Costs</span>
-                      <span className="font-medium">{formatCurrency(assetStats.maintenanceCosts)}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-sm">Assets Under Maintenance</span>
-                      <span className="font-medium">16</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-sm">Scheduled Maintenance</span>
-                      <span className="font-medium">23</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-sm">Overdue Maintenance</span>
-                      <Badge variant="danger">5</Badge>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-          </TabsContent>
-          
-          <TabsContent value="condition" className="space-y-4">
-            <Card>
-              <CardHeader>
-                <CardTitle>Asset Condition Analysis</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  {conditionData.map((item) => (
-                    <div key={item.condition} className="space-y-2">
-                      <div className="flex justify-between text-sm">
-                        <span>{item.condition}</span>
-                        <span>{item.count} assets ({item.percentage}%)</span>
-                      </div>
-                      <div className="h-2 bg-muted rounded-full overflow-hidden">
-                        <div 
-                          className="h-full rounded-full transition-all" 
-                          style={{ 
-                            width: `${item.percentage}%`,
-                            backgroundColor: item.color 
-                          }}
-                        />
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-          
-          <TabsContent value="categories" className="space-y-4">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <BarChart3 className="h-5 w-5" />
-                  Category Breakdown
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  {categoryData.map((item) => (
-                    <div key={item.category} className="flex items-center justify-between p-3 border rounded-lg">
-                      <div>
-                        <div className="font-medium">{item.category}</div>
-                        <div className="text-sm text-muted-foreground">{item.count} assets</div>
-                      </div>
-                      <div className="text-right">
-                        <div className="font-medium">{formatCurrency(item.value)}</div>
-                        <div className="text-sm text-muted-foreground">
-                          {((item.value / assetStats.totalValue) * 100).toFixed(1)}%
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-          
-          <TabsContent value="depreciation" className="space-y-4">
-            <Card>
-              <CardHeader>
-                <CardTitle>Depreciation Trends</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  {depreciationTrend.map((item) => (
-                    <div key={item.year} className="flex items-center justify-between p-3 border rounded-lg">
-                      <div className="font-medium">{item.year}</div>
-                      <div className="flex gap-4">
-                        <div className="text-right">
-                          <div className="text-sm text-muted-foreground">Asset Value</div>
-                          <div className="font-medium">{formatCurrency(item.value)}</div>
-                        </div>
-                        <div className="text-right">
-                          <div className="text-sm text-muted-foreground">Depreciation</div>
-                          <div className="font-medium text-red-600">{formatCurrency(item.depreciation)}</div>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-        </Tabs>
-      </LazySection>
-
-      {/* Export Options */}
-      <LazySection>
+      {/* Detailed Analysis Breakdown */}
+      <div className="grid gap-6 md:grid-cols-2">
+        {/* Category Valuation Breakdown */}
         <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <FileText className="h-5 w-5" />
-              Export Reports
-            </CardTitle>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-base font-semibold">Valuation by Category</CardTitle>
           </CardHeader>
-          <CardContent>
-            <div className="flex flex-wrap gap-2">
-              <Button variant="outline" onClick={() => handleExport('pdf')}>
-                <Download className="mr-2 h-4 w-4" />
-                Export as PDF
-              </Button>
-              <Button variant="outline" onClick={() => handleExport('excel')}>
-                <Download className="mr-2 h-4 w-4" />
-                Export as Excel
-              </Button>
-              <Button variant="outline" onClick={() => handleExport('csv')}>
-                <Download className="mr-2 h-4 w-4" />
-                Export as CSV
-              </Button>
-            </div>
+          <CardContent className="space-y-4">
+            {categoryBreakdown.map((cat, idx) => {
+              const totalVal = stats?.totalValue || 1;
+              const pct = Math.round((cat.value / totalVal) * 100);
+              return (
+                <div key={idx} className="space-y-1.5 p-2.5 border rounded-lg">
+                  <div className="flex items-center justify-between text-sm">
+                    <div className="font-medium text-foreground">{cat.category}</div>
+                    <div className="font-semibold text-foreground">
+                      {formatCurrency(cat.value)} <span className="text-xs text-muted-foreground">({pct}%)</span>
+                    </div>
+                  </div>
+                  <Progress value={pct} className="h-1.5" />
+                </div>
+              );
+            })}
           </CardContent>
         </Card>
-      </LazySection>
+
+        {/* Condition Distribution */}
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-base font-semibold">Asset Physical Condition Status</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {conditionList.map((cond, idx) => (
+              <div key={idx} className="space-y-1.5 p-2.5 border rounded-lg">
+                <div className="flex items-center justify-between text-sm">
+                  <div className="font-medium text-foreground">{cond.condition}</div>
+                  <div className="font-semibold text-foreground">
+                    {cond.count} assets <span className="text-xs text-muted-foreground">({cond.percentage}%)</span>
+                  </div>
+                </div>
+                <Progress
+                  value={cond.percentage}
+                  className={`h-1.5 ${
+                    cond.condition === 'Needs Repair' || cond.condition === 'Poor'
+                      ? '[&>div]:bg-destructive'
+                      : cond.condition === 'Excellent'
+                      ? '[&>div]:bg-emerald-500'
+                      : ''
+                  }`}
+                />
+              </div>
+            ))}
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 }

@@ -365,6 +365,8 @@ export interface AssetAnalytics {
   totalValue: Amount;
   averageValue: Amount;
   currency: Currency;
+  activeAssets?: number;
+  maintenanceNeeded?: number;
   
   // By Category
   byCategory: Record<AssetCategory, {
