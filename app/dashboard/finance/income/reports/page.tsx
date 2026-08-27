@@ -1,6 +1,7 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
+import Link from 'next/link';
 import {
   Calendar as CalendarIcon,
   Download,
@@ -8,26 +9,15 @@ import {
   TrendingUp,
   BadgeCent,
   FileText,
-  BarChart3,
-  PieChart,
-  Search,
-  RefreshCw
+  Clock,
+  RefreshCw,
+  ArrowLeft,
+  Users,
+  Tag,
 } from 'lucide-react';
-import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  PieChart as RechartsPieChart,
-  Pie,
-  Cell,
-  LineChart,
-  Line,
-  Area,
-  AreaChart,
-} from 'recharts';
-import { ChartContainer, ChartTooltip, ChartTooltipContent, ChartLegend, ChartLegendContent, ChartConfig } from '@/components/ui/chart';
+import { ColumnDef } from '@tanstack/react-table';
+import { format } from 'date-fns';
+import { DateRange } from 'react-day-picker';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -39,633 +29,555 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
 import { Badge } from '@/components/ui/badge';
+import { StatusBadge } from '@/components/ui/status-badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Progress } from '@/components/ui/progress';
+import { DataTable } from '@/components/ui/data-table';
 import { LazySection } from '@/components/ui/lazy-section';
-import { LazyLoader } from '@/components/ui/lazy-loader';
-import { toast } from 'sonner';
-import { addDays, format, subDays, subMonths } from 'date-fns';
-import { DateRange } from 'react-day-picker';
-
-// Types
-interface IncomeData {
-  id: string;
-  description: string;
-  amount: number;
-  categoryId: string;
-  categoryName: string;
-  source: string;
-  date: string;
-  status: 'received' | 'pending' | 'cancelled';
-  reference?: string;
-}
-
-interface CategorySummary {
-  categoryId: string;
-  categoryName: string;
-  totalAmount: number;
-  recordCount: number;
-  percentage: number;
-  color: string;
-}
-
-interface MonthlyData {
-  month: string;
-  amount: number;
-  recordCount: number;
-}
-
-// Mock data
-const mockIncomeData: IncomeData[] = [
-  {
-    id: '1',
-    description: 'Wedding Ceremony - Johnson Family',
-    amount: 2500,
-    categoryId: '1',
-    categoryName: 'Hall Rental',
-    source: 'Johnson Family',
-    date: '2024-01-15',
-    status: 'received',
-    reference: 'INV-2024-001'
-  },
-  {
-    id: '2',
-    description: 'Religious Books Sale',
-    amount: 450,
-    categoryId: '2',
-    categoryName: 'Book Sales',
-    source: 'Church Bookstore',
-    date: '2024-01-14',
-    status: 'received',
-    reference: 'INV-2024-002'
-  },
-  {
-    id: '3',
-    description: 'Community Grant - Phase 1',
-    amount: 15000,
-    categoryId: '3',
-    categoryName: 'Grants',
-    source: 'City Council',
-    date: '2024-01-10',
-    status: 'received',
-    reference: 'GRANT-2024-001'
-  },
-  {
-    id: '4',
-    description: 'Charity Fundraiser Event',
-    amount: 3200,
-    categoryId: '4',
-    categoryName: 'Fundraising',
-    source: 'Community Donors',
-    date: '2024-01-08',
-    status: 'received',
-    reference: 'FUND-2024-001'
-  },
-  {
-    id: '5',
-    description: 'Monthly Parking Fees',
-    amount: 680,
-    categoryId: '5',
-    categoryName: 'Parking',
-    source: 'Various',
-    date: '2024-01-05',
-    status: 'received',
-    reference: 'PARK-2024-001'
-  },
-  {
-    id: '6',
-    description: 'Investment Dividend',
-    amount: 1200,
-    categoryId: '6',
-    categoryName: 'Investments',
-    source: 'Investment Fund',
-    date: '2023-12-31',
-    status: 'received',
-    reference: 'DIV-2023-004'
-  },
-  {
-    id: '7',
-    description: 'Corporate Event - Tech Solutions',
-    amount: 1800,
-    categoryId: '1',
-    categoryName: 'Hall Rental',
-    source: 'Tech Solutions Ltd',
-    date: '2023-12-28',
-    status: 'received',
-    reference: 'INV-2023-045'
-  },
-  {
-    id: '8',
-    description: 'Educational Materials Sale',
-    amount: 320,
-    categoryId: '2',
-    categoryName: 'Book Sales',
-    source: 'Church Bookstore',
-    date: '2023-12-25',
-    status: 'received',
-    reference: 'INV-2023-046'
-  }
-];
-
-const incomeCategories = [
-  { id: '1', name: 'Hall Rental', color: '#2E8DB0' },
-  { id: '2', name: 'Book Sales', color: '#28ACD1' },
-  { id: '3', name: 'Grants', color: '#C49831' },
-  { id: '4', name: 'Fundraising', color: '#A5CF5D' },
-  { id: '5', name: 'Parking', color: '#8B5CF6' },
-  { id: '6', name: 'Investments', color: '#F59E0B' }
-];
+import { useToast } from '@/hooks/use-toast';
+import { incomeService } from '@/services';
+import { IncomeRecord, IncomeCategory, IncomeStatus } from '@/lib/types';
 
 export default function IncomeReportsPage() {
-  const [dateRange, setDateRange] = useState<DateRange | undefined>({
-    from: subMonths(new Date(), 6),
-    to: new Date()
+  const [loading, setLoading] = useState(true);
+  const [incomeData, setIncomeData] = useState<IncomeRecord[]>([]);
+  const [categories, setCategories] = useState<IncomeCategory[]>([]);
+  const [dateOpen, setDateOpen] = useState(false);
+  const { toast } = useToast();
+
+  const [filters, setFilters] = useState<{
+    category: string;
+    status: string;
+    method: string;
+    search: string;
+    dateRange: DateRange | undefined;
+  }>({
+    category: 'all',
+    status: 'all',
+    method: 'all',
+    search: '',
+    dateRange: undefined,
   });
-  const [selectedCategory, setSelectedCategory] = useState<string>('all');
-  const [selectedStatus, setSelectedStatus] = useState<string>('all');
-  const [searchTerm, setSearchTerm] = useState('');
-  const [isExporting, setIsExporting] = useState(false);
+
+  const loadData = async () => {
+    try {
+      setLoading(true);
+      const [listRes, catsRes] = await Promise.all([
+        incomeService.getIncomeList({ limit: 100 }),
+        incomeService.getCategories(),
+      ]);
+      setIncomeData(listRes.data);
+      setCategories(catsRes.data);
+    } catch {
+      toast({
+        title: 'Error',
+        description: 'Failed to load report data.',
+        variant: 'destructive',
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadData();
+  }, []);
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-GH', {
       style: 'currency',
-      currency: 'GHS'
+      currency: 'GHS',
+      minimumFractionDigits: 2,
     }).format(amount);
   };
 
-  // Filter data based on selected criteria
+  // Filtered dataset
   const filteredData = useMemo(() => {
-    return mockIncomeData.filter(item => {
-      const itemDate = new Date(item.date);
-      const matchesDateRange = !dateRange?.from || !dateRange?.to || 
-        (itemDate >= dateRange.from && itemDate <= dateRange.to);
-      const matchesCategory = selectedCategory === 'all' || item.categoryId === selectedCategory;
-      const matchesStatus = selectedStatus === 'all' || item.status === selectedStatus;
-      const matchesSearch = !searchTerm || 
-        item.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        item.source.toLowerCase().includes(searchTerm.toLowerCase());
-      
-      return matchesDateRange && matchesCategory && matchesStatus && matchesSearch;
+    return incomeData.filter((item) => {
+      if (filters.category !== 'all' && item.categoryId !== filters.category) return false;
+      if (filters.status !== 'all' && item.status !== filters.status) return false;
+      if (filters.method !== 'all' && item.paymentMethod.toLowerCase() !== filters.method.toLowerCase()) return false;
+      if (filters.search) {
+        const q = filters.search.toLowerCase();
+        const matches =
+          item.description.toLowerCase().includes(q) ||
+          item.source.toLowerCase().includes(q) ||
+          (item.reference && item.reference.toLowerCase().includes(q));
+        if (!matches) return false;
+      }
+      if (filters.dateRange?.from) {
+        const itemDate = new Date(item.date);
+        if (itemDate < filters.dateRange.from) return false;
+        if (filters.dateRange.to && itemDate > filters.dateRange.to) return false;
+      }
+      return true;
     });
-  }, [dateRange, selectedCategory, selectedStatus, searchTerm]);
+  }, [incomeData, filters]);
 
-  // Calculate summary statistics
-  const summaryStats = useMemo(() => {
-    const receivedIncome = filteredData.filter(item => item.status === 'received');
-    const pendingIncome = filteredData.filter(item => item.status === 'pending');
-    
-    const totalReceived = receivedIncome.reduce((sum, item) => sum + item.amount, 0);
-    const totalPending = pendingIncome.reduce((sum, item) => sum + item.amount, 0);
-    const totalRecords = filteredData.length;
-    const avgIncome = totalRecords > 0 ? totalReceived / receivedIncome.length : 0;
+  // Aggregate stats (strictly separated received vs pending)
+  const receivedRecords = filteredData.filter((r) => r.status === 'received');
+  const pendingRecords = filteredData.filter((r) => r.status === 'pending');
 
-    return {
-      totalReceived,
-      totalPending,
-      totalRecords,
-      avgIncome,
-      receivedCount: receivedIncome.length,
-      pendingCount: pendingIncome.length
-    };
-  }, [filteredData]);
+  const totalReceived = receivedRecords.reduce((sum, r) => sum + r.amount, 0);
+  const totalPending = pendingRecords.reduce((sum, r) => sum + r.amount, 0);
+  const avgReceived = receivedRecords.length > 0 ? totalReceived / receivedRecords.length : 0;
 
-  // Chart configurations
-  const incomeChartConfig = {
-    amount: { label: 'Amount', color: 'hsl(var(--chart-1))' },
-  } satisfies ChartConfig;
-
-  const monthlyChartConfig = {
-    amount: { label: 'Amount', color: 'hsl(var(--chart-2))' },
-  } satisfies ChartConfig;
-
-  // Calculate category breakdown
+  // Category breakdown calculation
   const categoryBreakdown = useMemo(() => {
-    const categoryTotals = new Map<string, { amount: number; count: number; name: string }>();
-    
-    filteredData
-      .filter(item => item.status === 'received')
-      .forEach(item => {
-        const existing = categoryTotals.get(item.categoryId) || { amount: 0, count: 0, name: item.categoryName };
-        categoryTotals.set(item.categoryId, {
-          amount: existing.amount + item.amount,
-          count: existing.count + 1,
-          name: item.categoryName
-        });
-      });
-
-    const totalAmount = Array.from(categoryTotals.values()).reduce((sum, cat) => sum + cat.amount, 0);
-    
-    return Array.from(categoryTotals.entries()).map(([categoryId, data]) => {
-      const category = incomeCategories.find(cat => cat.id === categoryId);
-      return {
-        categoryId,
-        categoryName: data.name,
-        totalAmount: data.amount,
-        recordCount: data.count,
-        percentage: totalAmount > 0 ? (data.amount / totalAmount) * 100 : 0,
-        color: category?.color || '#6B7280'
-      };
-    }).sort((a, b) => b.totalAmount - a.totalAmount);
-  }, [filteredData]);
-
-  // Calculate monthly trends
-  const monthlyTrends = useMemo(() => {
-    const monthlyData = new Map<string, { amount: number; count: number }>();
-    
-    filteredData
-      .filter(item => item.status === 'received')
-      .forEach(item => {
-        const month = format(new Date(item.date), 'MMM yyyy');
-        const existing = monthlyData.get(month) || { amount: 0, count: 0 };
-        monthlyData.set(month, {
-          amount: existing.amount + item.amount,
-          count: existing.count + 1
-        });
-      });
-
-    return Array.from(monthlyData.entries())
-      .map(([month, data]) => ({
-        month,
-        amount: data.amount,
-        recordCount: data.count
+    const map: Record<string, { name: string; amount: number; count: number }> = {};
+    for (const r of receivedRecords) {
+      const name = r.categoryName || 'Other';
+      if (!map[name]) map[name] = { name, amount: 0, count: 0 };
+      map[name].amount += r.amount;
+      map[name].count += 1;
+    }
+    return Object.values(map)
+      .map((item) => ({
+        ...item,
+        percentage: totalReceived > 0 ? Math.round((item.amount / totalReceived) * 100) : 0,
       }))
-      .sort((a, b) => new Date(a.month).getTime() - new Date(b.month).getTime());
-  }, [filteredData]);
+      .sort((a, b) => b.amount - a.amount);
+  }, [receivedRecords, totalReceived]);
 
-  const handleExport = async (format: 'csv' | 'pdf' | 'excel') => {
-    setIsExporting(true);
-    
+  // Method breakdown calculation
+  const methodBreakdown = useMemo(() => {
+    const map: Record<string, { method: string; amount: number; count: number }> = {};
+    for (const r of receivedRecords) {
+      const m = r.paymentMethod || 'Other';
+      if (!map[m]) map[m] = { method: m, amount: 0, count: 0 };
+      map[m].amount += r.amount;
+      map[m].count += 1;
+    }
+    return Object.values(map)
+      .map((item) => ({
+        ...item,
+        percentage: totalReceived > 0 ? Math.round((item.amount / totalReceived) * 100) : 0,
+      }))
+      .sort((a, b) => b.amount - a.amount);
+  }, [receivedRecords, totalReceived]);
+
+  // Source breakdown calculation
+  const sourceBreakdown = useMemo(() => {
+    const map: Record<string, { source: string; amount: number; count: number }> = {};
+    for (const r of receivedRecords) {
+      const s = r.source || 'General';
+      if (!map[s]) map[s] = { source: s, amount: 0, count: 0 };
+      map[s].amount += r.amount;
+      map[s].count += 1;
+    }
+    return Object.values(map)
+      .map((item) => ({
+        ...item,
+        percentage: totalReceived > 0 ? Math.round((item.amount / totalReceived) * 100) : 0,
+      }))
+      .sort((a, b) => b.amount - a.amount);
+  }, [receivedRecords, totalReceived]);
+
+  const handleExport = async (format: 'pdf' | 'excel' | 'csv') => {
     try {
-      // Simulate export process
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      toast.success(`Report exported as ${format.toUpperCase()} successfully!`);
-    } catch (error) {
-      toast.error('Failed to export report. Please try again.');
-    } finally {
-      setIsExporting(false);
+      const blob = await incomeService.exportIncome(
+        {
+          categoryId: filters.category !== 'all' ? filters.category : undefined,
+          status: filters.status !== 'all' ? filters.status : undefined,
+          paymentMethod: filters.method !== 'all' ? filters.method : undefined,
+          startDate: filters.dateRange?.from ? filters.dateRange.from.toISOString().split('T')[0] : undefined,
+          endDate: filters.dateRange?.to ? filters.dateRange.to.toISOString().split('T')[0] : undefined,
+          search: filters.search || undefined,
+        },
+        format
+      );
+
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `income-report-${new Date().toISOString().split('T')[0]}.${format === 'excel' ? 'xlsx' : format}`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+
+      toast({
+        title: 'Export Complete',
+        description: `Exported ${filteredData.length} records as ${format.toUpperCase()}.`,
+      });
+    } catch {
+      toast({
+        title: 'Export Failed',
+        description: 'Failed to export income report.',
+        variant: 'destructive',
+      });
     }
   };
 
-  const resetFilters = () => {
-    setDateRange({
-      from: subMonths(new Date(), 6),
-      to: new Date()
-    });
-    setSelectedCategory('all');
-    setSelectedStatus('all');
-    setSearchTerm('');
-  };
+  const columns: ColumnDef<IncomeRecord>[] = [
+    {
+      accessorKey: 'description',
+      header: 'Description',
+      cell: ({ row }) => (
+        <div>
+          <div className="font-medium">{row.original.description}</div>
+          {row.original.reference && (
+            <div className="text-xs text-muted-foreground">{row.original.reference}</div>
+          )}
+        </div>
+      ),
+    },
+    {
+      accessorKey: 'categoryName',
+      header: 'Category',
+      cell: ({ row }) => <Badge variant="neutral">{row.original.categoryName || 'General'}</Badge>,
+    },
+    {
+      accessorKey: 'source',
+      header: 'Source / Payer',
+      cell: ({ row }) => <span className="font-medium text-sm">{row.original.source}</span>,
+    },
+    {
+      accessorKey: 'amount',
+      header: 'Amount',
+      cell: ({ row }) => {
+        const isReceived = row.original.status === 'received';
+        return (
+          <div className={`font-medium ${isReceived ? 'text-brand-success' : 'text-amber-600'}`}>
+            {formatCurrency(row.original.amount)}
+          </div>
+        );
+      },
+    },
+    {
+      accessorKey: 'paymentMethod',
+      header: 'Method',
+      cell: ({ row }) => <span className="text-sm">{row.original.paymentMethod || '—'}</span>,
+    },
+    {
+      accessorKey: 'date',
+      header: 'Date',
+      cell: ({ row }) => <span>{new Date(row.original.date).toLocaleDateString()}</span>,
+    },
+    {
+      accessorKey: 'status',
+      header: 'Status',
+      cell: ({ row }) => <StatusBadge status={row.original.status} />,
+    },
+  ];
 
   return (
     <div className="space-y-6">
-      <PageHeader
-        title="Income Reports"
-        actions={
-          <>
-            <Button variant="outline" onClick={resetFilters}>
-              <RefreshCw className="mr-2 h-4 w-4" />
-              Reset Filters
-            </Button>
-            <Button
-              onClick={() => handleExport('pdf')}
-              disabled={isExporting}
-            >
-              {isExporting ? (
-                <>
-                  <div className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-background border-t-transparent" />
-                  Exporting...
-                </>
-              ) : (
-                <>
-                  <Download className="mr-2 h-4 w-4" />
-                  Export Report
-                </>
-              )}
-            </Button>
-          </>
-        }
-      />
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-4">
+          <Button variant="outline" size="icon" className="h-9 w-9" asChild>
+            <Link href="/dashboard/finance/income" aria-label="Back to Income">
+              <ArrowLeft className="h-4 w-4" />
+            </Link>
+          </Button>
+          <PageHeader title="Income Reports & Analytics" />
+        </div>
 
-      {/* Filters */}
-      <LazySection
-        strategy="immediate"
-        showSkeleton
-        skeletonVariant="card"
-        skeletonCount={1}
-        threshold={0.1}
-      >
-        <Card className="p-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-              {/* Date Range */}
-              <div className="space-y-2">
-                <Label>Date Range</Label>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant="outline"
-                      className="w-full justify-start text-left font-normal"
-                    >
-                      <CalendarIcon className="mr-2 h-4 w-4" />
-                      {dateRange?.from ? (
-                        dateRange.to ? (
-                          `${format(dateRange.from, 'MMM dd')} - ${format(dateRange.to, 'MMM dd')}`
-                        ) : (
-                          format(dateRange.from, 'MMM dd')
-                        )
-                      ) : (
-                        'Select date range'
-                      )}
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0" align="start">
-                    <Calendar
-                      mode="range"
-                      selected={dateRange ? { from: dateRange.from, to: dateRange.to } : undefined}
-                      onSelect={(range) => {
-                        if (range?.from && range?.to) {
-                          setDateRange({ from: range.from, to: range.to });
-                        } else {
-                          setDateRange(undefined);
-                        }
-                      }}
-                      numberOfMonths={2}
-                      initialFocus
-                    />
-                  </PopoverContent>
-                </Popover>
-              </div>
+        <div className="flex items-center gap-2">
+          <Button variant="outline" size="sm" onClick={loadData}>
+            <RefreshCw className="mr-1.5 h-4 w-4" />
+            Refresh
+          </Button>
+          <Select onValueChange={(val) => handleExport(val as any)}>
+            <SelectTrigger className="w-32 h-9">
+              <SelectValue placeholder="Export" />
+            </SelectTrigger>
+            <SelectContent align="end">
+              <SelectItem value="pdf">PDF Report</SelectItem>
+              <SelectItem value="excel">Excel</SelectItem>
+              <SelectItem value="csv">CSV</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
 
-              {/* Category Filter */}
-              <div className="space-y-2">
-                <Label>Category</Label>
-                <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select category" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Categories</SelectItem>
-                    {incomeCategories.map((category) => (
-                      <SelectItem key={category.id} value={category.id}>
-                        {category.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              {/* Status Filter */}
-              <div className="space-y-2">
-                <Label>Status</Label>
-                <Select value={selectedStatus} onValueChange={setSelectedStatus}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select status" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Status</SelectItem>
-                    <SelectItem value="received">Received</SelectItem>
-                    <SelectItem value="pending">Pending</SelectItem>
-                    <SelectItem value="cancelled">Cancelled</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              {/* Search */}
-              <div className="space-y-2">
-                <Label>Search</Label>
-                <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-                  <Input
-                    placeholder="Search income..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="pl-10"
-                  />
-                </div>
-              </div>
-            </div>
-        </Card>
-      </LazySection>
-
-      {/* Summary Statistics */}
+      {/* Summary KPI Cards */}
       <LazySection
         strategy="immediate"
         showSkeleton
         skeletonVariant="card"
         skeletonCount={4}
-        threshold={0.1}
         className="grid gap-4 md:grid-cols-2 lg:grid-cols-4"
+        threshold={0.1}
       >
         <StatCard
-          title="Total Received"
-          value={formatCurrency(summaryStats.totalReceived)}
+          title="Received Income"
+          value={formatCurrency(totalReceived)}
           icon={BadgeCent}
-          accent="success"
-        />
-
-        <StatCard
-          title="Pending Income"
-          value={formatCurrency(summaryStats.totalPending)}
-          icon={TrendingUp}
-          accent="accent"
-        />
-
-        <StatCard
-          title="Total Records"
-          value={summaryStats.totalRecords}
-          icon={FileText}
           accent="primary"
         />
 
         <StatCard
-          title="Average Income"
-          value={formatCurrency(summaryStats.avgIncome)}
-          icon={BarChart3}
+          title="Pending Income"
+          value={formatCurrency(totalPending)}
+          icon={Clock}
+          accent="accent"
+        />
+
+        <StatCard
+          title="Average Received"
+          value={formatCurrency(avgReceived)}
+          icon={TrendingUp}
+          accent="success"
+        />
+
+        <StatCard
+          title="Total Transactions"
+          value={String(filteredData.length)}
+          icon={Users}
           accent="secondary"
         />
       </LazySection>
 
-      {/* Charts and Analysis */}
-      <LazySection
-        strategy="immediate"
-        showSkeleton
-        skeletonVariant="card"
-        skeletonCount={2}
-        threshold={0.1}
-      >
-        <Tabs defaultValue="trends" className="space-y-4">
-          <TabsList>
-            <TabsTrigger value="trends">Monthly Trends</TabsTrigger>
-            <TabsTrigger value="categories">Category Breakdown</TabsTrigger>
-            <TabsTrigger value="detailed">Detailed Analysis</TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="trends" className="space-y-4">
-            <Card>
-              <CardHeader>
-                <CardTitle>Monthly Income Trends</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <ChartContainer config={monthlyChartConfig} className="h-[400px] w-full">
-                  <AreaChart data={monthlyTrends} margin={{ left: 12, right: 12 }}>
-                    <defs>
-                      <linearGradient id="fillIncome" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="hsl(var(--chart-2))" stopOpacity={0.8}/>
-                        <stop offset="95%" stopColor="hsl(var(--chart-2))" stopOpacity={0.1}/>
-                      </linearGradient>
-                    </defs>
-                    <CartesianGrid vertical={false} strokeDasharray="3 3" className="stroke-muted" />
-                    <XAxis dataKey="month" tickLine={false} axisLine={false} tickMargin={8} className="text-xs" />
-                    <YAxis tickLine={false} axisLine={false} tickMargin={8} className="text-xs" />
-                    <ChartTooltip cursor={{ stroke: 'hsl(var(--muted))', strokeWidth: 1 }} content={<ChartTooltipContent indicator="line" />} />
-                    <Area 
-                      type="monotone" 
-                      dataKey="amount" 
-                      stroke="hsl(var(--chart-2))" 
-                      fill="url(#fillIncome)" 
-                      strokeWidth={2}
-                    />
-                  </AreaChart>
-                </ChartContainer>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="categories" className="space-y-4">
-            <div className="grid gap-4 lg:grid-cols-2">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Income by Category</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <ChartContainer config={incomeChartConfig} className="h-[300px] w-full">
-                    <RechartsPieChart>
-                      <ChartTooltip cursor={false} content={<ChartTooltipContent hideLabel />} />
-                      <Pie
-                        data={categoryBreakdown}
-                        cx="50%"
-                        cy="50%"
-                        outerRadius={100}
-                        dataKey="totalAmount"
-                        strokeWidth={2}
-                        label={({ categoryName, percentage }) => 
-                          `${categoryName}: ${percentage.toFixed(1)}%`
-                        }
-                      >
-                        {categoryBreakdown.map((entry, index) => (
-                          <Cell key={`cell-${index}`} fill={entry.color} stroke="hsl(var(--background))" />
-                        ))}
-                      </Pie>
-                    </RechartsPieChart>
-                  </ChartContainer>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader>
-                  <CardTitle>Category Performance</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    {categoryBreakdown.map((category) => (
-                      <div key={category.categoryId} className="flex items-center justify-between p-3 rounded-lg border">
-                        <div className="flex items-center space-x-3">
-                          <div 
-                            className="w-4 h-4 rounded-full" 
-                            style={{ backgroundColor: category.color }}
-                          />
-                          <div>
-                            <div className="font-medium">{category.categoryName}</div>
-                            <div className="text-sm text-muted-foreground">
-                              {category.recordCount} records
-                            </div>
-                          </div>
-                        </div>
-                        <div className="text-right">
-                          <div className="font-medium">
-                            {formatCurrency(category.totalAmount)}
-                          </div>
-                          <div className="text-sm text-muted-foreground">
-                            {category.percentage.toFixed(1)}%
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
+      {/* Filters Card */}
+      <Card>
+        <CardHeader className="pb-3">
+          <CardTitle className="text-sm font-semibold">Report Filters</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
+            {/* Category */}
+            <div className="space-y-1.5">
+              <Label className="text-xs">Category</Label>
+              <Select
+                value={filters.category}
+                onValueChange={(val) => setFilters({ ...filters, category: val })}
+              >
+                <SelectTrigger className="h-9">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Categories</SelectItem>
+                  {categories.map((c) => (
+                    <SelectItem key={c.id} value={c.id}>
+                      {c.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
-          </TabsContent>
 
-          <TabsContent value="detailed" className="space-y-4">
+            {/* Status */}
+            <div className="space-y-1.5">
+              <Label className="text-xs">Status</Label>
+              <Select
+                value={filters.status}
+                onValueChange={(val) => setFilters({ ...filters, status: val })}
+              >
+                <SelectTrigger className="h-9">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Status</SelectItem>
+                  <SelectItem value="received">Received</SelectItem>
+                  <SelectItem value="pending">Pending</SelectItem>
+                  <SelectItem value="cancelled">Cancelled</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Method */}
+            <div className="space-y-1.5">
+              <Label className="text-xs">Payment Method</Label>
+              <Select
+                value={filters.method}
+                onValueChange={(val) => setFilters({ ...filters, method: val })}
+              >
+                <SelectTrigger className="h-9">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Methods</SelectItem>
+                  <SelectItem value="Bank Transfer">Bank Transfer</SelectItem>
+                  <SelectItem value="Cash">Cash</SelectItem>
+                  <SelectItem value="Mobile Money">Mobile Money</SelectItem>
+                  <SelectItem value="Cheque">Cheque</SelectItem>
+                  <SelectItem value="Card">Card</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Date Range */}
+            <div className="space-y-1.5">
+              <Label className="text-xs">Date Range</Label>
+              <Popover open={dateOpen} onOpenChange={setDateOpen}>
+                <PopoverTrigger asChild>
+                  <Button variant="outline" className="justify-start text-left font-normal w-full h-9 text-xs">
+                    <CalendarIcon className="mr-2 h-3.5 w-3.5 text-muted-foreground" />
+                    {filters.dateRange?.from && filters.dateRange?.to
+                      ? `${format(filters.dateRange.from, 'MMM dd')} - ${format(filters.dateRange.to, 'MMM dd')}`
+                      : 'Select date range'}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <Calendar
+                    mode="range"
+                    selected={filters.dateRange}
+                    onSelect={(range) => {
+                      setFilters({ ...filters, dateRange: range });
+                      if (range?.from && range?.to) setDateOpen(false);
+                    }}
+                    numberOfMonths={2}
+                    initialFocus
+                  />
+                </PopoverContent>
+              </Popover>
+            </div>
+
+            {/* Search */}
+            <div className="space-y-1.5">
+              <Label className="text-xs">Search</Label>
+              <Input
+                placeholder="Search description, source..."
+                value={filters.search}
+                onChange={(e) => setFilters({ ...filters, search: e.target.value })}
+                className="h-9 text-xs"
+              />
+            </div>
+          </div>
+
+          {(filters.category !== 'all' ||
+            filters.status !== 'all' ||
+            filters.method !== 'all' ||
+            filters.search ||
+            filters.dateRange) && (
+            <div className="mt-4">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() =>
+                  setFilters({
+                    category: 'all',
+                    status: 'all',
+                    method: 'all',
+                    search: '',
+                    dateRange: undefined,
+                  })
+                }
+              >
+                Clear Filters
+              </Button>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Tabs */}
+      <Tabs defaultValue="overview" className="space-y-4">
+        <TabsList className="h-9">
+          <TabsTrigger value="overview" className="text-xs">Overview & Breakdown</TabsTrigger>
+          <TabsTrigger value="source" className="text-xs">By Source / Payer</TabsTrigger>
+          <TabsTrigger value="ledger" className="text-xs">Income Ledger</TabsTrigger>
+        </TabsList>
+
+        {/* Overview Tab */}
+        <TabsContent value="overview" className="space-y-4">
+          <div className="grid gap-4 md:grid-cols-2">
+            {/* Category Breakdown */}
             <Card>
-              <CardHeader>
-                <CardTitle>Detailed Income Analysis</CardTitle>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-base font-semibold">Income by Category</CardTitle>
               </CardHeader>
-              <CardContent>
-                <div className="space-y-6">
-                  {/* Export Options */}
-                  <div className="flex items-center justify-between p-4 border rounded-lg">
-                    <div>
-                      <h4 className="font-medium">Export Options</h4>
-                      <p className="text-sm text-muted-foreground">
-                        Download detailed reports in various formats
-                      </p>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <Button 
-                        variant="outline" 
-                        size="sm"
-                        onClick={() => handleExport('csv')}
-                        disabled={isExporting}
-                      >
-                        CSV
-                      </Button>
-                      <Button 
-                        variant="outline" 
-                        size="sm"
-                        onClick={() => handleExport('excel')}
-                        disabled={isExporting}
-                      >
-                        Excel
-                      </Button>
-                      <Button 
-                        variant="outline" 
-                        size="sm"
-                        onClick={() => handleExport('pdf')}
-                        disabled={isExporting}
-                      >
-                        PDF
-                      </Button>
-                    </div>
-                  </div>
-
-                  {/* Summary Table */}
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div className="p-4 border rounded-lg">
-                      <div className="text-2xl font-bold text-brand-success">
-                        {summaryStats.receivedCount}
+              <CardContent className="space-y-4">
+                {categoryBreakdown.length === 0 ? (
+                  <p className="text-xs text-muted-foreground">No received income in this period.</p>
+                ) : (
+                  categoryBreakdown.map((cat) => (
+                    <div key={cat.name} className="space-y-1.5">
+                      <div className="flex justify-between text-sm">
+                        <span className="font-medium">{cat.name}</span>
+                        <span>{formatCurrency(cat.amount)}</span>
                       </div>
-                      <div className="text-sm text-muted-foreground">Received Transactions</div>
-                    </div>
-                    <div className="p-4 border rounded-lg">
-                      <div className="text-2xl font-bold text-brand-accent">
-                        {summaryStats.pendingCount}
+                      <Progress value={cat.percentage} className="h-2" />
+                      <div className="flex justify-between text-xs text-muted-foreground">
+                        <span>{cat.count} entries</span>
+                        <span>{cat.percentage}% of received</span>
                       </div>
-                      <div className="text-sm text-muted-foreground">Pending Transactions</div>
                     </div>
-                    <div className="p-4 border rounded-lg">
-                      <div className="text-2xl font-bold">
-                        {categoryBreakdown.length}
-                      </div>
-                      <div className="text-sm text-muted-foreground">Active Categories</div>
-                    </div>
-                  </div>
-                </div>
+                  ))
+                )}
               </CardContent>
             </Card>
-          </TabsContent>
-        </Tabs>
-      </LazySection>
+
+            {/* Payment Method Breakdown */}
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-base font-semibold">Income by Payment Method</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {methodBreakdown.length === 0 ? (
+                  <p className="text-xs text-muted-foreground">No received income in this period.</p>
+                ) : (
+                  methodBreakdown.map((m) => (
+                    <div key={m.method} className="space-y-1.5">
+                      <div className="flex justify-between text-sm">
+                        <span className="font-medium">{m.method}</span>
+                        <span>{formatCurrency(m.amount)}</span>
+                      </div>
+                      <Progress value={m.percentage} className="h-2" />
+                      <div className="flex justify-between text-xs text-muted-foreground">
+                        <span>{m.count} entries</span>
+                        <span>{m.percentage}% of received</span>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </CardContent>
+            </Card>
+          </div>
+        </TabsContent>
+
+        {/* Source Tab */}
+        <TabsContent value="source" className="space-y-4">
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base font-semibold">Income by Source / Payer</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {sourceBreakdown.length === 0 ? (
+                <p className="text-xs text-muted-foreground">No received income in this period.</p>
+              ) : (
+                <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                  {sourceBreakdown.map((s) => (
+                    <div key={s.source} className="p-3.5 rounded-lg border bg-muted/20 space-y-1">
+                      <p className="text-sm font-semibold truncate">{s.source}</p>
+                      <p className="text-lg font-bold text-brand-success">{formatCurrency(s.amount)}</p>
+                      <div className="flex justify-between text-xs text-muted-foreground pt-1">
+                        <span>{s.count} transactions</span>
+                        <span>{s.percentage}%</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Detailed Ledger Tab */}
+        <TabsContent value="ledger" className="space-y-4">
+          <Card>
+            <CardHeader className="pb-3">
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-base font-semibold">Income Transaction Records</CardTitle>
+                <span className="text-xs text-muted-foreground">
+                  {filteredData.length} records found
+                </span>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <DataTable
+                columns={columns}
+                data={filteredData}
+                recordLabel="transaction"
+                searchKey="description"
+                searchPlaceholder="Filter records..."
+              />
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }

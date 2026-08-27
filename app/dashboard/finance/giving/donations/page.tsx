@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 import { GivingCategoryBadge, PaymentMethodBadge } from '@/components/ui/finance-badges';
 import { StatusBadge } from '@/components/ui/status-badge';
 import { DataTable } from '@/components/ui/data-table';
@@ -14,23 +15,23 @@ import { ChartHeader } from '@/components/ui/chart-header';
 import { PageHeader } from '@/components/ui/page-header';
 import { StatCard } from '@/components/ui/stat-card';
 import { CardSkeleton, TableSkeleton } from '@/components/ui/skeleton-loaders';
-import { 
-  Plus, 
+import {
+  Plus,
   BadgeCent,
   TrendingUp,
-  TrendingDown,
   Calendar as CalendarIcon,
   Users,
   Eye,
   Edit,
   Trash2,
   Download,
-  ArrowLeft
+  ArrowLeft,
+  MoreHorizontal,
 } from 'lucide-react';
 import Link from 'next/link';
 import { useToast } from '@/hooks/use-toast';
 import { givingService } from '@/services';
-import { Giving, GivingType, GivingCategory, GivingStatus } from '@/lib/types';
+import { Giving, GivingType, GivingCategory, GivingStatus, GivingSource } from '@/lib/types';
 import { ColumnDef } from '@tanstack/react-table';
 import {
   DropdownMenu,
@@ -40,7 +41,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { MoreHorizontal } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
@@ -48,222 +48,211 @@ import { Label } from '@/components/ui/label';
 import { DateRange } from 'react-day-picker';
 import { format } from 'date-fns';
 
-// Mock donations data
-const mockDonations: Giving[] = [
+// Mock giving data — source field required by updated domain model.
+// Records with parentGivingId are excluded from all aggregate totals (anti-double-counting).
+const mockGiving: Giving[] = [
   {
     id: '1',
     memberId: 'member1',
-    type: GivingType.DONATION,
-    amount: 5000.00,
+    memberName: 'Kofi Mensah',
+    source: GivingSource.INDIVIDUAL,
+    type: GivingType.TITHE,
+    amount: 500.00,
     currency: 'GHS',
-    category: GivingCategory.BUILDING_FUND,
-    method: 'Transfer',
+    category: GivingCategory.GENERAL,
+    method: 'Cash',
     date: '2024-01-20',
-    description: 'Building fund donation for new sanctuary',
+    description: 'Monthly tithe',
     isAnonymous: false,
-    receiptNumber: 'DON-001',
+    receiptNumber: 'GIV-001',
     status: GivingStatus.COMPLETED,
     createdAt: '2024-01-20T10:30:00Z',
-    updatedAt: '2024-01-20T10:30:00Z'
+    updatedAt: '2024-01-20T10:30:00Z',
   },
   {
     id: '2',
-    memberId: 'member2',
-    type: GivingType.DONATION,
-    amount: 2000.00,
+    source: GivingSource.CONGREGATIONAL,
+    serviceEvent: 'Sunday Morning Service',
+    type: GivingType.OFFERING,
+    amount: 1200.00,
     currency: 'GHS',
-    category: GivingCategory.MISSIONARY,
-    method: 'Online',
-    date: '2024-01-19',
-    description: 'Missions support donation',
+    category: GivingCategory.GENERAL,
+    method: 'Cash',
+    date: '2024-01-21',
+    description: 'Sunday morning offering',
     isAnonymous: false,
-    receiptNumber: 'DON-002',
+    receiptNumber: 'GIV-002',
     status: GivingStatus.COMPLETED,
-    createdAt: '2024-01-19T14:20:00Z',
-    updatedAt: '2024-01-19T14:20:00Z'
+    createdAt: '2024-01-21T11:00:00Z',
+    updatedAt: '2024-01-21T11:00:00Z',
   },
   {
     id: '3',
-    memberId: 'member3',
+    source: GivingSource.INDIVIDUAL,
     type: GivingType.DONATION,
-    amount: 1500.00,
+    amount: 1000.00,
     currency: 'GHS',
-    category: GivingCategory.YOUTH,
-    method: 'Cash',
+    category: GivingCategory.MISSIONARY,
+    method: 'Transfer',
     date: '2024-01-18',
-    description: 'Youth ministry equipment donation',
+    description: 'Missionary support',
     isAnonymous: true,
-    receiptNumber: 'DON-003',
+    receiptNumber: 'GIV-003',
     status: GivingStatus.COMPLETED,
     createdAt: '2024-01-18T09:15:00Z',
-    updatedAt: '2024-01-18T09:15:00Z'
+    updatedAt: '2024-01-18T09:15:00Z',
   },
   {
     id: '4',
     memberId: 'member4',
-    type: GivingType.DONATION,
+    memberName: 'Abena Owusu',
+    source: GivingSource.INDIVIDUAL,
+    type: GivingType.FIRST_FRUITS,
     amount: 3000.00,
     currency: 'GHS',
     category: GivingCategory.GENERAL,
-    method: 'Check',
+    method: 'Transfer',
     date: '2024-01-17',
-    description: 'General fund donation',
+    description: 'First fruits offering',
     isAnonymous: false,
-    receiptNumber: 'DON-004',
+    receiptNumber: 'GIV-004',
     status: GivingStatus.PENDING,
     createdAt: '2024-01-17T16:45:00Z',
-    updatedAt: '2024-01-17T16:45:00Z'
+    updatedAt: '2024-01-17T16:45:00Z',
   },
   {
     id: '5',
-    memberId: 'member5',
-    type: GivingType.DONATION,
-    amount: 800.00,
+    source: GivingSource.CONGREGATIONAL,
+    serviceEvent: 'Midweek Bible Study',
+    type: GivingType.OFFERING,
+    amount: 450.00,
     currency: 'GHS',
-    category: GivingCategory.BUILDING_FUND,
-    method: 'Card',
+    category: GivingCategory.GENERAL,
+    method: 'Cash',
     date: '2024-01-16',
-    description: 'Online building fund donation',
+    description: 'Midweek service offering',
     isAnonymous: false,
-    receiptNumber: 'DON-005',
+    receiptNumber: 'GIV-005',
     status: GivingStatus.COMPLETED,
     createdAt: '2024-01-16T11:30:00Z',
-    updatedAt: '2024-01-16T11:30:00Z'
-  }
+    updatedAt: '2024-01-16T11:30:00Z',
+  },
 ];
 
-export default function DonationsPage() {
-  const [donations, setDonations] = useState<Giving[]>([]);
-  const [filteredDonations, setFilteredDonations] = useState<Giving[]>([]);
+const GIVING_TYPE_LABELS: Record<string, string> = {
+  [GivingType.TITHE]: 'Tithe',
+  [GivingType.OFFERING]: 'Offering',
+  [GivingType.DONATION]: 'Donation',
+  [GivingType.FIRST_FRUITS]: 'First Fruits',
+  [GivingType.SPECIAL_SEED]: 'Special Seed',
+  [GivingType.THANKSGIVING]: 'Thanksgiving',
+  [GivingType.FUNDRAISING]: 'Fundraising',
+  [GivingType.PLEDGE]: 'Pledge',
+  [GivingType.SPECIAL]: 'Special',
+  [GivingType.MISSIONARY]: 'Missionary',
+  [GivingType.BUILDING]: 'Building',
+  [GivingType.WELFARE]: 'Welfare',
+  [GivingType.OTHER]: 'Other',
+};
+
+export default function AllGivingPage() {
+  const [giving, setGiving] = useState<Giving[]>([]);
+  const [filteredGiving, setFilteredGiving] = useState<Giving[]>([]);
   const [loading, setLoading] = useState(true);
   const [filters, setFilters] = useState({
+    source: 'all',
+    type: 'all',
     category: 'all',
     status: 'all',
     method: 'all',
     dateRange: undefined as DateRange | undefined,
-    search: ''
+    search: '',
   });
   const { toast } = useToast();
   const deleteDialog = useDeleteDialog();
 
   useEffect(() => {
-    const loadDonations = async () => {
+    const loadGiving = async () => {
       try {
         setLoading(true);
-        // For now, use mock data. Replace with actual API call:
-        // const response = await givingService.getAll({ type: GivingType.DONATION });
-        // setDonations(response.data);
-        setDonations(mockDonations);
-        setFilteredDonations(mockDonations);
+        await new Promise(resolve => setTimeout(resolve, 500));
+        // Only top-level records (no parentGivingId) count toward totals.
+        const topLevelOnly = mockGiving.filter(g => !g.parentGivingId);
+        setGiving(topLevelOnly);
+        setFilteredGiving(topLevelOnly);
       } catch (err: any) {
         toast({
           title: 'Error',
-          description: 'Failed to load donations',
+          description: 'Failed to load giving records',
           variant: 'destructive',
         });
       } finally {
         setLoading(false);
       }
     };
-
-    loadDonations();
+    loadGiving();
   }, [toast]);
 
   useEffect(() => {
-    let filtered = [...donations];
+    let filtered = [...giving];
 
-    // Filter by category
+    if (filters.source !== 'all') {
+      filtered = filtered.filter(g => g.source === filters.source);
+    }
+    if (filters.type !== 'all') {
+      filtered = filtered.filter(g => g.type === filters.type);
+    }
     if (filters.category !== 'all') {
-      filtered = filtered.filter(d => d.category === filters.category);
+      filtered = filtered.filter(g => g.category === filters.category);
     }
-
-    // Filter by status
     if (filters.status !== 'all') {
-      filtered = filtered.filter(d => d.status === filters.status);
+      filtered = filtered.filter(g => g.status === filters.status);
     }
-
-    // Filter by method
     if (filters.method !== 'all') {
-      filtered = filtered.filter(d => d.method === filters.method);
+      filtered = filtered.filter(g => g.method === filters.method);
     }
-
-    // Filter by date range
     if (filters.dateRange?.from && filters.dateRange?.to) {
-      filtered = filtered.filter(d => {
-        const donationDate = new Date(d.date);
-        return donationDate >= filters.dateRange!.from! && donationDate <= filters.dateRange!.to!;
+      filtered = filtered.filter(g => {
+        const d = new Date(g.date);
+        return d >= filters.dateRange!.from! && d <= filters.dateRange!.to!;
       });
     }
-
-    // Filter by search
     if (filters.search) {
-      const searchLower = filters.search.toLowerCase();
-      filtered = filtered.filter(d => 
-        (d.description && d.description.toLowerCase().includes(searchLower)) ||
-        (d.receiptNumber && d.receiptNumber.toLowerCase().includes(searchLower))
+      const s = filters.search.toLowerCase();
+      filtered = filtered.filter(g =>
+        g.description?.toLowerCase().includes(s) ||
+        g.receiptNumber?.toLowerCase().includes(s) ||
+        g.memberName?.toLowerCase().includes(s) ||
+        g.serviceEvent?.toLowerCase().includes(s)
       );
     }
 
-    setFilteredDonations(filtered);
-  }, [donations, filters]);
+    setFilteredGiving(filtered);
+  }, [giving, filters]);
 
-  const handleDeleteDonation = async (donation: Giving) => {
+  const handleDelete = async (record: Giving) => {
     try {
-      // await givingService.delete(donation.id);
-      setDonations(donations.filter(d => d.id !== donation.id));
-      toast({
-        title: 'Success',
-        description: 'Donation deleted successfully',
-      });
+      setGiving(giving.filter(g => g.id !== record.id));
+      toast({ title: 'Success', description: 'Giving record deleted successfully' });
     } catch (err: any) {
-      toast({
-        title: 'Error',
-        description: 'Failed to delete donation',
-        variant: 'destructive',
-      });
-      throw err; // Re-throw to let DeleteDialog handle the error state
+      toast({ title: 'Error', description: 'Failed to delete record', variant: 'destructive' });
+      throw err;
     }
   };
 
   const handleExport = async () => {
-    try {
-      // await givingService.exportDonations(filters);
-      toast({
-        title: 'Success',
-        description: 'Donations exported successfully',
-      });
-    } catch (err: any) {
-      toast({
-        title: 'Error',
-        description: 'Failed to export donations',
-        variant: 'destructive',
-      });
-    }
+    toast({ title: 'Success', description: 'Giving records exported successfully' });
   };
 
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-GH', {
-      style: 'currency',
-      currency: 'GHS',
-      minimumFractionDigits: 2,
-    }).format(amount);
-  };
-
-  const getCategoryBadge = (category: GivingCategory) => <GivingCategoryBadge category={category} />;
-
-  const getStatusBadge = (status: GivingStatus) => <StatusBadge status={status} />;
-
-  const getMethodBadge = (method: string) => <PaymentMethodBadge method={method} />;
+  const formatCurrency = (amount: number) =>
+    new Intl.NumberFormat('en-GH', { style: 'currency', currency: 'GHS', minimumFractionDigits: 2 }).format(amount);
 
   const columns: ColumnDef<Giving>[] = [
     {
       id: 'select',
       header: ({ table }) => (
         <Checkbox
-          checked={
-            table.getIsAllPageRowsSelected() ||
-            (table.getIsSomePageRowsSelected() && 'indeterminate')
-          }
+          checked={table.getIsAllPageRowsSelected() || (table.getIsSomePageRowsSelected() && 'indeterminate')}
           onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
           aria-label="Select all"
         />
@@ -279,75 +268,66 @@ export default function DonationsPage() {
       enableHiding: false,
     },
     {
-      accessorKey: 'receiptNumber',
-      header: 'Receipt #',
+      accessorKey: 'type',
+      header: 'Type',
+      cell: ({ row }) => (
+        <span className="font-medium">{GIVING_TYPE_LABELS[row.original.type] ?? row.original.type}</span>
+      ),
+    },
+    {
+      id: 'contributor',
+      header: 'Contributor',
       cell: ({ row }) => {
-        const receiptNumber = row.getValue('receiptNumber') as string;
-        return <div className="font-medium">{receiptNumber}</div>;
+        const g = row.original;
+        if (g.source === GivingSource.CONGREGATIONAL) {
+          return <span className="text-muted-foreground text-sm">{g.serviceEvent ?? 'Congregational'}</span>;
+        }
+        if (g.isAnonymous) {
+          return <span className="text-muted-foreground text-sm italic">Anonymous</span>;
+        }
+        return <span className="text-sm">{g.memberName ?? g.memberId ?? '—'}</span>;
       },
     },
     {
-      accessorKey: 'description',
-      header: 'Description',
-      cell: ({ row }) => {
-        const description = row.getValue('description') as string;
-        const donation = row.original;
-        return (
-          <div>
-            <div className="max-w-[200px] truncate font-medium">{description}</div>
-            <div className="text-xs text-muted-foreground">
-              {donation.isAnonymous ? 'Anonymous' : 'Member donation'}
-            </div>
-          </div>
-        );
-      },
+      accessorKey: 'source',
+      header: 'Source',
+      cell: ({ row }) => (
+        <Badge variant="neutral">
+          {row.original.source === GivingSource.CONGREGATIONAL ? 'Congregational' : 'Individual'}
+        </Badge>
+      ),
     },
     {
       accessorKey: 'category',
       header: 'Category',
-      cell: ({ row }) => {
-        const category = row.getValue('category') as GivingCategory;
-        return getCategoryBadge(category);
-      },
+      cell: ({ row }) => <GivingCategoryBadge category={row.getValue('category') as GivingCategory} />,
     },
     {
       accessorKey: 'amount',
       header: 'Amount',
-      cell: ({ row }) => {
-        const amount = parseFloat(row.getValue('amount'));
-        return <div className="font-medium">{formatCurrency(amount)}</div>;
-      },
+      cell: ({ row }) => (
+        <span className="font-medium">{formatCurrency(parseFloat(row.getValue('amount')))}</span>
+      ),
     },
     {
       accessorKey: 'method',
       header: 'Method',
-      cell: ({ row }) => {
-        const method = row.getValue('method') as string;
-        return getMethodBadge(method);
-      },
+      cell: ({ row }) => <PaymentMethodBadge method={row.getValue('method') as string} />,
     },
     {
       accessorKey: 'date',
       header: 'Date',
-      cell: ({ row }) => {
-        const date = new Date(row.getValue('date'));
-        return <div>{date.toLocaleDateString()}</div>;
-      },
+      cell: ({ row }) => <span>{new Date(row.getValue('date')).toLocaleDateString()}</span>,
     },
     {
       accessorKey: 'status',
       header: 'Status',
-      cell: ({ row }) => {
-        const status = row.getValue('status') as GivingStatus;
-        return getStatusBadge(status);
-      },
+      cell: ({ row }) => <StatusBadge status={row.getValue('status') as GivingStatus} />,
     },
     {
       id: 'actions',
-      header: 'Actions',
       cell: ({ row }) => {
-        const donation = row.original;
-        
+        const record = row.original;
         return (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -359,21 +339,21 @@ export default function DonationsPage() {
             <DropdownMenuContent align="end">
               <DropdownMenuLabel>Actions</DropdownMenuLabel>
               <DropdownMenuItem asChild>
-                <Link href={`/dashboard/finance/giving/donations/${donation.id}`}>
+                <Link href={`/dashboard/finance/giving/donations/${record.id}`}>
                   <Eye className="mr-2 h-4 w-4" />
                   View Details
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuItem asChild>
-                <Link href={`/dashboard/finance/giving/donations/${donation.id}/edit`}>
+                <Link href={`/dashboard/finance/giving/donations/${record.id}/edit`}>
                   <Edit className="mr-2 h-4 w-4" />
                   Edit
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem 
+              <DropdownMenuItem
                 className="text-destructive focus:text-destructive"
-                onClick={() => deleteDialog.openDialog(donation)}
+                onClick={() => deleteDialog.openDialog(record)}
               >
                 <Trash2 className="mr-2 h-4 w-4" />
                 Delete
@@ -385,18 +365,26 @@ export default function DonationsPage() {
     },
   ];
 
-  // Calculate statistics
-  const totalDonations = filteredDonations.length;
-  const totalAmount = filteredDonations.reduce((sum, donation) => sum + donation.amount, 0);
-  const averageAmount = totalDonations > 0 ? totalAmount / totalDonations : 0;
-  const completedDonations = filteredDonations.filter(d => d.status === GivingStatus.COMPLETED).length;
-  const pendingDonations = filteredDonations.filter(d => d.status === GivingStatus.PENDING).length;
-  const thisMonthDonations = filteredDonations.filter(d => {
-    const donationDate = new Date(d.date);
-    const now = new Date();
-    return donationDate.getMonth() === now.getMonth() && donationDate.getFullYear() === now.getFullYear();
-  });
-  const thisMonthAmount = thisMonthDonations.reduce((sum, donation) => sum + donation.amount, 0);
+  // Aggregate stats — only top-level records (parentGivingId excluded in load)
+  const totalAmount = filteredGiving.reduce((sum, g) => sum + g.amount, 0);
+  const totalCount = filteredGiving.length;
+  const avgAmount = totalCount > 0 ? totalAmount / totalCount : 0;
+  const thisMonthAmount = filteredGiving
+    .filter(g => {
+      const d = new Date(g.date);
+      const now = new Date();
+      return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
+    })
+    .reduce((sum, g) => sum + g.amount, 0);
+
+  const hasActiveFilters =
+    filters.source !== 'all' ||
+    filters.type !== 'all' ||
+    filters.category !== 'all' ||
+    filters.status !== 'all' ||
+    filters.method !== 'all' ||
+    !!filters.dateRange ||
+    !!filters.search;
 
   return (
     <div className="space-y-6">
@@ -408,18 +396,12 @@ export default function DonationsPage() {
         </Button>
         <div className="flex-1">
           <PageHeader
-            title="Donations"
+            title="All Giving"
             actions={
               <>
                 <Button variant="outline" onClick={handleExport}>
                   <Download className="mr-2 h-4 w-4" />
                   Export
-                </Button>
-                <Button asChild>
-                  <Link href="/dashboard/finance/giving/donations/add">
-                    <Plus className="mr-2 h-4 w-4" />
-                    Record Donation
-                  </Link>
                 </Button>
               </>
             }
@@ -427,7 +409,7 @@ export default function DonationsPage() {
         </div>
       </div>
 
-      {/* Statistics Cards */}
+      {/* Stats */}
       <LazySection
         strategy="immediate"
         showSkeleton
@@ -436,54 +418,62 @@ export default function DonationsPage() {
         className="grid gap-4 md:grid-cols-2 lg:grid-cols-4"
         threshold={0.1}
       >
-        <StatCard
-          title="Total Donations"
-          value={totalDonations}
-          icon={BadgeCent}
-          accent="primary"
-        />
-
-        <StatCard
-          title="Total Amount"
-          value={formatCurrency(totalAmount)}
-          icon={TrendingUp}
-          accent="success"
-        />
-
-        <StatCard
-          title="Average Amount"
-          value={formatCurrency(averageAmount)}
-          icon={Users}
-          accent="secondary"
-        />
-
-        <StatCard
-          title="This Month"
-          value={formatCurrency(thisMonthAmount)}
-          icon={CalendarIcon}
-          accent="accent"
-        />
+        <StatCard title="Total Records" value={String(totalCount)} icon={BadgeCent} accent="primary" />
+        <StatCard title="Total Amount" value={formatCurrency(totalAmount)} icon={TrendingUp} accent="success" />
+        <StatCard title="Average Amount" value={formatCurrency(avgAmount)} icon={Users} accent="secondary" />
+        <StatCard title="This Month" value={formatCurrency(thisMonthAmount)} icon={CalendarIcon} accent="accent" />
       </LazySection>
 
       {/* Filters */}
-      <LazySection
-        strategy="lazy"
-        showSkeleton
-        skeletonVariant="form"
-        threshold={0.2}
-      >
-        <Card>
-          <CardHeader>
-            <CardTitle>Filters</CardTitle>
-          </CardHeader>
-          <CardContent>
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-sm font-semibold">Filters</CardTitle>
+        </CardHeader>
+        <CardContent>
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
             <div className="space-y-2">
+              <Label>Source</Label>
+              <Select value={filters.source} onValueChange={(v) => setFilters({ ...filters, source: v })}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Sources</SelectItem>
+                  <SelectItem value={GivingSource.INDIVIDUAL}>Individual</SelectItem>
+                  <SelectItem value={GivingSource.CONGREGATIONAL}>Congregational</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label>Type</Label>
+              <Select value={filters.type} onValueChange={(v) => setFilters({ ...filters, type: v })}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Types</SelectItem>
+                  {Object.entries(GIVING_TYPE_LABELS).map(([value, label]) => (
+                    <SelectItem key={value} value={value}>{label}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label>Status</Label>
+              <Select value={filters.status} onValueChange={(v) => setFilters({ ...filters, status: v })}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Status</SelectItem>
+                  <SelectItem value={GivingStatus.COMPLETED}>Completed</SelectItem>
+                  <SelectItem value={GivingStatus.PENDING}>Pending</SelectItem>
+                  <SelectItem value={GivingStatus.FAILED}>Failed</SelectItem>
+                  <SelectItem value={GivingStatus.REFUNDED}>Refunded</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
               <Label>Category</Label>
-              <Select value={filters.category} onValueChange={(value) => setFilters({ ...filters, category: value })}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
+              <Select value={filters.category} onValueChange={(v) => setFilters({ ...filters, category: v })}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All Categories</SelectItem>
                   <SelectItem value={GivingCategory.GENERAL}>General</SelectItem>
@@ -493,58 +483,21 @@ export default function DonationsPage() {
                   <SelectItem value={GivingCategory.CHILDREN}>Children</SelectItem>
                   <SelectItem value={GivingCategory.MUSIC}>Music</SelectItem>
                   <SelectItem value={GivingCategory.OUTREACH}>Outreach</SelectItem>
-                  <SelectItem value={GivingCategory.CHARITY}>Charity</SelectItem>
-                  <SelectItem value={GivingCategory.EDUCATION}>Education</SelectItem>
-                  <SelectItem value={GivingCategory.MEDICAL}>Medical</SelectItem>
-                  <SelectItem value={GivingCategory.DISASTER_RELIEF}>Disaster Relief</SelectItem>
+                  <SelectItem value={GivingCategory.WELFARE}>Welfare</SelectItem>
                   <SelectItem value={GivingCategory.OTHER}>Other</SelectItem>
                 </SelectContent>
               </Select>
             </div>
-            
-            <div className="space-y-2">
-              <Label>Status</Label>
-              <Select value={filters.status} onValueChange={(value) => setFilters({ ...filters, status: value })}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Status</SelectItem>
-                  <SelectItem value={GivingStatus.COMPLETED}>Completed</SelectItem>
-                  <SelectItem value={GivingStatus.PENDING}>Pending</SelectItem>
-                  <SelectItem value={GivingStatus.FAILED}>Failed</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            
-            <div className="space-y-2">
-              <Label>Method</Label>
-              <Select value={filters.method} onValueChange={(value) => setFilters({ ...filters, method: value })}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Methods</SelectItem>
-                  <SelectItem value="cash">Cash</SelectItem>
-                  <SelectItem value="bank_transfer">Bank Transfer</SelectItem>
-                  <SelectItem value="mobile_money">Mobile Money</SelectItem>
-                  <SelectItem value="check">Check</SelectItem>
-                  <SelectItem value="card">Card</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            
+
             <div className="space-y-2">
               <Label>Date Range</Label>
               <Popover>
                 <PopoverTrigger asChild>
                   <Button variant="outline" className="justify-start text-left font-normal w-full">
                     <CalendarIcon className="mr-2 h-4 w-4" />
-                    {filters.dateRange?.from && filters.dateRange?.to ? (
-                      `${format(filters.dateRange.from, 'MMM dd')} - ${format(filters.dateRange.to, 'MMM dd')}`
-                    ) : (
-                      'Select date range'
-                    )}
+                    {filters.dateRange?.from && filters.dateRange?.to
+                      ? `${format(filters.dateRange.from, 'MMM dd')} – ${format(filters.dateRange.to, 'MMM dd')}`
+                      : 'Select range'}
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-auto p-0" align="start">
@@ -552,11 +505,10 @@ export default function DonationsPage() {
                     mode="range"
                     selected={filters.dateRange ? { from: filters.dateRange.from, to: filters.dateRange.to } : undefined}
                     onSelect={(range) => {
-                      if (range?.from && range?.to) {
-                        setFilters({ ...filters, dateRange: { from: range.from, to: range.to } });
-                      } else {
-                        setFilters({ ...filters, dateRange: undefined });
-                      }
+                      setFilters({
+                        ...filters,
+                        dateRange: range?.from && range?.to ? { from: range.from, to: range.to } : undefined,
+                      });
                     }}
                     numberOfMonths={2}
                     initialFocus
@@ -565,60 +517,54 @@ export default function DonationsPage() {
               </Popover>
             </div>
           </div>
-          
-          {(filters.category !== 'all' || filters.status !== 'all' || filters.method !== 'all' || filters.dateRange || filters.search) && (
+
+          {hasActiveFilters && (
             <div className="mt-4">
-              <Button 
-                variant="outline" 
-                onClick={() => setFilters({ category: 'all', status: 'all', method: 'all', dateRange: undefined, search: '' })}
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setFilters({ source: 'all', type: 'all', category: 'all', status: 'all', method: 'all', dateRange: undefined, search: '' })}
               >
                 Clear Filters
               </Button>
             </div>
           )}
-          </CardContent>
-        </Card>
-      </LazySection>
+        </CardContent>
+      </Card>
 
-      {/* Donations Table */}
+      {/* Table */}
       <LazyLoader threshold={0.3}>
         <Card>
           <CardHeader>
             <ChartHeader
-              title="All Donations"
-              badge={`${filteredDonations.length} of ${donations.length}`}
+              title="Giving Records"
+              badge={`${filteredGiving.length} of ${giving.length}`}
             />
           </CardHeader>
           <CardContent>
             {loading ? (
-              <TableSkeleton 
-                rows={5} 
-                columns={8} 
-                showHeader 
-                showPagination 
-              />
+              <TableSkeleton rows={5} columns={9} showHeader showPagination />
             ) : (
               <DataTable
                 columns={columns}
-                data={filteredDonations}
-                recordLabel="donation"
+                data={filteredGiving}
+                recordLabel="giving record"
                 searchValue={filters.search}
-                onSearchChange={(value) => setFilters({ ...filters, search: value })}
+                onSearchChange={(v) => setFilters({ ...filters, search: v })}
                 searchKey="description"
-                searchPlaceholder="Search donations..."
+                searchPlaceholder="Search giving..."
               />
             )}
           </CardContent>
         </Card>
       </LazyLoader>
 
-      {/* Delete Confirmation Dialog */}
       <DeleteDialog
         isOpen={deleteDialog.isOpen}
         onOpenChange={deleteDialog.closeDialog}
-        onConfirm={() => handleDeleteDonation(deleteDialog.itemToDelete)}
-        title="Delete Donation"
-        description={`Are you sure you want to delete this donation? This action cannot be undone and will permanently remove the donation record.`}
+        onConfirm={() => handleDelete(deleteDialog.itemToDelete)}
+        title="Delete Giving Record"
+        description="Are you sure you want to delete this giving record? This action cannot be undone."
         itemName={deleteDialog.itemToDelete?.description || deleteDialog.itemToDelete?.receiptNumber}
         loading={deleteDialog.loading}
       />

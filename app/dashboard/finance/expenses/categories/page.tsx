@@ -1,256 +1,141 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import { 
-  PlusCircle, 
+  Plus, 
   Tag, 
   Edit, 
   Trash2, 
   MoreHorizontal,
-  Filter,
   Eye,
-  Wallet
+  Wallet,
+  ArrowLeft,
+  CheckCircle2,
 } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { StatusBadge } from '@/components/ui/status-badge';
+import { Badge } from '@/components/ui/badge';
 import { DataTable } from '@/components/ui/data-table';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import { LazySection } from '@/components/ui/lazy-section';
-import { LazyLoader } from '@/components/ui/lazy-loader';
 import { PageHeader } from '@/components/ui/page-header';
 import { StatCard } from '@/components/ui/stat-card';
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
+import { DeleteDialog, useDeleteDialog } from '@/components/ui/delete-dialog';
+import { CardSkeleton, TableSkeleton } from '@/components/ui/skeleton-loaders';
 import { toast } from 'sonner';
-import { cn } from '@/lib/utils';
-
-// Types
-interface ExpenseCategory {
-  id: string;
-  name: string;
-  description?: string;
-  color: string;
-  expenseCount: number;
-  totalAmount: number;
-  isActive: boolean;
-  createdAt: Date;
-  updatedAt: Date;
-}
-
-// Mock expense categories data
-const mockCategories: ExpenseCategory[] = [
-  {
-    id: '1',
-    name: 'Salaries & Benefits',
-    description: 'Staff salaries, benefits, and payroll expenses',
-    color: '#2E8DB0',
-    expenseCount: 24,
-    totalAmount: 45250.00,
-    isActive: true,
-    createdAt: new Date('2024-01-01'),
-    updatedAt: new Date('2024-01-15'),
-  },
-  {
-    id: '2',
-    name: 'Missions & Outreach',
-    description: 'Missionary support, outreach programs, and evangelism',
-    color: '#28ACD1',
-    expenseCount: 18,
-    totalAmount: 12800.00,
-    isActive: true,
-    createdAt: new Date('2024-01-01'),
-    updatedAt: new Date('2024-01-10'),
-  },
-  {
-    id: '3',
-    name: 'Building Maintenance',
-    description: 'Facility repairs, maintenance, and improvements',
-    color: '#C49831',
-    expenseCount: 15,
-    totalAmount: 8950.00,
-    isActive: true,
-    createdAt: new Date('2024-01-01'),
-    updatedAt: new Date('2024-01-12'),
-  },
-  {
-    id: '4',
-    name: 'Utilities',
-    description: 'Electric, water, gas, internet, and phone bills',
-    color: '#A5CF5D',
-    expenseCount: 12,
-    totalAmount: 3450.00,
-    isActive: true,
-    createdAt: new Date('2024-01-01'),
-    updatedAt: new Date('2024-01-08'),
-  },
-  {
-    id: '5',
-    name: 'Office Supplies',
-    description: 'Paper, pens, printer supplies, and office equipment',
-    color: '#6B7280',
-    expenseCount: 8,
-    totalAmount: 1250.00,
-    isActive: true,
-    createdAt: new Date('2024-01-01'),
-    updatedAt: new Date('2024-01-05'),
-  },
-  {
-    id: '6',
-    name: 'Technology & Equipment',
-    description: 'Computers, software, AV equipment, and tech services',
-    color: '#8B5CF6',
-    expenseCount: 6,
-    totalAmount: 5600.00,
-    isActive: true,
-    createdAt: new Date('2024-01-01'),
-    updatedAt: new Date('2024-01-14'),
-  },
-  {
-    id: '7',
-    name: 'Insurance',
-    description: 'Property, liability, and other insurance premiums',
-    color: '#EF4444',
-    expenseCount: 4,
-    totalAmount: 2800.00,
-    isActive: true,
-    createdAt: new Date('2024-01-01'),
-    updatedAt: new Date('2024-01-03'),
-  },
-  {
-    id: '8',
-    name: 'Transportation',
-    description: 'Vehicle expenses, fuel, and travel costs',
-    color: '#F59E0B',
-    expenseCount: 10,
-    totalAmount: 1850.00,
-    isActive: true,
-    createdAt: new Date('2024-01-01'),
-    updatedAt: new Date('2024-01-11'),
-  },
-  {
-    id: '9',
-    name: 'Events & Programs',
-    description: 'Special events, programs, and ministry activities',
-    color: '#EC4899',
-    expenseCount: 14,
-    totalAmount: 4200.00,
-    isActive: true,
-    createdAt: new Date('2024-01-01'),
-    updatedAt: new Date('2024-01-13'),
-  },
-  {
-    id: '10',
-    name: 'Marketing & Communications',
-    description: 'Website, printing, advertising, and communication tools',
-    color: '#10B981',
-    expenseCount: 7,
-    totalAmount: 950.00,
-    isActive: true,
-    createdAt: new Date('2024-01-01'),
-    updatedAt: new Date('2024-01-09'),
-  },
-  {
-    id: '11',
-    name: 'Professional Services',
-    description: 'Legal, accounting, consulting, and professional fees',
-    color: '#6366F1',
-    expenseCount: 5,
-    totalAmount: 3200.00,
-    isActive: true,
-    createdAt: new Date('2024-01-01'),
-    updatedAt: new Date('2024-01-07'),
-  },
-  {
-    id: '12',
-    name: 'Miscellaneous',
-    description: 'Other expenses that don\'t fit specific categories',
-    color: '#64748B',
-    expenseCount: 3,
-    totalAmount: 450.00,
-    isActive: false,
-    createdAt: new Date('2024-01-01'),
-    updatedAt: new Date('2024-01-02'),
-  },
-];
+import { expenseService } from '@/services';
+import { ExpenseCategory } from '@/lib/types';
+import { ColumnDef } from '@tanstack/react-table';
 
 export default function ExpenseCategoriesPage() {
-  const [categories, setCategories] = useState<ExpenseCategory[]>(mockCategories);
+  const [categories, setCategories] = useState<ExpenseCategory[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState<'all' | 'active' | 'inactive'>('all');
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const deleteDialog = useDeleteDialog();
 
-  // Filter and search categories
+  const loadCategories = async () => {
+    try {
+      setIsLoading(true);
+      const res = await expenseService.getCategories();
+      setCategories(res.data);
+    } catch (error) {
+      console.error('Error loading expense categories:', error);
+      toast.error('Failed to load expense categories');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadCategories();
+  }, []);
+
   const filteredCategories = useMemo(() => {
-    return categories.filter(category => {
-      const matchesSearch = category.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                           (category.description?.toLowerCase().includes(searchTerm.toLowerCase()) ?? false);
-      
-      const matchesFilter = filterStatus === 'all' || 
-                           (filterStatus === 'active' && category.isActive) ||
-                           (filterStatus === 'inactive' && !category.isActive);
-      
+    return categories.filter((category) => {
+      const matchesSearch =
+        category.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (category.description?.toLowerCase().includes(searchTerm.toLowerCase()) ?? false) ||
+        (category.group?.toLowerCase().includes(searchTerm.toLowerCase()) ?? false);
+
+      const matchesFilter =
+        filterStatus === 'all' ||
+        (filterStatus === 'active' && category.isActive) ||
+        (filterStatus === 'inactive' && !category.isActive);
+
       return matchesSearch && matchesFilter;
     });
   }, [categories, searchTerm, filterStatus]);
 
-  const handleDeleteCategory = async (categoryId: string) => {
+  const handleDeleteCategory = async (category: ExpenseCategory) => {
     try {
-      setIsLoading(true);
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      setCategories(prev => prev.filter(cat => cat.id !== categoryId));
-      toast.success('Category deleted successfully!');
+      const result = await expenseService.deleteCategory(category.id);
+      if (!result.success) {
+        toast.warning(result.message || 'Category deactivated because historical records exist.');
+      } else {
+        toast.success('Category deleted successfully!');
+      }
+      loadCategories();
     } catch (error) {
       console.error('Error deleting category:', error);
-      toast.error('Failed to delete category. Please try again.');
-    } finally {
-      setIsLoading(false);
+      toast.error('Failed to delete category');
     }
   };
 
-  const handleToggleStatus = async (categoryId: string) => {
+  const handleToggleStatus = async (category: ExpenseCategory) => {
     try {
-      setIsLoading(true);
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 800));
-      
-      setCategories(prev => prev.map(cat => 
-        cat.id === categoryId ? { ...cat, isActive: !cat.isActive } : cat
-      ));
-      toast.success('Category status updated successfully!');
+      await expenseService.updateCategory(category.id, {
+        isActive: !category.isActive,
+      });
+      setCategories((prev) =>
+        prev.map((c) => (c.id === category.id ? { ...c, isActive: !c.isActive } : c))
+      );
+      toast.success(`Category ${!category.isActive ? 'activated' : 'deactivated'} successfully!`);
     } catch (error) {
       console.error('Error updating category status:', error);
-      toast.error('Failed to update category status. Please try again.');
-    } finally {
-      setIsLoading(false);
+      toast.error('Failed to update category status');
     }
   };
 
-  // Calculate summary statistics
-  const totalCategories = categories.length;
-  const activeCategories = categories.filter(cat => cat.isActive).length;
-  const totalExpenses = categories.reduce((sum, cat) => sum + cat.expenseCount, 0);
-  const totalAmount = categories.reduce((sum, cat) => sum + cat.totalAmount, 0);
+  const formatCurrency = (amount: number) => {
+    return new Intl.NumberFormat('en-GH', {
+      style: 'currency',
+      currency: 'GHS',
+      minimumFractionDigits: 2,
+    }).format(amount);
+  };
 
-  const columns = [
+  // Summary statistics
+  const totalCategories = categories.length;
+  const activeCategories = categories.filter((cat) => cat.isActive).length;
+  const totalExpenses = categories.reduce((sum, cat) => sum + (cat.recordCount || 0), 0);
+  const totalAmount = categories.reduce((sum, cat) => sum + (cat.totalExpenses || 0), 0);
+
+  const columns: ColumnDef<ExpenseCategory>[] = [
     {
       accessorKey: 'name',
       header: 'Category',
-      cell: ({ row }: { row: any }) => {
-        const category = row.original as ExpenseCategory;
+      cell: ({ row }) => {
+        const category = row.original;
         return (
           <div className="flex items-center gap-3">
-            <div 
-              className="w-4 h-4 rounded-full flex-shrink-0"
-              style={{ backgroundColor: category.color }}
+            <div
+              className="w-3 h-3 rounded-full flex-shrink-0"
+              style={{ backgroundColor: category.color || '#2E8DB0' }}
             />
             <div>
-              <div className="font-medium">{category.name}</div>
+              <div className="font-medium text-foreground">{category.name}</div>
               {category.description && (
-                <div className="text-sm text-gray-500 truncate max-w-xs">
+                <div className="text-xs text-muted-foreground truncate max-w-sm">
                   {category.description}
                 </div>
               )}
@@ -260,28 +145,33 @@ export default function ExpenseCategoriesPage() {
       },
     },
     {
-      accessorKey: 'expenseCount',
+      accessorKey: 'group',
+      header: 'Group',
+      cell: ({ row }) => {
+        const group = row.original.group || 'Operations';
+        return <Badge variant="neutral">{group}</Badge>;
+      },
+    },
+    {
+      accessorKey: 'recordCount',
       header: 'Expenses',
-      cell: ({ row }: { row: any }) => {
-        const category = row.original as ExpenseCategory;
+      cell: ({ row }) => {
+        const count = row.original.recordCount || 0;
         return (
-          <div className="text-center">
-            <div className="font-medium">{category.expenseCount}</div>
-            <div className="text-xs text-gray-500">records</div>
+          <div className="font-medium text-foreground">
+            {count} {count === 1 ? 'expense' : 'expenses'}
           </div>
         );
       },
     },
     {
-      accessorKey: 'totalAmount',
+      accessorKey: 'totalExpenses',
       header: 'Total Amount',
-      cell: ({ row }: { row: any }) => {
-        const category = row.original as ExpenseCategory;
+      cell: ({ row }) => {
+        const amount = row.original.totalExpenses || 0;
         return (
-          <div className="text-right">
-            <div className="font-medium text-brand-primary">
-              ₵{category.totalAmount.toLocaleString('en-GH', { minimumFractionDigits: 2 })}
-            </div>
+          <div className="font-medium text-destructive">
+            {formatCurrency(amount)}
           </div>
         );
       },
@@ -289,18 +179,16 @@ export default function ExpenseCategoriesPage() {
     {
       accessorKey: 'isActive',
       header: 'Status',
-      cell: ({ row }: { row: any }) => {
-        const category = row.original as ExpenseCategory;
-        return (
-          <StatusBadge status={category.isActive ? 'active' : 'inactive'} />
-        );
+      cell: ({ row }) => {
+        const category = row.original;
+        return <StatusBadge status={category.isActive ? 'active' : 'inactive'} />;
       },
     },
     {
       id: 'actions',
       header: 'Actions',
-      cell: ({ row }: { row: any }) => {
-        const category = row.original as ExpenseCategory;
+      cell: ({ row }) => {
+        const category = row.original;
         return (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -310,7 +198,6 @@ export default function ExpenseCategoriesPage() {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuLabel>Actions</DropdownMenuLabel>
               <DropdownMenuItem asChild>
                 <Link href={`/dashboard/finance/expenses/categories/${category.id}`}>
                   <Eye className="mr-2 h-4 w-4" />
@@ -324,42 +211,18 @@ export default function ExpenseCategoriesPage() {
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem
-                onClick={() => handleToggleStatus(category.id)}
-                disabled={isLoading}
-              >
-                <Tag className="mr-2 h-4 w-4" />
+              <DropdownMenuItem onClick={() => handleToggleStatus(category)}>
+                <CheckCircle2 className="mr-2 h-4 w-4" />
                 {category.isActive ? 'Deactivate' : 'Activate'}
               </DropdownMenuItem>
               <DropdownMenuSeparator />
-              <AlertDialog>
-                <AlertDialogTrigger asChild>
-                  <DropdownMenuItem
-                    onSelect={(e) => e.preventDefault()}
-                    className="text-red-600 focus:text-red-600"
-                  >
-                    <Trash2 className="mr-2 h-4 w-4" />
-                    Delete Category
-                  </DropdownMenuItem>
-                </AlertDialogTrigger>
-                <AlertDialogContent>
-                  <AlertDialogHeader>
-                    <AlertDialogTitle>Delete Category</AlertDialogTitle>
-                    <AlertDialogDescription>
-                      Are you sure you want to delete "{category.name}"? This action cannot be undone and will affect {category.expenseCount} expense records.
-                    </AlertDialogDescription>
-                  </AlertDialogHeader>
-                  <AlertDialogFooter>
-                    <AlertDialogCancel>Cancel</AlertDialogCancel>
-                    <AlertDialogAction
-                      onClick={() => handleDeleteCategory(category.id)}
-                      className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                    >
-                      Delete Category
-                    </AlertDialogAction>
-                  </AlertDialogFooter>
-                </AlertDialogContent>
-              </AlertDialog>
+              <DropdownMenuItem
+                className="text-destructive focus:text-destructive"
+                onClick={() => deleteDialog.openDialog(category)}
+              >
+                <Trash2 className="mr-2 h-4 w-4" />
+                Delete Category
+              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         );
@@ -367,64 +230,84 @@ export default function ExpenseCategoriesPage() {
     },
   ];
 
+  if (isLoading) {
+    return (
+      <div className="space-y-6">
+        <PageHeader title="Expense Categories" />
+        <CardSkeleton count={4} className="grid gap-4 md:grid-cols-2 lg:grid-cols-4" />
+        <TableSkeleton rows={5} columns={6} showHeader className="mt-6" />
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
-
-      <PageHeader
-        title="Expense Categories"
-        description="Manage and organize expense categories"
-        actions={
-          <Button asChild>
-            <Link href="/dashboard/finance/expenses/categories/add">
-              <PlusCircle className="mr-2 h-4 w-4" />
-              Add Category
-            </Link>
-          </Button>
-        }
-      />
-
-      {/* Summary Statistics */}
-      <LazySection>
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-          <StatCard
-            title="Total Categories"
-            value={totalCategories}
-            icon={Tag}
-            accent="primary"
-          />
-
-          <StatCard
-            title="Active Categories"
-            value={activeCategories}
-            icon={Tag}
-            accent="success"
-          />
-
-          <StatCard
-            title="Total Expenses"
-            value={totalExpenses}
-            icon={Wallet}
-            accent="secondary"
-          />
-
-          <StatCard
-            title="Total Amount"
-            value={`₵${totalAmount.toLocaleString('en-GH', { minimumFractionDigits: 2 })}`}
-            icon={Wallet}
-            accent="accent"
+      {/* Header */}
+      <div className="flex items-center gap-4">
+        <Button variant="ghost" size="icon" asChild>
+          <Link href="/dashboard/finance/expenses">
+            <ArrowLeft className="h-4 w-4" />
+          </Link>
+        </Button>
+        <div className="flex-1">
+          <PageHeader
+            title="Expense Categories"
+            actions={
+              <Button asChild>
+                <Link href="/dashboard/finance/expenses/categories/add">
+                  <Plus className="mr-1.5 h-4 w-4" />
+                  Add Category
+                </Link>
+              </Button>
+            }
           />
         </div>
+      </div>
+
+      {/* Summary Statistics */}
+      <LazySection
+        strategy="immediate"
+        showSkeleton
+        skeletonVariant="card"
+        skeletonCount={4}
+        className="grid gap-4 md:grid-cols-2 lg:grid-cols-4"
+        threshold={0.1}
+      >
+        <StatCard
+          title="Total Categories"
+          value={totalCategories}
+          icon={Tag}
+          accent="primary"
+        />
+
+        <StatCard
+          title="Active Categories"
+          value={activeCategories}
+          icon={CheckCircle2}
+          accent="success"
+        />
+
+        <StatCard
+          title="Total Expenses Logged"
+          value={totalExpenses}
+          icon={Wallet}
+          accent="secondary"
+        />
+
+        <StatCard
+          title="Total Amount"
+          value={formatCurrency(totalAmount)}
+          icon={Wallet}
+          accent="accent"
+        />
       </LazySection>
 
       {/* Categories Table */}
       <LazySection>
         <Card>
-          <CardHeader>
-            <CardTitle>Categories List</CardTitle>
-          </CardHeader>
-          <CardContent>
-            {/* Search and Filter */}
-            <div className="flex flex-col sm:flex-row gap-4 mb-6">
+          <CardHeader className="pb-3">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+              <CardTitle className="text-base font-semibold">Categories List</CardTitle>
               <div className="flex gap-2">
                 <Button
                   variant={filterStatus === 'all' ? 'default' : 'outline'}
@@ -449,8 +332,8 @@ export default function ExpenseCategoriesPage() {
                 </Button>
               </div>
             </div>
-
-            {/* Data Table */}
+          </CardHeader>
+          <CardContent>
             <DataTable
               columns={columns}
               data={filteredCategories}
@@ -459,11 +342,22 @@ export default function ExpenseCategoriesPage() {
               searchValue={searchTerm}
               onSearchChange={setSearchTerm}
               searchKey="name"
-              searchPlaceholder="Search categories..."
+              searchPlaceholder="Search categories by name, group, description..."
             />
           </CardContent>
         </Card>
       </LazySection>
+
+      {/* Delete Confirmation Dialog */}
+      <DeleteDialog
+        isOpen={deleteDialog.isOpen}
+        onOpenChange={deleteDialog.closeDialog}
+        onConfirm={() => handleDeleteCategory(deleteDialog.itemToDelete)}
+        title="Delete Expense Category"
+        description="Are you sure you want to delete this category? If this category contains historical expense records, it will be safely deactivated instead of deleted to protect historical accounting data."
+        itemName={deleteDialog.itemToDelete?.name}
+        loading={deleteDialog.loading}
+      />
     </div>
   );
 }

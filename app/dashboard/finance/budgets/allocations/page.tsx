@@ -1,335 +1,255 @@
 'use client';
 
-import { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, Wallet, Plus, TrendingUp, Users, Calendar, BarChart3, DollarSign } from 'lucide-react';
+import {
+  ArrowLeft,
+  Wallet,
+  Users,
+  Calendar,
+  CheckCircle2,
+  TrendingUp,
+  Target,
+  DollarSign,
+  Plus,
+} from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Input } from '@/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Progress } from '@/components/ui/progress';
 import { PageHeader } from '@/components/ui/page-header';
 import { StatCard } from '@/components/ui/stat-card';
-
-// Mock data for allocations
-const allocationSummary = {
-  totalAllocated: 125000,
-  totalBudgets: 8,
-  activeAllocations: 24,
-  utilizationRate: 78
-};
-
-const recentAllocations = [
-  {
-    id: '1',
-    budgetName: 'Youth Ministry 2024',
-    department: 'Youth',
-    amount: 15000,
-    allocatedAmount: 12000,
-    utilizationRate: 80,
-    lastUpdated: '2024-01-15',
-    status: 'active'
-  },
-  {
-    id: '2',
-    budgetName: 'Building Maintenance',
-    department: 'Facilities',
-    amount: 25000,
-    allocatedAmount: 18500,
-    utilizationRate: 74,
-    lastUpdated: '2024-01-14',
-    status: 'active'
-  },
-  {
-    id: '3',
-    budgetName: 'Worship Equipment',
-    department: 'Worship',
-    amount: 8000,
-    allocatedAmount: 7200,
-    utilizationRate: 90,
-    lastUpdated: '2024-01-13',
-    status: 'active'
-  },
-  {
-    id: '4',
-    budgetName: 'Community Outreach',
-    department: 'Outreach',
-    amount: 12000,
-    allocatedAmount: 8400,
-    utilizationRate: 70,
-    lastUpdated: '2024-01-12',
-    status: 'active'
-  },
-  {
-    id: '5',
-    budgetName: 'Children Ministry',
-    department: 'Children',
-    amount: 6000,
-    allocatedAmount: 4800,
-    utilizationRate: 80,
-    lastUpdated: '2024-01-11',
-    status: 'active'
-  }
-];
-
-const budgetOptions = [
-  { id: '1', name: 'Youth Ministry 2024', department: 'Youth' },
-  { id: '2', name: 'Building Maintenance', department: 'Facilities' },
-  { id: '3', name: 'Worship Equipment', department: 'Worship' },
-  { id: '4', name: 'Community Outreach', department: 'Outreach' },
-  { id: '5', name: 'Children Ministry', department: 'Children' },
-  { id: '6', name: 'Administrative', department: 'Admin' },
-  { id: '7', name: 'Missions Support', department: 'Missions' },
-  { id: '8', name: 'Special Events', department: 'Events' }
-];
+import { DataTable } from '@/components/ui/data-table';
+import { LazySection } from '@/components/ui/lazy-section';
+import { LazyLoader } from '@/components/ui/lazy-loader';
+import { CardSkeleton, TableSkeleton } from '@/components/ui/skeleton-loaders';
+import { toast } from 'sonner';
+import { budgetService } from '@/services';
+import { BudgetRecord, BudgetAllocation } from '@/lib/types';
+import { ColumnDef } from '@tanstack/react-table';
 
 export default function AllocationsOverviewPage() {
   const router = useRouter();
+  const [budgets, setBudgets] = useState<BudgetRecord[]>([]);
+  const [allocations, setAllocations] = useState<any[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
-  const [filterDepartment, setFilterDepartment] = useState('all');
-  const [selectedBudget, setSelectedBudget] = useState('');
+  const [loading, setLoading] = useState(true);
 
-  const filteredAllocations = recentAllocations.filter(allocation => {
-    const matchesSearch = allocation.budgetName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         allocation.department.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesDepartment = filterDepartment === 'all' || allocation.department.toLowerCase() === filterDepartment;
-    return matchesSearch && matchesDepartment;
-  });
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        setLoading(true);
+        const res = await budgetService.getBudgets({ limit: 50 });
+        setBudgets(res.data);
 
-  const handleAllocateFunds = () => {
-    if (selectedBudget) {
-      router.push(`/dashboard/finance/budgets/${selectedBudget}/allocations`);
-    }
+        // Flatten allocations across budgets
+        const allAllocations: any[] = [];
+        res.data.forEach((b) => {
+          (b.allocations || []).forEach((a) => {
+            allAllocations.push({
+              ...a,
+              budgetId: b.id,
+              budgetName: b.name,
+              budgetTotal: b.amount,
+              parentDepartment: b.department,
+            });
+          });
+        });
+        setAllocations(allAllocations);
+      } catch (err) {
+        console.error('Failed to load allocations', err);
+        toast.error('Failed to load allocation data');
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadData();
+  }, []);
+
+  const formatCurrency = (amount: number) => {
+    return new Intl.NumberFormat('en-GH', {
+      style: 'currency',
+      currency: 'GHS',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 2,
+    }).format(amount);
   };
 
-  const getStatusColor = (utilizationRate: number) => {
-    if (utilizationRate >= 90) return 'bg-red-500';
-    if (utilizationRate >= 75) return 'bg-yellow-500';
-    return 'bg-green-500';
+  const getUtilizationColor = (percentage: number) => {
+    if (percentage >= 100) return 'text-destructive';
+    if (percentage >= 90) return 'text-amber-600 dark:text-amber-500';
+    if (percentage >= 75) return 'text-yellow-600 dark:text-yellow-500';
+    return 'text-emerald-600 dark:text-emerald-500';
   };
 
-  const getStatusText = (utilizationRate: number) => {
-    if (utilizationRate >= 90) return 'High Usage';
-    if (utilizationRate >= 75) return 'Moderate Usage';
-    return 'Low Usage';
-  };
+  const totalBudgeted = budgets.reduce((sum, b) => sum + b.amount, 0);
+  const totalAllocated = allocations.reduce((sum, a) => sum + a.allocatedAmount, 0);
+  const totalSpent = allocations.reduce((sum, a) => sum + a.spentAmount, 0);
+  const unallocatedReserve = Math.max(0, totalBudgeted - totalAllocated);
+
+  const columns: ColumnDef<any>[] = [
+    {
+      accessorKey: 'department',
+      header: 'Sub-Allocation / Ministry Area',
+      cell: ({ row }) => {
+        const item = row.original;
+        return (
+          <div>
+            <div className="font-medium text-foreground">{item.department}</div>
+            <div className="text-xs text-muted-foreground">{item.budgetName}</div>
+          </div>
+        );
+      },
+    },
+    {
+      accessorKey: 'parentDepartment',
+      header: 'Parent Department',
+      cell: ({ row }) => <Badge variant="neutral">{row.original.parentDepartment}</Badge>,
+    },
+    {
+      accessorKey: 'allocatedAmount',
+      header: 'Allocated Funds',
+      cell: ({ row }) => (
+        <div className="font-medium text-foreground">{formatCurrency(row.original.allocatedAmount)}</div>
+      ),
+    },
+    {
+      accessorKey: 'spentAmount',
+      header: 'Spent',
+      cell: ({ row }) => (
+        <div className="font-medium text-destructive">{formatCurrency(row.original.spentAmount)}</div>
+      ),
+    },
+    {
+      id: 'remaining',
+      header: 'Balance',
+      cell: ({ row }) => {
+        const bal = Math.max(0, row.original.allocatedAmount - row.original.spentAmount);
+        return <div className="font-medium text-emerald-600">{formatCurrency(bal)}</div>;
+      },
+    },
+    {
+      id: 'utilization',
+      header: 'Utilization',
+      cell: ({ row }) => {
+        const item = row.original;
+        const rate = item.allocatedAmount > 0 ? Math.round((item.spentAmount / item.allocatedAmount) * 100) : 0;
+        return (
+          <div className="w-24 space-y-1">
+            <div className="flex items-center justify-between text-xs">
+              <span className={`font-semibold ${getUtilizationColor(rate)}`}>{rate}%</span>
+            </div>
+            <Progress value={Math.min(rate, 100)} className="h-1.5" />
+          </div>
+        );
+      },
+    },
+    {
+      id: 'actions',
+      header: 'Actions',
+      cell: ({ row }) => (
+        <Button variant="outline" size="sm" asChild>
+          <Link href={`/dashboard/finance/budgets/${row.original.budgetId}`}>
+            View Budget
+          </Link>
+        </Button>
+      ),
+    },
+  ];
+
+  if (loading) {
+    return (
+      <div className="space-y-6">
+        <PageHeader title="Budget Allocations" />
+        <CardSkeleton count={4} className="grid gap-4 md:grid-cols-2 lg:grid-cols-4" />
+        <TableSkeleton rows={5} columns={7} showHeader className="mt-6" />
+      </div>
+    );
+  }
 
   return (
-    <div className="space-y-6">
-      {/* Header with Back Navigation */}
-      <div className="flex items-center gap-4 mb-6">
-        <Button
-          variant="outline"
-          size="icon"
-          className="h-9 w-9"
-          asChild
-        >
-          <Link href="/dashboard/finance/budgets" aria-label="Back to Budgets">
+    <div className="space-y-6 max-w-6xl">
+      {/* Header */}
+      <div className="flex items-center gap-4">
+        <Button variant="ghost" size="icon" asChild>
+          <Link href="/dashboard/finance/budgets">
             <ArrowLeft className="h-4 w-4" />
           </Link>
         </Button>
-        
-        <div className="flex items-center gap-3">
-          <div className="p-2 bg-brand-primary/10 rounded-lg">
-            <Wallet className="h-6 w-6 text-brand-primary" />
-          </div>
-          <div>
-            <h1 className="text-2xl font-bold tracking-tight">Budget Allocations</h1>
-            <p className="text-muted-foreground">Manage fund allocations across all budgets</p>
-          </div>
+        <div className="flex-1">
+          <PageHeader
+            title="Budget Allocations"
+            actions={
+              <Button asChild>
+                <Link href="/dashboard/finance/budgets/add">
+                  <Plus className="mr-1.5 h-4 w-4" />
+                  New Budget Allocation
+                </Link>
+              </Button>
+            }
+          />
         </div>
       </div>
 
-      {/* Summary Cards */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Allocated</CardTitle>
-            <DollarSign className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">₵{allocationSummary.totalAllocated.toLocaleString()}</div>
-            <p className="text-xs text-muted-foreground">Across all budgets</p>
-          </CardContent>
-        </Card>
+      {/* Summary KPI Cards */}
+      <LazySection
+        strategy="immediate"
+        showSkeleton
+        skeletonVariant="card"
+        skeletonCount={4}
+        className="grid gap-4 md:grid-cols-2 lg:grid-cols-4"
+        threshold={0.1}
+      >
+        <StatCard
+          title="Total Approved Budget"
+          value={formatCurrency(totalBudgeted)}
+          icon={Target}
+          accent="primary"
+        />
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Active Budgets</CardTitle>
-            <BarChart3 className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{allocationSummary.totalBudgets}</div>
-            <p className="text-xs text-muted-foreground">With allocations</p>
-          </CardContent>
-        </Card>
+        <StatCard
+          title="Allocated to Ministries"
+          value={formatCurrency(totalAllocated)}
+          icon={Wallet}
+          accent="accent"
+        />
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Active Allocations</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{allocationSummary.activeAllocations}</div>
-            <p className="text-xs text-muted-foreground">Currently active</p>
-          </CardContent>
-        </Card>
+        <StatCard
+          title="Unallocated Reserve"
+          value={formatCurrency(unallocatedReserve)}
+          icon={CheckCircle2}
+          accent="success"
+        />
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Avg. Utilization</CardTitle>
-            <TrendingUp className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{allocationSummary.utilizationRate}%</div>
-            <p className="text-xs text-muted-foreground">Budget utilization</p>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Quick Allocate Section */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Plus className="h-5 w-5" />
-            Quick Allocate Funds
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="flex gap-4">
-            <div className="flex-1">
-              <Select value={selectedBudget} onValueChange={setSelectedBudget}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select a budget to allocate funds" />
-                </SelectTrigger>
-                <SelectContent>
-                  {budgetOptions.map((budget) => (
-                    <SelectItem key={budget.id} value={budget.id}>
-                      <div className="flex items-center justify-between w-full">
-                        <span>{budget.name}</span>
-                        <Badge variant="neutral" className="ml-2">{budget.department}</Badge>
-                      </div>
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <Button 
-              onClick={handleAllocateFunds} 
-              disabled={!selectedBudget}
-              className="bg-brand-primary hover:bg-brand-primary/90"
-            >
-              <Plus className="h-4 w-4 mr-2" />
-              Allocate Funds
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
+        <StatCard
+          title="Total Spending"
+          value={formatCurrency(totalSpent)}
+          icon={TrendingUp}
+          accent="secondary"
+        />
+      </LazySection>
 
       {/* Allocations Table */}
-      <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <div>
-              <CardTitle>Recent Allocations</CardTitle>
-            </div>
-          </div>
-          
-          {/* Search and Filter */}
-          <div className="flex gap-4 mt-4">
-            <div className="flex-1">
-              <Input
-                placeholder="Search budgets or departments..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
-            </div>
-            <Select value={filterDepartment} onValueChange={setFilterDepartment}>
-              <SelectTrigger className="w-48">
-                <SelectValue placeholder="Filter by department" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Departments</SelectItem>
-                <SelectItem value="youth">Youth</SelectItem>
-                <SelectItem value="facilities">Facilities</SelectItem>
-                <SelectItem value="worship">Worship</SelectItem>
-                <SelectItem value="outreach">Outreach</SelectItem>
-                <SelectItem value="children">Children</SelectItem>
-                <SelectItem value="admin">Admin</SelectItem>
-                <SelectItem value="missions">Missions</SelectItem>
-                <SelectItem value="events">Events</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-        </CardHeader>
-        <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Budget Name</TableHead>
-                <TableHead>Department</TableHead>
-                <TableHead>Total Budget</TableHead>
-                <TableHead>Allocated</TableHead>
-                <TableHead>Utilization</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Last Updated</TableHead>
-                <TableHead>Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filteredAllocations.map((allocation) => (
-                <TableRow 
-                  key={allocation.id}
-                  className="cursor-pointer hover:bg-muted/50"
-                  onClick={() => router.push(`/dashboard/finance/budgets/${allocation.id}/allocations`)}
-                >
-                  <TableCell className="font-medium">{allocation.budgetName}</TableCell>
-                  <TableCell>
-                    <Badge variant="neutral">{allocation.department}</Badge>
-                  </TableCell>
-                  <TableCell>₵{allocation.amount.toLocaleString()}</TableCell>
-                  <TableCell>₵{allocation.allocatedAmount.toLocaleString()}</TableCell>
-                  <TableCell>
-                    <div className="space-y-1">
-                      <div className="flex items-center justify-between text-sm">
-                        <span>{allocation.utilizationRate}%</span>
-                      </div>
-                      <Progress value={allocation.utilizationRate} className="h-2" />
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex items-center gap-2">
-                      <div className={`w-2 h-2 rounded-full ${getStatusColor(allocation.utilizationRate)}`} />
-                      <span className="text-sm">{getStatusText(allocation.utilizationRate)}</span>
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                      <Calendar className="h-3 w-3" />
-                      {new Date(allocation.lastUpdated).toLocaleDateString()}
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <Button 
-                      variant="outline" 
-                      size="sm"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        router.push(`/dashboard/finance/budgets/${allocation.id}/allocations`);
-                      }}
-                    >
-                      Manage
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
+      <LazySection>
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-base font-semibold">Departmental Fund Allocations</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <DataTable
+              columns={columns}
+              data={allocations}
+              recordLabel="allocation"
+              recordLabelPlural="allocations"
+              searchValue={searchTerm}
+              onSearchChange={setSearchTerm}
+              searchKey="department"
+              searchPlaceholder="Search allocations by sub-area, department..."
+            />
+          </CardContent>
+        </Card>
+      </LazySection>
     </div>
   );
 }

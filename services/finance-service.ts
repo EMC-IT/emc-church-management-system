@@ -435,7 +435,7 @@ class FinanceService {
     }
     
     if (params?.status) {
-      filteredData = filteredData.filter(budget => budget.status === params.status);
+      filteredData = filteredData.filter(budget => (budget.status as string) === (params.status as string));
     }
     
     const total = filteredData.length;

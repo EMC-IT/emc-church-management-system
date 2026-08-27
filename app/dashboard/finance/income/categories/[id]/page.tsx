@@ -1,634 +1,415 @@
 'use client';
 
-import React, { useState, useEffect, useMemo } from 'react';
-import { useRouter, useParams } from 'next/navigation';
+import React, { useState, useEffect } from 'react';
+import { useRouter, useParams, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import {
   ArrowLeft,
   Edit,
   Trash2,
-  Plus,
+  Save,
+  Tag,
   BadgeCent,
   TrendingUp,
-  Calendar,
-  FileText,
-  MoreHorizontal,
-  Eye,
-  Filter,
-  Download
+  FolderOpen,
 } from 'lucide-react';
-import {
-  ColumnDef,
-  flexRender,
-  getCoreRowModel,
-  getFilteredRowModel,
-  getPaginationRowModel,
-  getSortedRowModel,
-  useReactTable,
-  SortingState,
-  ColumnFiltersState
-} from '@tanstack/react-table';
 
 import { Button } from '@/components/ui/button';
-import { Checkbox } from '@/components/ui/checkbox';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { StatusBadge } from '@/components/ui/status-badge';
-import { Separator } from '@/components/ui/separator';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
-import { Input } from '@/components/ui/input';
-import { LazySection } from '@/components/ui/lazy-section';
-import { LazyLoader } from '@/components/ui/lazy-loader';
 import { PageHeader } from '@/components/ui/page-header';
+import { Label } from '@/components/ui/label';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Switch } from '@/components/ui/switch';
+import { Badge } from '@/components/ui/badge';
+import { StatusBadge } from '@/components/ui/status-badge';
+import { DataTable } from '@/components/ui/data-table';
 import { StatCard } from '@/components/ui/stat-card';
-import { toast } from 'sonner';
+import { DeleteDialog, useDeleteDialog } from '@/components/ui/delete-dialog';
+import { ColumnDef } from '@tanstack/react-table';
+import { useToast } from '@/hooks/use-toast';
+import { incomeService } from '@/services';
+import { IncomeCategory, IncomeRecord } from '@/lib/types';
 
-// Types
-interface IncomeCategory {
-  id: string;
-  name: string;
-  description: string;
-  code?: string;
-  isActive: boolean;
-  createdAt: string;
-  updatedAt: string;
-}
-
-interface IncomeRecord {
-  id: string;
-  description: string;
-  amount: number;
-  source: string;
-  date: string;
-  status: 'received' | 'pending' | 'cancelled';
-  reference?: string;
-  notes?: string;
-  createdAt: string;
-}
-
-// Mock data
-const mockCategory: IncomeCategory = {
-  id: '1',
-  name: 'Hall Rental',
-  description: 'Income from facility rentals for events and ceremonies',
-  code: 'HALL_RENTAL',
-  isActive: true,
-  createdAt: '2023-01-01T00:00:00Z',
-  updatedAt: '2024-01-15T10:30:00Z'
-};
-
-const mockIncomeRecords: IncomeRecord[] = [
-  {
-    id: '1',
-    description: 'Wedding Ceremony - Johnson Family',
-    amount: 2500,
-    source: 'Johnson Family',
-    date: '2024-01-15',
-    status: 'received',
-    reference: 'INV-2024-001',
-    notes: 'Full day rental including sound system',
-    createdAt: '2024-01-15T10:30:00Z'
-  },
-  {
-    id: '2',
-    description: 'Corporate Event - Tech Solutions Ltd',
-    amount: 1800,
-    source: 'Tech Solutions Ltd',
-    date: '2024-01-12',
-    status: 'received',
-    reference: 'INV-2024-002',
-    createdAt: '2024-01-12T14:20:00Z'
-  },
-  {
-    id: '3',
-    description: 'Birthday Party - Smith Family',
-    amount: 800,
-    source: 'Smith Family',
-    date: '2024-01-10',
-    status: 'received',
-    reference: 'INV-2024-003',
-    createdAt: '2024-01-10T09:15:00Z'
-  },
-  {
-    id: '4',
-    description: 'Community Meeting - Local Council',
-    amount: 500,
-    source: 'Local Council',
-    date: '2024-01-08',
-    status: 'pending',
-    reference: 'INV-2024-004',
-    createdAt: '2024-01-08T16:45:00Z'
-  },
-  {
-    id: '5',
-    description: 'Graduation Ceremony - ABC School',
-    amount: 1200,
-    source: 'ABC School',
-    date: '2024-01-05',
-    status: 'received',
-    reference: 'INV-2024-005',
-    createdAt: '2024-01-05T11:30:00Z'
-  }
-];
-
-export default function IncomeCategoryDetailsPage() {
+export default function CategoryDetailsPage() {
   const router = useRouter();
   const params = useParams();
+  const searchParams = useSearchParams();
+  const { toast } = useToast();
+  const deleteDialog = useDeleteDialog();
+
   const [loading, setLoading] = useState(true);
-  const [deleting, setDeleting] = useState(false);
-  const [category, setCategory] = useState<IncomeCategory>(mockCategory);
-  const [incomeRecords, setIncomeRecords] = useState<IncomeRecord[]>(mockIncomeRecords);
-  const [sorting, setSorting] = useState<SortingState>([{ id: 'date', desc: true }]);
-  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
-  const [globalFilter, setGlobalFilter] = useState('');
+  const [saving, setSaving] = useState(false);
+  const [isEditing, setIsEditing] = useState(searchParams.get('edit') === 'true');
+  const [category, setCategory] = useState<IncomeCategory | null>(null);
+  const [records, setRecords] = useState<IncomeRecord[]>([]);
+
+  const [form, setForm] = useState({
+    name: '',
+    code: '',
+    description: '',
+    isActive: true,
+  });
+
+  const loadData = async () => {
+    try {
+      setLoading(true);
+      const catId = String(params.id);
+      const [catData, listRes] = await Promise.all([
+        incomeService.getCategoryById(catId),
+        incomeService.getIncomeList({ categoryId: catId, limit: 20 }),
+      ]);
+
+      setCategory(catData);
+      setRecords(listRes.data);
+
+      setForm({
+        name: catData.name,
+        code: catData.code || '',
+        description: catData.description || '',
+        isActive: catData.isActive,
+      });
+    } catch {
+      toast({
+        title: 'Error',
+        description: 'Failed to load category details.',
+        variant: 'destructive',
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    // Simulate loading data
-    const timer = setTimeout(() => {
-      setCategory(mockCategory);
-      setIncomeRecords(mockIncomeRecords);
-      setLoading(false);
-    }, 1000);
-
-    return () => clearTimeout(timer);
+    loadData();
   }, [params.id]);
+
+  const handleUpdate = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!category) return;
+
+    if (!form.name.trim()) {
+      toast({
+        title: 'Validation Error',
+        description: 'Category Name is required.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    setSaving(true);
+    try {
+      const res = await incomeService.updateCategory(category.id, {
+        name: form.name.trim(),
+        code: form.code?.trim() || undefined,
+        description: form.description?.trim() || undefined,
+        isActive: form.isActive,
+      });
+      setCategory(res.data);
+      setIsEditing(false);
+      toast({
+        title: 'Success',
+        description: 'Category updated successfully.',
+      });
+    } catch (err: any) {
+      toast({
+        title: 'Error',
+        description: err.message || 'Failed to update category.',
+        variant: 'destructive',
+      });
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!category) return;
+    try {
+      await incomeService.deleteCategory(category.id);
+      toast({
+        title: 'Success',
+        description: 'Category deleted.',
+      });
+      router.push('/dashboard/finance/income/categories');
+    } catch {
+      toast({
+        title: 'Error',
+        description: 'Failed to delete category.',
+        variant: 'destructive',
+      });
+    }
+  };
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-GH', {
       style: 'currency',
-      currency: 'GHS'
+      currency: 'GHS',
+      minimumFractionDigits: 2,
     }).format(amount);
   };
 
-  const getStatusBadge = (status: string) => <StatusBadge status={status} />;
-
-  const handleDelete = async () => {
-    setDeleting(true);
-
-    try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-
-      toast.success('Category deleted successfully!');
-      router.push('/dashboard/finance/income/categories');
-    } catch (error) {
-      toast.error('Failed to delete category. Please try again.');
-    } finally {
-      setDeleting(false);
-    }
-  };
-
-  // Table columns
   const columns: ColumnDef<IncomeRecord>[] = [
-    {
-      id: 'select',
-      header: ({ table }) => (
-        <Checkbox
-          checked={
-            table.getIsAllPageRowsSelected() ||
-            (table.getIsSomePageRowsSelected() && 'indeterminate')
-          }
-          onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-          aria-label="Select all"
-        />
-      ),
-      cell: ({ row }) => (
-        <Checkbox
-          checked={row.getIsSelected()}
-          onCheckedChange={(value) => row.toggleSelected(!!value)}
-          aria-label="Select row"
-        />
-      ),
-      enableSorting: false,
-      enableHiding: false,
-    },
     {
       accessorKey: 'description',
       header: 'Description',
-      cell: ({ row }) => {
-        const record = row.original;
-        return (
-          <div>
-            <div className="font-medium">{record.description}</div>
-            <div className="text-sm text-muted-foreground">
-              {record.source}
-            </div>
-          </div>
-        );
-      }
+      cell: ({ row }) => (
+        <div>
+          <div className="font-medium">{row.original.description}</div>
+          {row.original.reference && (
+            <div className="text-xs text-muted-foreground">{row.original.reference}</div>
+          )}
+        </div>
+      ),
+    },
+    {
+      accessorKey: 'source',
+      header: 'Source / Payer',
+      cell: ({ row }) => <span className="font-medium text-sm">{row.original.source}</span>,
     },
     {
       accessorKey: 'amount',
       header: 'Amount',
-      cell: ({ row }) => (
-        <div className="text-right font-medium">
-          {formatCurrency(row.getValue('amount'))}
-        </div>
-      )
+      cell: ({ row }) => {
+        const isReceived = row.original.status === 'received';
+        return (
+          <div className={`font-medium ${isReceived ? 'text-brand-success' : 'text-amber-600'}`}>
+            {formatCurrency(row.original.amount)}
+          </div>
+        );
+      },
     },
     {
       accessorKey: 'date',
       header: 'Date',
-      cell: ({ row }) => (
-        <div className="text-sm">
-          {new Date(row.getValue('date')).toLocaleDateString()}
-        </div>
-      )
+      cell: ({ row }) => <span>{new Date(row.original.date).toLocaleDateString()}</span>,
     },
     {
       accessorKey: 'status',
       header: 'Status',
-      cell: ({ row }) => getStatusBadge(row.getValue('status'))
+      cell: ({ row }) => <StatusBadge status={row.original.status} />,
     },
-    {
-      accessorKey: 'reference',
-      header: 'Reference',
-      cell: ({ row }) => {
-        const reference = row.getValue('reference') as string;
-        return reference ? (
-          <span className="font-mono text-sm">{reference}</span>
-        ) : (
-          <span className="text-muted-foreground">-</span>
-        );
-      }
-    },
-    {
-      id: 'actions',
-      header: 'Actions',
-      cell: ({ row }) => {
-        const record = row.original;
-
-        return (
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="h-8 w-8 p-0">
-                <MoreHorizontal className="h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuLabel>Actions</DropdownMenuLabel>
-              <DropdownMenuItem asChild>
-                <Link href={`/dashboard/finance/income/${record.id}`}>
-                  <Eye className="mr-2 h-4 w-4" />
-                  View Details
-                </Link>
-              </DropdownMenuItem>
-              <DropdownMenuItem asChild>
-                <Link href={`/dashboard/finance/income/${record.id}/edit`}>
-                  <Edit className="mr-2 h-4 w-4" />
-                  Edit Record
-                </Link>
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        );
-      }
-    }
   ];
-
-  const table = useReactTable({
-    data: incomeRecords,
-    columns,
-    onSortingChange: setSorting,
-    onColumnFiltersChange: setColumnFilters,
-    getCoreRowModel: getCoreRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
-    getSortedRowModel: getSortedRowModel(),
-    getFilteredRowModel: getFilteredRowModel(),
-    onGlobalFilterChange: setGlobalFilter,
-    globalFilterFn: 'includesString',
-    state: {
-      sorting,
-      columnFilters,
-      globalFilter
-    }
-  });
-
-  // Calculate statistics
-  const statistics = useMemo(() => {
-    const totalIncome = incomeRecords.reduce((sum, record) =>
-      record.status === 'received' ? sum + record.amount : sum, 0
-    );
-    const pendingIncome = incomeRecords.reduce((sum, record) =>
-      record.status === 'pending' ? sum + record.amount : sum, 0
-    );
-    const recordCount = incomeRecords.length;
-    const avgIncome = recordCount > 0 ? totalIncome / recordCount : 0;
-    const lastIncomeDate = incomeRecords
-      .filter(record => record.status === 'received')
-      .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())[0]?.date;
-
-    return {
-      totalIncome,
-      pendingIncome,
-      recordCount,
-      avgIncome,
-      lastIncomeDate
-    };
-  }, [incomeRecords]);
 
   if (loading) {
     return (
       <div className="space-y-6">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-4">
-            <Button variant="outline" size="sm" asChild>
-              <Link href="/dashboard/finance/income/categories">
-                <ArrowLeft className="mr-2 h-4 w-4" />
-                Back to Categories
-              </Link>
-            </Button>
-            <div>
-              <div className="h-8 w-64 bg-muted animate-pulse rounded" />
-              <div className="h-4 w-48 bg-muted animate-pulse rounded mt-2" />
-            </div>
-          </div>
-          <div className="h-10 w-32 bg-muted animate-pulse rounded" />
+        <div className="flex items-center gap-4">
+          <Button variant="outline" size="icon" className="h-9 w-9" asChild>
+            <Link href="/dashboard/finance/income/categories" aria-label="Back">
+              <ArrowLeft className="h-4 w-4" />
+            </Link>
+          </Button>
+          <PageHeader title="Category Details" />
         </div>
-        <div className="grid gap-6">
-          <div className="h-96 bg-muted animate-pulse rounded-lg" />
+        <div className="h-64 flex items-center justify-center">
+          <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
         </div>
       </div>
     );
   }
 
+  if (!category) {
+    return (
+      <div className="space-y-6">
+        <PageHeader title="Category Not Found" />
+        <Button asChild variant="outline">
+          <Link href="/dashboard/finance/income/categories">Return to Categories</Link>
+        </Button>
+      </div>
+    );
+  }
+
+  const totalGenerated = records.reduce((sum, r) => (r.status === 'received' ? sum + r.amount : sum), 0);
+
   return (
-    <div className="space-y-6 max-w-6xl">
+    <div className="space-y-6">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <Button variant="ghost" size="icon" asChild>
-            <Link href="/dashboard/finance/income/categories">
+          <Button variant="outline" size="icon" className="h-9 w-9" asChild>
+            <Link href="/dashboard/finance/income/categories" aria-label="Back">
               <ArrowLeft className="h-4 w-4" />
             </Link>
           </Button>
-          <div>
-            <h1 className="font-heading text-2xl font-bold tracking-tight">{category.name}</h1>
-            <p className="text-sm text-muted-foreground mt-1">
-              Category overview, activity ledger, and financial metrics
-            </p>
-          </div>
+          <PageHeader title={isEditing ? 'Edit Category' : category.name} />
         </div>
-        <div className="flex items-center gap-2 self-start sm:self-auto">
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="icon">
-                <MoreHorizontal className="h-4 w-4" />
+
+        <div className="flex items-center gap-2">
+          {!isEditing ? (
+            <>
+              <Button variant="outline" onClick={() => setIsEditing(true)}>
+                <Edit className="mr-1.5 h-4 w-4" />
+                Edit
               </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuLabel>Actions</DropdownMenuLabel>
-              <DropdownMenuItem asChild>
-                <Link href={`/dashboard/finance/income/categories/${category.id}/edit`}>
-                  <Edit className="mr-2 h-4 w-4" />
-                  Edit Category
-                </Link>
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                <Download className="mr-2 h-4 w-4" />
-                Export Records
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <AlertDialog>
-                <AlertDialogTrigger asChild>
-                  <DropdownMenuItem
-                    className="text-red-600"
-                    onSelect={(e) => e.preventDefault()}
-                  >
-                    <Trash2 className="mr-2 h-4 w-4" />
-                    Delete Category
-                  </DropdownMenuItem>
-                </AlertDialogTrigger>
-                <AlertDialogContent>
-                  <AlertDialogHeader>
-                    <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-                    <AlertDialogDescription>
-                      This action cannot be undone. This will permanently delete the category
-                      &quot;{category.name}&quot; and all associated income records.
-                    </AlertDialogDescription>
-                  </AlertDialogHeader>
-                  <AlertDialogFooter>
-                    <AlertDialogCancel>Cancel</AlertDialogCancel>
-                    <AlertDialogAction
-                      onClick={handleDelete}
-                      className="bg-red-600 hover:bg-red-700"
-                      disabled={deleting}
-                    >
-                      {deleting ? 'Deleting...' : 'Delete'}
-                    </AlertDialogAction>
-                  </AlertDialogFooter>
-                </AlertDialogContent>
-              </AlertDialog>
-            </DropdownMenuContent>
-          </DropdownMenu>
+              <Button
+                variant="outline"
+                className="text-destructive hover:bg-destructive/10"
+                onClick={() => deleteDialog.openDialog(category)}
+              >
+                <Trash2 className="mr-1.5 h-4 w-4" />
+                Delete
+              </Button>
+            </>
+          ) : (
+            <Button variant="outline" onClick={() => setIsEditing(false)}>
+              Cancel
+            </Button>
+          )}
         </div>
       </div>
 
-      {/* Category Information */}
-      <LazySection
-        strategy="immediate"
-        showSkeleton
-        skeletonVariant="card"
-        skeletonCount={1}
-        threshold={0.1}
-      >
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center justify-between">
-              <span className="flex items-center">
-                <FileText className="mr-2 h-5 w-5" />
-                Category Information
-              </span>
-              <StatusBadge status={category.isActive ? 'active' : 'inactive'} />
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-muted-foreground">Description</label>
-                <p className="text-sm">{category.description}</p>
-              </div>
+      {!isEditing ? (
+        <div className="space-y-6">
+          {/* Summary Cards */}
+          <div className="grid gap-4 md:grid-cols-3">
+            <StatCard
+              title="Status"
+              value={category.isActive ? 'Active' : 'Inactive'}
+              icon={Tag}
+              accent={category.isActive ? 'success' : 'secondary'}
+            />
+            <StatCard
+              title="Total Received"
+              value={formatCurrency(totalGenerated || category.totalIncome || 0)}
+              icon={BadgeCent}
+              accent="primary"
+            />
+            <StatCard
+              title="Recorded Entries"
+              value={String(records.length || category.recordCount || 0)}
+              icon={FolderOpen}
+              accent="accent"
+            />
+          </div>
 
-              {category.code && (
-                <div className="space-y-2">
-                  <label className="text-sm font-medium text-muted-foreground">Category Code</label>
-                  <p className="text-sm font-mono">{category.code}</p>
+          {/* Details Card */}
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base">Category Information</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
+                <div>
+                  <span className="text-xs text-muted-foreground block">Code</span>
+                  <span className="font-medium">{category.code || '—'}</span>
                 </div>
-              )}
+                <div>
+                  <span className="text-xs text-muted-foreground block">Created</span>
+                  <span className="font-medium">
+                    {new Date(category.createdAt).toLocaleDateString()}
+                  </span>
+                </div>
+                <div className="sm:col-span-2">
+                  <span className="text-xs text-muted-foreground block">Description</span>
+                  <p className="mt-1 text-foreground">
+                    {category.description || 'No description provided.'}
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
 
+          {/* Associated Income Transactions */}
+          <Card>
+            <CardHeader className="pb-3">
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-base font-semibold">Recent Transactions</CardTitle>
+                <span className="text-xs text-muted-foreground">
+                  {records.length} transactions
+                </span>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <DataTable
+                columns={columns}
+                data={records}
+                recordLabel="transaction"
+                searchKey="description"
+                searchPlaceholder="Search category transactions..."
+              />
+            </CardContent>
+          </Card>
+        </div>
+      ) : (
+        /* Edit Mode Form matching Giving Layout */
+        <form onSubmit={handleUpdate} className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base">Category Details</CardTitle>
+            </CardHeader>
+            <CardContent className="grid gap-4 md:grid-cols-2">
               <div className="space-y-2">
-                <label className="text-sm font-medium text-muted-foreground">Created</label>
-                <p className="text-sm">{new Date(category.createdAt).toLocaleDateString()}</p>
-              </div>
-
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-muted-foreground">Last Updated</label>
-                <p className="text-sm">{new Date(category.updatedAt).toLocaleDateString()}</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </LazySection>
-
-      {/* Statistics Cards */}
-      <LazySection
-        strategy="immediate"
-        showSkeleton
-        skeletonVariant="card"
-        skeletonCount={4}
-        threshold={0.1}
-        className="grid gap-4 md:grid-cols-2 lg:grid-cols-4"
-      >
-        <StatCard
-          title="Total Income"
-          value={formatCurrency(statistics.totalIncome)}
-          icon={BadgeCent}
-          accent="success"
-        />
-
-        <StatCard
-          title="Pending Income"
-          value={formatCurrency(statistics.pendingIncome)}
-          icon={TrendingUp}
-          accent="accent"
-        />
-
-        <StatCard
-          title="Income Records"
-          value={statistics.recordCount}
-          icon={FileText}
-          accent="primary"
-        />
-
-        <StatCard
-          title="Last Income"
-          value={
-            statistics.lastIncomeDate
-              ? new Date(statistics.lastIncomeDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
-              : 'None'
-          }
-          icon={Calendar}
-          accent="secondary"
-        />
-      </LazySection>
-
-      {/* Income Records Table */}
-      <LazySection
-        strategy="immediate"
-        showSkeleton
-        skeletonVariant="table"
-        skeletonCount={5}
-        threshold={0.1}
-      >
-        <Card>
-          <CardHeader>
-            <div className="flex items-center justify-between">
-              <div>
-                <CardTitle>Income Records</CardTitle>
-              </div>
-              <Button asChild>
-                <Link href="/dashboard/finance/income/add">
-                  <Plus className="mr-2 h-4 w-4" />
-                  Add Income
-                </Link>
-              </Button>
-            </div>
-          </CardHeader>
-          <CardContent>
-            {/* Search */}
-            <div className="flex items-center space-x-4 mb-4">
-              <div className="flex-1">
+                <Label htmlFor="name">
+                  Category Name <span className="text-destructive">*</span>
+                </Label>
                 <Input
-                  placeholder="Search income records..."
-                  value={globalFilter}
-                  onChange={(e) => setGlobalFilter(e.target.value)}
+                  id="name"
+                  value={form.name}
+                  onChange={(e) => setForm({ ...form, name: e.target.value })}
+                  required
                 />
               </div>
-              <Button variant="outline" size="sm">
-                <Filter className="mr-2 h-4 w-4" />
-                Filter
-              </Button>
-            </div>
 
-            {/* Data Table */}
-            <div className="rounded-md border">
-              <Table>
-                <TableHeader>
-                  {table.getHeaderGroups().map((headerGroup) => (
-                    <TableRow key={headerGroup.id}>
-                      {headerGroup.headers.map((header) => (
-                        <TableHead key={header.id}>
-                          {header.isPlaceholder
-                            ? null
-                            : flexRender(
-                              header.column.columnDef.header,
-                              header.getContext()
-                            )}
-                        </TableHead>
-                      ))}
-                    </TableRow>
-                  ))}
-                </TableHeader>
-                <TableBody>
-                  {table.getRowModel().rows?.length ? (
-                    table.getRowModel().rows.map((row) => (
-                      <TableRow
-                        key={row.id}
-                        data-state={row.getIsSelected() && "selected"}
-                      >
-                        {row.getVisibleCells().map((cell) => (
-                          <TableCell key={cell.id}>
-                            {flexRender(
-                              cell.column.columnDef.cell,
-                              cell.getContext()
-                            )}
-                          </TableCell>
-                        ))}
-                      </TableRow>
-                    ))
-                  ) : (
-                    <TableRow>
-                      <TableCell
-                        colSpan={columns.length}
-                        className="h-24 text-center"
-                      >
-                        No income records found for this category.
-                      </TableCell>
-                    </TableRow>
-                  )}
-                </TableBody>
-              </Table>
-            </div>
+              <div className="space-y-2">
+                <Label htmlFor="code">Category Code</Label>
+                <Input
+                  id="code"
+                  value={form.code}
+                  onChange={(e) => setForm({ ...form, code: e.target.value })}
+                />
+              </div>
 
-            {/* Pagination */}
-            <div className="flex items-center justify-between space-x-2 py-4">
-              <div className="text-sm text-muted-foreground">
-                Showing {table.getFilteredRowModel().rows.length} of{' '}
-                {incomeRecords.length} records
+              <div className="space-y-2 md:col-span-2">
+                <Label htmlFor="description">Description</Label>
+                <Textarea
+                  id="description"
+                  rows={3}
+                  value={form.description}
+                  onChange={(e) => setForm({ ...form, description: e.target.value })}
+                />
               </div>
-              <div className="flex items-center space-x-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => table.previousPage()}
-                  disabled={!table.getCanPreviousPage()}
-                >
-                  Previous
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => table.nextPage()}
-                  disabled={!table.getCanNextPage()}
-                >
-                  Next
-                </Button>
+
+              <div className="flex items-center justify-between rounded-lg border p-3.5 md:col-span-2">
+                <div className="space-y-0.5">
+                  <Label htmlFor="edit-status" className="text-sm font-medium cursor-pointer">
+                    Active Status
+                  </Label>
+                  <p className="text-xs text-muted-foreground">
+                    Active categories are selectable when recording new income transactions.
+                  </p>
+                </div>
+                <Switch
+                  id="edit-status"
+                  checked={form.isActive}
+                  onCheckedChange={(checked) => setForm({ ...form, isActive: checked })}
+                  aria-label="Active Status"
+                />
               </div>
-            </div>
-          </CardContent>
-        </Card>
-      </LazySection>
+            </CardContent>
+          </Card>
+
+          <div className="flex items-center justify-end gap-3">
+            <Button type="button" variant="outline" onClick={() => setIsEditing(false)}>
+              Cancel
+            </Button>
+            <Button type="submit" disabled={saving}>
+              <Save className="mr-1.5 h-4 w-4" />
+              {saving ? 'Saving...' : 'Save Changes'}
+            </Button>
+          </div>
+        </form>
+      )}
+
+      {/* Delete Dialog */}
+      <DeleteDialog
+        isOpen={deleteDialog.isOpen}
+        onOpenChange={deleteDialog.closeDialog}
+        onConfirm={handleDelete}
+        title="Delete Income Category"
+        description="Are you sure you want to delete this category? Historical transactions will remain preserved."
+        itemName={category.name}
+        loading={deleteDialog.loading}
+      />
     </div>
   );
 }

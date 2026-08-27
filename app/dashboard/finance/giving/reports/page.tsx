@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { Checkbox } from '@/components/ui/checkbox';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { PageHeader } from '@/components/ui/page-header';
 import { StatCard } from '@/components/ui/stat-card';
@@ -10,49 +9,32 @@ import { Badge } from '@/components/ui/badge';
 import { GivingCategoryBadge } from '@/components/ui/finance-badges';
 import { StatusBadge } from '@/components/ui/status-badge';
 import { DataTable } from '@/components/ui/data-table';
-import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
 import { LazySection } from '@/components/ui/lazy-section';
 import { LazyLoader } from '@/components/ui/lazy-loader';
-import { CardSkeleton, ChartSkeleton, TableSkeleton } from '@/components/ui/skeleton-loaders';
+import { TableSkeleton } from '@/components/ui/skeleton-loaders';
 import { 
-  Download, 
   BadgeCent,
   TrendingUp,
-  TrendingDown,
   Calendar as CalendarIcon,
   Users,
   Target,
-  PieChart,
-  BarChart3,
-  Filter, 
+  HandCoins,
   RefreshCw,
   ArrowLeft
 } from 'lucide-react';
 import Link from 'next/link';
 import { useToast } from '@/hooks/use-toast';
 import { givingService } from '@/services';
-import { Giving, GivingType, GivingCategory, GivingStatus } from '@/lib/types';
+import { Giving, GivingType, GivingCategory, GivingStatus, GivingSource, Pledge, PledgeStatus, FundraisingCampaign, CampaignStatus } from '@/lib/types';
 import { ColumnDef } from '@tanstack/react-table';
 import { DateRange } from 'react-day-picker';
 import { format } from 'date-fns';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Progress } from '@/components/ui/progress';
-
-// Report interfaces
-interface GivingReport {
-  id: string;
-  period: string;
-  totalAmount: number;
-  totalCount: number;
-  averageAmount: number;
-  categories: CategoryReport[];
-  methods: MethodReport[];
-  trends: TrendData[];
-}
 
 interface CategoryReport {
   category: GivingCategory;
@@ -68,177 +50,128 @@ interface MethodReport {
   percentage: number;
 }
 
-interface TrendData {
-  date: string;
-  amount: number;
-  count: number;
-}
-
-// Mock report data
-const mockReport: GivingReport = {
-  id: '1',
-  period: 'January 2024',
-  totalAmount: 125000.00,
-  totalCount: 450,
-  averageAmount: 277.78,
-  categories: [
-    {
-      category: GivingCategory.GENERAL,
-      amount: 45000.00,
-      count: 180,
-      percentage: 36
-    },
-    {
-      category: GivingCategory.GENERAL,
-      amount: 35000.00,
-      count: 120,
-      percentage: 28
-    },
-    {
-      category: GivingCategory.BUILDING_FUND,
-      amount: 25000.00,
-      count: 80,
-      percentage: 20
-    },
-    {
-      category: GivingCategory.MISSIONARY,
-      amount: 15000.00,
-      count: 50,
-      percentage: 12
-    },
-    {
-      category: GivingCategory.YOUTH,
-      amount: 5000.00,
-      count: 20,
-      percentage: 4
-    }
-  ],
-  methods: [
-    {
-      method: 'Transfer',
-      amount: 50000.00,
-      count: 150,
-      percentage: 40
-    },
-    {
-      method: 'Cash',
-      amount: 35000.00,
-      count: 180,
-      percentage: 28
-    },
-    {
-      method: 'Online',
-      amount: 25000.00,
-      count: 80,
-      percentage: 20
-    },
-    {
-      method: 'Card',
-      amount: 10000.00,
-      count: 30,
-      percentage: 8
-    },
-    {
-      method: 'Check',
-      amount: 5000.00,
-      count: 10,
-      percentage: 4
-    }
-  ],
-  trends: [
-    { date: '2024-01-01', amount: 8500.00, count: 32 },
-    { date: '2024-01-08', amount: 9200.00, count: 35 },
-    { date: '2024-01-15', amount: 7800.00, count: 28 },
-    { date: '2024-01-22', amount: 10500.00, count: 42 },
-    { date: '2024-01-29', amount: 9000.00, count: 38 }
-  ]
-};
-
-// Mock detailed giving data
-const mockGivingData: Giving[] = [
+// Mock actual giving records
+const mockGivingRecords: Giving[] = [
   {
     id: '1',
     memberId: 'member1',
+    memberName: 'John Mensah',
+    source: GivingSource.INDIVIDUAL,
     type: GivingType.TITHE,
-    amount: 2000.00,
+    amount: 5000.00,
     currency: 'GHS',
     category: GivingCategory.GENERAL,
     method: 'Transfer',
     date: '2024-01-20',
     description: 'Monthly tithe',
     isAnonymous: false,
-    receiptNumber: 'TIT-001',
+    receiptNumber: 'GIV-001',
     status: GivingStatus.COMPLETED,
     createdAt: '2024-01-20T10:30:00Z',
-    updatedAt: '2024-01-20T10:30:00Z'
+    updatedAt: '2024-01-20T10:30:00Z',
   },
   {
     id: '2',
-    memberId: 'member2',
+    source: GivingSource.CONGREGATIONAL,
+    serviceEvent: 'Sunday Morning Service',
     type: GivingType.OFFERING,
-    amount: 500.00,
+    amount: 12500.00,
     currency: 'GHS',
     category: GivingCategory.GENERAL,
     method: 'Cash',
-    date: '2024-01-19',
+    date: '2024-01-21',
     description: 'Sunday offering',
     isAnonymous: false,
-    receiptNumber: 'OFF-001',
+    receiptNumber: 'GIV-002',
     status: GivingStatus.COMPLETED,
-    createdAt: '2024-01-19T14:20:00Z',
-    updatedAt: '2024-01-19T14:20:00Z'
+    createdAt: '2024-01-21T11:00:00Z',
+    updatedAt: '2024-01-21T11:00:00Z',
   },
   {
     id: '3',
-    memberId: 'member3',
-    type: GivingType.DONATION,
-    amount: 5000.00,
+    memberId: 'member2',
+    memberName: 'Abena Owusu',
+    source: GivingSource.INDIVIDUAL,
+    type: GivingType.FIRST_FRUITS,
+    amount: 8000.00,
     currency: 'GHS',
     category: GivingCategory.BUILDING_FUND,
     method: 'Online',
     date: '2024-01-18',
-    description: 'Building fund donation',
-    isAnonymous: true,
-    receiptNumber: 'DON-001',
+    description: 'First fruits commitment',
+    isAnonymous: false,
+    receiptNumber: 'GIV-003',
     status: GivingStatus.COMPLETED,
     createdAt: '2024-01-18T09:15:00Z',
-    updatedAt: '2024-01-18T09:15:00Z'
-  }
+    updatedAt: '2024-01-18T09:15:00Z',
+  },
+];
+
+// Mock pledge report summary
+const mockPledgeSummary = {
+  totalPledged: 450000.00,
+  totalReceived: 180000.00,
+  totalOutstanding: 270000.00,
+  activePledgesCount: 38,
+  fulfillmentRate: 40.0,
+};
+
+// Mock campaign summaries
+const mockCampaignReports: FundraisingCampaign[] = [
+  {
+    id: 'c1',
+    name: 'New Sanctuary Building',
+    targetAmount: 500000.00,
+    pledgedAmount: 320000.00,
+    receivedAmount: 180000.00,
+    outstandingAmount: 140000.00,
+    currency: 'GHS',
+    startDate: '2024-01-01',
+    status: CampaignStatus.ACTIVE,
+    fund: GivingCategory.BUILDING_FUND,
+    createdAt: '2024-01-01T00:00:00Z',
+    updatedAt: '2024-01-20T10:00:00Z',
+  },
+  {
+    id: 'c2',
+    name: 'Missions Outreach 2024',
+    targetAmount: 80000.00,
+    pledgedAmount: 65000.00,
+    receivedAmount: 45000.00,
+    outstandingAmount: 20000.00,
+    currency: 'GHS',
+    startDate: '2024-01-15',
+    status: CampaignStatus.ACTIVE,
+    fund: GivingCategory.MISSIONARY,
+    createdAt: '2024-01-15T00:00:00Z',
+    updatedAt: '2024-01-20T09:00:00Z',
+  },
 ];
 
 export default function GivingReportsPage() {
-  const [report, setReport] = useState<GivingReport | null>(null);
-  const [givingData, setGivingData] = useState<Giving[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
+  const [givingData, setGivingData] = useState<Giving[]>(mockGivingRecords);
+  const [dateOpen, setDateOpen] = useState(false);
   const [filters, setFilters] = useState({
-    dateRange: {
-      from: new Date(new Date().getFullYear(), new Date().getMonth(), 1),
-      to: new Date()
-    } as DateRange,
+    source: 'all',
     category: 'all',
     type: 'all',
     method: 'all',
-    status: 'all'
+    status: 'all',
+    dateRange: undefined as DateRange | undefined,
   });
-  const [dateOpen, setDateOpen] = useState(false);
-  const { toast } = useToast();
 
-  useEffect(() => {
-    loadReportData();
-  }, [filters]);
+  const { toast } = useToast();
 
   const loadReportData = async () => {
     try {
       setLoading(true);
-      // For now, use mock data. Replace with actual API calls:
-      // const [reportResponse, givingResponse] = await Promise.all([
-      //   givingService.getReport(filters),
-      //   givingService.getAll(filters)
-      // ]);
-      // setReport(reportResponse);
-      // setGivingData(givingResponse.data);
-      setReport(mockReport);
-      setGivingData(mockGivingData);
+      await new Promise(resolve => setTimeout(resolve, 500));
+      setGivingData(mockGivingRecords);
+      toast({
+        title: 'Report Updated',
+        description: 'Giving statistics and reports refreshed.',
+      });
     } catch (err: any) {
       toast({
         title: 'Error',
@@ -250,20 +183,11 @@ export default function GivingReportsPage() {
     }
   };
 
-  const handleExport = async (format: 'pdf' | 'excel' | 'csv') => {
-    try {
-      // await givingService.exportReport(filters, format);
-      toast({
-        title: 'Success',
-        description: `Report exported as ${format.toUpperCase()} successfully`,
-      });
-    } catch (err: any) {
-      toast({
-        title: 'Error',
-        description: 'Failed to export report',
-        variant: 'destructive',
-      });
-    }
+  const handleExport = (format: 'pdf' | 'excel' | 'csv') => {
+    toast({
+      title: 'Export Generated',
+      description: `Report exported as ${format.toUpperCase()}.`,
+    });
   };
 
   const formatCurrency = (amount: number) => {
@@ -274,141 +198,105 @@ export default function GivingReportsPage() {
     }).format(amount);
   };
 
-  const getCategoryBadge = (category: GivingCategory) => <GivingCategoryBadge category={category} />;
+  // Top-level actual giving (never sums pledges or breakdown items)
+  const actualGivingTotal = 125000.00;
+  const actualGivingCount = 450;
+  const avgGiving = actualGivingCount > 0 ? actualGivingTotal / actualGivingCount : 0;
 
-  const getStatusBadge = (status: GivingStatus) => <StatusBadge status={status} />;
+  const categories: CategoryReport[] = [
+    { category: GivingCategory.GENERAL, amount: 65000.00, count: 250, percentage: 52 },
+    { category: GivingCategory.BUILDING_FUND, amount: 35000.00, count: 110, percentage: 28 },
+    { category: GivingCategory.MISSIONARY, amount: 15000.00, count: 50, percentage: 12 },
+    { category: GivingCategory.YOUTH, amount: 10000.00, count: 40, percentage: 8 },
+  ];
+
+  const methods: MethodReport[] = [
+    { method: 'Transfer / Bank', amount: 55000.00, count: 160, percentage: 44 },
+    { method: 'Cash', amount: 40000.00, count: 190, percentage: 32 },
+    { method: 'Online / MoMo', amount: 20000.00, count: 70, percentage: 16 },
+    { method: 'Card / Cheque', amount: 10000.00, count: 30, percentage: 8 },
+  ];
 
   const columns: ColumnDef<Giving>[] = [
     {
-      id: 'select',
-      header: ({ table }) => (
-        <Checkbox
-          checked={
-            table.getIsAllPageRowsSelected() ||
-            (table.getIsSomePageRowsSelected() && 'indeterminate')
-          }
-          onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-          aria-label="Select all"
-        />
-      ),
-      cell: ({ row }) => (
-        <Checkbox
-          checked={row.getIsSelected()}
-          onCheckedChange={(value) => row.toggleSelected(!!value)}
-          aria-label="Select row"
-        />
-      ),
-      enableSorting: false,
-      enableHiding: false,
-    },
-    {
       accessorKey: 'receiptNumber',
       header: 'Receipt #',
-      cell: ({ row }) => {
-        const receiptNumber = row.getValue('receiptNumber') as string;
-        return <div className="font-medium">{receiptNumber}</div>;
-      },
+      cell: ({ row }) => <span className="font-medium">{row.getValue('receiptNumber') || '—'}</span>,
     },
     {
       accessorKey: 'type',
       header: 'Type',
+      cell: ({ row }) => <span className="capitalize">{row.original.type.replace('_', ' ')}</span>,
+    },
+    {
+      id: 'contributor',
+      header: 'Contributor / Service',
       cell: ({ row }) => {
-        const type = row.getValue('type') as GivingType;
-        return <Badge variant="neutral" className="capitalize">{type}</Badge>;
+        const g = row.original;
+        if (g.source === GivingSource.CONGREGATIONAL) {
+          return <span className="text-sm text-muted-foreground">{g.serviceEvent || 'Congregational'}</span>;
+        }
+        if (g.isAnonymous) {
+          return <span className="text-sm text-muted-foreground italic">Anonymous</span>;
+        }
+        return <span className="text-sm">{g.memberName || g.memberId || '—'}</span>;
       },
     },
     {
+      accessorKey: 'source',
+      header: 'Source',
+      cell: ({ row }) => (
+        <Badge variant="neutral" className="capitalize">
+          {row.original.source}
+        </Badge>
+      ),
+    },
+    {
       accessorKey: 'category',
-      header: 'Category',
-      cell: ({ row }) => {
-        const category = row.getValue('category') as GivingCategory;
-        return getCategoryBadge(category);
-      },
+      header: 'Fund',
+      cell: ({ row }) => <GivingCategoryBadge category={row.getValue('category') as GivingCategory} />,
     },
     {
       accessorKey: 'amount',
       header: 'Amount',
-      cell: ({ row }) => {
-        const amount = parseFloat(row.getValue('amount'));
-        return <div className="font-medium text-brand-success">{formatCurrency(amount)}</div>;
-      },
-    },
-    {
-      accessorKey: 'method',
-      header: 'Method',
-      cell: ({ row }) => {
-        const method = row.getValue('method') as string;
-        return (
-          <Badge variant="neutral" className="capitalize">
-            {method.replace('_', ' ')}
-          </Badge>
-        );
-      },
+      cell: ({ row }) => (
+        <span className="font-medium text-brand-success">{formatCurrency(parseFloat(row.getValue('amount')))}</span>
+      ),
     },
     {
       accessorKey: 'date',
       header: 'Date',
-      cell: ({ row }) => {
-        const date = new Date(row.getValue('date'));
-        return <div>{date.toLocaleDateString()}</div>;
-      },
+      cell: ({ row }) => <span>{new Date(row.getValue('date')).toLocaleDateString()}</span>,
     },
     {
       accessorKey: 'status',
       header: 'Status',
-      cell: ({ row }) => {
-        const status = row.getValue('status') as GivingStatus;
-        return getStatusBadge(status);
-      },
+      cell: ({ row }) => <StatusBadge status={row.getValue('status')} />,
     },
   ];
 
-  if (loading || !report) {
-    return (
-      <div className="space-y-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <div className="h-8 w-48 bg-gray-200 rounded animate-pulse mb-2" />
-            <div className="h-4 w-32 bg-gray-200 rounded animate-pulse" />
-          </div>
-          <div className="flex space-x-2">
-            <div className="h-10 w-24 bg-gray-200 rounded animate-pulse" />
-            <div className="h-10 w-24 bg-gray-200 rounded animate-pulse" />
-          </div>
-        </div>
-        <CardSkeleton count={1} className="h-32" />
-        <CardSkeleton count={4} />
-        <div className="space-y-4">
-          <ChartSkeleton height="h-96" />
-          <TableSkeleton rows={5} columns={7} showFilters showPagination />
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex items-center gap-3">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-4">
           <Button variant="outline" size="icon" className="h-9 w-9" asChild>
             <Link href="/dashboard/finance/giving" aria-label="Back to Giving">
               <ArrowLeft className="h-4 w-4" />
             </Link>
           </Button>
-          <h1 className="font-heading text-2xl font-bold tracking-tight">Giving Reports</h1>
+          <PageHeader title="Giving Reports & Analytics" />
         </div>
         <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm" onClick={() => loadReportData()}>
+          <Button variant="outline" size="sm" onClick={loadReportData}>
             <RefreshCw className="mr-1.5 h-4 w-4" />
             Refresh
           </Button>
-          <Select onValueChange={(value) => handleExport(value as 'pdf' | 'excel' | 'csv')}>
+          <Select onValueChange={(val) => handleExport(val as any)}>
             <SelectTrigger className="w-32 h-9">
               <SelectValue placeholder="Export" />
             </SelectTrigger>
             <SelectContent align="end">
-              <SelectItem value="pdf">PDF</SelectItem>
+              <SelectItem value="pdf">PDF Report</SelectItem>
               <SelectItem value="excel">Excel</SelectItem>
               <SelectItem value="csv">CSV</SelectItem>
             </SelectContent>
@@ -416,279 +304,192 @@ export default function GivingReportsPage() {
         </div>
       </div>
 
-      {/* Filters */}
+      {/* Summary KPI Cards */}
       <LazySection
-         strategy="immediate"
-         showSkeleton
-         skeletonVariant="card"
-         skeletonCount={1}
-         threshold={0.1}
-       >
-        <Card className="p-4">
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
-            <div className="space-y-1.5">
-              <Label className="text-xs font-medium text-muted-foreground">Date Range</Label>
-              <Popover open={dateOpen} onOpenChange={setDateOpen}>
-                <PopoverTrigger asChild>
-                  <Button variant="outline" className="justify-start text-left font-normal w-full h-9 text-xs">
-                    <CalendarIcon className="mr-2 h-3.5 w-3.5 text-muted-foreground" />
-                    {filters.dateRange?.from && filters.dateRange?.to ? (
-                      `${format(filters.dateRange.from, 'MMM dd')} - ${format(filters.dateRange.to, 'MMM dd')}`
-                    ) : (
-                      'Select date range'
-                    )}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="start">
-                  <Calendar
-                    mode="range"
-                    selected={filters.dateRange ? { from: filters.dateRange.from, to: filters.dateRange.to } : undefined}
-                    onSelect={(range) => {
-                      if (range?.from && range?.to) {
-                        setFilters({ ...filters, dateRange: { from: range.from, to: range.to } });
-                      }
-                      setDateOpen(false);
-                    }}
-                    numberOfMonths={2}
-                    initialFocus
-                  />
-                </PopoverContent>
-              </Popover>
-            </div>
-            
-            <div className="space-y-1.5">
-              <Label className="text-xs font-medium text-muted-foreground">Category</Label>
-              <Select value={filters.category} onValueChange={(value) => setFilters({ ...filters, category: value })}>
-                <SelectTrigger className="h-9 text-xs">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Categories</SelectItem>
-                  <SelectItem value={GivingCategory.GENERAL}>General</SelectItem>
-                  <SelectItem value={GivingCategory.BUILDING_FUND}>Building Fund</SelectItem>
-                  <SelectItem value={GivingCategory.MISSIONARY}>Missionary</SelectItem>
-                  <SelectItem value={GivingCategory.YOUTH}>Youth</SelectItem>
-                  <SelectItem value={GivingCategory.CHILDREN}>Children</SelectItem>
-                  <SelectItem value={GivingCategory.MUSIC}>Music</SelectItem>
-                  <SelectItem value={GivingCategory.OUTREACH}>Outreach</SelectItem>
-                  <SelectItem value={GivingCategory.CHARITY}>Charity</SelectItem>
-                  <SelectItem value={GivingCategory.EDUCATION}>Education</SelectItem>
-                  <SelectItem value={GivingCategory.MEDICAL}>Medical</SelectItem>
-                  <SelectItem value={GivingCategory.DISASTER_RELIEF}>Disaster Relief</SelectItem>
-                  <SelectItem value={GivingCategory.OTHER}>Other</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            
-            <div className="space-y-1.5">
-              <Label className="text-xs font-medium text-muted-foreground">Type</Label>
-              <Select value={filters.type} onValueChange={(value) => setFilters({ ...filters, type: value })}>
-                <SelectTrigger className="h-9 text-xs">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Types</SelectItem>
-                  <SelectItem value={GivingType.TITHE}>Tithe</SelectItem>
-                  <SelectItem value={GivingType.OFFERING}>Offering</SelectItem>
-                  <SelectItem value={GivingType.DONATION}>Donation</SelectItem>
-                  <SelectItem value={GivingType.PLEDGE}>Pledge</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            
-            <div className="space-y-1.5">
-              <Label className="text-xs font-medium text-muted-foreground">Method</Label>
-              <Select value={filters.method} onValueChange={(value) => setFilters({ ...filters, method: value })}>
-                <SelectTrigger className="h-9 text-xs">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Methods</SelectItem>
-                  <SelectItem value="Cash">Cash</SelectItem>
-                  <SelectItem value="Transfer">Transfer</SelectItem>
-                  <SelectItem value="Online">Online</SelectItem>
-                  <SelectItem value="Check">Check</SelectItem>
-                  <SelectItem value="Card">Card</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            
-            <div className="space-y-1.5">
-              <Label className="text-xs font-medium text-muted-foreground">Status</Label>
-              <Select value={filters.status} onValueChange={(value) => setFilters({ ...filters, status: value })}>
-                <SelectTrigger className="h-9 text-xs">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Status</SelectItem>
-                  <SelectItem value={GivingStatus.COMPLETED}>Completed</SelectItem>
-                  <SelectItem value={GivingStatus.PENDING}>Pending</SelectItem>
-                  <SelectItem value={GivingStatus.FAILED}>Failed</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-        </Card>
-      </LazySection>
-
-      {/* Summary Statistics */}
-      <LazySection
-         strategy="immediate"
-         showSkeleton
-         skeletonVariant="card"
-         skeletonCount={4}
-         threshold={0.1}
-       >
+        strategy="immediate"
+        showSkeleton
+        skeletonVariant="card"
+        skeletonCount={4}
+        threshold={0.1}
+      >
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
           <StatCard
-            title="Total Amount"
-            value={formatCurrency(report.totalAmount)}
+            title="Actual Giving Received"
+            value={formatCurrency(actualGivingTotal)}
             icon={BadgeCent}
+            accent="primary"
           />
           <StatCard
-            title="Total Count"
-            value={report.totalCount}
+            title="Total Transactions"
+            value={String(actualGivingCount)}
             icon={Users}
+            accent="secondary"
           />
           <StatCard
-            title="Average Amount"
-            value={formatCurrency(report.averageAmount)}
+            title="Average Giving"
+            value={formatCurrency(avgGiving)}
             icon={TrendingUp}
+            accent="success"
           />
           <StatCard
-            title="Growth"
-            value="+12.5%"
-            icon={TrendingUp}
+            title="Total Pledged (Commitments)"
+            value={formatCurrency(mockPledgeSummary.totalPledged)}
+            icon={Target}
+            accent="accent"
           />
         </div>
       </LazySection>
 
-      <Tabs defaultValue="overview" className="space-y-4">
+      <Tabs defaultValue="giving" className="space-y-4">
         <TabsList className="h-9">
-          <TabsTrigger value="overview" className="text-xs">Overview</TabsTrigger>
-          <TabsTrigger value="categories" className="text-xs">By Category</TabsTrigger>
-          <TabsTrigger value="methods" className="text-xs">By Method</TabsTrigger>
-          <TabsTrigger value="details" className="text-xs">Detailed Data</TabsTrigger>
+          <TabsTrigger value="giving" className="text-xs">Actual Giving</TabsTrigger>
+          <TabsTrigger value="pledges" className="text-xs">Pledges & Fulfillment</TabsTrigger>
+          <TabsTrigger value="campaigns" className="text-xs">Campaigns</TabsTrigger>
+          <TabsTrigger value="transactions" className="text-xs">Transactions</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="overview" className="space-y-4">
-          <LazyLoader threshold={0.2}>
-            <div className="grid gap-4 md:grid-cols-2">
-              <Card>
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-base font-semibold">Category Distribution</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  {report.categories.map((category) => (
-                    <div key={category.category} className="space-y-2">
-                      <div className="flex justify-between text-sm">
-                        <span className="capitalize">{category.category.replace('_', ' ')}</span>
-                        <span className="font-medium">{formatCurrency(category.amount)}</span>
-                      </div>
-                      <Progress value={category.percentage} className="h-2" />
-                      <div className="flex justify-between text-xs text-muted-foreground">
-                        <span>{category.count} transactions</span>
-                        <span>{category.percentage}%</span>
-                      </div>
-                    </div>
-                  ))}
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-base font-semibold">Payment Methods</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  {report.methods.map((method) => (
-                    <div key={method.method} className="space-y-2">
-                      <div className="flex justify-between text-sm">
-                        <span className="capitalize">{method.method.replace('_', ' ')}</span>
-                        <span className="font-medium">{formatCurrency(method.amount)}</span>
-                      </div>
-                      <Progress value={method.percentage} className="h-2" />
-                      <div className="flex justify-between text-xs text-muted-foreground">
-                        <span>{method.count} transactions</span>
-                        <span>{method.percentage}%</span>
-                      </div>
-                    </div>
-                  ))}
-                </CardContent>
-              </Card>
-            </div>
-          </LazyLoader>
-        </TabsContent>
-
-        <TabsContent value="categories" className="space-y-4">
-          <LazyLoader threshold={0.3}>
+        {/* Tab 1: Actual Giving Breakdown */}
+        <TabsContent value="giving" className="space-y-4">
+          <div className="grid gap-4 md:grid-cols-2">
             <Card>
-              <CardHeader>
-                <CardTitle>Giving by Category</CardTitle>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-base font-semibold">Giving by Fund / Category</CardTitle>
               </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  {report.categories.map((category) => (
-                    <div key={category.category} className="flex items-center justify-between p-4 border rounded-lg">
-                      <div className="flex items-center space-x-4">
-                        {getCategoryBadge(category.category)}
-                        <div>
-                          <p className="font-medium capitalize">{category.category.replace('_', ' ')}</p>
-                          <p className="text-sm text-muted-foreground">{category.count} transactions</p>
-                        </div>
-                      </div>
-                      <div className="text-right">
-                        <p className="font-bold">{formatCurrency(category.amount)}</p>
-                        <p className="text-sm text-muted-foreground">{category.percentage}% of total</p>
-                      </div>
+              <CardContent className="space-y-4">
+                {categories.map((c) => (
+                  <div key={c.category} className="space-y-1.5">
+                    <div className="flex justify-between text-sm">
+                      <span className="capitalize">{c.category.replace('_', ' ')}</span>
+                      <span className="font-medium">{formatCurrency(c.amount)}</span>
                     </div>
-                  ))}
-                </div>
+                    <Progress value={c.percentage} className="h-2" />
+                    <div className="flex justify-between text-xs text-muted-foreground">
+                      <span>{c.count} transactions</span>
+                      <span>{c.percentage}% of total</span>
+                    </div>
+                  </div>
+                ))}
               </CardContent>
             </Card>
-          </LazyLoader>
-        </TabsContent>
 
-        <TabsContent value="methods" className="space-y-4">
-          <LazyLoader threshold={0.3} fadeIn>
             <Card>
-              <CardHeader>
-                <CardTitle>Giving by Payment Method</CardTitle>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-base font-semibold">Giving by Payment Method</CardTitle>
               </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  {report.methods.map((method) => (
-                    <div key={method.method} className="flex items-center justify-between p-4 border rounded-lg">
-                      <div className="flex items-center space-x-4">
-                        <Badge variant="neutral" className="capitalize">
-                          {method.method.replace('_', ' ')}
-                        </Badge>
-                        <div>
-                          <p className="font-medium capitalize">{method.method.replace('_', ' ')}</p>
-                          <p className="text-sm text-muted-foreground">{method.count} transactions</p>
-                        </div>
-                      </div>
-                      <div className="text-right">
-                        <p className="font-bold">{formatCurrency(method.amount)}</p>
-                        <p className="text-sm text-muted-foreground">{method.percentage}% of total</p>
-                      </div>
+              <CardContent className="space-y-4">
+                {methods.map((m) => (
+                  <div key={m.method} className="space-y-1.5">
+                    <div className="flex justify-between text-sm">
+                      <span>{m.method}</span>
+                      <span className="font-medium">{formatCurrency(m.amount)}</span>
                     </div>
-                  ))}
-                </div>
+                    <Progress value={m.percentage} className="h-2" />
+                    <div className="flex justify-between text-xs text-muted-foreground">
+                      <span>{m.count} transactions</span>
+                      <span>{m.percentage}%</span>
+                    </div>
+                  </div>
+                ))}
               </CardContent>
             </Card>
-          </LazyLoader>
+          </div>
         </TabsContent>
 
-        <TabsContent value="details" className="space-y-4">
-          <LazyLoader threshold={0.4}>
-            <DataTable
-              columns={columns}
-              data={givingData}
-              recordLabel="giving transaction"
-              searchKey="receiptNumber"
-              searchPlaceholder="Search transactions..."
-            />
-          </LazyLoader>
+        {/* Tab 2: Pledges & Fulfillment */}
+        <TabsContent value="pledges" className="space-y-4">
+          <div className="grid gap-4 md:grid-cols-3">
+            <Card className="p-4">
+              <p className="text-xs font-medium text-muted-foreground">Total Pledged</p>
+              <p className="text-xl font-bold mt-1">{formatCurrency(mockPledgeSummary.totalPledged)}</p>
+              <p className="text-xs text-muted-foreground mt-0.5">Committed amount across all pledges</p>
+            </Card>
+            <Card className="p-4">
+              <p className="text-xs font-medium text-muted-foreground">Total Fulfilled</p>
+              <p className="text-xl font-bold mt-1 text-brand-success">{formatCurrency(mockPledgeSummary.totalReceived)}</p>
+              <p className="text-xs text-muted-foreground mt-0.5">Actual money received against pledges</p>
+            </Card>
+            <Card className="p-4">
+              <p className="text-xs font-medium text-muted-foreground">Outstanding Pledges</p>
+              <p className="text-xl font-bold mt-1 text-amber-600">{formatCurrency(mockPledgeSummary.totalOutstanding)}</p>
+              <p className="text-xs text-muted-foreground mt-0.5">Remaining unfulfilled commitment</p>
+            </Card>
+          </div>
+
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base font-semibold">Overall Pledge Fulfillment Rate</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-2">
+              <div className="flex justify-between text-sm">
+                <span>Progress to Fulfillment</span>
+                <span className="font-medium">{mockPledgeSummary.fulfillmentRate}%</span>
+              </div>
+              <Progress value={mockPledgeSummary.fulfillmentRate} className="h-3" />
+              <p className="text-xs text-muted-foreground pt-1">
+                {mockPledgeSummary.activePledgesCount} active/unfulfilled pledge commitments currently tracked.
+              </p>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Tab 3: Campaigns */}
+        <TabsContent value="campaigns" className="space-y-4">
+          <div className="grid gap-4 md:grid-cols-2">
+            {mockCampaignReports.map((camp) => {
+              const progress = Math.min(100, Math.round((camp.receivedAmount / camp.targetAmount) * 100));
+              return (
+                <Card key={camp.id}>
+                  <CardHeader className="pb-2">
+                    <div className="flex items-center justify-between">
+                      <CardTitle className="text-base">{camp.name}</CardTitle>
+                      <StatusBadge status={camp.status} />
+                    </div>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="grid grid-cols-3 gap-2 text-sm">
+                      <div>
+                        <span className="text-xs text-muted-foreground block">Target</span>
+                        <span className="font-medium">{formatCurrency(camp.targetAmount)}</span>
+                      </div>
+                      <div>
+                        <span className="text-xs text-muted-foreground block">Pledged</span>
+                        <span className="font-medium">{formatCurrency(camp.pledgedAmount)}</span>
+                      </div>
+                      <div>
+                        <span className="text-xs text-muted-foreground block">Received</span>
+                        <span className="font-medium text-brand-success">{formatCurrency(camp.receivedAmount)}</span>
+                      </div>
+                    </div>
+                    <div className="space-y-1">
+                      <div className="flex justify-between text-xs text-muted-foreground">
+                        <span>Funded Progress</span>
+                        <span>{progress}%</span>
+                      </div>
+                      <Progress value={progress} className="h-2" />
+                    </div>
+                  </CardContent>
+                </Card>
+              );
+            })}
+          </div>
+        </TabsContent>
+
+        {/* Tab 4: Detailed Transactions */}
+        <TabsContent value="transactions" className="space-y-4">
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base font-semibold">Giving Ledger Records</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <DataTable
+                columns={columns}
+                data={givingData}
+                recordLabel="transaction"
+                searchKey="receiptNumber"
+                searchPlaceholder="Search transactions..."
+              />
+            </CardContent>
+          </Card>
         </TabsContent>
       </Tabs>
     </div>

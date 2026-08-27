@@ -9,21 +9,16 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Switch } from '@/components/ui/switch';
 import { DatePicker } from '@/components/ui/date-picker';
 import { 
   ArrowLeft, 
   Save, 
-  BadgeCent,
   Target,
-  Clock
 } from 'lucide-react';
 import Link from 'next/link';
 import { useToast } from '@/hooks/use-toast';
 import { givingService } from '@/services';
-import { GivingType, GivingCategory, GivingFormData } from '@/lib/types';
-import { cn } from '@/lib/utils';
-import { formatDate } from '@/lib/date-utils';
+import { PledgeFormData } from '@/lib/types';
 
 // Mock members data for selection
 const mockMembers = [
@@ -33,97 +28,53 @@ const mockMembers = [
   { id: 'member4', name: 'Sarah Wilson', email: 'sarah@example.com' },
 ];
 
-interface PledgeFormData extends GivingFormData {
-  memberId: string;
-  installments: number;
-  frequency: 'weekly' | 'bi-weekly' | 'monthly' | 'quarterly' | 'annually';
-  startDate: Date;
-  endDate?: Date;
-  autoCalculateEndDate: boolean;
-}
+// Mock campaigns
+const mockCampaigns = [
+  { id: 'c1', name: 'New Sanctuary Building' },
+  { id: 'c2', name: 'Missions Outreach 2024' },
+  { id: 'c3', name: 'Youth Center Renovation' },
+];
 
 export default function AddPledgePage() {
-  const [formData, setFormData] = useState<PledgeFormData>({
-    memberId: '',
-    type: GivingType.PLEDGE,
-    amount: 0,
-    currency: 'GHS',
-    category: GivingCategory.GENERAL,
-    method: 'Cash',
-    date: new Date().toISOString().split('T')[0],
-    description: '',
-    isAnonymous: false,
-    installments: 12,
-    frequency: 'monthly',
-    startDate: new Date(),
-    autoCalculateEndDate: true,
-  });
-  const [loading, setLoading] = useState(false);
-  const [startDateOpen, setStartDateOpen] = useState(false);
-  const [endDateOpen, setEndDateOpen] = useState(false);
   const router = useRouter();
   const { toast } = useToast();
+  const [loading, setLoading] = useState(false);
 
-  const calculateEndDate = (startDate: Date, installments: number, frequency: string): Date => {
-    const endDate = new Date(startDate);
-    
-    switch (frequency) {
-      case 'weekly':
-        endDate.setDate(endDate.getDate() + (installments * 7));
-        break;
-      case 'bi-weekly':
-        endDate.setDate(endDate.getDate() + (installments * 14));
-        break;
-      case 'monthly':
-        endDate.setMonth(endDate.getMonth() + installments);
-        break;
-      case 'quarterly':
-        endDate.setMonth(endDate.getMonth() + (installments * 3));
-        break;
-      case 'annually':
-        endDate.setFullYear(endDate.getFullYear() + installments);
-        break;
-    }
-    
-    return endDate;
-  };
-
-  const handleInputChange = (field: keyof PledgeFormData, value: any) => {
-    const updatedData = { ...formData, [field]: value };
-    
-    // Auto-calculate end date if enabled
-    if ((field === 'startDate' || field === 'installments' || field === 'frequency') && updatedData.autoCalculateEndDate) {
-      updatedData.endDate = calculateEndDate(updatedData.startDate, updatedData.installments, updatedData.frequency);
-    }
-    
-    setFormData(updatedData);
-  };
+  const [formData, setFormData] = useState<{
+    memberId: string;
+    campaignId: string;
+    pledgedAmount: string;
+    currency: string;
+    pledgeDate: Date;
+    completionDate: Date | undefined;
+    notes: string;
+  }>({
+    memberId: '',
+    campaignId: '',
+    pledgedAmount: '',
+    currency: 'GHS',
+    pledgeDate: new Date(),
+    completionDate: undefined,
+    notes: '',
+  });
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    if (!formData.memberId && !formData.isAnonymous) {
+
+    if (!formData.memberId) {
       toast({
         title: 'Validation Error',
-        description: 'Select a member or mark as anonymous',
+        description: 'Please select a member for the pledge',
         variant: 'destructive',
       });
       return;
     }
-    
-    if (formData.amount <= 0) {
+
+    const amount = parseFloat(formData.pledgedAmount);
+    if (isNaN(amount) || amount <= 0) {
       toast({
         title: 'Validation Error',
-        description: 'Enter an amount greater than 0',
-        variant: 'destructive',
-      });
-      return;
-    }
-    
-    if (formData.installments <= 0) {
-      toast({
-        title: 'Validation Error',
-        description: 'Installments must be greater than 0',
+        description: 'Please enter a valid pledged amount greater than 0',
         variant: 'destructive',
       });
       return;
@@ -131,35 +82,28 @@ export default function AddPledgePage() {
 
     try {
       setLoading(true);
-      
-      const pledgeData = {
-        ...formData,
-        date: formData.startDate.toISOString().split('T')[0],
-        pledgeDetails: {
-          totalAmount: formData.amount,
-          installments: formData.installments,
-          frequency: formData.frequency,
-          startDate: formData.startDate.toISOString().split('T')[0],
-          endDate: formData.endDate?.toISOString().split('T')[0],
-          installmentAmount: formData.amount / formData.installments,
-          fulfilledAmount: 0,
-          remainingAmount: formData.amount,
-          status: 'active'
-        }
+      const payload: PledgeFormData = {
+        memberId: formData.memberId,
+        campaignId: formData.campaignId || undefined,
+        pledgedAmount: amount,
+        currency: formData.currency,
+        pledgeDate: formData.pledgeDate.toISOString().split('T')[0],
+        completionDate: formData.completionDate ? formData.completionDate.toISOString().split('T')[0] : undefined,
+        notes: formData.notes.trim() || undefined,
       };
-      
-      // await givingService.create(pledgeData);
-      
+
+      await new Promise(resolve => setTimeout(resolve, 500));
+
       toast({
-        title: 'Success',
-        description: 'Pledge recorded successfully',
+        title: 'Pledge Created',
+        description: 'The pledge commitment has been recorded successfully.',
       });
-      
+
       router.push('/dashboard/finance/giving/pledges');
     } catch (err: any) {
       toast({
         title: 'Error',
-        description: 'Failed to record pledge',
+        description: err.message || 'Failed to create pledge',
         variant: 'destructive',
       });
     } finally {
@@ -167,38 +111,36 @@ export default function AddPledgePage() {
     }
   };
 
-  const installmentAmount = formData.amount / formData.installments;
-
   return (
-    <div className="space-y-6 max-w-6xl">
-      {/* Header */}
+    <div className="space-y-6">
       <div className="flex items-center gap-4">
         <Button variant="outline" size="icon" className="h-9 w-9" asChild>
           <Link href="/dashboard/finance/giving/pledges" aria-label="Back to Pledges">
             <ArrowLeft className="h-4 w-4" />
           </Link>
         </Button>
-        <div>
-          <h1 className="font-heading text-2xl font-bold tracking-tight">Record New Pledge</h1>
+        <div className="flex-1">
+          <PageHeader
+            title="Create Pledge"
+          />
         </div>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
-        {/* Basic Information */}
-        <Card className="rounded-xl border border-border p-6">
-          <div className="space-y-5">
-            <h2 className="text-base font-semibold text-foreground">Pledge Information</h2>
-
-            <div className="grid grid-cols-12 gap-5 items-end">
-              <div className="col-span-12 sm:col-span-8 space-y-2">
-                <Label htmlFor="member">Member</Label>
-                <Select 
-                  value={formData.memberId} 
-                  onValueChange={(value) => handleInputChange('memberId', value)}
-                  disabled={formData.isAnonymous}
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base font-semibold">Pledge Details</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <div className="grid gap-6 md:grid-cols-2">
+              <div className="space-y-2">
+                <Label htmlFor="memberId">Member <span className="text-destructive">*</span></Label>
+                <Select
+                  value={formData.memberId}
+                  onValueChange={(val) => setFormData({ ...formData, memberId: val })}
                 >
-                  <SelectTrigger id="member">
-                    <SelectValue placeholder={formData.isAnonymous ? "Anonymous pledge" : "Select member"} />
+                  <SelectTrigger id="memberId">
+                    <SelectValue placeholder="Select member" />
                   </SelectTrigger>
                   <SelectContent>
                     {mockMembers.map((member) => (
@@ -210,219 +152,94 @@ export default function AddPledgePage() {
                 </Select>
               </div>
 
-              <div className="col-span-12 sm:col-span-4 flex items-center justify-between rounded-lg border border-border p-3.5">
-                <div className="space-y-0.5">
-                  <Label htmlFor="anonymous" className="text-sm font-medium cursor-pointer">Anonymous Pledge</Label>
-                  <p className="text-xs text-muted-foreground">Keep identity private</p>
-                </div>
-                <Switch
-                  id="anonymous"
-                  checked={formData.isAnonymous}
-                  onCheckedChange={(checked) => {
-                    handleInputChange('isAnonymous', checked);
-                    if (checked) {
-                      handleInputChange('memberId', '');
-                    }
-                  }}
-                />
+              <div className="space-y-2">
+                <Label htmlFor="campaignId">Campaign (Optional)</Label>
+                <Select
+                  value={formData.campaignId}
+                  onValueChange={(val) => setFormData({ ...formData, campaignId: val })}
+                >
+                  <SelectTrigger id="campaignId">
+                    <SelectValue placeholder="Select campaign (or general)" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="none">None / General</SelectItem>
+                    {mockCampaigns.map((camp) => (
+                      <SelectItem key={camp.id} value={camp.id}>
+                        {camp.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
 
-              <div className="col-span-12 sm:col-span-4 space-y-2">
-                <Label htmlFor="amount">Total Pledge Amount *</Label>
-                <div className="relative">
-                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">₵</span>
+              <div className="space-y-2">
+                <Label htmlFor="pledgedAmount">Pledged Amount <span className="text-destructive">*</span></Label>
+                <div className="flex gap-2">
+                  <Select
+                    value={formData.currency}
+                    onValueChange={(val) => setFormData({ ...formData, currency: val })}
+                  >
+                    <SelectTrigger className="w-24">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="GHS">GHS</SelectItem>
+                      <SelectItem value="USD">USD</SelectItem>
+                      <SelectItem value="EUR">EUR</SelectItem>
+                      <SelectItem value="GBP">GBP</SelectItem>
+                    </SelectContent>
+                  </Select>
                   <Input
-                    id="amount"
+                    id="pledgedAmount"
                     type="number"
+                    min="0.01"
                     step="0.01"
-                    min="0"
-                    value={formData.amount || ''}
-                    onChange={(e) => handleInputChange('amount', parseFloat(e.target.value) || 0)}
                     placeholder="0.00"
-                    className="pl-8"
+                    value={formData.pledgedAmount}
+                    onChange={(e) => setFormData({ ...formData, pledgedAmount: e.target.value })}
+                    className="flex-1"
                     required
                   />
                 </div>
               </div>
 
-              <div className="col-span-12 sm:col-span-2 space-y-2">
-                <Label htmlFor="currency">Currency</Label>
-                <Select value={formData.currency} onValueChange={(value) => handleInputChange('currency', value)}>
-                  <SelectTrigger id="currency">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="GHS">GHS (₵)</SelectItem>
-                    <SelectItem value="EUR">EUR (€)</SelectItem>
-                    <SelectItem value="USD">USD ($)</SelectItem>
-                  </SelectContent>
-                </Select>
+              <div className="space-y-2">
+                <Label>Pledge Date <span className="text-destructive">*</span></Label>
+                <DatePicker
+                  value={formData.pledgeDate}
+                  onChange={(d) => d && setFormData({ ...formData, pledgeDate: d })}
+                />
               </div>
 
-              <div className="col-span-12 sm:col-span-3 space-y-2">
-                <Label htmlFor="category">Category *</Label>
-                <Select value={formData.category} onValueChange={(value) => handleInputChange('category', value as GivingCategory)}>
-                  <SelectTrigger id="category">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value={GivingCategory.GENERAL}>General</SelectItem>
-                    <SelectItem value={GivingCategory.BUILDING_FUND}>Building Fund</SelectItem>
-                    <SelectItem value={GivingCategory.MISSIONARY}>Missionary</SelectItem>
-                    <SelectItem value={GivingCategory.YOUTH}>Youth</SelectItem>
-                    <SelectItem value={GivingCategory.CHILDREN}>Children</SelectItem>
-                    <SelectItem value={GivingCategory.MUSIC}>Music</SelectItem>
-                    <SelectItem value={GivingCategory.OUTREACH}>Outreach</SelectItem>
-                    <SelectItem value={GivingCategory.CHARITY}>Charity</SelectItem>
-                    <SelectItem value={GivingCategory.EDUCATION}>Education</SelectItem>
-                    <SelectItem value={GivingCategory.MEDICAL}>Medical</SelectItem>
-                    <SelectItem value={GivingCategory.DISASTER_RELIEF}>Disaster Relief</SelectItem>
-                    <SelectItem value={GivingCategory.OTHER}>Other</SelectItem>
-                  </SelectContent>
-                </Select>
+              <div className="space-y-2">
+                <Label>Expected Completion Date (Optional)</Label>
+                <DatePicker
+                  value={formData.completionDate}
+                  onChange={(d) => setFormData({ ...formData, completionDate: d })}
+                />
               </div>
 
-              <div className="col-span-12 sm:col-span-3 space-y-2">
-                <Label htmlFor="method">Payment Method *</Label>
-                <Select value={formData.method} onValueChange={(value) => handleInputChange('method', value)}>
-                  <SelectTrigger id="method">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Cash">Cash</SelectItem>
-                    <SelectItem value="Mobile Money">Mobile Money</SelectItem>
-                    <SelectItem value="Bank Transfer">Bank Transfer</SelectItem>
-                    <SelectItem value="Check">Check</SelectItem>
-                    <SelectItem value="Card">Card</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="col-span-12 space-y-2">
-                <Label htmlFor="description">Description / Purpose</Label>
+              <div className="space-y-2 md:col-span-2">
+                <Label htmlFor="notes">Notes / Commitment Purpose</Label>
                 <Textarea
-                  id="description"
-                  value={formData.description}
-                  onChange={(e) => handleInputChange('description', e.target.value)}
-                  placeholder="Pledge purpose, campaign name, or designated project..."
+                  id="notes"
+                  placeholder="Additional details regarding the pledge agreement or schedule"
+                  value={formData.notes}
+                  onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
                   rows={3}
                 />
               </div>
             </div>
-          </div>
+          </CardContent>
         </Card>
 
-        {/* Payment Schedule */}
-        <Card className="rounded-xl border border-border p-6">
-          <div className="space-y-5">
-            <h2 className="text-base font-semibold text-foreground">Payment Schedule</h2>
-
-            <div className="grid grid-cols-12 gap-5">
-              <div className="col-span-12 sm:col-span-4 space-y-2">
-                <Label htmlFor="installments">Number of Installments *</Label>
-                <Input
-                  id="installments"
-                  type="number"
-                  min="1"
-                  value={formData.installments}
-                  onChange={(e) => handleInputChange('installments', parseInt(e.target.value) || 1)}
-                  required
-                />
-              </div>
-
-              <div className="col-span-12 sm:col-span-4 space-y-2">
-                <Label htmlFor="frequency">Payment Frequency *</Label>
-                <Select value={formData.frequency} onValueChange={(value) => handleInputChange('frequency', value)}>
-                  <SelectTrigger id="frequency">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="weekly">Weekly</SelectItem>
-                    <SelectItem value="bi-weekly">Bi-weekly</SelectItem>
-                    <SelectItem value="monthly">Monthly</SelectItem>
-                    <SelectItem value="quarterly">Quarterly</SelectItem>
-                    <SelectItem value="annually">Annually</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="col-span-12 sm:col-span-4 space-y-2">
-                <Label>Per Installment</Label>
-                <div className="h-10 px-3 py-2 bg-muted/50 border border-border rounded-md text-sm font-semibold flex items-center">
-                  {new Intl.NumberFormat('en-GH', {
-                    style: 'currency',
-                    currency: 'GHS',
-                    minimumFractionDigits: 2,
-                  }).format(installmentAmount || 0)}
-                </div>
-              </div>
-
-              <div className="col-span-12 sm:col-span-6 space-y-2">
-                <Label htmlFor="startDate">Start Date *</Label>
-                <DatePicker
-                  id="startDate"
-                  value={formData.startDate}
-                  onChange={(date) => {
-                    if (date) handleInputChange('startDate', date);
-                  }}
-                  placeholder="Pick start date"
-                />
-              </div>
-
-              <div className="col-span-12 sm:col-span-6 space-y-2">
-                <div className="flex items-center justify-between">
-                  <Label htmlFor="endDate">End Date</Label>
-                  <div className="flex items-center space-x-2">
-                    <Switch
-                      id="autoEndDate"
-                      checked={formData.autoCalculateEndDate}
-                      onCheckedChange={(checked) => handleInputChange('autoCalculateEndDate', checked)}
-                    />
-                    <Label htmlFor="autoEndDate" className="text-xs text-muted-foreground cursor-pointer">Auto Calculate</Label>
-                  </div>
-                </div>
-                {formData.autoCalculateEndDate ? (
-                  <div className="h-10 px-3 py-2 bg-muted/50 border border-border rounded-md text-sm flex items-center text-muted-foreground">
-                    {formData.endDate ? formatDate(formData.endDate) : 'Calculating...'}
-                  </div>
-                ) : (
-                  <DatePicker
-                    id="endDate"
-                    value={formData.endDate}
-                    onChange={(date) => {
-                      if (date) handleInputChange('endDate', date);
-                    }}
-                    placeholder="Pick end date"
-                  />
-                )}
-              </div>
-            </div>
-          </div>
-        </Card>
-
-        {/* Form Actions */}
-        <div className="flex justify-end gap-3 pt-2">
-          <Button
-            type="button"
-            variant="outline"
-            asChild
-          >
-            <Link href="/dashboard/finance/giving/pledges">
-              Cancel
-            </Link>
+        <div className="flex items-center justify-end gap-3">
+          <Button type="button" variant="outline" asChild>
+            <Link href="/dashboard/finance/giving/pledges">Cancel</Link>
           </Button>
           <Button type="submit" disabled={loading}>
-            {loading ? (
-              <>
-                <div className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-background border-t-transparent" />
-                <span>Recording...</span>
-              </>
-            ) : (
-              <>
-                <Save className="mr-1.5 h-4 w-4" />
-                <span>Record Pledge</span>
-              </>
-            )}
+            <Save className="mr-2 h-4 w-4" />
+            {loading ? 'Creating...' : 'Create Pledge'}
           </Button>
         </div>
       </form>

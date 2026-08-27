@@ -3,308 +3,197 @@
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { useForm } from 'react-hook-form';
-import * as z from 'zod';
-import {
-  ArrowLeft,
-  Save,
-  FileText,
-  Tag,
-  ToggleLeft,
-  ToggleRight,
-  AlertCircle
-} from 'lucide-react';
+import { ArrowLeft, Save } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { PageHeader } from '@/components/ui/page-header';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { LazySection } from '@/components/ui/lazy-section';
-import { toast } from 'sonner';
+import { useToast } from '@/hooks/use-toast';
+import { incomeService } from '@/services';
 
-// Form validation schema
-const categoryFormSchema = z.object({
-  name: z.string()
-    .min(1, 'Category name is required')
-    .max(100, 'Category name must be less than 100 characters')
-    .refine(
-      (name) => !/^\s*$/.test(name),
-      'Category name cannot be only whitespace'
-    ),
-  description: z.string()
-    .min(1, 'Description is required')
-    .max(500, 'Description must be less than 500 characters'),
-  isActive: z.boolean().default(true),
-  code: z.string()
-    .optional()
-    .refine(
-      (code) => !code || /^[A-Z0-9_-]+$/.test(code),
-      'Code must contain only uppercase letters, numbers, hyphens, and underscores'
-    )
-});
-
-type CategoryFormValues = z.infer<typeof categoryFormSchema>;
-
-// Predefined category suggestions
 const categorySuggestions = [
-  {
-    name: 'Hall Rental',
-    description: 'Income from facility rentals for events and ceremonies',
-    code: 'HALL_RENTAL'
-  },
-  {
-    name: 'Book Sales',
-    description: 'Revenue from religious books, materials, and publications',
-    code: 'BOOK_SALES'
-  },
-  {
-    name: 'Grants',
-    description: 'Government and foundation grants for community programs',
-    code: 'GRANTS'
-  },
-  {
-    name: 'Fundraising Events',
-    description: 'Income from organized fundraising activities and campaigns',
-    code: 'FUNDRAISING'
-  },
-  {
-    name: 'Parking Fees',
-    description: 'Revenue from parking permits and daily parking fees',
-    code: 'PARKING'
-  },
-  {
-    name: 'Investment Returns',
-    description: 'Returns from church investments and endowment funds',
-    code: 'INVESTMENTS'
-  },
-  {
-    name: 'Catering Services',
-    description: 'Income from catering services for events and gatherings',
-    code: 'CATERING'
-  },
-  {
-    name: 'Educational Programs',
-    description: 'Revenue from educational courses and training programs',
-    code: 'EDUCATION'
-  }
+  { name: 'Hall Rental', code: 'HALL_RENTAL', description: 'Facility and auditorium rental revenue' },
+  { name: 'Property Rental', code: 'PROPERTY_RENTAL', description: 'Church ground, room, or parking lease income' },
+  { name: 'Book Sales', code: 'BOOK_SALES', description: 'Bookstore, literature, and hymnal sales' },
+  { name: 'Merchandise Sales', code: 'MERCH_SALES', description: 'Apparel, media, and promotional material revenue' },
+  { name: 'Grants', code: 'GRANTS', description: 'Institutional, civic, and foundation grant disbursements' },
+  { name: 'Sponsorships', code: 'SPONSORSHIPS', description: 'Corporate and partner initiative sponsorships' },
+  { name: 'Interest & Investment', code: 'INTEREST_INCOME', description: 'Bank yields and endowment investments' },
+  { name: 'Other Income', code: 'OTHER_INCOME', description: 'Miscellaneous revenue' },
 ];
 
 export default function AddIncomeCategoryPage() {
   const router = useRouter();
+  const { toast } = useToast();
   const [saving, setSaving] = useState(false);
-  const [selectedSuggestion, setSelectedSuggestion] = useState<number | null>(null);
 
-  const form = useForm<CategoryFormValues>({
-    resolver: zodResolver(categoryFormSchema),
-    defaultValues: {
-      name: '',
-      description: '',
-      isActive: true,
-      code: ''
-    }
+  const [form, setForm] = useState({
+    name: '',
+    code: '',
+    description: '',
+    isActive: true,
   });
 
-  const generateCode = (name: string) => {
-    return name
-      .toUpperCase()
-      .replace(/[^A-Z0-9\s]/g, '')
-      .replace(/\s+/g, '_')
-      .substring(0, 20);
+  const selectSuggestion = (s: { name: string; code: string; description: string }) => {
+    setForm({
+      name: s.name,
+      code: s.code,
+      description: s.description,
+      isActive: true,
+    });
   };
 
-  const handleNameChange = (name: string) => {
-    form.setValue('name', name);
-    
-    // Auto-generate code if it's empty
-    const currentCode = form.getValues('code');
-    if (!currentCode) {
-      form.setValue('code', generateCode(name));
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!form.name.trim()) {
+      toast({
+        title: 'Validation Error',
+        description: 'Category Name is required.',
+        variant: 'destructive',
+      });
+      return;
     }
-  };
 
-  const applySuggestion = (suggestion: typeof categorySuggestions[0], index: number) => {
-    form.setValue('name', suggestion.name);
-    form.setValue('description', suggestion.description);
-    form.setValue('code', suggestion.code);
-    setSelectedSuggestion(index);
-  };
-
-  const onSubmit = async (data: CategoryFormValues) => {
     setSaving(true);
-    
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
-      console.log('Creating category:', data);
-      
-      toast.success('Income category created successfully!');
+      await incomeService.createCategory({
+        name: form.name.trim(),
+        code: form.code?.trim() || undefined,
+        description: form.description?.trim() || undefined,
+        isActive: form.isActive,
+      });
+
+      toast({
+        title: 'Category Created',
+        description: `Income category "${form.name}" has been created.`,
+      });
+
       router.push('/dashboard/finance/income/categories');
-    } catch (error) {
-      toast.error('Failed to create category. Please try again.');
+    } catch (err: any) {
+      toast({
+        title: 'Error',
+        description: err.message || 'Failed to create category.',
+        variant: 'destructive',
+      });
     } finally {
       setSaving(false);
     }
   };
 
   return (
-    <div className="space-y-6 max-w-6xl">
+    <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center gap-4">
-        <Button variant="ghost" size="icon" asChild>
-          <Link href="/dashboard/finance/income/categories">
+        <Button variant="outline" size="icon" className="h-9 w-9" asChild>
+          <Link href="/dashboard/finance/income/categories" aria-label="Back">
             <ArrowLeft className="h-4 w-4" />
           </Link>
         </Button>
-        <div>
-          <h1 className="font-heading text-2xl font-bold tracking-tight">Add Income Category</h1>
+        <div className="flex-1">
+          <PageHeader title="New Income Category" />
         </div>
       </div>
 
-      <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-          {/* Quick Suggestions */}
-          <Card className="rounded-xl border border-border p-6">
-            <div className="space-y-4">
-              <h2 className="text-sm font-semibold text-foreground">Quick Templates</h2>
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                {categorySuggestions.map((suggestion, index) => (
-                  <button
-                    key={index}
-                    type="button"
-                    onClick={() => applySuggestion(suggestion, index)}
-                    className={`p-3 rounded-lg border text-left transition-colors ${
-                      selectedSuggestion === index 
-                        ? 'border-primary bg-primary/5 text-foreground' 
-                        : 'border-border hover:bg-muted/40 text-muted-foreground hover:text-foreground'
-                    }`}
-                  >
-                    <div className="font-medium text-xs text-foreground truncate">{suggestion.name}</div>
-                    <div className="text-[11px] text-muted-foreground line-clamp-1 mt-0.5">{suggestion.code}</div>
-                  </button>
-                ))}
-              </div>
-            </div>
-          </Card>
-
-          {/* Category Details */}
-          <Card className="rounded-xl border border-border p-6">
-            <div className="space-y-5">
-              <h2 className="text-base font-semibold text-foreground">Category Details</h2>
-
-              <div className="grid grid-cols-12 gap-5">
-                <FormField
-                  control={form.control}
-                  name="name"
-                  render={({ field }) => (
-                    <FormItem className="col-span-12 sm:col-span-8">
-                      <FormLabel>Category Name *</FormLabel>
-                      <FormControl>
-                        <Input
-                          placeholder="Hall Rental"
-                          {...field}
-                          onChange={(e) => {
-                            field.onChange(e);
-                            handleNameChange(e.target.value);
-                          }}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="code"
-                  render={({ field }) => (
-                    <FormItem className="col-span-12 sm:col-span-4">
-                      <FormLabel>Category Code</FormLabel>
-                      <FormControl>
-                        <Input
-                          placeholder="HALL_RENTAL"
-                          {...field}
-                          className="font-mono uppercase"
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="description"
-                  render={({ field }) => (
-                    <FormItem className="col-span-12 sm:col-span-8">
-                      <FormLabel>Description *</FormLabel>
-                      <FormControl>
-                        <Textarea
-                          placeholder="Income types and transactions belonging to this category..."
-                          rows={3}
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="isActive"
-                  render={({ field }) => (
-                    <FormItem className="col-span-12 sm:col-span-4 flex items-center justify-between rounded-lg border border-border p-3.5 self-start">
-                      <div className="space-y-0.5">
-                        <FormLabel className="text-sm font-medium cursor-pointer">
-                          Active Status
-                        </FormLabel>
-                        <p className="text-xs text-muted-foreground">Available for income records</p>
-                      </div>
-                      <FormControl>
-                        <Switch
-                          checked={field.value}
-                          onCheckedChange={field.onChange}
-                        />
-                      </FormControl>
-                    </FormItem>
-                  )}
-                />
-              </div>
-            </div>
-          </Card>
-
-          {/* Submit Button */}
-          <div className="flex items-center justify-end gap-3 pt-2">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => router.push('/dashboard/finance/income/categories')}
-              disabled={saving}
-            >
-              Cancel
-            </Button>
-            <Button type="submit" disabled={saving}>
-              {saving ? (
-                <>
-                  <div className="mr-1.5 h-4 w-4 animate-spin rounded-full border-2 border-background border-t-transparent" />
-                  Creating...
-                </>
-              ) : (
-                <>
-                  <Save className="mr-1.5 h-4 w-4" />
-                  Create Category
-                </>
-              )}
-            </Button>
+      {/* Suggestions */}
+      <Card>
+        <CardHeader className="pb-2">
+          <CardTitle className="text-sm font-semibold text-muted-foreground">
+            Suggested Category Presets
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="flex flex-wrap gap-2">
+            {categorySuggestions.map((s) => (
+              <Button
+                key={s.code}
+                type="button"
+                variant="outline"
+                size="sm"
+                className="text-xs"
+                onClick={() => selectSuggestion(s)}
+              >
+                + {s.name}
+              </Button>
+            ))}
           </div>
-        </form>
-      </Form>
+        </CardContent>
+      </Card>
+
+      {/* Main Form */}
+      <form onSubmit={handleSubmit} className="space-y-6">
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base">Category Details</CardTitle>
+          </CardHeader>
+          <CardContent className="grid gap-4 md:grid-cols-2">
+            <div className="space-y-2">
+              <Label htmlFor="name">
+                Category Name <span className="text-destructive">*</span>
+              </Label>
+              <Input
+                id="name"
+                placeholder="e.g. Facility Rental"
+                value={form.name}
+                onChange={(e) => setForm({ ...form, name: e.target.value })}
+                required
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="code">Category Code (Optional)</Label>
+              <Input
+                id="code"
+                placeholder="e.g. FACILITY_RENTAL"
+                value={form.code}
+                onChange={(e) => setForm({ ...form, code: e.target.value })}
+              />
+            </div>
+
+            <div className="space-y-2 md:col-span-2">
+              <Label htmlFor="description">Description</Label>
+              <Textarea
+                id="description"
+                placeholder="Explain what revenues are tracked under this category..."
+                rows={3}
+                value={form.description}
+                onChange={(e) => setForm({ ...form, description: e.target.value })}
+              />
+            </div>
+
+            <div className="flex items-center justify-between rounded-lg border p-3.5 md:col-span-2">
+              <div className="space-y-0.5">
+                <Label htmlFor="active-status" className="text-sm font-medium cursor-pointer">
+                  Active Status
+                </Label>
+                <p className="text-xs text-muted-foreground">
+                  Active categories are selectable when recording new income transactions.
+                </p>
+              </div>
+              <Switch
+                id="active-status"
+                checked={form.isActive}
+                onCheckedChange={(checked) => setForm({ ...form, isActive: checked })}
+                aria-label="Active Status"
+              />
+            </div>
+          </CardContent>
+        </Card>
+
+        <div className="flex items-center justify-end gap-3">
+          <Button type="button" variant="outline" asChild>
+            <Link href="/dashboard/finance/income/categories">Cancel</Link>
+          </Button>
+          <Button type="submit" disabled={saving}>
+            <Save className="mr-1.5 h-4 w-4" />
+            {saving ? 'Creating...' : 'Create Category'}
+          </Button>
+        </div>
+      </form>
     </div>
   );
 }

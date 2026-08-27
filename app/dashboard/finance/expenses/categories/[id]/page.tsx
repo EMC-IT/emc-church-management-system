@@ -9,16 +9,15 @@ import {
   Edit,
   Trash2,
   Eye,
-  Filter,
   Download,
   Calendar,
   Wallet,
   Receipt,
   MoreHorizontal,
-  PlusCircle,
+  Plus,
   TrendingUp,
-  TrendingDown,
-  ArrowLeft
+  ArrowLeft,
+  CheckCircle2,
 } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
@@ -26,200 +25,76 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { StatusBadge } from '@/components/ui/status-badge';
 import { DataTable } from '@/components/ui/data-table';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { LazySection } from '@/components/ui/lazy-section';
 import { LazyLoader } from '@/components/ui/lazy-loader';
 import { PageHeader } from '@/components/ui/page-header';
 import { StatCard } from '@/components/ui/stat-card';
-import { Separator } from '@/components/ui/separator';
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
+import { DeleteDialog, useDeleteDialog } from '@/components/ui/delete-dialog';
 import { toast } from 'sonner';
-import { cn } from '@/lib/utils';
-
-// Types
-interface ExpenseCategory {
-  id: string;
-  name: string;
-  description?: string;
-  color: string;
-  expenseCount: number;
-  totalAmount: number;
-  isActive: boolean;
-  createdAt: Date;
-  updatedAt: Date;
-}
-
-interface Expense {
-  id: string;
-  title: string;
-  amount: number;
-  date: Date;
-  vendor: string;
-  paymentMethod: string;
-  receiptNumber?: string;
-  description?: string;
-  createdAt: Date;
-}
-
-// Mock category data
-const mockCategory: ExpenseCategory = {
-  id: '5',
-  name: 'Office Supplies',
-  description: 'Paper, pens, printer supplies, and office equipment',
-  color: '#6B7280',
-  expenseCount: 8,
-  totalAmount: 1250.00,
-  isActive: true,
-  createdAt: new Date('2024-01-01'),
-  updatedAt: new Date('2024-01-05'),
-};
-
-// Mock expenses data for this category
-const mockExpenses: Expense[] = [
-  {
-    id: '1',
-    title: 'Printer Paper & Cartridges',
-    amount: 245.50,
-    date: new Date('2024-01-15'),
-    vendor: 'Office Depot',
-    paymentMethod: 'credit-card',
-    receiptNumber: 'REC-2024-001',
-    description: 'Monthly office supplies including paper and printer cartridges',
-    createdAt: new Date('2024-01-15'),
-  },
-  {
-    id: '2',
-    title: 'Stationery Supplies',
-    amount: 89.99,
-    date: new Date('2024-01-12'),
-    vendor: 'Staples',
-    paymentMethod: 'debit-card',
-    receiptNumber: 'REC-2024-002',
-    description: 'Pens, pencils, notebooks, and folders',
-    createdAt: new Date('2024-01-12'),
-  },
-  {
-    id: '3',
-    title: 'Desk Organizers',
-    amount: 156.75,
-    date: new Date('2024-01-10'),
-    vendor: 'Amazon Business',
-    paymentMethod: 'credit-card',
-    receiptNumber: 'REC-2024-003',
-    description: 'Desk organizers and filing cabinets for admin office',
-    createdAt: new Date('2024-01-10'),
-  },
-  {
-    id: '4',
-    title: 'Whiteboard Markers',
-    amount: 34.99,
-    date: new Date('2024-01-08'),
-    vendor: 'Office Max',
-    paymentMethod: 'cash',
-    description: 'Dry erase markers for meeting rooms',
-    createdAt: new Date('2024-01-08'),
-  },
-  {
-    id: '5',
-    title: 'Copy Paper Bulk Order',
-    amount: 189.00,
-    date: new Date('2024-01-05'),
-    vendor: 'Costco Business',
-    paymentMethod: 'check',
-    receiptNumber: 'REC-2024-004',
-    description: 'Bulk order of copy paper for quarterly supply',
-    createdAt: new Date('2024-01-05'),
-  },
-  {
-    id: '6',
-    title: 'Binders & Folders',
-    amount: 67.25,
-    date: new Date('2024-01-03'),
-    vendor: 'Office Depot',
-    paymentMethod: 'credit-card',
-    description: 'Three-ring binders and manila folders',
-    createdAt: new Date('2024-01-03'),
-  },
-  {
-    id: '7',
-    title: 'Laminator & Supplies',
-    amount: 298.50,
-    date: new Date('2024-01-02'),
-    vendor: 'Best Buy Business',
-    paymentMethod: 'credit-card',
-    receiptNumber: 'REC-2024-005',
-    description: 'Laminator machine and laminating pouches',
-    createdAt: new Date('2024-01-02'),
-  },
-  {
-    id: '8',
-    title: 'Desk Supplies Kit',
-    amount: 168.02,
-    date: new Date('2024-01-01'),
-    vendor: 'Staples',
-    paymentMethod: 'debit-card',
-    description: 'Complete desk supplies kit for new staff member',
-    createdAt: new Date('2024-01-01'),
-  },
-];
-
-const paymentMethods = {
-  'cash': 'Cash',
-  'check': 'Check',
-  'credit-card': 'Credit Card',
-  'debit-card': 'Debit Card',
-  'bank-transfer': 'Bank Transfer',
-  'online-payment': 'Online Payment',
-};
+import { expenseService } from '@/services';
+import { ExpenseCategory, ExpenseRecord } from '@/lib/types';
+import { ColumnDef } from '@tanstack/react-table';
 
 export default function ExpenseCategoryDetailsPage() {
   const router = useRouter();
   const params = useParams();
+  const id = params.id as string;
   const [category, setCategory] = useState<ExpenseCategory | null>(null);
-  const [expenses, setExpenses] = useState<Expense[]>([]);
+  const [expenses, setExpenses] = useState<ExpenseRecord[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [dateFilter, setDateFilter] = useState<'all' | 'this-month' | 'last-month' | 'this-year'>('all');
   const [isLoading, setIsLoading] = useState(true);
-  const [isDeleting, setIsDeleting] = useState(false);
+  const deleteDialog = useDeleteDialog();
+
+  const loadData = async () => {
+    setIsLoading(true);
+    try {
+      const [catData, expRes] = await Promise.all([
+        expenseService.getCategoryById(id),
+        expenseService.getExpenses({ categoryId: id, limit: 100 }),
+      ]);
+      setCategory(catData);
+      setExpenses(expRes.data);
+    } catch (error) {
+      console.error('Error loading category details:', error);
+      toast.error('Failed to load category details');
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   useEffect(() => {
-    // Simulate loading category and expenses data
-    const loadData = async () => {
-      setIsLoading(true);
-      try {
-        // Simulate API call
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        setCategory(mockCategory);
-        setExpenses(mockExpenses);
-      } catch (error) {
-        console.error('Error loading category data:', error);
-        toast.error('Failed to load category details');
-      } finally {
-        setIsLoading(false);
-      }
-    };
+    if (id) {
+      loadData();
+    }
+  }, [id]);
 
-    loadData();
-  }, [params.id]);
-
-  // Filter expenses based on search and date
   const filteredExpenses = useMemo(() => {
-    return expenses.filter(expense => {
-      const matchesSearch = expense.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    return expenses.filter((expense) => {
+      const matchesSearch =
+        expense.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
         expense.vendor.toLowerCase().includes(searchTerm.toLowerCase()) ||
         (expense.description?.toLowerCase().includes(searchTerm.toLowerCase()) ?? false);
 
       let matchesDate = true;
       const now = new Date();
-      const expenseDate = expense.date;
+      const expenseDate = new Date(expense.date);
 
       if (dateFilter === 'this-month') {
-        matchesDate = expenseDate.getMonth() === now.getMonth() &&
+        matchesDate =
+          expenseDate.getMonth() === now.getMonth() &&
           expenseDate.getFullYear() === now.getFullYear();
       } else if (dateFilter === 'last-month') {
         const lastMonth = new Date(now.getFullYear(), now.getMonth() - 1);
-        matchesDate = expenseDate.getMonth() === lastMonth.getMonth() &&
+        matchesDate =
+          expenseDate.getMonth() === lastMonth.getMonth() &&
           expenseDate.getFullYear() === lastMonth.getFullYear();
       } else if (dateFilter === 'this-year') {
         matchesDate = expenseDate.getFullYear() === now.getFullYear();
@@ -230,81 +105,101 @@ export default function ExpenseCategoryDetailsPage() {
   }, [expenses, searchTerm, dateFilter]);
 
   const handleDeleteCategory = async () => {
-    setIsDeleting(true);
+    if (!category) return;
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1500));
-
-      toast.success('Category deleted successfully!');
-      router.push('/dashboard/finance/expenses/categories');
+      const result = await expenseService.deleteCategory(category.id);
+      if (!result.success) {
+        toast.warning(result.message || 'Category deactivated because historical records exist.');
+        setCategory((prev) => (prev ? { ...prev, isActive: false } : null));
+      } else {
+        toast.success('Category deleted successfully!');
+        router.push('/dashboard/finance/expenses/categories');
+      }
     } catch (error) {
       console.error('Error deleting category:', error);
-      toast.error('Failed to delete category. Please try again.');
-    } finally {
-      setIsDeleting(false);
+      toast.error('Failed to delete category');
     }
   };
 
-  const handleExportExpenses = () => {
-    // Simulate export functionality
-    toast.success('Expenses exported successfully!');
+  const handleExportExpenses = async () => {
+    try {
+      const blob = await expenseService.exportExpenses({ categoryId: id });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `category-${category?.code || id}-expenses.csv`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+      toast.success('Expenses exported successfully!');
+    } catch {
+      toast.error('Failed to export expenses');
+    }
+  };
+
+  const formatCurrency = (amount: number) => {
+    return new Intl.NumberFormat('en-GH', {
+      style: 'currency',
+      currency: 'GHS',
+      minimumFractionDigits: 2,
+    }).format(amount);
   };
 
   if (isLoading || !category) {
     return (
-      <div className="space-y-6">
+      <div className="space-y-6 max-w-6xl">
         <div className="flex items-center gap-4">
-          <LazyLoader className="h-12 w-12 rounded-lg">
-            <div className="h-12 w-12 rounded-lg bg-gray-200 animate-pulse" />
+          <LazyLoader className="h-10 w-10 rounded-lg">
+            <div className="h-10 w-10 rounded-lg bg-muted animate-pulse" />
           </LazyLoader>
           <div className="space-y-2">
-            <LazyLoader className="h-8 w-64">
-              <div className="h-8 w-64 bg-gray-200 rounded animate-pulse" />
-            </LazyLoader>
-            <LazyLoader className="h-4 w-48">
-              <div className="h-4 w-48 bg-gray-200 rounded animate-pulse" />
+            <LazyLoader className="h-6 w-48">
+              <div className="h-6 w-48 bg-muted rounded animate-pulse" />
             </LazyLoader>
           </div>
         </div>
-        <LazyLoader className="h-96 w-full rounded-lg">
-          <div className="h-96 w-full rounded-lg bg-gray-200 animate-pulse" />
+        <LazyLoader className="h-96 w-full rounded-xl">
+          <div className="h-96 w-full rounded-xl bg-muted animate-pulse" />
         </LazyLoader>
       </div>
     );
   }
 
-  // Calculate statistics
   const filteredTotal = filteredExpenses.reduce((sum, expense) => sum + expense.amount, 0);
   const avgExpenseAmount = filteredExpenses.length > 0 ? filteredTotal / filteredExpenses.length : 0;
-  const thisMonthExpenses = expenses.filter(expense => {
-    const now = new Date();
-    return expense.date.getMonth() === now.getMonth() &&
-      expense.date.getFullYear() === now.getFullYear();
-  });
-  const thisMonthTotal = thisMonthExpenses.reduce((sum, expense) => sum + expense.amount, 0);
 
-  const columns = [
+  const columns: ColumnDef<ExpenseRecord>[] = [
     {
       accessorKey: 'title',
       header: 'Expense',
-      cell: ({ row }: { row: any }) => {
-        const expense = row.original as Expense;
+      cell: ({ row }) => {
+        const expense = row.original;
         return (
           <div>
-            <div className="font-medium">{expense.title}</div>
-            <div className="text-sm text-gray-500">{expense.vendor}</div>
+            <div className="font-medium text-foreground">{expense.title}</div>
+            {expense.receiptNumber && (
+              <div className="text-xs text-muted-foreground">{expense.receiptNumber}</div>
+            )}
           </div>
         );
       },
     },
     {
+      accessorKey: 'vendor',
+      header: 'Vendor / Payee',
+      cell: ({ row }) => (
+        <span className="text-sm font-medium text-foreground">{row.original.vendor}</span>
+      ),
+    },
+    {
       accessorKey: 'amount',
       header: 'Amount',
-      cell: ({ row }: { row: any }) => {
-        const expense = row.original as Expense;
+      cell: ({ row }) => {
+        const expense = row.original;
         return (
-          <div className="text-right font-medium text-brand-primary">
-            ₵{expense.amount.toLocaleString('en-GH', { minimumFractionDigits: 2 })}
+          <div className="font-medium text-destructive">
+            {formatCurrency(expense.amount)}
           </div>
         );
       },
@@ -312,32 +207,21 @@ export default function ExpenseCategoryDetailsPage() {
     {
       accessorKey: 'date',
       header: 'Date',
-      cell: ({ row }: { row: any }) => {
-        const expense = row.original as Expense;
-        return (
-          <div className="text-sm">
-            {format(expense.date, 'MMM dd, yyyy')}
-          </div>
-        );
+      cell: ({ row }) => {
+        const expense = row.original;
+        return <div className="text-sm">{format(new Date(expense.date), 'MMM dd, yyyy')}</div>;
       },
     },
     {
-      accessorKey: 'paymentMethod',
-      header: 'Payment',
-      cell: ({ row }: { row: any }) => {
-        const expense = row.original as Expense;
-        return (
-          <Badge variant="neutral">
-            {paymentMethods[expense.paymentMethod as keyof typeof paymentMethods] || expense.paymentMethod}
-          </Badge>
-        );
-      },
+      accessorKey: 'status',
+      header: 'Status',
+      cell: ({ row }) => <StatusBadge status={row.original.status} />,
     },
     {
       id: 'actions',
       header: 'Actions',
-      cell: ({ row }: { row: any }) => {
-        const expense = row.original as Expense;
+      cell: ({ row }) => {
+        const expense = row.original;
         return (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -347,7 +231,6 @@ export default function ExpenseCategoryDetailsPage() {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuLabel>Actions</DropdownMenuLabel>
               <DropdownMenuItem asChild>
                 <Link href={`/dashboard/finance/expenses/${expense.id}`}>
                   <Eye className="mr-2 h-4 w-4" />
@@ -368,27 +251,19 @@ export default function ExpenseCategoryDetailsPage() {
   ];
 
   return (
-    <div className="space-y-6">
-
+    <div className="space-y-6 max-w-6xl">
       {/* Page Header */}
       <div className="flex items-center gap-4">
-        <Button
-          variant="outline"
-          size="icon"
-          onClick={() => router.push('/dashboard/finance/expenses/categories')}
-          className="h-12 w-12"
-        >
-          <ArrowLeft className="h-5 w-5" />
+        <Button variant="ghost" size="icon" asChild>
+          <Link href="/dashboard/finance/expenses/categories">
+            <ArrowLeft className="h-4 w-4" />
+          </Link>
         </Button>
-        <div className="flex h-12 w-12 items-center justify-center rounded-lg" style={{ backgroundColor: `${category.color}20` }}>
-          <Tag className="h-6 w-6" style={{ color: category.color }} />
-        </div>
         <div className="flex-1">
           <PageHeader
             title={category.name}
-            description={category.description || 'Category details and expenses'}
             actions={
-              <>
+              <div className="flex items-center gap-2">
                 <Button variant="outline" onClick={handleExportExpenses}>
                   <Download className="mr-2 h-4 w-4" />
                   Export
@@ -399,33 +274,14 @@ export default function ExpenseCategoryDetailsPage() {
                     Edit
                   </Link>
                 </Button>
-                <AlertDialog>
-                  <AlertDialogTrigger asChild>
-                    <Button variant="destructive">
-                      <Trash2 className="mr-2 h-4 w-4" />
-                      Delete
-                    </Button>
-                  </AlertDialogTrigger>
-                  <AlertDialogContent>
-                    <AlertDialogHeader>
-                      <AlertDialogTitle>Delete Category</AlertDialogTitle>
-                      <AlertDialogDescription>
-                        Are you sure you want to delete "{category.name}"? This action cannot be undone and will affect {category.expenseCount} expense records.
-                      </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                      <AlertDialogCancel>Cancel</AlertDialogCancel>
-                      <AlertDialogAction
-                        onClick={handleDeleteCategory}
-                        disabled={isDeleting}
-                        className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                      >
-                        {isDeleting ? 'Deleting...' : 'Delete Category'}
-                      </AlertDialogAction>
-                    </AlertDialogFooter>
-                  </AlertDialogContent>
-                </AlertDialog>
-              </>
+                <Button
+                  variant="destructive"
+                  onClick={() => deleteDialog.openDialog(category)}
+                >
+                  <Trash2 className="mr-2 h-4 w-4" />
+                  Delete
+                </Button>
+              </div>
             }
           />
         </div>
@@ -434,69 +290,84 @@ export default function ExpenseCategoryDetailsPage() {
       {/* Category Information */}
       <LazySection>
         <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Tag className="h-5 w-5" />
-              Category Information
-            </CardTitle>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-base font-semibold">Category Details</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              <div className="space-y-2">
-                <div className="flex items-center gap-2 text-sm text-gray-500">
-                  <div className="w-3 h-3 rounded-full" style={{ backgroundColor: category.color }} />
-                  Color
+              <div className="space-y-1.5">
+                <div className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                  Domain Group
                 </div>
-                <div className="font-medium">{category.color}</div>
+                <div>
+                  <Badge variant="neutral">{category.group || 'Operations'}</Badge>
+                </div>
               </div>
 
-              <div className="space-y-2">
-                <div className="text-sm text-gray-500">Status</div>
-                <StatusBadge status={category.isActive ? 'active' : 'inactive'} />
+              <div className="space-y-1.5">
+                <div className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                  Status
+                </div>
+                <div>
+                  <StatusBadge status={category.isActive ? 'active' : 'inactive'} />
+                </div>
               </div>
 
-              <div className="space-y-2">
-                <div className="text-sm text-gray-500">Created</div>
-                <div className="font-medium">{format(category.createdAt, 'MMM dd, yyyy')}</div>
+              <div className="space-y-1.5">
+                <div className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                  Color Identifier
+                </div>
+                <div className="flex items-center gap-2">
+                  <div
+                    className="w-3.5 h-3.5 rounded-full"
+                    style={{ backgroundColor: category.color || '#2E8DB0' }}
+                  />
+                  <span className="text-sm font-medium">{category.color || '#2E8DB0'}</span>
+                </div>
               </div>
 
-              <div className="space-y-2">
-                <div className="text-sm text-gray-500">Last Updated</div>
-                <div className="font-medium">{format(category.updatedAt, 'MMM dd, yyyy')}</div>
+              <div className="space-y-1.5">
+                <div className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                  Last Expense
+                </div>
+                <div className="text-sm font-medium">
+                  {category.lastExpenseDate
+                    ? format(new Date(category.lastExpenseDate), 'MMM dd, yyyy')
+                    : 'None logged'}
+                </div>
               </div>
             </div>
+
+            {category.description && (
+              <div className="mt-4 pt-4 border-t text-sm text-muted-foreground">
+                {category.description}
+              </div>
+            )}
           </CardContent>
         </Card>
       </LazySection>
 
       {/* Statistics */}
       <LazySection>
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <div className="grid gap-4 md:grid-cols-3">
           <StatCard
-            title="Total Expenses"
-            value={category.expenseCount}
+            title="Total Expenses Logged"
+            value={expenses.length}
             icon={Receipt}
             accent="primary"
           />
 
           <StatCard
             title="Total Amount"
-            value={`₵${category.totalAmount.toLocaleString('en-GH', { minimumFractionDigits: 2 })}`}
+            value={formatCurrency(filteredTotal)}
             icon={Wallet}
             accent="accent"
           />
 
           <StatCard
-            title="Average Amount"
-            value={`₵${avgExpenseAmount.toLocaleString('en-GH', { minimumFractionDigits: 2 })}`}
+            title="Average Expense"
+            value={formatCurrency(avgExpenseAmount)}
             icon={TrendingUp}
-            accent="success"
-          />
-
-          <StatCard
-            title="This Month"
-            value={`₵${thisMonthTotal.toLocaleString('en-GH', { minimumFractionDigits: 2 })}`}
-            icon={Calendar}
             accent="secondary"
           />
         </div>
@@ -505,22 +376,19 @@ export default function ExpenseCategoryDetailsPage() {
       {/* Expenses List */}
       <LazySection>
         <Card>
-          <CardHeader>
+          <CardHeader className="pb-3">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-              <div>
-                <CardTitle>Category Expenses</CardTitle>
-              </div>
+              <CardTitle className="text-base font-semibold">Expenses in this Category</CardTitle>
               <Button asChild>
                 <Link href="/dashboard/finance/expenses/add">
-                  <PlusCircle className="mr-2 h-4 w-4" />
-                  Add Expense
+                  <Plus className="mr-1.5 h-4 w-4" />
+                  Record Expense
                 </Link>
               </Button>
             </div>
           </CardHeader>
           <CardContent>
-            {/* Search and Filter */}
-            <div className="flex flex-col sm:flex-row gap-4 mb-6">
+            <div className="flex flex-col sm:flex-row gap-4 mb-4">
               <Select value={dateFilter} onValueChange={(value: any) => setDateFilter(value)}>
                 <SelectTrigger className="w-full sm:w-48">
                   <SelectValue placeholder="Filter by date" />
@@ -534,33 +402,30 @@ export default function ExpenseCategoryDetailsPage() {
               </Select>
             </div>
 
-            {/* Results Summary */}
-            {(searchTerm || dateFilter !== 'all') && (
-              <div className="mb-4 p-3 bg-gray-50 rounded-lg">
-                <div className="flex items-center justify-between text-sm">
-                  <span>
-                    Showing {filteredExpenses.length} of {expenses.length} expenses
-                  </span>
-                  <span className="font-medium">
-                    Total: ₵{filteredTotal.toLocaleString('en-GH', { minimumFractionDigits: 2 })}
-                  </span>
-                </div>
-              </div>
-            )}
-
-            {/* Data Table */}
             <DataTable
               columns={columns}
               data={filteredExpenses}
               recordLabel="expense"
+              recordLabelPlural="expenses"
               searchValue={searchTerm}
               onSearchChange={setSearchTerm}
               searchKey="title"
-              searchPlaceholder="Search expenses..."
+              searchPlaceholder="Search expenses in this category..."
             />
           </CardContent>
         </Card>
       </LazySection>
+
+      {/* Delete Confirmation Dialog */}
+      <DeleteDialog
+        isOpen={deleteDialog.isOpen}
+        onOpenChange={deleteDialog.closeDialog}
+        onConfirm={handleDeleteCategory}
+        title="Delete Expense Category"
+        description="Are you sure you want to delete this category? If historical expense records are attached, it will be deactivated to safeguard financial integrity."
+        itemName={category.name}
+        loading={deleteDialog.loading}
+      />
     </div>
   );
 }

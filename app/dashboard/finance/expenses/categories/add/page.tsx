@@ -6,23 +6,23 @@ import Link from 'next/link';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
-import { PlusCircle, Tag, Loader2, Palette, ArrowLeft } from 'lucide-react';
+import { Plus, Loader2, ArrowLeft } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { PageHeader } from '@/components/ui/page-header';
+import { Card } from '@/components/ui/card';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
-import { LazySection } from '@/components/ui/lazy-section';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from 'sonner';
-import { StatusBadge } from '@/components/ui/status-badge';
+import { expenseService } from '@/services';
 import { cn } from '@/lib/utils';
 
 // Category form validation schema
 const categoryFormSchema = z.object({
   name: z.string().min(1, 'Category name is required').max(50, 'Name must be less than 50 characters'),
+  group: z.string().min(1, 'Group is required'),
   description: z.string().optional(),
   color: z.string().min(1, 'Color is required').regex(/^#[0-9A-F]{6}$/i, 'Invalid color format'),
   isActive: z.boolean().default(true),
@@ -30,7 +30,15 @@ const categoryFormSchema = z.object({
 
 type CategoryFormData = z.infer<typeof categoryFormSchema>;
 
-// Predefined color options
+const groupOptions = [
+  'People',
+  'Facilities & Utilities',
+  'Operations',
+  'Ministry',
+  'Equipment',
+  'Other',
+];
+
 const colorOptions = [
   { name: 'Blue', value: '#2E8DB0' },
   { name: 'Light Blue', value: '#28ACD1' },
@@ -55,6 +63,7 @@ export default function AddExpenseCategoryPage() {
     resolver: zodResolver(categoryFormSchema),
     defaultValues: {
       name: '',
+      group: 'Operations',
       description: '',
       color: '#2E8DB0',
       isActive: true,
@@ -64,11 +73,14 @@ export default function AddExpenseCategoryPage() {
   const onSubmit = async (data: CategoryFormData) => {
     setIsSubmitting(true);
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      console.log('Category data:', data);
-      
+      await expenseService.createCategory({
+        name: data.name,
+        group: data.group,
+        description: data.description,
+        color: data.color,
+        isActive: data.isActive,
+      });
+
       toast.success('Category created successfully!');
       router.push('/dashboard/finance/expenses/categories');
     } catch (error) {
@@ -85,7 +97,7 @@ export default function AddExpenseCategoryPage() {
   };
 
   return (
-    <div className="space-y-6 max-w-6xl">
+    <div className="space-y-6 max-w-4xl">
       {/* Header */}
       <div className="flex items-center gap-4">
         <Button variant="ghost" size="icon" asChild>
@@ -113,7 +125,7 @@ export default function AddExpenseCategoryPage() {
                       <FormLabel>Category Name *</FormLabel>
                       <FormControl>
                         <Input 
-                          placeholder="Office Supplies / Utilities / Missions" 
+                          placeholder="Salaries & Benefits / Electricity / Missions" 
                           {...field}
                         />
                       </FormControl>
@@ -124,9 +136,34 @@ export default function AddExpenseCategoryPage() {
 
                 <FormField
                   control={form.control}
+                  name="group"
+                  render={({ field }) => (
+                    <FormItem className="col-span-12 sm:col-span-4">
+                      <FormLabel>Domain Group *</FormLabel>
+                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select group" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {groupOptions.map((g) => (
+                            <SelectItem key={g} value={g}>
+                              {g}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
                   name="isActive"
                   render={({ field }) => (
-                    <FormItem className="col-span-12 sm:col-span-4 flex items-center justify-between rounded-lg border border-border p-3.5">
+                    <FormItem className="col-span-12 flex items-center justify-between rounded-lg border border-border p-3.5">
                       <div className="space-y-0.5">
                         <FormLabel className="text-sm font-medium cursor-pointer">
                           Active Status
@@ -165,7 +202,7 @@ export default function AddExpenseCategoryPage() {
                 <FormField
                   control={form.control}
                   name="color"
-                  render={({ field }) => (
+                  render={() => (
                     <FormItem className="col-span-12">
                       <FormLabel>Category Color Badge *</FormLabel>
                       <FormControl>
@@ -218,7 +255,7 @@ export default function AddExpenseCategoryPage() {
                 </>
               ) : (
                 <>
-                  <PlusCircle className="mr-1.5 h-4 w-4" />
+                  <Plus className="mr-1.5 h-4 w-4" />
                   Create Category
                 </>
               )}

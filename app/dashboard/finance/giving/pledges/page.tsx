@@ -4,7 +4,6 @@ import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { GivingCategoryBadge } from '@/components/ui/finance-badges';
 import { StatusBadge } from '@/components/ui/status-badge';
 import { DataTable } from '@/components/ui/data-table';
 import { DeleteDialog, useDeleteDialog } from '@/components/ui/delete-dialog';
@@ -12,23 +11,35 @@ import { LazySection } from '@/components/ui/lazy-section';
 import { LazyLoader } from '@/components/ui/lazy-loader';
 import { PageHeader } from '@/components/ui/page-header';
 import { StatCard } from '@/components/ui/stat-card';
-import { CardSkeleton, TableSkeleton, ChartSkeleton } from '@/components/ui/skeleton-loaders';
-import { 
-  Plus, 
+import { CardSkeleton, TableSkeleton } from '@/components/ui/skeleton-loaders';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { DatePicker } from '@/components/ui/date-picker';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from '@/components/ui/dialog';
+import {
+  Plus,
   BadgeCent,
   TrendingUp,
-  TrendingDown,
-  Calendar,
   Target,
   Eye,
   Edit,
   Trash2,
-  ArrowLeft
+  ArrowLeft,
+  CreditCard,
+  MoreHorizontal,
+  DollarSign,
+  CheckCircle,
 } from 'lucide-react';
 import Link from 'next/link';
 import { useToast } from '@/hooks/use-toast';
 import { givingService } from '@/services';
-import { Giving, GivingType, GivingCategory, GivingStatus } from '@/lib/types';
+import { Pledge, PledgeStatus, PaymentMethod } from '@/lib/types';
 import { ColumnDef } from '@tanstack/react-table';
 import {
   DropdownMenu,
@@ -38,133 +49,131 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { MoreHorizontal } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
-// Extended pledge interface
-interface PledgeData extends Giving {
-  pledgeDetails: {
-    totalAmount: number;
-    paidAmount: number;
-    remainingAmount: number;
-    installments: number;
-    frequency: string;
-    startDate: string;
-    endDate?: string;
-    nextDueDate?: string;
-  };
-}
-
-// Mock pledges data
-const mockPledges: PledgeData[] = [
+// Mock pledges using proper Pledge domain model
+const mockPledges: Pledge[] = [
   {
     id: '1',
     memberId: 'member1',
-    type: GivingType.PLEDGE,
-    amount: 10000.00,
+    memberName: 'John Doe',
+    campaignId: 'c1',
+    campaignName: 'New Sanctuary Building',
+    pledgedAmount: 10000.00,
+    paidAmount: 3000.00,
+    outstandingAmount: 7000.00,
     currency: 'GHS',
-    category: GivingCategory.BUILDING_FUND,
-    method: 'Transfer',
-    date: '2024-01-01',
-    description: 'Annual building fund pledge',
-    isAnonymous: false,
-    receiptNumber: 'PLG-001',
-    status: GivingStatus.PENDING,
-    pledgeDetails: {
-      totalAmount: 10000.00,
-      paidAmount: 3000.00,
-      remainingAmount: 7000.00,
-      installments: 12,
-      frequency: 'monthly',
-      startDate: '2024-01-01',
-      endDate: '2024-12-31',
-      nextDueDate: '2024-02-01'
-    },
+    pledgeDate: '2024-01-01',
+    completionDate: '2024-12-31',
+    status: PledgeStatus.PARTIALLY_PAID,
+    notes: 'Annual building fund pledge',
+    payments: [
+      {
+        id: 'pay-1',
+        pledgeId: '1',
+        amount: 3000.00,
+        currency: 'GHS',
+        date: '2024-01-15',
+        method: 'Transfer',
+        notes: 'Initial installment',
+        createdAt: '2024-01-15T10:00:00Z',
+      },
+    ],
     createdAt: '2024-01-01T00:00:00Z',
-    updatedAt: '2024-01-20T10:30:00Z'
+    updatedAt: '2024-01-15T10:00:00Z',
   },
   {
     id: '2',
     memberId: 'member2',
-    type: GivingType.PLEDGE,
-    amount: 5000.00,
+    memberName: 'Jane Smith',
+    campaignId: 'c2',
+    campaignName: 'Missions Outreach 2024',
+    pledgedAmount: 5000.00,
+    paidAmount: 5000.00,
+    outstandingAmount: 0.00,
     currency: 'GHS',
-    category: GivingCategory.MISSIONARY,
-    method: 'Online',
-    date: '2024-01-15',
-    description: 'Missions support pledge',
-    isAnonymous: false,
-    receiptNumber: 'PLG-002',
-    status: GivingStatus.COMPLETED,
-    pledgeDetails: {
-      totalAmount: 5000.00,
-      paidAmount: 5000.00,
-      remainingAmount: 0.00,
-      installments: 5,
-      frequency: 'monthly',
-      startDate: '2024-01-15',
-      endDate: '2024-05-15',
-      nextDueDate: undefined
-    },
+    pledgeDate: '2024-01-15',
+    completionDate: '2024-06-30',
+    status: PledgeStatus.FULFILLED,
+    notes: 'Missions support pledge',
+    payments: [
+      {
+        id: 'pay-2',
+        pledgeId: '2',
+        amount: 5000.00,
+        currency: 'GHS',
+        date: '2024-01-20',
+        method: 'Online',
+        notes: 'Paid in full',
+        createdAt: '2024-01-20T09:00:00Z',
+      },
+    ],
     createdAt: '2024-01-15T00:00:00Z',
-    updatedAt: '2024-01-20T10:30:00Z'
+    updatedAt: '2024-01-20T09:00:00Z',
   },
   {
     id: '3',
     memberId: 'member3',
-    type: GivingType.PLEDGE,
-    amount: 2400.00,
+    memberName: 'Michael Johnson',
+    campaignId: 'c1',
+    campaignName: 'New Sanctuary Building',
+    pledgedAmount: 15000.00,
+    paidAmount: 0.00,
+    outstandingAmount: 15000.00,
     currency: 'GHS',
-    category: GivingCategory.YOUTH,
-    method: 'Cash',
-    date: '2024-01-10',
-    description: 'Youth ministry equipment pledge',
-    isAnonymous: false,
-    receiptNumber: 'PLG-003',
-    status: GivingStatus.PENDING,
-    pledgeDetails: {
-      totalAmount: 2400.00,
-      paidAmount: 800.00,
-      remainingAmount: 1600.00,
-      installments: 6,
-      frequency: 'bi-weekly',
-      startDate: '2024-01-10',
-      endDate: '2024-04-10',
-      nextDueDate: '2024-01-24'
-    },
+    pledgeDate: '2024-01-10',
+    completionDate: '2024-12-31',
+    status: PledgeStatus.ACTIVE,
+    notes: 'Sanctuary seating pledge',
+    payments: [],
     createdAt: '2024-01-10T00:00:00Z',
-    updatedAt: '2024-01-20T10:30:00Z'
+    updatedAt: '2024-01-10T00:00:00Z',
   },
   {
     id: '4',
     memberId: 'member4',
-    type: GivingType.PLEDGE,
-    amount: 15000.00,
+    memberName: 'Sarah Wilson',
+    pledgedAmount: 2500.00,
+    paidAmount: 1000.00,
+    outstandingAmount: 1500.00,
     currency: 'GHS',
-    category: GivingCategory.GENERAL,
-    method: 'Transfer',
-    date: '2023-12-01',
-    description: 'General fund annual pledge',
-    isAnonymous: false,
-    receiptNumber: 'PLG-004',
-    status: GivingStatus.PENDING,
-    pledgeDetails: {
-      totalAmount: 15000.00,
-      paidAmount: 12500.00,
-      remainingAmount: 2500.00,
-      installments: 12,
-      frequency: 'monthly',
-      startDate: '2023-12-01',
-      endDate: '2024-11-30',
-      nextDueDate: '2024-02-01'
-    },
-    createdAt: '2023-12-01T00:00:00Z',
-    updatedAt: '2024-01-20T10:30:00Z'
-  }
+    pledgeDate: '2024-01-05',
+    completionDate: '2024-04-30',
+    status: PledgeStatus.PARTIALLY_PAID,
+    notes: 'General fund commitment',
+    payments: [
+      {
+        id: 'pay-3',
+        pledgeId: '4',
+        amount: 1000.00,
+        currency: 'GHS',
+        date: '2024-01-18',
+        method: 'Cash',
+        notes: 'First payment',
+        createdAt: '2024-01-18T14:00:00Z',
+      },
+    ],
+    createdAt: '2024-01-05T00:00:00Z',
+    updatedAt: '2024-01-18T14:00:00Z',
+  },
 ];
 
 export default function PledgesPage() {
-  const [pledges, setPledges] = useState<PledgeData[]>([]);
+  const [pledges, setPledges] = useState<Pledge[]>([]);
+  const [filteredPledges, setFilteredPledges] = useState<Pledge[]>([]);
   const [loading, setLoading] = useState(true);
+  const [statusFilter, setStatusFilter] = useState<string>('all');
+  const [searchTerm, setSearchTerm] = useState<string>('');
+
+  // Payment Dialog state
+  const [paymentDialogOpen, setPaymentDialogOpen] = useState(false);
+  const [selectedPledge, setSelectedPledge] = useState<Pledge | null>(null);
+  const [paymentAmount, setPaymentAmount] = useState('');
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('Cash');
+  const [paymentDate, setPaymentDate] = useState<Date>(new Date());
+  const [paymentNotes, setPaymentNotes] = useState('');
+  const [isRecordingPayment, setIsRecordingPayment] = useState(false);
+
   const { toast } = useToast();
   const deleteDialog = useDeleteDialog();
 
@@ -172,10 +181,9 @@ export default function PledgesPage() {
     const loadPledges = async () => {
       try {
         setLoading(true);
-        // For now, use mock data. Replace with actual API call:
-        // const response = await givingService.getAll({ type: GivingType.PLEDGE });
-        // setPledges(response.data);
+        await new Promise(resolve => setTimeout(resolve, 500));
         setPledges(mockPledges);
+        setFilteredPledges(mockPledges);
       } catch (err: any) {
         toast({
           title: 'Error',
@@ -190,9 +198,27 @@ export default function PledgesPage() {
     loadPledges();
   }, [toast]);
 
-  const handleDeletePledge = async (pledge: PledgeData) => {
+  useEffect(() => {
+    let filtered = [...pledges];
+
+    if (statusFilter !== 'all') {
+      filtered = filtered.filter(p => p.status === statusFilter);
+    }
+
+    if (searchTerm) {
+      const term = searchTerm.toLowerCase();
+      filtered = filtered.filter(p =>
+        (p.memberName && p.memberName.toLowerCase().includes(term)) ||
+        (p.campaignName && p.campaignName.toLowerCase().includes(term)) ||
+        (p.notes && p.notes.toLowerCase().includes(term))
+      );
+    }
+
+    setFilteredPledges(filtered);
+  }, [pledges, statusFilter, searchTerm]);
+
+  const handleDeletePledge = async (pledge: Pledge) => {
     try {
-      // await givingService.delete(pledge.id);
       setPledges(pledges.filter(p => p.id !== pledge.id));
       toast({
         title: 'Success',
@@ -204,7 +230,87 @@ export default function PledgesPage() {
         description: 'Failed to delete pledge',
         variant: 'destructive',
       });
-      throw err; // Re-throw to let the dialog handle the error state
+      throw err;
+    }
+  };
+
+  const handleOpenPaymentDialog = (pledge: Pledge) => {
+    setSelectedPledge(pledge);
+    setPaymentAmount(pledge.outstandingAmount > 0 ? String(pledge.outstandingAmount) : '');
+    setPaymentMethod('Cash');
+    setPaymentDate(new Date());
+    setPaymentNotes('');
+    setPaymentDialogOpen(true);
+  };
+
+  const handleRecordPayment = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedPledge) return;
+
+    const amountNum = parseFloat(paymentAmount);
+    if (isNaN(amountNum) || amountNum <= 0) {
+      toast({
+        title: 'Validation Error',
+        description: 'Please enter a valid payment amount greater than 0',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    if (amountNum > selectedPledge.outstandingAmount) {
+      toast({
+        title: 'Validation Error',
+        description: `Payment amount cannot exceed outstanding amount (${formatCurrency(selectedPledge.outstandingAmount)})`,
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    try {
+      setIsRecordingPayment(true);
+      await new Promise(resolve => setTimeout(resolve, 500));
+
+      const newPaid = selectedPledge.paidAmount + amountNum;
+      const newOutstanding = selectedPledge.pledgedAmount - newPaid;
+      const newStatus = newOutstanding <= 0 ? PledgeStatus.FULFILLED : PledgeStatus.PARTIALLY_PAID;
+
+      const updatedPledge: Pledge = {
+        ...selectedPledge,
+        paidAmount: newPaid,
+        outstandingAmount: newOutstanding,
+        status: newStatus,
+        payments: [
+          ...selectedPledge.payments,
+          {
+            id: `pay-${Date.now()}`,
+            pledgeId: selectedPledge.id,
+            amount: amountNum,
+            currency: selectedPledge.currency,
+            date: paymentDate.toISOString().split('T')[0],
+            method: paymentMethod,
+            notes: paymentNotes || undefined,
+            createdAt: new Date().toISOString(),
+          },
+        ],
+        updatedAt: new Date().toISOString(),
+      };
+
+      setPledges(pledges.map(p => p.id === selectedPledge.id ? updatedPledge : p));
+
+      toast({
+        title: 'Payment Recorded',
+        description: `Recorded payment of ${formatCurrency(amountNum)}. New Giving record created.`,
+      });
+
+      setPaymentDialogOpen(false);
+    } catch (err: any) {
+      toast({
+        title: 'Error',
+        description: err.message || 'Failed to record payment',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsRecordingPayment(false);
     }
   };
 
@@ -216,16 +322,7 @@ export default function PledgesPage() {
     }).format(amount);
   };
 
-  const getCategoryBadge = (category: GivingCategory) => <GivingCategoryBadge category={category} />;
-
-  const getStatusBadge = (status: GivingStatus) => <StatusBadge status={status} />;
-
-  const getProgressPercentage = (pledge: PledgeData) => {
-    if (!pledge.pledgeDetails) return 0;
-    return (pledge.pledgeDetails.paidAmount / pledge.pledgeDetails.totalAmount) * 100;
-  };
-
-  const columns: ColumnDef<PledgeData>[] = [
+  const columns: ColumnDef<Pledge>[] = [
     {
       id: 'select',
       header: ({ table }) => (
@@ -249,107 +346,80 @@ export default function PledgesPage() {
       enableHiding: false,
     },
     {
-      accessorKey: 'receiptNumber',
-      header: 'Receipt #',
+      accessorKey: 'memberName',
+      header: 'Member',
       cell: ({ row }) => {
-        const receiptNumber = row.getValue('receiptNumber') as string;
-        return <div className="font-medium">{receiptNumber}</div>;
+        const pledge = row.original;
+        return (
+          <div>
+            <div className="font-medium">{pledge.memberName || pledge.memberId}</div>
+            {pledge.notes && (
+              <div className="text-xs text-muted-foreground truncate max-w-[180px]">
+                {pledge.notes}
+              </div>
+            )}
+          </div>
+        );
       },
     },
     {
-      accessorKey: 'description',
-      header: 'Description',
+      accessorKey: 'campaignName',
+      header: 'Campaign',
       cell: ({ row }) => {
-        const description = row.getValue('description') as string;
-        return <div className="max-w-[200px] truncate">{description}</div>;
+        const campaign = row.original.campaignName;
+        return campaign ? (
+          <span className="text-sm">{campaign}</span>
+        ) : (
+          <span className="text-sm text-muted-foreground italic">General</span>
+        );
       },
     },
     {
-      accessorKey: 'category',
-      header: 'Category',
+      accessorKey: 'pledgedAmount',
+      header: 'Pledged',
       cell: ({ row }) => {
-        const category = row.getValue('category') as GivingCategory;
-        return getCategoryBadge(category);
-      },
-    },
-    {
-      accessorKey: 'amount',
-      header: 'Total Amount',
-      cell: ({ row }) => {
-        const amount = parseFloat(row.getValue('amount'));
+        const amount = parseFloat(row.getValue('pledgedAmount'));
         return <div className="font-medium">{formatCurrency(amount)}</div>;
       },
     },
     {
-      id: 'progress',
-      header: 'Progress',
+      accessorKey: 'paidAmount',
+      header: 'Paid',
       cell: ({ row }) => {
-        const pledge = row.original;
-        const percentage = getProgressPercentage(pledge);
-        const paidAmount = pledge.pledgeDetails?.paidAmount || 0;
-        const totalAmount = pledge.amount;
-        
+        const amount = parseFloat(row.getValue('paidAmount'));
+        return <div className="font-medium text-brand-success">{formatCurrency(amount)}</div>;
+      },
+    },
+    {
+      accessorKey: 'outstandingAmount',
+      header: 'Outstanding',
+      cell: ({ row }) => {
+        const amount = parseFloat(row.getValue('outstandingAmount'));
         return (
-          <div className="space-y-1">
-            <div className="flex justify-between text-xs">
-              <span>{formatCurrency(paidAmount)}</span>
-              <span>{percentage.toFixed(0)}%</span>
-            </div>
-            <div className="w-full bg-gray-200 rounded-full h-2">
-              <div 
-                className="bg-brand-primary h-2 rounded-full transition-all duration-300" 
-                style={{ width: `${Math.min(percentage, 100)}%` }}
-              />
-            </div>
+          <div className={`font-medium ${amount > 0 ? 'text-amber-600' : 'text-muted-foreground'}`}>
+            {formatCurrency(amount)}
           </div>
         );
       },
     },
     {
-      accessorKey: 'date',
-      header: 'Start Date',
+      accessorKey: 'pledgeDate',
+      header: 'Date',
       cell: ({ row }) => {
-        const date = new Date(row.getValue('date'));
+        const date = new Date(row.getValue('pledgeDate'));
         return <div>{date.toLocaleDateString()}</div>;
-      },
-    },
-    {
-      id: 'nextDue',
-      header: 'Next Due',
-      cell: ({ row }) => {
-        const pledge = row.original;
-        const nextDue = pledge.pledgeDetails?.nextDueDate;
-        
-        if (!nextDue) {
-          return <span className="text-muted-foreground">Completed</span>;
-        }
-        
-        const dueDate = new Date(nextDue);
-        const today = new Date();
-        const isOverdue = dueDate < today;
-        
-        return (
-          <div className={`text-sm ${isOverdue ? 'text-destructive font-medium' : 'text-muted-foreground'}`}>
-            {dueDate.toLocaleDateString()}
-            {isOverdue && <div className="text-xs text-destructive">Overdue</div>}
-          </div>
-        );
       },
     },
     {
       accessorKey: 'status',
       header: 'Status',
-      cell: ({ row }) => {
-        const status = row.getValue('status') as GivingStatus;
-        return getStatusBadge(status);
-      },
+      cell: ({ row }) => <StatusBadge status={row.getValue('status')} />,
     },
     {
       id: 'actions',
       header: 'Actions',
       cell: ({ row }) => {
         const pledge = row.original;
-        
         return (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -360,6 +430,12 @@ export default function PledgesPage() {
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuLabel>Actions</DropdownMenuLabel>
+              {pledge.status !== PledgeStatus.FULFILLED && (
+                <DropdownMenuItem onClick={() => handleOpenPaymentDialog(pledge)}>
+                  <CreditCard className="mr-2 h-4 w-4" />
+                  Record Payment
+                </DropdownMenuItem>
+              )}
               <DropdownMenuItem asChild>
                 <Link href={`/dashboard/finance/giving/pledges/${pledge.id}`}>
                   <Eye className="mr-2 h-4 w-4" />
@@ -387,17 +463,13 @@ export default function PledgesPage() {
     },
   ];
 
-  // Calculate statistics
-  const totalPledges = pledges.length;
-  const totalAmount = pledges.reduce((sum, pledge) => sum + pledge.amount, 0);
-  const totalPaid = pledges.reduce((sum, pledge) => sum + (pledge.pledgeDetails?.paidAmount || 0), 0);
-  const totalRemaining = pledges.reduce((sum, pledge) => sum + (pledge.pledgeDetails?.remainingAmount || 0), 0);
-  const activePledges = pledges.filter(p => p.status === GivingStatus.PENDING).length;
-  const completedPledges = pledges.filter(p => p.status === GivingStatus.COMPLETED).length;
-  const overduePledges = pledges.filter(p => {
-    if (!p.pledgeDetails?.nextDueDate) return false;
-    return new Date(p.pledgeDetails.nextDueDate) < new Date();
-  }).length;
+  // Distinct calculations for commitments vs actual money
+  const totalPledged = filteredPledges.reduce((sum, p) => sum + p.pledgedAmount, 0);
+  const totalPaid = filteredPledges.reduce((sum, p) => sum + p.paidAmount, 0);
+  const totalOutstanding = filteredPledges.reduce((sum, p) => sum + p.outstandingAmount, 0);
+  const activeCount = filteredPledges.filter(
+    p => p.status === PledgeStatus.ACTIVE || p.status === PledgeStatus.PARTIALLY_PAID
+  ).length;
 
   return (
     <div className="space-y-6">
@@ -414,7 +486,7 @@ export default function PledgesPage() {
               <Button asChild>
                 <Link href="/dashboard/finance/giving/pledges/add">
                   <Plus className="mr-2 h-4 w-4" />
-                  Record Pledge
+                  Create Pledge
                 </Link>
               </Button>
             }
@@ -432,54 +504,111 @@ export default function PledgesPage() {
         threshold={0.1}
       >
         <StatCard
-          title="Total Pledges"
-          value={totalPledges}
+          title="Total Pledged"
+          value={formatCurrency(totalPledged)}
           icon={Target}
           accent="primary"
         />
 
         <StatCard
-          title="Total Pledged"
-          value={formatCurrency(totalAmount)}
-          icon={BadgeCent}
-          accent="secondary"
-        />
-
-        <StatCard
-          title="Amount Paid"
+          title="Total Paid"
           value={formatCurrency(totalPaid)}
           icon={TrendingUp}
           accent="success"
         />
 
         <StatCard
-          title="Remaining"
-          value={formatCurrency(totalRemaining)}
-          icon={Calendar}
+          title="Total Outstanding"
+          value={formatCurrency(totalOutstanding)}
+          icon={DollarSign}
           accent="accent"
         />
+
+        <StatCard
+          title="Active Pledges"
+          value={String(activeCount)}
+          icon={BadgeCent}
+          accent="secondary"
+        />
       </LazySection>
+
+      {/* Filters */}
+      <Card>
+        <CardHeader className="pb-3">
+          <CardTitle className="text-sm font-semibold">Filters</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            <div className="space-y-2">
+              <Label>Status</Label>
+              <Select value={statusFilter} onValueChange={setStatusFilter}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Status</SelectItem>
+                  <SelectItem value={PledgeStatus.ACTIVE}>Active</SelectItem>
+                  <SelectItem value={PledgeStatus.PARTIALLY_PAID}>Partially Paid</SelectItem>
+                  <SelectItem value={PledgeStatus.FULFILLED}>Fulfilled</SelectItem>
+                  <SelectItem value={PledgeStatus.CANCELLED}>Cancelled</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label>Search</Label>
+              <Input
+                placeholder="Search member, campaign, notes..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+            </div>
+          </div>
+
+          {(statusFilter !== 'all' || searchTerm) && (
+            <div className="mt-4">
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={() => {
+                  setStatusFilter('all');
+                  setSearchTerm('');
+                }}
+              >
+                Clear Filters
+              </Button>
+            </div>
+          )}
+        </CardContent>
+      </Card>
 
       {/* Pledges Table */}
       <LazyLoader threshold={0.3}>
         <Card>
           <CardHeader>
-            <CardTitle>All Pledges</CardTitle>
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-base font-semibold">All Pledges</CardTitle>
+              <span className="text-xs text-muted-foreground">
+                {filteredPledges.length} of {pledges.length} pledges
+              </span>
+            </div>
           </CardHeader>
           <CardContent>
             {loading ? (
               <TableSkeleton 
-                rows={10} 
-                columns={6} 
+                rows={5} 
+                columns={8} 
                 showHeader 
                 showPagination 
               />
             ) : (
               <DataTable
                 columns={columns}
-                data={pledges}
+                data={filteredPledges}
                 recordLabel="pledge"
-                searchKey="description"
+                searchValue={searchTerm}
+                onSearchChange={setSearchTerm}
+                searchKey="memberName"
                 searchPlaceholder="Search pledges..."
               />
             )}
@@ -487,17 +616,100 @@ export default function PledgesPage() {
         </Card>
       </LazyLoader>
 
+      {/* Record Payment Dialog */}
+      <Dialog open={paymentDialogOpen} onOpenChange={setPaymentDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Record Pledge Payment</DialogTitle>
+          </DialogHeader>
+          {selectedPledge && (
+            <form onSubmit={handleRecordPayment} className="space-y-4 pt-2">
+              <div className="rounded-lg border bg-muted/40 p-3 text-sm space-y-1">
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Member:</span>
+                  <span className="font-medium">{selectedPledge.memberName || selectedPledge.memberId}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Pledged:</span>
+                  <span className="font-medium">{formatCurrency(selectedPledge.pledgedAmount)}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Outstanding:</span>
+                  <span className="font-medium text-amber-600">{formatCurrency(selectedPledge.outstandingAmount)}</span>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="payAmount">Payment Amount <span className="text-destructive">*</span></Label>
+                <Input
+                  id="payAmount"
+                  type="number"
+                  min="0.01"
+                  max={selectedPledge.outstandingAmount}
+                  step="0.01"
+                  value={paymentAmount}
+                  onChange={(e) => setPaymentAmount(e.target.value)}
+                  placeholder="0.00"
+                  required
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="payMethod">Payment Method</Label>
+                <Select value={paymentMethod} onValueChange={(v) => setPaymentMethod(v as PaymentMethod)}>
+                  <SelectTrigger id="payMethod">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Cash">Cash</SelectItem>
+                    <SelectItem value="Card">Card</SelectItem>
+                    <SelectItem value="Transfer">Bank Transfer</SelectItem>
+                    <SelectItem value="Online">Online / Mobile Money</SelectItem>
+                    <SelectItem value="Check">Cheque</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label>Payment Date</Label>
+                <DatePicker
+                  value={paymentDate}
+                  onChange={(d) => d && setPaymentDate(d)}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="payNotes">Notes</Label>
+                <Input
+                  id="payNotes"
+                  placeholder="Optional reference or receipt info"
+                  value={paymentNotes}
+                  onChange={(e) => setPaymentNotes(e.target.value)}
+                />
+              </div>
+
+              <DialogFooter className="pt-2">
+                <Button type="button" variant="outline" onClick={() => setPaymentDialogOpen(false)}>
+                  Cancel
+                </Button>
+                <Button type="submit" disabled={isRecordingPayment}>
+                  {isRecordingPayment ? 'Recording...' : 'Save Payment'}
+                </Button>
+              </DialogFooter>
+            </form>
+          )}
+        </DialogContent>
+      </Dialog>
+
       {/* Delete Confirmation Dialog */}
       <DeleteDialog
         isOpen={deleteDialog.isOpen}
         onOpenChange={deleteDialog.closeDialog}
-        onConfirm={() => deleteDialog.handleConfirm(handleDeletePledge)}
+        onConfirm={() => handleDeletePledge(deleteDialog.itemToDelete)}
         title="Delete Pledge"
-        description="Are you sure you want to delete this pledge? This action cannot be undone and will permanently remove the pledge and all associated payment records."
-        itemName={deleteDialog.itemToDelete?.description || `Pledge ${deleteDialog.itemToDelete?.receiptNumber}`}
+        description="Are you sure you want to delete this pledge? This action cannot be undone."
+        itemName={deleteDialog.itemToDelete?.memberName || 'Pledge'}
         loading={deleteDialog.loading}
-        confirmText="Delete Pledge"
-        cancelText="Cancel"
       />
     </div>
   );

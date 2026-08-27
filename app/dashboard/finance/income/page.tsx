@@ -7,14 +7,16 @@ import {
   BadgeCent,
   TrendingUp,
   Calendar,
-  PieChart,
   FileText,
   ArrowRight,
-  Building,
-  BookOpen,
-  Gift,
-  Users,
-  ChevronRight
+  ChevronDown,
+  Clock,
+  Download,
+  Eye,
+  Edit,
+  Trash2,
+  MoreHorizontal,
+  PieChart,
 } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
@@ -25,123 +27,105 @@ import { Badge } from '@/components/ui/badge';
 import { StatusBadge } from '@/components/ui/status-badge';
 import { LazySection } from '@/components/ui/lazy-section';
 import { LazyLoader } from '@/components/ui/lazy-loader';
-import { TableSkeleton } from '@/components/ui/skeleton-loaders';
+import { CardSkeleton, TableSkeleton } from '@/components/ui/skeleton-loaders';
 import { PageHeader } from '@/components/ui/page-header';
 import { StatCard } from '@/components/ui/stat-card';
+import { DeleteDialog, useDeleteDialog } from '@/components/ui/delete-dialog';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import { ColumnDef } from '@tanstack/react-table';
-
-// Income data interface
-interface IncomeRecord {
-  id: string;
-  description: string;
-  amount: number;
-  category: string;
-  date: string;
-  status: string;
-  source: string;
-}
-
-// Mock data for income overview
-const incomeStats = {
-  totalAmount: 125000,
-  thisMonth: 18500,
-  totalCount: 156,
-  growth: 12.5,
-  averageAmount: 801.28,
-  categoriesCount: 8
-};
-
-const quickActions = [
-  {
-    title: 'Record Income',
-    href: '/dashboard/finance/income/add',
-    icon: Plus
-  },
-  {
-    title: 'Categories',
-    href: '/dashboard/finance/income/categories',
-    icon: PieChart
-  },
-  {
-    title: 'Reports',
-    href: '/dashboard/finance/income/reports',
-    icon: FileText
-  },
-  {
-    title: 'Export Data',
-    href: '/dashboard/finance/income/reports?export=true',
-    icon: ArrowRight
-  }
-];
-
-const recentIncome = [
-  {
-    id: '1',
-    description: 'Hall Rental - Wedding Event',
-    amount: 2500,
-    category: 'Hall Rental',
-    date: '2024-01-15',
-    status: 'received',
-    source: 'Johnson Family'
-  },
-  {
-    id: '2',
-    description: 'Book Sales - Sunday Service',
-    amount: 450,
-    category: 'Book Sales',
-    date: '2024-01-14',
-    status: 'received',
-    source: 'Bookstore'
-  },
-  {
-    id: '3',
-    description: 'Grant - Community Outreach',
-    amount: 5000,
-    category: 'Grants',
-    date: '2024-01-12',
-    status: 'pending',
-    source: 'City Council'
-  },
-  {
-    id: '4',
-    description: 'Fundraising Event - Charity Dinner',
-    amount: 3200,
-    category: 'Fundraising',
-    date: '2024-01-10',
-    status: 'received',
-    source: 'Event Committee'
-  },
-  {
-    id: '5',
-    description: 'Parking Fees - Sunday Service',
-    amount: 180,
-    category: 'Parking',
-    date: '2024-01-08',
-    status: 'received',
-    source: 'Parking Management'
-  }
-];
+import { useToast } from '@/hooks/use-toast';
+import { incomeService } from '@/services';
+import { IncomeRecord, IncomeAnalytics } from '@/lib/types';
 
 export default function IncomeOverviewPage() {
   const [loading, setLoading] = useState(true);
+  const [incomeList, setIncomeList] = useState<IncomeRecord[]>([]);
+  const [stats, setStats] = useState<IncomeAnalytics | null>(null);
+  const { toast } = useToast();
+  const deleteDialog = useDeleteDialog();
+
+  const loadData = async () => {
+    try {
+      setLoading(true);
+      const [listRes, statsRes] = await Promise.all([
+        incomeService.getIncomeList({ page: 1, limit: 10 }),
+        incomeService.getIncomeStats(),
+      ]);
+      setIncomeList(listRes.data);
+      setStats(statsRes);
+    } catch {
+      toast({
+        title: 'Error',
+        description: 'Failed to load income data',
+        variant: 'destructive',
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    // Simulate data loading
-    const timer = setTimeout(() => {
-      setLoading(false);
-    }, 1000);
-
-    return () => clearTimeout(timer);
+    loadData();
   }, []);
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-GH', {
       style: 'currency',
-      currency: 'GHS'
+      currency: 'GHS',
+      minimumFractionDigits: 2,
     }).format(amount);
   };
 
-  const getStatusBadge = (status: string) => <StatusBadge status={status} />;
+  const handleDeleteIncome = async (record: IncomeRecord) => {
+    try {
+      await incomeService.deleteIncome(record.id);
+      setIncomeList((prev) => prev.filter((r) => r.id !== record.id));
+      toast({
+        title: 'Success',
+        description: 'Income record deleted successfully',
+      });
+      // Refresh stats
+      const updatedStats = await incomeService.getIncomeStats();
+      setStats(updatedStats);
+    } catch {
+      toast({
+        title: 'Error',
+        description: 'Failed to delete income record',
+        variant: 'destructive',
+      });
+    }
+  };
+
+  const handleExport = async (format: 'pdf' | 'excel' | 'csv' = 'csv') => {
+    try {
+      const blob = await incomeService.exportIncome({}, format);
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `income-records-${new Date().toISOString().split('T')[0]}.${format === 'excel' ? 'xlsx' : format}`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+
+      toast({
+        title: 'Export Complete',
+        description: `Income records downloaded as ${format.toUpperCase()}.`,
+      });
+    } catch {
+      toast({
+        title: 'Export Failed',
+        description: 'Unable to export income records at this time.',
+        variant: 'destructive',
+      });
+    }
+  };
 
   const columns: ColumnDef<IncomeRecord>[] = [
     {
@@ -174,17 +158,26 @@ export default function IncomeOverviewPage() {
         return (
           <div>
             <div className="font-medium">{income.description}</div>
-            <div className="text-sm text-muted-foreground">{income.source}</div>
+            {income.reference && (
+              <div className="text-xs text-muted-foreground">{income.reference}</div>
+            )}
           </div>
         );
       },
     },
     {
-      accessorKey: 'category',
+      accessorKey: 'categoryName',
       header: 'Category',
       cell: ({ row }) => {
-        const category = row.getValue('category') as string;
+        const category = row.original.categoryName || 'General';
         return <Badge variant="neutral">{category}</Badge>;
+      },
+    },
+    {
+      accessorKey: 'source',
+      header: 'Source / Payer',
+      cell: ({ row }) => {
+        return <span className="text-sm font-medium">{row.original.source || '—'}</span>;
       },
     },
     {
@@ -192,7 +185,12 @@ export default function IncomeOverviewPage() {
       header: 'Amount',
       cell: ({ row }) => {
         const amount = parseFloat(row.getValue('amount'));
-        return <div className="font-medium">{formatCurrency(amount)}</div>;
+        const isReceived = row.original.status === 'received';
+        return (
+          <div className={`font-medium ${isReceived ? 'text-brand-success' : 'text-amber-600'}`}>
+            {formatCurrency(amount)}
+          </div>
+        );
       },
     },
     {
@@ -208,34 +206,105 @@ export default function IncomeOverviewPage() {
       header: 'Status',
       cell: ({ row }) => {
         const status = row.getValue('status') as string;
-        return getStatusBadge(status);
+        return <StatusBadge status={status} />;
+      },
+    },
+    {
+      id: 'actions',
+      header: 'Actions',
+      cell: ({ row }) => {
+        const income = row.original;
+        return (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" className="h-8 w-8 p-0">
+                <span className="sr-only">Open menu</span>
+                <MoreHorizontal className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem asChild>
+                <Link href={`/dashboard/finance/income/${income.id}`}>
+                  <Eye className="mr-2 h-4 w-4" />
+                  View Details
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link href={`/dashboard/finance/income/${income.id}?edit=true`}>
+                  <Edit className="mr-2 h-4 w-4" />
+                  Edit
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem
+                className="text-destructive focus:text-destructive"
+                onClick={() => deleteDialog.openDialog(income)}
+              >
+                <Trash2 className="mr-2 h-4 w-4" />
+                Delete
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        );
       },
     },
   ];
+
+  if (loading && !stats) {
+    return (
+      <div className="space-y-6">
+        <PageHeader title="Income Overview" />
+        <CardSkeleton count={4} className="grid gap-4 md:grid-cols-2 lg:grid-cols-4" />
+        <TableSkeleton rows={5} columns={7} showHeader className="mt-6" />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
       <PageHeader
         title="Income Overview"
         actions={
-          <>
-            <Button variant="outline" asChild>
-              <Link href="/dashboard/finance/income/reports">
-                <FileText className="mr-2 h-4 w-4" />
-                View Reports
-              </Link>
-            </Button>
+          <div className="flex items-center gap-2">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline">
+                  More
+                  <ChevronDown className="ml-1.5 h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-48">
+                <DropdownMenuItem asChild>
+                  <Link href="/dashboard/finance/income/categories">
+                    <PieChart className="mr-2 h-4 w-4" />
+                    Income Categories
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link href="/dashboard/finance/income/reports">
+                    <FileText className="mr-2 h-4 w-4" />
+                    Reports
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={() => handleExport('csv')}>
+                  <Download className="mr-2 h-4 w-4" />
+                  Export CSV
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+
             <Button asChild>
               <Link href="/dashboard/finance/income/add">
-                <Plus className="mr-2 h-4 w-4" />
+                <Plus className="mr-1.5 h-4 w-4" />
                 Record Income
               </Link>
             </Button>
-          </>
+          </div>
         }
       />
 
-      {/* Statistics Cards */}
+      {/* Financial Overview KPI Cards (No category count, includes Pending Income) */}
       <LazySection
         strategy="immediate"
         showSkeleton
@@ -246,68 +315,43 @@ export default function IncomeOverviewPage() {
       >
         <StatCard
           title="Total Income"
-          value={formatCurrency(incomeStats.totalAmount)}
+          value={formatCurrency(stats?.totalReceived || 0)}
           icon={BadgeCent}
           accent="primary"
         />
 
         <StatCard
           title="This Month"
-          value={formatCurrency(incomeStats.thisMonth)}
+          value={formatCurrency(stats?.thisMonthReceived || 0)}
           icon={Calendar}
           accent="secondary"
           trend={{
-            value: `+${incomeStats.growth}% from last month`,
-            direction: incomeStats.growth > 0 ? 'up' : 'down',
+            value: `+${stats?.growth || 12.5}% from last month`,
+            direction: (stats?.growth || 12.5) > 0 ? 'up' : 'down',
           }}
         />
 
         <StatCard
           title="Average Income"
-          value={formatCurrency(incomeStats.averageAmount)}
+          value={formatCurrency(stats?.averageAmount || 0)}
           icon={TrendingUp}
           accent="success"
         />
 
         <StatCard
-          title="Categories"
-          value={incomeStats.categoriesCount}
-          icon={PieChart}
+          title="Pending Income"
+          value={formatCurrency(stats?.totalPending || 0)}
+          icon={Clock}
           accent="accent"
         />
       </LazySection>
 
-      {/* Quick Actions */}
-      <LazySection
-        strategy="lazy"
-        showSkeleton
-        skeletonVariant="card"
-        skeletonCount={4}
-        className="grid gap-4 md:grid-cols-2 lg:grid-cols-4"
-        threshold={0.2}
-      >
-        {quickActions.map((action) => {
-          const IconComponent = action.icon;
-          return (
-            <Link
-              key={action.title}
-              href={action.href}
-              className="group flex items-center gap-4 rounded-lg border bg-background px-4 py-3 transition-colors hover:border-foreground/30 hover:bg-muted/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 active:bg-muted"
-            >
-              <IconComponent className="h-5 w-5 text-foreground" />
-              <span className="flex-1 font-semibold">{action.title}</span>
-              <ChevronRight className="h-5 w-5 text-muted-foreground transition-transform group-hover:translate-x-1 group-hover:text-foreground" />
-            </Link>
-          );
-        })}
-      </LazySection>
-
-      {/* Recent Income */}
+      {/* Recent Income Main Table */}
       <LazyLoader threshold={0.3}>
         <Card>
-          <CardHeader>
+          <CardHeader className="pb-3">
             <div className="flex items-center justify-between">
-              <CardTitle>Recent Income</CardTitle>
+              <CardTitle className="text-base font-semibold">Recent Income</CardTitle>
               <Button variant="outline" size="sm" asChild>
                 <Link href="/dashboard/finance/income/reports">
                   View All
@@ -319,15 +363,26 @@ export default function IncomeOverviewPage() {
           <CardContent>
             <DataTable
               columns={columns}
-              data={recentIncome}
+              data={incomeList}
               recordLabel="income entry"
               recordLabelPlural="income entries"
               searchKey="description"
-              searchPlaceholder="Search income..."
+              searchPlaceholder="Search income description, source, reference..."
             />
           </CardContent>
         </Card>
       </LazyLoader>
+
+      {/* Delete Confirmation Dialog */}
+      <DeleteDialog
+        isOpen={deleteDialog.isOpen}
+        onOpenChange={deleteDialog.closeDialog}
+        onConfirm={() => handleDeleteIncome(deleteDialog.itemToDelete)}
+        title="Delete Income Record"
+        description="Are you sure you want to delete this income record? This action cannot be undone."
+        itemName={deleteDialog.itemToDelete?.description}
+        loading={deleteDialog.loading}
+      />
     </div>
   );
 }

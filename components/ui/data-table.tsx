@@ -341,8 +341,8 @@ export function DataTable<TData, TValue>({
           </div>
         </div>
 
-        <div className="max-w-full overflow-x-auto overscroll-x-contain">
-          <Table className="min-w-full whitespace-nowrap">
+        <div className="w-full overflow-x-auto">
+          <Table className="w-full">
             <TableHeader className="bg-muted/40 text-xs uppercase tracking-wide text-muted-foreground">
               {table.getHeaderGroups().map((headerGroup) => (
                 <TableRow key={headerGroup.id}>

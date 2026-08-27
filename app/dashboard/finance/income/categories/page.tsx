@@ -1,539 +1,277 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import {
   Plus,
-  Search,
-  Filter,
-  MoreHorizontal,
+  ArrowLeft,
   Edit,
   Trash2,
   Eye,
   BadgeCent,
   TrendingUp,
-  Calendar,
-  FileText
+  Tag,
+  CheckCircle,
+  MoreHorizontal,
+  FolderOpen,
 } from 'lucide-react';
-import {
-  ColumnDef,
-  flexRender,
-  getCoreRowModel,
-  getFilteredRowModel,
-  getPaginationRowModel,
-  getSortedRowModel,
-  useReactTable,
-  SortingState,
-  ColumnFiltersState,
-  VisibilityState
-} from '@tanstack/react-table';
+import { ColumnDef } from '@tanstack/react-table';
 
 import { Button } from '@/components/ui/button';
-import { Checkbox } from '@/components/ui/checkbox';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { StatusBadge } from '@/components/ui/status-badge';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
+import { DataTable } from '@/components/ui/data-table';
 import { LazySection } from '@/components/ui/lazy-section';
 import { LazyLoader } from '@/components/ui/lazy-loader';
 import { PageHeader } from '@/components/ui/page-header';
 import { StatCard } from '@/components/ui/stat-card';
-import { toast } from 'sonner';
-
-// Types
-interface IncomeCategory {
-  id: string;
-  name: string;
-  description: string;
-  totalIncome: number;
-  recordCount: number;
-  lastIncomeDate: string | null;
-  isActive: boolean;
-  createdAt: string;
-  updatedAt: string;
-}
-
-// Mock data
-const mockCategories: IncomeCategory[] = [
-  {
-    id: '1',
-    name: 'Hall Rental',
-    description: 'Income from facility rentals for events and ceremonies',
-    totalIncome: 45000,
-    recordCount: 18,
-    lastIncomeDate: '2024-01-15',
-    isActive: true,
-    createdAt: '2023-01-01T00:00:00Z',
-    updatedAt: '2024-01-15T10:30:00Z'
-  },
-  {
-    id: '2',
-    name: 'Book Sales',
-    description: 'Revenue from religious books, materials, and publications',
-    totalIncome: 12500,
-    recordCount: 45,
-    lastIncomeDate: '2024-01-12',
-    isActive: true,
-    createdAt: '2023-01-01T00:00:00Z',
-    updatedAt: '2024-01-12T14:20:00Z'
-  },
-  {
-    id: '3',
-    name: 'Grants',
-    description: 'Government and foundation grants for community programs',
-    totalIncome: 75000,
-    recordCount: 5,
-    lastIncomeDate: '2023-12-20',
-    isActive: true,
-    createdAt: '2023-01-01T00:00:00Z',
-    updatedAt: '2023-12-20T09:15:00Z'
-  },
-  {
-    id: '4',
-    name: 'Fundraising Events',
-    description: 'Income from organized fundraising activities and campaigns',
-    totalIncome: 28750,
-    recordCount: 12,
-    lastIncomeDate: '2024-01-08',
-    isActive: true,
-    createdAt: '2023-01-01T00:00:00Z',
-    updatedAt: '2024-01-08T16:45:00Z'
-  },
-  {
-    id: '5',
-    name: 'Parking Fees',
-    description: 'Revenue from parking permits and daily parking fees',
-    totalIncome: 8200,
-    recordCount: 156,
-    lastIncomeDate: '2024-01-14',
-    isActive: true,
-    createdAt: '2023-01-01T00:00:00Z',
-    updatedAt: '2024-01-14T18:30:00Z'
-  },
-  {
-    id: '6',
-    name: 'Investment Returns',
-    description: 'Returns from church investments and endowment funds',
-    totalIncome: 15600,
-    recordCount: 4,
-    lastIncomeDate: '2023-12-31',
-    isActive: true,
-    createdAt: '2023-01-01T00:00:00Z',
-    updatedAt: '2023-12-31T23:59:00Z'
-  },
-  {
-    id: '7',
-    name: 'Catering Services',
-    description: 'Income from catering services for events (Inactive)',
-    totalIncome: 5400,
-    recordCount: 8,
-    lastIncomeDate: '2023-08-15',
-    isActive: false,
-    createdAt: '2023-01-01T00:00:00Z',
-    updatedAt: '2023-08-15T12:00:00Z'
-  }
-];
+import { DeleteDialog, useDeleteDialog } from '@/components/ui/delete-dialog';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { useToast } from '@/hooks/use-toast';
+import { incomeService } from '@/services';
+import { IncomeCategory } from '@/lib/types';
 
 export default function IncomeCategoriesPage() {
-  const [categories, setCategories] = useState<IncomeCategory[]>(mockCategories);
-  const [sorting, setSorting] = useState<SortingState>([]);
-  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
-  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
-  const [globalFilter, setGlobalFilter] = useState('');
-  const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [categories, setCategories] = useState<IncomeCategory[]>([]);
+  const [loading, setLoading] = useState(true);
+  const { toast } = useToast();
+  const deleteDialog = useDeleteDialog();
+
+  const loadCategories = async () => {
+    try {
+      setLoading(true);
+      const res = await incomeService.getCategories();
+      setCategories(res.data);
+    } catch {
+      toast({
+        title: 'Error',
+        description: 'Failed to load income categories.',
+        variant: 'destructive',
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadCategories();
+  }, []);
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-GH', {
       style: 'currency',
-      currency: 'GHS'
+      currency: 'GHS',
+      minimumFractionDigits: 2,
     }).format(amount);
   };
 
-  const handleDelete = async (categoryId: string) => {
-    setDeletingId(categoryId);
-    
+  const handleDeleteCategory = async (category: IncomeCategory) => {
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      setCategories(prev => prev.filter(cat => cat.id !== categoryId));
-      toast.success('Category deleted successfully!');
-    } catch (error) {
-      toast.error('Failed to delete category. Please try again.');
-    } finally {
-      setDeletingId(null);
+      await incomeService.deleteCategory(category.id);
+      setCategories((prev) => prev.filter((c) => c.id !== category.id));
+      toast({
+        title: 'Success',
+        description: 'Category deleted successfully.',
+      });
+    } catch {
+      toast({
+        title: 'Error',
+        description: 'Failed to delete category.',
+        variant: 'destructive',
+      });
     }
   };
 
-  const toggleStatus = async (categoryId: string) => {
-    try {
-      setCategories(prev => prev.map(cat => 
-        cat.id === categoryId 
-          ? { ...cat, isActive: !cat.isActive, updatedAt: new Date().toISOString() }
-          : cat
-      ));
-      
-      const category = categories.find(cat => cat.id === categoryId);
-      toast.success(`Category ${category?.isActive ? 'deactivated' : 'activated'} successfully!`);
-    } catch (error) {
-      toast.error('Failed to update category status.');
-    }
-  };
-
-  // Table columns
   const columns: ColumnDef<IncomeCategory>[] = [
-    {
-      id: 'select',
-      header: ({ table }) => (
-        <Checkbox
-          checked={
-            table.getIsAllPageRowsSelected() ||
-            (table.getIsSomePageRowsSelected() && 'indeterminate')
-          }
-          onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-          aria-label="Select all"
-        />
-      ),
-      cell: ({ row }) => (
-        <Checkbox
-          checked={row.getIsSelected()}
-          onCheckedChange={(value) => row.toggleSelected(!!value)}
-          aria-label="Select row"
-        />
-      ),
-      enableSorting: false,
-      enableHiding: false,
-    },
     {
       accessorKey: 'name',
       header: 'Category Name',
       cell: ({ row }) => {
-        const category = row.original;
+        const cat = row.original;
         return (
           <div>
-            <div className="font-medium">{category.name}</div>
-            <div className="text-sm text-muted-foreground truncate max-w-[200px]">
-              {category.description}
-            </div>
+            <div className="font-medium">{cat.name}</div>
+            {cat.description && (
+              <div className="text-xs text-muted-foreground truncate max-w-[280px]">
+                {cat.description}
+              </div>
+            )}
           </div>
         );
-      }
+      },
+    },
+    {
+      accessorKey: 'code',
+      header: 'Code',
+      cell: ({ row }) => {
+        const code = row.getValue('code') as string;
+        return code ? <Badge variant="neutral">{code}</Badge> : <span className="text-muted-foreground text-xs">—</span>;
+      },
     },
     {
       accessorKey: 'totalIncome',
       header: 'Total Income',
-      cell: ({ row }) => (
-        <div className="text-right font-medium">
-          {formatCurrency(row.getValue('totalIncome'))}
-        </div>
-      )
+      cell: ({ row }) => {
+        const total = row.original.totalIncome || 0;
+        return <div className="font-medium text-brand-success">{formatCurrency(total)}</div>;
+      },
     },
     {
       accessorKey: 'recordCount',
-      header: 'Records',
-      cell: ({ row }) => (
-        <div className="text-center">
-          <Badge variant="neutral">
-            {row.getValue('recordCount')} records
-          </Badge>
-        </div>
-      )
-    },
-    {
-      accessorKey: 'lastIncomeDate',
-      header: 'Last Income',
+      header: 'Entries',
       cell: ({ row }) => {
-        const date = row.getValue('lastIncomeDate') as string | null;
-        return (
-          <div className="text-sm">
-            {date ? new Date(date).toLocaleDateString() : 'No income yet'}
-          </div>
-        );
-      }
+        const count = row.original.recordCount || 0;
+        return <span className="text-sm">{count}</span>;
+      },
     },
     {
       accessorKey: 'isActive',
       header: 'Status',
       cell: ({ row }) => {
-        const isActive = row.getValue('isActive') as boolean;
-        return (
-          <StatusBadge status={isActive ? 'active' : 'inactive'} />
-        );
-      }
+        const active = row.original.isActive;
+        return <StatusBadge status={active ? 'active' : 'inactive'} />;
+      },
     },
     {
       id: 'actions',
       header: 'Actions',
       cell: ({ row }) => {
-        const category = row.original;
-        
+        const cat = row.original;
         return (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" className="h-8 w-8 p-0">
+                <span className="sr-only">Open menu</span>
                 <MoreHorizontal className="h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuLabel>Actions</DropdownMenuLabel>
               <DropdownMenuItem asChild>
-                <Link href={`/dashboard/finance/income/categories/${category.id}`}>
+                <Link href={`/dashboard/finance/income/categories/${cat.id}`}>
                   <Eye className="mr-2 h-4 w-4" />
                   View Details
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuItem asChild>
-                <Link href={`/dashboard/finance/income/categories/${category.id}/edit`}>
+                <Link href={`/dashboard/finance/income/categories/${cat.id}?edit=true`}>
                   <Edit className="mr-2 h-4 w-4" />
-                  Edit Category
+                  Edit
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={() => toggleStatus(category.id)}>
-                {category.isActive ? 'Deactivate' : 'Activate'}
+              <DropdownMenuItem
+                className="text-destructive focus:text-destructive"
+                onClick={() => deleteDialog.openDialog(cat)}
+              >
+                <Trash2 className="mr-2 h-4 w-4" />
+                Delete
               </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <AlertDialog>
-                <AlertDialogTrigger asChild>
-                  <DropdownMenuItem
-                    className="text-red-600"
-                    onSelect={(e) => e.preventDefault()}
-                  >
-                    <Trash2 className="mr-2 h-4 w-4" />
-                    Delete Category
-                  </DropdownMenuItem>
-                </AlertDialogTrigger>
-                <AlertDialogContent>
-                  <AlertDialogHeader>
-                    <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-                    <AlertDialogDescription>
-                      This action cannot be undone. This will permanently delete the category
-                      "{category.name}" and all associated income records.
-                    </AlertDialogDescription>
-                  </AlertDialogHeader>
-                  <AlertDialogFooter>
-                    <AlertDialogCancel>Cancel</AlertDialogCancel>
-                    <AlertDialogAction
-                      onClick={() => handleDelete(category.id)}
-                      className="bg-red-600 hover:bg-red-700"
-                      disabled={deletingId === category.id}
-                    >
-                      {deletingId === category.id ? 'Deleting...' : 'Delete'}
-                    </AlertDialogAction>
-                  </AlertDialogFooter>
-                </AlertDialogContent>
-              </AlertDialog>
             </DropdownMenuContent>
           </DropdownMenu>
         );
-      }
-    }
+      },
+    },
   ];
 
-  const table = useReactTable({
-    data: categories,
-    columns,
-    onSortingChange: setSorting,
-    onColumnFiltersChange: setColumnFilters,
-    getCoreRowModel: getCoreRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
-    getSortedRowModel: getSortedRowModel(),
-    getFilteredRowModel: getFilteredRowModel(),
-    onColumnVisibilityChange: setColumnVisibility,
-    onGlobalFilterChange: setGlobalFilter,
-    globalFilterFn: 'includesString',
-    state: {
-      sorting,
-      columnFilters,
-      columnVisibility,
-      globalFilter
-    }
-  });
-
-  // Calculate summary statistics
-  const summaryStats = useMemo(() => {
-    const activeCategories = categories.filter(cat => cat.isActive);
-    const totalIncome = categories.reduce((sum, cat) => sum + cat.totalIncome, 0);
-    const totalRecords = categories.reduce((sum, cat) => sum + cat.recordCount, 0);
-    const avgIncomePerCategory = activeCategories.length > 0 
-      ? totalIncome / activeCategories.length 
-      : 0;
-
-    return {
-      totalCategories: categories.length,
-      activeCategories: activeCategories.length,
-      totalIncome,
-      totalRecords,
-      avgIncomePerCategory
-    };
-  }, [categories]);
+  const totalIncomeGenerated = categories.reduce((sum, c) => sum + (c.totalIncome || 0), 0);
+  const activeCount = categories.filter((c) => c.isActive).length;
 
   return (
     <div className="space-y-6">
-      <PageHeader
-        title="Income Categories"
-        description="Manage income categories and track revenue sources"
-        actions={
-          <Button asChild>
-            <Link href="/dashboard/finance/income/categories/add">
-              <Plus className="mr-2 h-4 w-4" />
-              Add Category
-            </Link>
-          </Button>
-        }
-      />
+      {/* Header */}
+      <div className="flex items-center gap-4">
+        <Button variant="outline" size="icon" className="h-9 w-9" asChild>
+          <Link href="/dashboard/finance/income" aria-label="Back to Income">
+            <ArrowLeft className="h-4 w-4" />
+          </Link>
+        </Button>
+        <div className="flex-1">
+          <PageHeader
+            title="Income Categories"
+            actions={
+              <Button asChild>
+                <Link href="/dashboard/finance/income/categories/add">
+                  <Plus className="mr-1.5 h-4 w-4" />
+                  New Category
+                </Link>
+              </Button>
+            }
+          />
+        </div>
+      </div>
 
-      {/* Summary Cards */}
+      {/* Summary KPI Cards */}
       <LazySection
         strategy="immediate"
         showSkeleton
         skeletonVariant="card"
-        skeletonCount={4}
+        skeletonCount={3}
+        className="grid gap-4 md:grid-cols-3"
         threshold={0.1}
-        className="grid gap-4 md:grid-cols-2 lg:grid-cols-4"
       >
         <StatCard
-          title="Total Categories"
-          value={summaryStats.totalCategories}
-          icon={FileText}
+          title="Active Categories"
+          value={String(activeCount)}
+          icon={Tag}
           accent="primary"
         />
 
         <StatCard
-          title="Total Income"
-          value={formatCurrency(summaryStats.totalIncome)}
-          icon={BadgeCent}
-          accent="success"
-        />
-
-        <StatCard
-          title="Income Records"
-          value={summaryStats.totalRecords}
-          icon={TrendingUp}
+          title="Total Categories"
+          value={String(categories.length)}
+          icon={FolderOpen}
           accent="secondary"
         />
 
         <StatCard
-          title="Average per Category"
-          value={formatCurrency(summaryStats.avgIncomePerCategory)}
-          icon={Calendar}
-          accent="accent"
+          title="Total Revenue Generated"
+          value={formatCurrency(totalIncomeGenerated)}
+          icon={TrendingUp}
+          accent="success"
         />
       </LazySection>
 
-      {/* Categories Table */}
-      <LazySection
-        strategy="immediate"
-        showSkeleton
-        skeletonVariant="table"
-        skeletonCount={5}
-        threshold={0.1}
-      >
+      {/* Table */}
+      <LazyLoader threshold={0.3}>
         <Card>
-          <CardHeader>
-            <CardTitle>Categories List</CardTitle>
+          <CardHeader className="pb-3">
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-base font-semibold">Configured Categories</CardTitle>
+              <span className="text-xs text-muted-foreground">
+                {categories.length} categories configured
+              </span>
+            </div>
           </CardHeader>
           <CardContent>
-            {/* Search and Filters */}
-            <div className="flex items-center space-x-4 mb-4">
-              <div className="flex-1">
-                <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-                  <Input
-                    placeholder="Search categories..."
-                    value={globalFilter}
-                    onChange={(e) => setGlobalFilter(e.target.value)}
-                    className="pl-10"
-                  />
-                </div>
-              </div>
-              <Button variant="outline" size="sm">
-                <Filter className="mr-2 h-4 w-4" />
-                Filter
-              </Button>
-            </div>
-
-            {/* Data Table */}
-            <div className="rounded-md border">
-              <Table>
-                <TableHeader>
-                  {table.getHeaderGroups().map((headerGroup) => (
-                    <TableRow key={headerGroup.id}>
-                      {headerGroup.headers.map((header) => (
-                        <TableHead key={header.id}>
-                          {header.isPlaceholder
-                            ? null
-                            : flexRender(
-                                header.column.columnDef.header,
-                                header.getContext()
-                              )}
-                        </TableHead>
-                      ))}
-                    </TableRow>
-                  ))}
-                </TableHeader>
-                <TableBody>
-                  {table.getRowModel().rows?.length ? (
-                    table.getRowModel().rows.map((row) => (
-                      <TableRow
-                        key={row.id}
-                        data-state={row.getIsSelected() && "selected"}
-                      >
-                        {row.getVisibleCells().map((cell) => (
-                          <TableCell key={cell.id}>
-                            {flexRender(
-                              cell.column.columnDef.cell,
-                              cell.getContext()
-                            )}
-                          </TableCell>
-                        ))}
-                      </TableRow>
-                    ))
-                  ) : (
-                    <TableRow>
-                      <TableCell
-                        colSpan={columns.length}
-                        className="h-24 text-center"
-                      >
-                        No categories found.
-                      </TableCell>
-                    </TableRow>
-                  )}
-                </TableBody>
-              </Table>
-            </div>
-
-            {/* Pagination */}
-            <div className="flex items-center justify-between space-x-2 py-4">
-              <div className="text-sm text-muted-foreground">
-                Showing {table.getFilteredRowModel().rows.length} of{' '}
-                {categories.length} categories
-              </div>
-              <div className="flex items-center space-x-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => table.previousPage()}
-                  disabled={!table.getCanPreviousPage()}
-                >
-                  Previous
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => table.nextPage()}
-                  disabled={!table.getCanNextPage()}
-                >
-                  Next
-                </Button>
-              </div>
-            </div>
+            <DataTable
+              columns={columns}
+              data={categories}
+              recordLabel="category"
+              recordLabelPlural="categories"
+              searchKey="name"
+              searchPlaceholder="Search categories..."
+            />
           </CardContent>
         </Card>
-      </LazySection>
+      </LazyLoader>
+
+      {/* Delete Dialog */}
+      <DeleteDialog
+        isOpen={deleteDialog.isOpen}
+        onOpenChange={deleteDialog.closeDialog}
+        onConfirm={() => handleDeleteCategory(deleteDialog.itemToDelete)}
+        title="Delete Income Category"
+        description="Are you sure you want to delete this category? Historical income records will remain intact."
+        itemName={deleteDialog.itemToDelete?.name}
+        loading={deleteDialog.loading}
+      />
     </div>
   );
 }

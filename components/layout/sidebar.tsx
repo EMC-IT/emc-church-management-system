@@ -133,12 +133,6 @@ const navSections: NavSection[] = [
         permission: PERMISSIONS.VIEW_FINANCE,
       },
       {
-        name: "Tithes & Offerings",
-        href: "/dashboard/finance/tithes-offerings",
-        icon: Heart,
-        permission: PERMISSIONS.VIEW_FINANCE,
-      },
-      {
         name: "Budgets",
         href: "/dashboard/finance/budgets",
         icon: Wallet,
@@ -220,7 +214,7 @@ export default function Sidebar() {
   return (
     <aside
       className={cn(
-        "bg-card border-r border-border flex flex-col transition-all duration-300 h-screen",
+        "bg-card border-r border-border flex flex-col flex-shrink-0 transition-all duration-300 h-screen",
         isCollapsed ? "w-16" : "w-64"
       )}
     >

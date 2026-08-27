@@ -13,6 +13,9 @@ export { default as attendanceService } from './attendance-service';
 export { default as groupsService } from './groups-service';
 export { default as sundaySchoolService } from './sunday-school-service';
 export { default as departmentsService } from './departments-service';
+export { incomeService, default as defaultIncomeService } from './income-service';
+export { expenseService, default as defaultExpenseService } from './expense-service';
+export { budgetService, default as defaultBudgetService } from './budget-service';
 
 // Export types from services
 export type {

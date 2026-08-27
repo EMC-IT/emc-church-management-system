@@ -1,339 +1,325 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import Link from 'next/link';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { useForm } from 'react-hook-form';
-import * as z from 'zod';
-import {
-  ArrowLeft,
-  Save,
-  Calendar,
-  BadgeCent,
-  FileText,
-  Building,
-  User,
-  Tag
-} from 'lucide-react';
-
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { PageHeader } from '@/components/ui/page-header';
 import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { DatePicker } from '@/components/ui/date-picker';
-import { LazySection } from '@/components/ui/lazy-section';
-import { PageHeader } from '@/components/ui/page-header';
-import { toast } from 'sonner';
+import { ArrowLeft, Save } from 'lucide-react';
+import Link from 'next/link';
+import { useToast } from '@/hooks/use-toast';
+import { incomeService } from '@/services';
+import { IncomeCategory, IncomeFormData, IncomeStatus } from '@/lib/types';
 
-// Form validation schema
-const incomeFormSchema = z.object({
-  description: z.string().min(1, 'Description is required').max(255, 'Description too long'),
-  amount: z.string().min(1, 'Amount is required').refine(
-    (val) => !isNaN(Number(val)) && Number(val) > 0,
-    'Amount must be a positive number'
-  ),
-  categoryId: z.string().min(1, 'Category is required'),
-  source: z.string().min(1, 'Source is required').max(100, 'Source name too long'),
-  date: z.string().min(1, 'Date is required'),
-  notes: z.string().optional(),
-  reference: z.string().optional(),
-  status: z.enum(['received', 'pending', 'cancelled']).default('received')
-});
-
-type IncomeFormValues = z.infer<typeof incomeFormSchema>;
-
-// Mock income categories
-const incomeCategories = [
-  { id: '1', name: 'Hall Rental', description: 'Facility rental income' },
-  { id: '2', name: 'Book Sales', description: 'Religious books and materials' },
-  { id: '3', name: 'Grants', description: 'Government and foundation grants' },
-  { id: '4', name: 'Fundraising', description: 'Fundraising events and campaigns' },
-  { id: '5', name: 'Parking', description: 'Parking fees and permits' },
-  { id: '6', name: 'Donations', description: 'General donations and offerings' },
-  { id: '7', name: 'Investment', description: 'Investment returns and dividends' },
-  { id: '8', name: 'Other', description: 'Other miscellaneous income' }
-];
-
-export default function AddIncomePage() {
+export default function RecordIncomePage() {
   const router = useRouter();
-  const [loading, setLoading] = useState(false);
-  const [categoriesLoading, setCategoriesLoading] = useState(true);
+  const { toast } = useToast();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [categories, setCategories] = useState<IncomeCategory[]>([]);
 
-  const form = useForm<IncomeFormValues>({
-    resolver: zodResolver(incomeFormSchema),
-    defaultValues: {
-      description: '',
-      amount: '',
-      categoryId: '',
-      source: '',
-      date: new Date().toISOString().split('T')[0],
-      notes: '',
-      reference: '',
-      status: 'received'
-    }
+  const [form, setForm] = useState({
+    description: '',
+    categoryId: '',
+    source: '',
+    amount: '',
+    currency: 'GHS',
+    paymentMethod: 'Bank Transfer',
+    date: new Date(),
+    status: 'received' as IncomeStatus,
+    reference: '',
+    notes: '',
   });
 
   useEffect(() => {
-    // Simulate loading categories
-    const timer = setTimeout(() => {
-      setCategoriesLoading(false);
-    }, 500);
-
-    return () => clearTimeout(timer);
+    const loadCategories = async () => {
+      try {
+        const res = await incomeService.getCategories();
+        const activeCats = res.data.filter((c) => c.isActive);
+        setCategories(activeCats);
+        if (activeCats.length > 0) {
+          setForm((prev) => ({ ...prev, categoryId: activeCats[0].id }));
+        }
+      } catch {
+        // Fallback handled by service
+      }
+    };
+    loadCategories();
   }, []);
 
-  const onSubmit = async (data: IncomeFormValues) => {
-    setLoading(true);
-    
-    try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      console.log('Income data:', {
-        ...data,
-        amount: parseFloat(data.amount)
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!form.description.trim()) {
+      toast({
+        title: 'Validation Error',
+        description: 'Description / Purpose is required.',
+        variant: 'destructive',
       });
-      
-      toast.success('Income recorded successfully!');
+      return;
+    }
+
+    if (!form.categoryId) {
+      toast({
+        title: 'Validation Error',
+        description: 'Please select an income category.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    if (!form.source.trim()) {
+      toast({
+        title: 'Validation Error',
+        description: 'Source / Payer is required.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    const amountNum = parseFloat(form.amount);
+    if (isNaN(amountNum) || amountNum <= 0) {
+      toast({
+        title: 'Validation Error',
+        description: 'Please enter an amount greater than 0.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    try {
+      setIsSubmitting(true);
+      const payload: IncomeFormData = {
+        description: form.description.trim(),
+        categoryId: form.categoryId,
+        source: form.source.trim(),
+        amount: amountNum,
+        currency: form.currency,
+        paymentMethod: form.paymentMethod,
+        date: form.date.toISOString().split('T')[0],
+        status: form.status,
+        reference: form.reference.trim() || undefined,
+        notes: form.notes.trim() || undefined,
+      };
+
+      await incomeService.createIncome(payload);
+
+      toast({
+        title: 'Income Recorded',
+        description: `Recorded ${form.currency} ${amountNum.toFixed(2)} from ${form.source}.`,
+      });
+
       router.push('/dashboard/finance/income');
-    } catch (error) {
-      toast.error('Failed to record income. Please try again.');
+    } catch (err: any) {
+      toast({
+        title: 'Error',
+        description: err.message || 'Failed to record income.',
+        variant: 'destructive',
+      });
     } finally {
-      setLoading(false);
+      setIsSubmitting(false);
     }
   };
 
-  const formatCurrency = (amount: string) => {
-    if (!amount) return '';
-    const num = parseFloat(amount);
-    if (isNaN(num)) return amount;
-    return new Intl.NumberFormat('en-GH', {
-      style: 'currency',
-      currency: 'GHS'
-    }).format(num);
-  };
-
   return (
-    <div className="space-y-6 max-w-6xl">
-      {/* Page Header */}
+    <div className="space-y-6">
+      {/* Header */}
       <div className="flex items-center gap-4">
-        <Button variant="ghost" size="icon" asChild>
-          <Link href="/dashboard/finance/income">
+        <Button variant="outline" size="icon" className="h-9 w-9" asChild>
+          <Link href="/dashboard/finance/income" aria-label="Back to Income">
             <ArrowLeft className="h-4 w-4" />
           </Link>
         </Button>
-        <div>
-          <h1 className="font-heading text-2xl font-bold tracking-tight">Record Income</h1>
+        <div className="flex-1">
+          <PageHeader title="Record Income" />
         </div>
       </div>
 
-      {/* Form */}
-      <Card className="rounded-xl border border-border p-6">
-        <div className="space-y-5">
-          <h2 className="text-base font-semibold text-foreground">Income Details</h2>
+      <form onSubmit={handleSubmit} className="space-y-6">
+        {/* Income Details Card */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base">Income Details</CardTitle>
+          </CardHeader>
+          <CardContent className="grid gap-4 md:grid-cols-2">
+            {/* Description */}
+            <div className="space-y-2 md:col-span-2">
+              <Label htmlFor="description">
+                Description / Purpose <span className="text-destructive">*</span>
+              </Label>
+              <Input
+                id="description"
+                placeholder="e.g. Wedding Event Hall Rental / Sunday Book Sales"
+                value={form.description}
+                onChange={(e) => setForm({ ...form, description: e.target.value })}
+                required
+              />
+            </div>
 
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-              <div className="grid grid-cols-12 gap-5">
-                {/* Description */}
-                <FormField
-                  control={form.control}
-                  name="description"
-                  render={({ field }) => (
-                    <FormItem className="col-span-12 sm:col-span-8">
-                      <FormLabel>Description *</FormLabel>
-                      <FormControl>
-                        <Input
-                          placeholder="Hall Rental - Wedding Event / Bookshop Sales"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+            {/* Category */}
+            <div className="space-y-2">
+              <Label htmlFor="category">
+                Income Category <span className="text-destructive">*</span>
+              </Label>
+              <Select
+                value={form.categoryId}
+                onValueChange={(val) => setForm({ ...form, categoryId: val })}
+              >
+                <SelectTrigger id="category">
+                  <SelectValue placeholder="Select category" />
+                </SelectTrigger>
+                <SelectContent>
+                  {categories.map((c) => (
+                    <SelectItem key={c.id} value={c.id}>
+                      {c.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
 
-                {/* Amount */}
-                <FormField
-                  control={form.control}
-                  name="amount"
-                  render={({ field }) => (
-                    <FormItem className="col-span-12 sm:col-span-4">
-                      <FormLabel>Amount *</FormLabel>
-                      <FormControl>
-                        <div className="relative">
-                          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">₵</span>
-                          <Input
-                            type="number"
-                            step="0.01"
-                            min="0"
-                            placeholder="0.00"
-                            className="pl-8"
-                            {...field}
-                          />
-                        </div>
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+            {/* Source / Payer */}
+            <div className="space-y-2">
+              <Label htmlFor="source">
+                Source / Payer <span className="text-destructive">*</span>
+              </Label>
+              <Input
+                id="source"
+                placeholder="e.g. Johnson Family, Bookstore, City Council, NGO"
+                value={form.source}
+                onChange={(e) => setForm({ ...form, source: e.target.value })}
+                required
+              />
+            </div>
 
-                {/* Category */}
-                <FormField
-                  control={form.control}
-                  name="categoryId"
-                  render={({ field }) => (
-                    <FormItem className="col-span-12 sm:col-span-4">
-                      <FormLabel>Category *</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select category" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          {incomeCategories.map((category) => (
-                            <SelectItem key={category.id} value={category.id}>
-                              {category.name}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                {/* Source */}
-                <FormField
-                  control={form.control}
-                  name="source"
-                  render={({ field }) => (
-                    <FormItem className="col-span-12 sm:col-span-4">
-                      <FormLabel>Source / Payer *</FormLabel>
-                      <FormControl>
-                        <Input
-                          placeholder="Johnson Family / Ministry Partners"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                {/* Date */}
-                <FormField
-                  control={form.control}
-                  name="date"
-                  render={({ field }) => (
-                    <FormItem className="col-span-12 sm:col-span-4">
-                      <FormLabel>Date *</FormLabel>
-                      <FormControl>
-                        <DatePicker
-                          value={field.value}
-                          onChange={(_, dateStr) => field.onChange(dateStr)}
-                          placeholder="Select transaction date"
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                {/* Status */}
-                <FormField
-                  control={form.control}
-                  name="status"
-                  render={({ field }) => (
-                    <FormItem className="col-span-12 sm:col-span-6">
-                      <FormLabel>Status *</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select status" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          <SelectItem value="received">Received</SelectItem>
-                          <SelectItem value="pending">Pending</SelectItem>
-                          <SelectItem value="cancelled">Cancelled</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                {/* Reference */}
-                <FormField
-                  control={form.control}
-                  name="reference"
-                  render={({ field }) => (
-                    <FormItem className="col-span-12 sm:col-span-6">
-                      <FormLabel>Reference / Invoice #</FormLabel>
-                      <FormControl>
-                        <Input
-                          placeholder="INV-2026-001"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                {/* Notes */}
-                <FormField
-                  control={form.control}
-                  name="notes"
-                  render={({ field }) => (
-                    <FormItem className="col-span-12">
-                      <FormLabel>Notes</FormLabel>
-                      <FormControl>
-                        <Textarea
-                          placeholder="Additional notes or comments regarding this transaction..."
-                          rows={3}
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-
-              {/* Submit Buttons */}
-              <div className="flex justify-end gap-3 pt-2">
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => router.push('/dashboard/finance/income')}
-                  disabled={loading}
+            {/* Amount & Currency */}
+            <div className="space-y-2">
+              <Label htmlFor="amount">
+                Amount <span className="text-destructive">*</span>
+              </Label>
+              <div className="flex gap-2">
+                <Select
+                  value={form.currency}
+                  onValueChange={(val) => setForm({ ...form, currency: val })}
                 >
-                  Cancel
-                </Button>
-                <Button type="submit" disabled={loading}>
-                  {loading ? (
-                    <>
-                      <div className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-background border-t-transparent" />
-                      <span>Recording...</span>
-                    </>
-                  ) : (
-                    <>
-                      <Save className="mr-1.5 h-4 w-4" />
-                      <span>Record Income</span>
-                    </>
-                  )}
-                </Button>
+                  <SelectTrigger className="w-24">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="GHS">GHS</SelectItem>
+                    <SelectItem value="USD">USD</SelectItem>
+                    <SelectItem value="EUR">EUR</SelectItem>
+                    <SelectItem value="GBP">GBP</SelectItem>
+                  </SelectContent>
+                </Select>
+                <Input
+                  id="amount"
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  placeholder="0.00"
+                  value={form.amount}
+                  onChange={(e) => setForm({ ...form, amount: e.target.value })}
+                  className="flex-1"
+                  required
+                />
               </div>
-            </form>
-          </Form>
+            </div>
+
+            {/* Payment Method */}
+            <div className="space-y-2">
+              <Label htmlFor="method">
+                Payment Method <span className="text-destructive">*</span>
+              </Label>
+              <Select
+                value={form.paymentMethod}
+                onValueChange={(val) => setForm({ ...form, paymentMethod: val })}
+              >
+                <SelectTrigger id="method">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Bank Transfer">Bank Transfer</SelectItem>
+                  <SelectItem value="Cash">Cash</SelectItem>
+                  <SelectItem value="Mobile Money">Mobile Money</SelectItem>
+                  <SelectItem value="Cheque">Cheque</SelectItem>
+                  <SelectItem value="Card">Card</SelectItem>
+                  <SelectItem value="Other">Other</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Date */}
+            <div className="space-y-2">
+              <Label>
+                Date <span className="text-destructive">*</span>
+              </Label>
+              <DatePicker
+                value={form.date}
+                onChange={(d) => d && setForm({ ...form, date: d })}
+              />
+            </div>
+
+            {/* Status */}
+            <div className="space-y-2">
+              <Label htmlFor="status">
+                Status <span className="text-destructive">*</span>
+              </Label>
+              <Select
+                value={form.status}
+                onValueChange={(val) => setForm({ ...form, status: val as IncomeStatus })}
+              >
+                <SelectTrigger id="status">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="received">Received</SelectItem>
+                  <SelectItem value="pending">Pending</SelectItem>
+                  <SelectItem value="cancelled">Cancelled</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Reference */}
+            <div className="space-y-2 md:col-span-2">
+              <Label htmlFor="reference">Reference / Invoice # (Optional)</Label>
+              <Input
+                id="reference"
+                placeholder="e.g. INV-2024-001, RCT-482"
+                value={form.reference}
+                onChange={(e) => setForm({ ...form, reference: e.target.value })}
+              />
+            </div>
+
+            {/* Notes */}
+            <div className="space-y-2 md:col-span-2">
+              <Label htmlFor="notes">Notes / Purpose</Label>
+              <Textarea
+                id="notes"
+                placeholder="Additional notes about this income transaction..."
+                value={form.notes}
+                onChange={(e) => setForm({ ...form, notes: e.target.value })}
+                rows={3}
+              />
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Actions */}
+        <div className="flex items-center justify-end gap-3">
+          <Button type="button" variant="outline" asChild>
+            <Link href="/dashboard/finance/income">Cancel</Link>
+          </Button>
+          <Button type="submit" disabled={isSubmitting}>
+            <Save className="mr-1.5 h-4 w-4" />
+            {isSubmitting ? 'Recording...' : 'Record Income'}
+          </Button>
         </div>
-      </Card>
+      </form>
     </div>
   );
 }

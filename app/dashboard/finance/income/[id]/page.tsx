@@ -1,612 +1,482 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { useRouter, useParams } from 'next/navigation';
+import { useRouter, useParams, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { useForm } from 'react-hook-form';
-import * as z from 'zod';
 import {
   ArrowLeft,
   Edit,
   Trash2,
   Save,
-  Calendar,
   BadgeCent,
-  FileText,
-  User,
-  Tag,
-  MoreHorizontal,
-  Eye,
-  Copy
 } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { PageHeader } from '@/components/ui/page-header';
+import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { DatePicker } from '@/components/ui/date-picker';
 import { Badge } from '@/components/ui/badge';
 import { StatusBadge } from '@/components/ui/status-badge';
-import { Separator } from '@/components/ui/separator';
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { LazySection } from '@/components/ui/lazy-section';
-import { PageHeader } from '@/components/ui/page-header';
-import { toast } from 'sonner';
-
-// Form validation schema
-const incomeFormSchema = z.object({
-  description: z.string().min(1, 'Description is required').max(255, 'Description too long'),
-  amount: z.string().min(1, 'Amount is required').refine(
-    (val) => !isNaN(Number(val)) && Number(val) > 0,
-    'Amount must be a positive number'
-  ),
-  categoryId: z.string().min(1, 'Category is required'),
-  source: z.string().min(1, 'Source is required').max(100, 'Source name too long'),
-  date: z.string().min(1, 'Date is required'),
-  notes: z.string().optional(),
-  reference: z.string().optional(),
-  status: z.enum(['received', 'pending', 'cancelled'])
-});
-
-type IncomeFormValues = z.infer<typeof incomeFormSchema>;
-
-// Mock income categories
-const incomeCategories = [
-  { id: '1', name: 'Hall Rental', description: 'Facility rental income' },
-  { id: '2', name: 'Book Sales', description: 'Religious books and materials' },
-  { id: '3', name: 'Grants', description: 'Government and foundation grants' },
-  { id: '4', name: 'Fundraising', description: 'Fundraising events and campaigns' },
-  { id: '5', name: 'Parking', description: 'Parking fees and permits' },
-  { id: '6', name: 'Donations', description: 'General donations and offerings' },
-  { id: '7', name: 'Investment', description: 'Investment returns and dividends' },
-  { id: '8', name: 'Other', description: 'Other miscellaneous income' }
-];
-
-// Income data interface
-interface IncomeData {
-  id: string;
-  description: string;
-  amount: number;
-  categoryId: string;
-  categoryName: string;
-  source: string;
-  date: string;
-  status: 'received' | 'pending' | 'cancelled';
-  notes: string;
-  reference: string;
-  createdAt: string;
-  updatedAt: string;
-}
-
-// Mock income data
-const mockIncomeData: IncomeData = {
-  id: '1',
-  description: 'Hall Rental - Wedding Event',
-  amount: 2500,
-  categoryId: '1',
-  categoryName: 'Hall Rental',
-  source: 'Johnson Family',
-  date: '2024-01-15',
-  status: 'received',
-  notes: 'Wedding ceremony and reception. Includes tables, chairs, and sound system.',
-  reference: 'INV-2024-001',
-  createdAt: '2024-01-15T10:30:00Z',
-  updatedAt: '2024-01-15T10:30:00Z'
-};
+import { DeleteDialog, useDeleteDialog } from '@/components/ui/delete-dialog';
+import { useToast } from '@/hooks/use-toast';
+import { incomeService } from '@/services';
+import { IncomeRecord, IncomeCategory, IncomeFormData, IncomeStatus } from '@/lib/types';
 
 export default function IncomeDetailsPage() {
   const router = useRouter();
   const params = useParams();
+  const searchParams = useSearchParams();
+  const { toast } = useToast();
+  const deleteDialog = useDeleteDialog();
+
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [deleting, setDeleting] = useState(false);
-  const [isEditing, setIsEditing] = useState(false);
-  const [incomeData, setIncomeData] = useState<IncomeData>(mockIncomeData);
+  const [isEditing, setIsEditing] = useState(searchParams.get('edit') === 'true');
+  const [incomeData, setIncomeData] = useState<IncomeRecord | null>(null);
+  const [categories, setCategories] = useState<IncomeCategory[]>([]);
 
-  const form = useForm<IncomeFormValues>({
-    resolver: zodResolver(incomeFormSchema),
-    defaultValues: {
-      description: '',
-      amount: '',
-      categoryId: '',
-      source: '',
-      date: '',
-      notes: '',
-      reference: '',
-      status: 'received'
-    }
+  const [form, setForm] = useState({
+    description: '',
+    categoryId: '',
+    source: '',
+    amount: '',
+    currency: 'GHS',
+    paymentMethod: 'Bank Transfer',
+    date: new Date(),
+    status: 'received' as IncomeStatus,
+    reference: '',
+    notes: '',
   });
 
-  useEffect(() => {
-    // Simulate loading income data
-    const timer = setTimeout(() => {
-      setIncomeData(mockIncomeData);
-      form.reset({
-        description: mockIncomeData.description,
-        amount: mockIncomeData.amount.toString(),
-        categoryId: mockIncomeData.categoryId,
-        source: mockIncomeData.source,
-        date: mockIncomeData.date,
-        notes: mockIncomeData.notes || '',
-        reference: mockIncomeData.reference || '',
-        status: mockIncomeData.status
+  const loadData = async () => {
+    try {
+      setLoading(true);
+      const recordId = String(params.id);
+      const [record, catsRes] = await Promise.all([
+        incomeService.getIncomeById(recordId),
+        incomeService.getCategories(),
+      ]);
+
+      setIncomeData(record);
+      setCategories(catsRes.data);
+
+      setForm({
+        description: record.description,
+        categoryId: record.categoryId,
+        source: record.source,
+        amount: String(record.amount),
+        currency: record.currency || 'GHS',
+        paymentMethod: record.paymentMethod || 'Bank Transfer',
+        date: new Date(record.date),
+        status: record.status,
+        reference: record.reference || '',
+        notes: record.notes || '',
       });
+    } catch {
+      toast({
+        title: 'Error',
+        description: 'Failed to load income details.',
+        variant: 'destructive',
+      });
+    } finally {
       setLoading(false);
-    }, 1000);
-
-    return () => clearTimeout(timer);
-  }, [params.id, form]);
-
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-GH', {
-      style: 'currency',
-      currency: 'GHS'
-    }).format(amount);
+    }
   };
 
-  const getStatusBadge = (status: string) => <StatusBadge status={status} />;
+  useEffect(() => {
+    loadData();
+  }, [params.id]);
 
-  const onSubmit = async (data: IncomeFormValues) => {
-    setSaving(true);
+  const handleUpdate = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!incomeData) return;
 
-    try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-
-      console.log('Updated income data:', {
-        ...data,
-        amount: parseFloat(data.amount)
+    if (!form.description.trim()) {
+      toast({
+        title: 'Validation Error',
+        description: 'Description is required.',
+        variant: 'destructive',
       });
+      return;
+    }
 
-      // Update local state
-      setIncomeData(prev => ({
-        ...prev,
-        ...data,
-        amount: parseFloat(data.amount),
-        categoryName: incomeCategories.find(cat => cat.id === data.categoryId)?.name || prev.categoryName,
-        updatedAt: new Date().toISOString()
-      }));
+    const amountNum = parseFloat(form.amount);
+    if (isNaN(amountNum) || amountNum <= 0) {
+      toast({
+        title: 'Validation Error',
+        description: 'Please enter a valid amount greater than 0.',
+        variant: 'destructive',
+      });
+      return;
+    }
 
+    setSaving(true);
+    try {
+      const payload: Partial<IncomeFormData> = {
+        description: form.description.trim(),
+        amount: amountNum,
+        currency: form.currency,
+        categoryId: form.categoryId,
+        source: form.source.trim(),
+        paymentMethod: form.paymentMethod,
+        date: form.date.toISOString().split('T')[0],
+        status: form.status,
+        reference: form.reference.trim() || undefined,
+        notes: form.notes.trim() || undefined,
+      };
+
+      const res = await incomeService.updateIncome(incomeData.id, payload);
+      setIncomeData(res.data);
       setIsEditing(false);
-      toast.success('Income updated successfully!');
-    } catch (error) {
-      toast.error('Failed to update income. Please try again.');
+      toast({
+        title: 'Success',
+        description: 'Income record updated successfully.',
+      });
+    } catch (err: any) {
+      toast({
+        title: 'Error',
+        description: err.message || 'Failed to update income record.',
+        variant: 'destructive',
+      });
     } finally {
       setSaving(false);
     }
   };
 
   const handleDelete = async () => {
-    setDeleting(true);
-
+    if (!incomeData) return;
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-
-      toast.success('Income deleted successfully!');
+      await incomeService.deleteIncome(incomeData.id);
+      toast({
+        title: 'Success',
+        description: 'Income record deleted successfully.',
+      });
       router.push('/dashboard/finance/income');
-    } catch (error) {
-      toast.error('Failed to delete income. Please try again.');
-    } finally {
-      setDeleting(false);
+    } catch {
+      toast({
+        title: 'Error',
+        description: 'Failed to delete income record.',
+        variant: 'destructive',
+      });
     }
   };
 
-  const handleCopyId = () => {
-    navigator.clipboard.writeText(incomeData.id);
-    toast.success('Income ID copied to clipboard!');
+  const formatCurrency = (amount: number, curr = 'GHS') => {
+    return new Intl.NumberFormat('en-GH', {
+      style: 'currency',
+      currency: curr,
+      minimumFractionDigits: 2,
+    }).format(amount);
   };
 
   if (loading) {
     return (
       <div className="space-y-6">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-4">
-            <Button variant="outline" size="sm" asChild>
-              <Link href="/dashboard/finance/income">
-                <ArrowLeft className="mr-2 h-4 w-4" />
-                Back to Income
-              </Link>
-            </Button>
-            <div>
-              <div className="h-8 w-64 bg-muted animate-pulse rounded" />
-              <div className="h-4 w-48 bg-muted animate-pulse rounded mt-2" />
-            </div>
-          </div>
-          <div className="h-10 w-32 bg-muted animate-pulse rounded" />
+        <div className="flex items-center gap-4">
+          <Button variant="outline" size="icon" className="h-9 w-9" asChild>
+            <Link href="/dashboard/finance/income" aria-label="Back">
+              <ArrowLeft className="h-4 w-4" />
+            </Link>
+          </Button>
+          <PageHeader title="Income Details" />
         </div>
-        <div className="grid gap-6">
-          <div className="h-96 bg-muted animate-pulse rounded-lg" />
+        <div className="h-64 flex items-center justify-center">
+          <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
         </div>
       </div>
     );
   }
 
+  if (!incomeData) {
+    return (
+      <div className="space-y-6">
+        <PageHeader title="Income Record Not Found" />
+        <Button asChild variant="outline">
+          <Link href="/dashboard/finance/income">Return to Income Overview</Link>
+        </Button>
+      </div>
+    );
+  }
+
   return (
-    <div className="space-y-6 max-w-6xl">
+    <div className="space-y-6">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <Button variant="ghost" size="icon" asChild>
-            <Link href="/dashboard/finance/income">
+          <Button variant="outline" size="icon" className="h-9 w-9" asChild>
+            <Link href="/dashboard/finance/income" aria-label="Back to Income">
               <ArrowLeft className="h-4 w-4" />
             </Link>
           </Button>
-          <div>
-            <h1 className="font-heading text-2xl font-bold tracking-tight">{isEditing ? 'Edit Income' : 'Income Details'}</h1>
-            <p className="text-sm text-muted-foreground mt-1">
-              {isEditing ? 'Update income information' : `Income ID: ${incomeData.id}`}
-            </p>
-          </div>
+          <PageHeader
+            title={isEditing ? 'Edit Income' : incomeData.description}
+          />
         </div>
-        <div className="flex items-center gap-2 self-start sm:self-auto">
+
+        <div className="flex items-center gap-2">
           {!isEditing ? (
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="icon">
-                  <MoreHorizontal className="h-4 w-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                <DropdownMenuItem onClick={() => setIsEditing(true)}>
-                  <Edit className="mr-2 h-4 w-4" />
-                  Edit Income
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={handleCopyId}>
-                  <Copy className="mr-2 h-4 w-4" />
-                  Copy ID
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <AlertDialog>
-                  <AlertDialogTrigger asChild>
-                    <DropdownMenuItem
-                      className="text-red-600"
-                      onSelect={(e) => e.preventDefault()}
-                    >
-                      <Trash2 className="mr-2 h-4 w-4" />
-                      Delete Income
-                    </DropdownMenuItem>
-                  </AlertDialogTrigger>
-                  <AlertDialogContent>
-                    <AlertDialogHeader>
-                      <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-                      <AlertDialogDescription>
-                        This action cannot be undone. This will permanently delete the income record
-                        and remove all associated data.
-                      </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                      <AlertDialogCancel>Cancel</AlertDialogCancel>
-                      <AlertDialogAction
-                        onClick={handleDelete}
-                        className="bg-red-600 hover:bg-red-700"
-                        disabled={deleting}
-                      >
-                        {deleting ? 'Deleting...' : 'Delete'}
-                      </AlertDialogAction>
-                    </AlertDialogFooter>
-                  </AlertDialogContent>
-                </AlertDialog>
-              </DropdownMenuContent>
-            </DropdownMenu>
+            <>
+              <Button variant="outline" onClick={() => setIsEditing(true)}>
+                <Edit className="mr-1.5 h-4 w-4" />
+                Edit
+              </Button>
+              <Button
+                variant="outline"
+                className="text-destructive hover:bg-destructive/10"
+                onClick={() => deleteDialog.openDialog(incomeData)}
+              >
+                <Trash2 className="mr-1.5 h-4 w-4" />
+                Delete
+              </Button>
+            </>
           ) : (
-            <Button
-              variant="outline"
-              onClick={() => setIsEditing(false)}
-            >
-              Cancel Edit
+            <Button variant="outline" onClick={() => setIsEditing(false)}>
+              Cancel
             </Button>
           )}
         </div>
       </div>
 
-      {/* Content */}
-      <LazySection
-        strategy="immediate"
-        showSkeleton
-        skeletonVariant="form"
-        skeletonCount={6}
-        threshold={0.1}
-      >
-        {isEditing ? (
-          // Edit Form
+      {!isEditing ? (
+        /* View Mode */
+        <div className="space-y-6">
           <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center">
-                <Edit className="mr-2 h-5 w-5" />
-                Edit Income
-              </CardTitle>
+            <CardHeader className="pb-3">
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-base">Financial Summary</CardTitle>
+                <StatusBadge status={incomeData.status} />
+              </div>
             </CardHeader>
             <CardContent>
-              <Form {...form}>
-                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {/* Description */}
-                    <FormField
-                      control={form.control}
-                      name="description"
-                      render={({ field }) => (
-                        <FormItem className="md:col-span-2">
-                          <FormLabel className="flex items-center">
-                            <FileText className="mr-2 h-4 w-4" />
-                            Description
-                          </FormLabel>
-                          <FormControl>
-                            <Input
-                              placeholder="e.g., Hall Rental - Wedding Event"
-                              {...field}
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 p-4 rounded-lg border bg-muted/20">
+                <div>
+                  <p className="text-xs text-muted-foreground">Amount</p>
+                  <p className="text-xl font-bold mt-1 text-foreground">
+                    {formatCurrency(incomeData.amount, incomeData.currency)}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-xs text-muted-foreground">Category</p>
+                  <p className="text-sm font-semibold mt-1">
+                    {incomeData.categoryName || 'General'}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-xs text-muted-foreground">Source / Payer</p>
+                  <p className="text-sm font-semibold mt-1">{incomeData.source}</p>
+                </div>
+                <div>
+                  <p className="text-xs text-muted-foreground">Date</p>
+                  <p className="text-sm font-semibold mt-1">
+                    {new Date(incomeData.date).toLocaleDateString()}
+                  </p>
+                </div>
+              </div>
 
-                    {/* Amount */}
-                    <FormField
-                      control={form.control}
-                      name="amount"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel className="flex items-center">
-                            <BadgeCent className="mr-2 h-4 w-4" />
-                            Amount
-                          </FormLabel>
-                          <FormControl>
-                            <Input
-                              type="number"
-                              step="0.01"
-                              min="0"
-                              placeholder="0.00"
-                              {...field}
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
+              <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6 text-sm">
+                <div>
+                  <span className="text-muted-foreground font-medium block">Payment Method</span>
+                  <span className="text-foreground mt-1 block">{incomeData.paymentMethod || '—'}</span>
+                </div>
 
-                    {/* Category */}
-                    <FormField
-                      control={form.control}
-                      name="categoryId"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel className="flex items-center">
-                            <Tag className="mr-2 h-4 w-4" />
-                            Category
-                          </FormLabel>
-                          <Select onValueChange={field.onChange} value={field.value}>
-                            <FormControl>
-                              <SelectTrigger>
-                                <SelectValue placeholder="Select category" />
-                              </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                              {incomeCategories.map((category) => (
-                                <SelectItem key={category.id} value={category.id}>
-                                  {category.name}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
+                <div>
+                  <span className="text-muted-foreground font-medium block">Reference / Invoice #</span>
+                  <span className="text-foreground mt-1 block">{incomeData.reference || '—'}</span>
+                </div>
 
-                    {/* Source */}
-                    <FormField
-                      control={form.control}
-                      name="source"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel className="flex items-center">
-                            <User className="mr-2 h-4 w-4" />
-                            Source
-                          </FormLabel>
-                          <FormControl>
-                            <Input
-                              placeholder="e.g., Johnson Family"
-                              {...field}
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-
-                    {/* Date */}
-                    <FormField
-                      control={form.control}
-                      name="date"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Date</FormLabel>
-                          <FormControl>
-                            <DatePicker
-                              value={field.value}
-                              onChange={(_, dateStr) => field.onChange(dateStr)}
-                              placeholder="Select date"
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-
-                    {/* Status */}
-                    <FormField
-                      control={form.control}
-                      name="status"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Status</FormLabel>
-                          <Select onValueChange={field.onChange} value={field.value}>
-                            <FormControl>
-                              <SelectTrigger>
-                                <SelectValue placeholder="Select status" />
-                              </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                              <SelectItem value="received">Received</SelectItem>
-                              <SelectItem value="pending">Pending</SelectItem>
-                              <SelectItem value="cancelled">Cancelled</SelectItem>
-                            </SelectContent>
-                          </Select>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-
-                    {/* Reference */}
-                    <FormField
-                      control={form.control}
-                      name="reference"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Reference Number</FormLabel>
-                          <FormControl>
-                            <Input
-                              placeholder="e.g., INV-2024-001"
-                              {...field}
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-
-                    {/* Notes */}
-                    <FormField
-                      control={form.control}
-                      name="notes"
-                      render={({ field }) => (
-                        <FormItem className="md:col-span-2">
-                          <FormLabel>Notes</FormLabel>
-                          <FormControl>
-                            <Textarea
-                              placeholder="Additional notes or comments..."
-                              className="min-h-[100px]"
-                              {...field}
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-
-                  {/* Submit Buttons */}
-                  <div className="flex items-center justify-end space-x-4 pt-6 border-t">
-                    <Button
-                      type="button"
-                      variant="outline"
-                      onClick={() => setIsEditing(false)}
-                      disabled={saving}
-                    >
-                      Cancel
-                    </Button>
-                    <Button type="submit" disabled={saving}>
-                      {saving ? (
-                        <>
-                          <div className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-background border-t-transparent" />
-                          Saving...
-                        </>
-                      ) : (
-                        <>
-                          <Save className="mr-2 h-4 w-4" />
-                          Save Changes
-                        </>
-                      )}
-                    </Button>
-                  </div>
-                </form>
-              </Form>
+                <div className="md:col-span-2">
+                  <span className="text-muted-foreground font-medium block">Notes / Description</span>
+                  <p className="text-foreground mt-1 whitespace-pre-wrap">
+                    {incomeData.notes || 'No additional notes provided.'}
+                  </p>
+                </div>
+              </div>
             </CardContent>
           </Card>
-        ) : (
-          // View Mode
-          <div className="grid gap-6">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center justify-between">
-                  <span className="flex items-center">
-                    <Eye className="mr-2 h-5 w-5" />
-                    Income Information
-                  </span>
-                  {getStatusBadge(incomeData.status)}
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium text-muted-foreground">Description</label>
-                    <p className="text-sm">{incomeData.description}</p>
-                  </div>
+        </div>
+      ) : (
+        /* Edit Mode Form matching Giving layout design */
+        <form onSubmit={handleUpdate} className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base">Income Details</CardTitle>
+            </CardHeader>
+            <CardContent className="grid gap-4 md:grid-cols-2">
+              <div className="space-y-2 md:col-span-2">
+                <Label htmlFor="description">
+                  Description / Purpose <span className="text-destructive">*</span>
+                </Label>
+                <Input
+                  id="description"
+                  value={form.description}
+                  onChange={(e) => setForm({ ...form, description: e.target.value })}
+                  required
+                />
+              </div>
 
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium text-muted-foreground">Amount</label>
-                    <p className="text-2xl font-bold text-brand-primary">
-                      {formatCurrency(incomeData.amount)}
-                    </p>
-                  </div>
+              <div className="space-y-2">
+                <Label htmlFor="category">
+                  Income Category <span className="text-destructive">*</span>
+                </Label>
+                <Select
+                  value={form.categoryId}
+                  onValueChange={(val) => setForm({ ...form, categoryId: val })}
+                >
+                  <SelectTrigger id="category">
+                    <SelectValue placeholder="Select category" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {categories.map((c) => (
+                      <SelectItem key={c.id} value={c.id}>
+                        {c.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
 
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium text-muted-foreground">Category</label>
-                    <p className="text-sm">
-                      <Badge variant="neutral">{incomeData.categoryName}</Badge>
-                    </p>
-                  </div>
+              <div className="space-y-2">
+                <Label htmlFor="source">
+                  Source / Payer <span className="text-destructive">*</span>
+                </Label>
+                <Input
+                  id="source"
+                  value={form.source}
+                  onChange={(e) => setForm({ ...form, source: e.target.value })}
+                  required
+                />
+              </div>
 
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium text-muted-foreground">Source</label>
-                    <p className="text-sm">{incomeData.source}</p>
-                  </div>
-
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium text-muted-foreground">Date</label>
-                    <p className="text-sm">{new Date(incomeData.date).toLocaleDateString()}</p>
-                  </div>
-
-                  {incomeData.reference && (
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium text-muted-foreground">Reference</label>
-                      <p className="text-sm font-mono">{incomeData.reference}</p>
-                    </div>
-                  )}
+              <div className="space-y-2">
+                <Label htmlFor="amount">
+                  Amount <span className="text-destructive">*</span>
+                </Label>
+                <div className="flex gap-2">
+                  <Select
+                    value={form.currency}
+                    onValueChange={(val) => setForm({ ...form, currency: val })}
+                  >
+                    <SelectTrigger className="w-24">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="GHS">GHS</SelectItem>
+                      <SelectItem value="USD">USD</SelectItem>
+                      <SelectItem value="EUR">EUR</SelectItem>
+                      <SelectItem value="GBP">GBP</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <Input
+                    id="amount"
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    value={form.amount}
+                    onChange={(e) => setForm({ ...form, amount: e.target.value })}
+                    className="flex-1"
+                    required
+                  />
                 </div>
+              </div>
 
-                {incomeData.notes && (
-                  <>
-                    <Separator />
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium text-muted-foreground">Notes</label>
-                      <p className="text-sm">{incomeData.notes}</p>
-                    </div>
-                  </>
-                )}
+              <div className="space-y-2">
+                <Label htmlFor="method">
+                  Payment Method <span className="text-destructive">*</span>
+                </Label>
+                <Select
+                  value={form.paymentMethod}
+                  onValueChange={(val) => setForm({ ...form, paymentMethod: val })}
+                >
+                  <SelectTrigger id="method">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Bank Transfer">Bank Transfer</SelectItem>
+                    <SelectItem value="Cash">Cash</SelectItem>
+                    <SelectItem value="Mobile Money">Mobile Money</SelectItem>
+                    <SelectItem value="Cheque">Cheque</SelectItem>
+                    <SelectItem value="Card">Card</SelectItem>
+                    <SelectItem value="Other">Other</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
 
-                <Separator />
+              <div className="space-y-2">
+                <Label>
+                  Date <span className="text-destructive">*</span>
+                </Label>
+                <DatePicker
+                  value={form.date}
+                  onChange={(d) => d && setForm({ ...form, date: d })}
+                />
+              </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-xs text-muted-foreground">
-                  <div>
-                    <span className="font-medium">Created:</span> {new Date(incomeData.createdAt).toLocaleString()}
-                  </div>
-                  <div>
-                    <span className="font-medium">Last Updated:</span> {new Date(incomeData.updatedAt).toLocaleString()}
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+              <div className="space-y-2">
+                <Label htmlFor="status">
+                  Status <span className="text-destructive">*</span>
+                </Label>
+                <Select
+                  value={form.status}
+                  onValueChange={(val) => setForm({ ...form, status: val as IncomeStatus })}
+                >
+                  <SelectTrigger id="status">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="received">Received</SelectItem>
+                    <SelectItem value="pending">Pending</SelectItem>
+                    <SelectItem value="cancelled">Cancelled</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2 md:col-span-2">
+                <Label htmlFor="reference">Reference / Invoice #</Label>
+                <Input
+                  id="reference"
+                  value={form.reference}
+                  onChange={(e) => setForm({ ...form, reference: e.target.value })}
+                />
+              </div>
+
+              <div className="space-y-2 md:col-span-2">
+                <Label htmlFor="notes">Notes / Purpose</Label>
+                <Textarea
+                  id="notes"
+                  rows={3}
+                  value={form.notes}
+                  onChange={(e) => setForm({ ...form, notes: e.target.value })}
+                />
+              </div>
+            </CardContent>
+          </Card>
+
+          <div className="flex items-center justify-end gap-3">
+            <Button type="button" variant="outline" onClick={() => setIsEditing(false)}>
+              Cancel
+            </Button>
+            <Button type="submit" disabled={saving}>
+              <Save className="mr-1.5 h-4 w-4" />
+              {saving ? 'Saving...' : 'Save Changes'}
+            </Button>
           </div>
-        )}
-      </LazySection>
+        </form>
+      )}
+
+      {/* Delete Dialog */}
+      <DeleteDialog
+        isOpen={deleteDialog.isOpen}
+        onOpenChange={deleteDialog.closeDialog}
+        onConfirm={handleDelete}
+        title="Delete Income Record"
+        description="Are you sure you want to delete this income record? This action cannot be undone."
+        itemName={incomeData.description}
+        loading={deleteDialog.loading}
+      />
     </div>
   );
 }

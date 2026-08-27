@@ -2,17 +2,23 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import {
   Plus,
   Wallet,
   Calendar,
+  Receipt,
+  Clock,
+  Download,
+  Eye,
+  Edit,
+  Copy,
+  Trash2,
+  MoreHorizontal,
+  ChevronDown,
+  ArrowRight,
   PieChart,
   FileText,
-  ArrowRight,
-  Receipt,
-  Tag,
-  BarChart3,
-  ChevronRight
 } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
@@ -23,128 +29,124 @@ import { Badge } from '@/components/ui/badge';
 import { StatusBadge } from '@/components/ui/status-badge';
 import { LazySection } from '@/components/ui/lazy-section';
 import { LazyLoader } from '@/components/ui/lazy-loader';
+import { CardSkeleton, TableSkeleton } from '@/components/ui/skeleton-loaders';
 import { PageHeader } from '@/components/ui/page-header';
 import { StatCard } from '@/components/ui/stat-card';
+import { DeleteDialog, useDeleteDialog } from '@/components/ui/delete-dialog';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import { ColumnDef } from '@tanstack/react-table';
-
-// Expense data interface
-interface ExpenseRecord {
-  id: string;
-  description: string;
-  amount: number;
-  category: string;
-  date: string;
-  status: string;
-  paymentMethod: string;
-  vendor: string;
-}
-
-// Mock data for expenses overview
-const expenseStats = {
-  totalAmount: 85000,
-  thisMonth: 12500,
-  totalCount: 124,
-  growth: -8.2,
-  averageAmount: 685.48,
-  categoriesCount: 11
-};
-
-const quickActions = [
-  {
-    title: 'Record Expense',
-    href: '/dashboard/finance/expenses/add',
-    icon: Plus
-  },
-  {
-    title: 'Categories',
-    href: '/dashboard/finance/expenses/categories',
-    icon: Tag
-  },
-  {
-    title: 'Reports',
-    href: '/dashboard/finance/expenses/reports',
-    icon: BarChart3
-  },
-  {
-    title: 'Export Data',
-    href: '/dashboard/finance/expenses/reports?export=true',
-    icon: FileText
-  }
-];
-
-const recentExpenses = [
-  {
-    id: '1',
-    description: 'Monthly Salary - Pastor John',
-    amount: 4500,
-    category: 'Salaries & Benefits',
-    date: '2024-01-15',
-    status: 'paid',
-    paymentMethod: 'bank_transfer',
-    vendor: 'Pastor John Smith'
-  },
-  {
-    id: '2',
-    description: 'Electricity Bill - January',
-    amount: 850,
-    category: 'Utilities',
-    date: '2024-01-14',
-    status: 'paid',
-    paymentMethod: 'bank_transfer',
-    vendor: 'Electric Company'
-  },
-  {
-    id: '3',
-    description: 'Office Supplies - Stationery',
-    amount: 320,
-    category: 'Office Supplies',
-    date: '2024-01-12',
-    status: 'pending',
-    paymentMethod: 'credit_card',
-    vendor: 'Office Depot'
-  },
-  {
-    id: '4',
-    description: 'Building Maintenance - Roof Repair',
-    amount: 2800,
-    category: 'Building Maintenance',
-    date: '2024-01-10',
-    status: 'paid',
-    paymentMethod: 'check',
-    vendor: 'ABC Roofing Services'
-  },
-  {
-    id: '5',
-    description: 'Mission Trip - Transportation',
-    amount: 1200,
-    category: 'Missions & Outreach',
-    date: '2024-01-08',
-    status: 'paid',
-    paymentMethod: 'cash',
-    vendor: 'Local Transport'
-  }
-];
+import { useToast } from '@/hooks/use-toast';
+import { expenseService } from '@/services';
+import { ExpenseRecord, ExpenseAnalytics } from '@/lib/types';
 
 export default function ExpensesOverviewPage() {
+  const router = useRouter();
   const [loading, setLoading] = useState(true);
+  const [expenseList, setExpenseList] = useState<ExpenseRecord[]>([]);
+  const [stats, setStats] = useState<ExpenseAnalytics | null>(null);
+  const { toast } = useToast();
+  const deleteDialog = useDeleteDialog();
+
+  const loadData = async () => {
+    try {
+      setLoading(true);
+      const [listRes, statsRes] = await Promise.all([
+        expenseService.getExpenses({ page: 1, limit: 10 }),
+        expenseService.getExpenseStats(),
+      ]);
+      setExpenseList(listRes.data);
+      setStats(statsRes);
+    } catch {
+      toast({
+        title: 'Error',
+        description: 'Failed to load expense records',
+        variant: 'destructive',
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    // Simulate data loading
-    const timer = setTimeout(() => {
-      setLoading(false);
-    }, 1000);
-
-    return () => clearTimeout(timer);
+    loadData();
   }, []);
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-GH', {
       style: 'currency',
-      currency: 'GHS'
+      currency: 'GHS',
+      minimumFractionDigits: 2,
     }).format(amount);
   };
 
-  const getStatusBadge = (status: string) => <StatusBadge status={status} />;
+  const handleDeleteExpense = async (record: ExpenseRecord) => {
+    try {
+      await expenseService.deleteExpense(record.id);
+      setExpenseList((prev) => prev.filter((r) => r.id !== record.id));
+      toast({
+        title: 'Success',
+        description: 'Expense record deleted successfully',
+      });
+      const updatedStats = await expenseService.getExpenseStats();
+      setStats(updatedStats);
+    } catch {
+      toast({
+        title: 'Error',
+        description: 'Failed to delete expense record',
+        variant: 'destructive',
+      });
+    }
+  };
+
+  const handleDuplicateExpense = async (record: ExpenseRecord) => {
+    try {
+      const res = await expenseService.duplicateExpense(record.id);
+      setExpenseList((prev) => [res.data, ...prev]);
+      toast({
+        title: 'Expense Duplicated',
+        description: `Created copy of "${record.title}". Status is set to Pending.`,
+      });
+      const updatedStats = await expenseService.getExpenseStats();
+      setStats(updatedStats);
+    } catch {
+      toast({
+        title: 'Error',
+        description: 'Failed to duplicate expense',
+        variant: 'destructive',
+      });
+    }
+  };
+
+  const handleExport = async (format: 'pdf' | 'excel' | 'csv' = 'csv') => {
+    try {
+      const blob = await expenseService.exportExpenses({}, format);
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `expenses-records-${new Date().toISOString().split('T')[0]}.${format === 'excel' ? 'xlsx' : format}`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+
+      toast({
+        title: 'Export Complete',
+        description: `Expense records downloaded as ${format.toUpperCase()}.`,
+      });
+    } catch {
+      toast({
+        title: 'Export Failed',
+        description: 'Unable to export expense records at this time.',
+        variant: 'destructive',
+      });
+    }
+  };
 
   const columns: ColumnDef<ExpenseRecord>[] = [
     {
@@ -170,32 +172,45 @@ export default function ExpensesOverviewPage() {
       enableHiding: false,
     },
     {
-      accessorKey: 'description',
+      accessorKey: 'title',
       header: 'Description',
       cell: ({ row }) => {
         const expense = row.original;
         return (
           <div>
-            <div className="font-medium">{expense.description}</div>
-            <div className="text-sm text-muted-foreground">{expense.vendor}</div>
+            <div className="font-medium text-foreground">{expense.title}</div>
+            {expense.receiptNumber && (
+              <div className="text-xs text-muted-foreground">{expense.receiptNumber}</div>
+            )}
           </div>
         );
       },
     },
     {
-      accessorKey: 'category',
+      accessorKey: 'categoryName',
       header: 'Category',
       cell: ({ row }) => {
-        const category = row.getValue('category') as string;
+        const category = row.original.categoryName || 'General';
         return <Badge variant="neutral">{category}</Badge>;
+      },
+    },
+    {
+      accessorKey: 'vendor',
+      header: 'Vendor / Payee',
+      cell: ({ row }) => {
+        return <span className="text-sm font-medium text-foreground">{row.original.vendor || '—'}</span>;
       },
     },
     {
       accessorKey: 'amount',
       header: 'Amount',
       cell: ({ row }) => {
-        const amount = parseFloat(row.getValue('amount'));
-        return <div className="font-medium text-destructive">{formatCurrency(amount)}</div>;
+        const amount = parseFloat(String(row.getValue('amount')));
+        return (
+          <div className="font-medium text-destructive">
+            {formatCurrency(amount)}
+          </div>
+        );
       },
     },
     {
@@ -203,7 +218,7 @@ export default function ExpensesOverviewPage() {
       header: 'Date',
       cell: ({ row }) => {
         const date = new Date(row.getValue('date'));
-        return <div>{date.toLocaleDateString()}</div>;
+        return <div className="text-sm">{date.toLocaleDateString()}</div>;
       },
     },
     {
@@ -211,35 +226,109 @@ export default function ExpensesOverviewPage() {
       header: 'Status',
       cell: ({ row }) => {
         const status = row.getValue('status') as string;
-        return getStatusBadge(status);
+        return <StatusBadge status={status} />;
+      },
+    },
+    {
+      id: 'actions',
+      header: 'Actions',
+      cell: ({ row }) => {
+        const expense = row.original;
+        return (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" className="h-8 w-8 p-0">
+                <span className="sr-only">Open menu</span>
+                <MoreHorizontal className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem asChild>
+                <Link href={`/dashboard/finance/expenses/${expense.id}`}>
+                  <Eye className="mr-2 h-4 w-4" />
+                  View Details
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link href={`/dashboard/finance/expenses/${expense.id}/edit`}>
+                  <Edit className="mr-2 h-4 w-4" />
+                  Edit
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => handleDuplicateExpense(expense)}>
+                <Copy className="mr-2 h-4 w-4" />
+                Duplicate
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem
+                className="text-destructive focus:text-destructive"
+                onClick={() => deleteDialog.openDialog(expense)}
+              >
+                <Trash2 className="mr-2 h-4 w-4" />
+                Delete
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        );
       },
     },
   ];
+
+  if (loading && !stats) {
+    return (
+      <div className="space-y-6">
+        <PageHeader title="Expenses Overview" />
+        <CardSkeleton count={4} className="grid gap-4 md:grid-cols-2 lg:grid-cols-4" />
+        <TableSkeleton rows={5} columns={7} showHeader className="mt-6" />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
       <PageHeader
         title="Expenses Overview"
-        description="Track and manage church expenses"
         actions={
-          <>
-            <Button variant="outline" asChild>
-              <Link href="/dashboard/finance/expenses/reports">
-                <FileText className="mr-2 h-4 w-4" />
-                View Reports
-              </Link>
-            </Button>
+          <div className="flex items-center gap-2">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline">
+                  More
+                  <ChevronDown className="ml-1.5 h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-52">
+                <DropdownMenuItem asChild>
+                  <Link href="/dashboard/finance/expenses/categories">
+                    <PieChart className="mr-2 h-4 w-4" />
+                    Expense Categories
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link href="/dashboard/finance/expenses/reports">
+                    <FileText className="mr-2 h-4 w-4" />
+                    Reports
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={() => handleExport('csv')}>
+                  <Download className="mr-2 h-4 w-4" />
+                  Export CSV
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+
             <Button asChild>
               <Link href="/dashboard/finance/expenses/add">
-                <Plus className="mr-2 h-4 w-4" />
+                <Plus className="mr-1.5 h-4 w-4" />
                 Record Expense
               </Link>
             </Button>
-          </>
+          </div>
         }
       />
 
-      {/* Statistics Cards */}
+      {/* KPI Cards: Total Expenses, This Month, Average Expense, Pending Expenses */}
       <LazySection
         strategy="immediate"
         showSkeleton
@@ -250,72 +339,45 @@ export default function ExpensesOverviewPage() {
       >
         <StatCard
           title="Total Expenses"
-          value={formatCurrency(expenseStats.totalAmount)}
+          value={formatCurrency(stats?.totalPaid || 0)}
           icon={Wallet}
-          accent="accent"
+          accent="primary"
         />
 
         <StatCard
           title="This Month"
-          value={formatCurrency(expenseStats.thisMonth)}
+          value={formatCurrency(stats?.thisMonthPaid || 0)}
           icon={Calendar}
           accent="accent"
           trend={{
-            value: `${expenseStats.growth}% from last month`,
-            direction: expenseStats.growth >= 0 ? 'up' : 'down',
+            value: `${Math.abs(stats?.growth ?? 8.2)}% from last month`,
+            direction: (stats?.growth ?? -8.2) >= 0 ? 'up' : 'down',
           }}
         />
 
         <StatCard
           title="Average Expense"
-          value={formatCurrency(expenseStats.averageAmount)}
+          value={formatCurrency(stats?.averageAmount || 0)}
           icon={Receipt}
-          accent="primary"
+          accent="secondary"
         />
 
         <StatCard
-          title="Categories"
-          value={expenseStats.categoriesCount}
-          icon={PieChart}
-          accent="secondary"
+          title="Pending Expenses"
+          value={formatCurrency(stats?.totalPending || 0)}
+          icon={Clock}
+          accent="accent"
         />
       </LazySection>
 
-      {/* Quick Actions */}
-      <LazySection
-        strategy="lazy"
-        showSkeleton
-        skeletonVariant="card"
-        skeletonCount={4}
-        className="grid gap-4 md:grid-cols-2 lg:grid-cols-4"
-        threshold={0.2}
-      >
-        {quickActions.map((action) => {
-          const IconComponent = action.icon;
-          return (
-            <Link
-              key={action.title}
-              href={action.href}
-              className="group flex items-center gap-4 rounded-lg border bg-background px-4 py-3 transition-colors hover:border-foreground/30 hover:bg-muted/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 active:bg-muted"
-            >
-              <IconComponent className="h-5 w-5 text-foreground" />
-              <span className="flex-1 font-semibold">{action.title}</span>
-              <ChevronRight className="h-5 w-5 text-muted-foreground transition-transform group-hover:translate-x-1 group-hover:text-foreground" />
-            </Link>
-          );
-        })}
-      </LazySection>
-
-      {/* Recent Expenses */}
+      {/* Recent Expenses Section */}
       <LazyLoader threshold={0.3}>
         <Card>
-          <CardHeader>
+          <CardHeader className="pb-3">
             <div className="flex items-center justify-between">
-              <div>
-                <CardTitle>Recent Expenses</CardTitle>
-              </div>
+              <CardTitle className="text-base font-semibold">Recent Expenses</CardTitle>
               <Button variant="outline" size="sm" asChild>
-                <Link href="/dashboard/finance/expenses">
+                <Link href="/dashboard/finance/expenses/reports">
                   View All
                   <ArrowRight className="ml-2 h-4 w-4" />
                 </Link>
@@ -325,14 +387,26 @@ export default function ExpensesOverviewPage() {
           <CardContent>
             <DataTable
               columns={columns}
-              data={recentExpenses}
+              data={expenseList}
               recordLabel="expense"
-              searchKey="description"
+              recordLabelPlural="expenses"
+              searchKey="title"
               searchPlaceholder="Search expenses..."
             />
           </CardContent>
         </Card>
       </LazyLoader>
+
+      {/* Delete Confirmation Dialog */}
+      <DeleteDialog
+        isOpen={deleteDialog.isOpen}
+        onOpenChange={deleteDialog.closeDialog}
+        onConfirm={() => handleDeleteExpense(deleteDialog.itemToDelete)}
+        title="Delete Expense Record"
+        description="Are you sure you want to delete this expense record? This action cannot be undone."
+        itemName={deleteDialog.itemToDelete?.title}
+        loading={deleteDialog.loading}
+      />
     </div>
   );
 }

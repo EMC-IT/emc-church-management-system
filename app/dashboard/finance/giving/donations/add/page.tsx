@@ -39,9 +39,9 @@ const mockMembers = [
   { id: 'member5', name: 'David Brown', email: 'david@example.com' },
 ];
 
-export default function AddDonationPage() {
+export default function RecordGivingPage() {
   const [formData, setFormData] = useState<GivingFormData>({
-    type: GivingType.DONATION,
+    type: GivingType.TITHE,
     amount: 0,
     currency: 'GHS',
     category: GivingCategory.GENERAL,
@@ -71,7 +71,7 @@ export default function AddDonationPage() {
 
   const generateReceiptNumber = () => {
     const timestamp = Date.now().toString().slice(-6);
-    return `DON-${timestamp}`;
+    return `GIV-${timestamp}`;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -118,14 +118,14 @@ export default function AddDonationPage() {
       
       toast({
         title: 'Success',
-        description: 'Donation recorded successfully',
+        description: 'Giving recorded successfully',
       });
       
-      router.push('/dashboard/finance/giving/donations');
+      router.push('/dashboard/finance/giving');
     } catch (err: any) {
       toast({
         title: 'Error',
-        description: 'Failed to record donation',
+        description: 'Failed to record giving',
         variant: 'destructive',
       });
     } finally {
@@ -146,12 +146,12 @@ export default function AddDonationPage() {
       {/* Header */}
       <div className="flex items-center gap-4">
         <Button variant="outline" size="icon" className="h-9 w-9" asChild>
-          <Link href="/dashboard/finance/giving/donations" aria-label="Back to Donations">
+          <Link href="/dashboard/finance/giving" aria-label="Back to Giving">
             <ArrowLeft className="h-4 w-4" />
           </Link>
         </Button>
         <div>
-          <h1 className="font-heading text-2xl font-bold tracking-tight">Record New Donation</h1>
+          <h1 className="font-heading text-2xl font-bold tracking-tight">Record New Giving</h1>
         </div>
       </div>
 
@@ -184,8 +184,8 @@ export default function AddDonationPage() {
 
               <div className="col-span-12 sm:col-span-4 flex items-center justify-between rounded-lg border border-border p-3.5">
                 <div className="space-y-0.5">
-                  <Label htmlFor="anonymous" className="text-sm font-medium cursor-pointer">Anonymous Donation</Label>
-                  <p className="text-xs text-muted-foreground">Keep donor identity private</p>
+                  <Label htmlFor="anonymous" className="text-sm font-medium cursor-pointer">Anonymous Giving</Label>
+                  <p className="text-xs text-muted-foreground">Keep the giver's identity private</p>
                 </div>
                 <Switch
                   id="anonymous"
@@ -202,12 +202,35 @@ export default function AddDonationPage() {
           </div>
         </Card>
 
-        {/* Donation Details */}
+        {/* Giving Details */}
         <Card className="rounded-xl border border-border p-6">
           <div className="space-y-5">
-            <h2 className="text-base font-semibold text-foreground">Donation Details</h2>
+            <h2 className="text-base font-semibold text-foreground">Giving Details</h2>
 
             <div className="grid grid-cols-12 gap-5">
+              <div className="col-span-12 sm:col-span-4 space-y-2">
+                <Label htmlFor="type">Giving Type *</Label>
+                <Select value={formData.type} onValueChange={(value) => handleInputChange('type', value as GivingType)}>
+                  <SelectTrigger id="type">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value={GivingType.TITHE}>Tithe</SelectItem>
+                    <SelectItem value={GivingType.OFFERING}>Offering</SelectItem>
+                    <SelectItem value={GivingType.DONATION}>Donation</SelectItem>
+                    <SelectItem value={GivingType.FIRST_FRUITS}>First Fruits</SelectItem>
+                    <SelectItem value={GivingType.SPECIAL_SEED}>Special Seed</SelectItem>
+                    <SelectItem value={GivingType.THANKSGIVING}>Thanksgiving</SelectItem>
+                    <SelectItem value={GivingType.FUNDRAISING}>Fundraising</SelectItem>
+                    <SelectItem value={GivingType.PLEDGE}>Pledge</SelectItem>
+                    <SelectItem value={GivingType.SPECIAL}>Special</SelectItem>
+                    <SelectItem value={GivingType.MISSIONARY}>Missionary</SelectItem>
+                    <SelectItem value={GivingType.BUILDING}>Building</SelectItem>
+                    <SelectItem value={GivingType.OTHER}>Other</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
               <div className="col-span-12 sm:col-span-4 space-y-2">
                 <Label htmlFor="amount">Amount *</Label>
                 <div className="relative">
@@ -240,8 +263,8 @@ export default function AddDonationPage() {
                 </Select>
               </div>
 
-              <div className="col-span-12 sm:col-span-3 space-y-2">
-                <Label htmlFor="category">Category *</Label>
+              <div className="col-span-12 sm:col-span-2 space-y-2">
+                <Label htmlFor="category">Category</Label>
                 <Select value={formData.category} onValueChange={(value) => handleInputChange('category', value as GivingCategory)}>
                   <SelectTrigger id="category">
                     <SelectValue />
@@ -326,7 +349,7 @@ export default function AddDonationPage() {
             variant="outline"
             asChild
           >
-            <Link href="/dashboard/finance/giving/donations">
+            <Link href="/dashboard/finance/giving">
               Cancel
             </Link>
           </Button>
@@ -339,7 +362,7 @@ export default function AddDonationPage() {
             ) : (
               <>
                 <Save className="mr-1.5 h-4 w-4" />
-                <span>Record Donation</span>
+                <span>Record Giving</span>
               </>
             )}
           </Button>

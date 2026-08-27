@@ -6,22 +6,19 @@ import Link from 'next/link';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
-import { format } from 'date-fns';
-import { CalendarIcon, Loader2, Edit, Receipt, ArrowLeft } from 'lucide-react';
+import { Loader2, ArrowLeft } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { PageHeader } from '@/components/ui/page-header';
+import { Card } from '@/components/ui/card';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Calendar } from '@/components/ui/calendar';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { LazySection } from '@/components/ui/lazy-section';
+import { DatePicker } from '@/components/ui/date-picker';
 import { LazyLoader } from '@/components/ui/lazy-loader';
 import { toast } from 'sonner';
-import { cn } from '@/lib/utils';
+import { expenseService } from '@/services';
+import { ExpenseRecord, ExpenseCategory, ExpenseStatus } from '@/lib/types';
 
 // Expense form validation schema
 const expenseFormSchema = z.object({
@@ -36,58 +33,36 @@ const expenseFormSchema = z.object({
     required_error: 'Date is required',
   }),
   vendor: z.string().min(1, 'Vendor/Payee is required').max(100, 'Vendor name must be less than 100 characters'),
-  description: z.string().optional(),
+  status: z.enum(['paid', 'pending', 'approved', 'rejected', 'cancelled']),
   receiptNumber: z.string().optional(),
   approvedBy: z.string().optional(),
+  description: z.string().optional(),
 });
 
 type ExpenseFormData = z.infer<typeof expenseFormSchema>;
 
-// Mock expense categories
-const expenseCategories = [
-  { id: '1', name: 'Salaries & Benefits' },
-  { id: '2', name: 'Missions & Outreach' },
-  { id: '3', name: 'Building Maintenance' },
-  { id: '4', name: 'Utilities' },
-  { id: '5', name: 'Office Supplies' },
-  { id: '6', name: 'Technology & Equipment' },
-  { id: '7', name: 'Insurance' },
-  { id: '8', name: 'Transportation' },
-  { id: '9', name: 'Events & Programs' },
-  { id: '10', name: 'Marketing & Communications' },
-  { id: '11', name: 'Professional Services' },
-  { id: '12', name: 'Miscellaneous' },
-];
-
 const paymentMethods = [
-  { id: 'cash', name: 'Cash' },
-  { id: 'check', name: 'Check' },
-  { id: 'credit-card', name: 'Credit Card' },
-  { id: 'debit-card', name: 'Debit Card' },
-  { id: 'bank-transfer', name: 'Bank Transfer' },
-  { id: 'online-payment', name: 'Online Payment' },
+  { id: 'Cash', name: 'Cash' },
+  { id: 'Bank Transfer', name: 'Bank Transfer' },
+  { id: 'Mobile Money', name: 'Mobile Money' },
+  { id: 'Cheque', name: 'Cheque' },
+  { id: 'Card', name: 'Card' },
+  { id: 'Other', name: 'Other' },
 ];
 
-// Mock expense data
-const mockExpense = {
-  id: '1',
-  title: 'Office Supplies Purchase',
-  amount: 245.50,
-  category: '5',
-  paymentMethod: 'credit-card',
-  date: new Date('2024-01-15'),
-  vendor: 'Office Depot',
-  description: 'Monthly office supplies including paper, pens, and printer cartridges for administrative office.',
-  receiptNumber: 'REC-2024-001',
-  approvedBy: 'Finance Committee',
-  createdAt: new Date('2024-01-15'),
-  updatedAt: new Date('2024-01-15'),
-};
+const statusOptions = [
+  { id: 'paid', name: 'Paid' },
+  { id: 'pending', name: 'Pending' },
+  { id: 'approved', name: 'Approved' },
+  { id: 'rejected', name: 'Rejected' },
+  { id: 'cancelled', name: 'Cancelled' },
+];
 
 export default function EditExpensePage() {
   const router = useRouter();
   const params = useParams();
-  const [expense, setExpense] = useState(mockExpense);
+  const id = params.id as string;
+  const [categories, setCategories] = useState<ExpenseCategory[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -97,62 +72,70 @@ export default function EditExpensePage() {
       title: '',
       amount: '',
       category: '',
-      paymentMethod: '',
+      paymentMethod: 'Bank Transfer',
       date: new Date(),
       vendor: '',
-      description: '',
+      status: 'paid',
       receiptNumber: '',
       approvedBy: '',
+      description: '',
     },
   });
 
   useEffect(() => {
-    // Simulate loading expense data
-    const loadExpense = async () => {
+    const loadData = async () => {
       setIsLoading(true);
       try {
-        // Simulate API call
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        // In real app, fetch expense by params.id
-        setExpense(mockExpense);
+        const [catsRes, expense] = await Promise.all([
+          expenseService.getCategories(),
+          expenseService.getExpenseById(id),
+        ]);
 
-        // Reset form with loaded data
+        setCategories(catsRes.data);
+
         form.reset({
-          title: mockExpense.title,
-          amount: mockExpense.amount.toString(),
-          category: mockExpense.category,
-          paymentMethod: mockExpense.paymentMethod,
-          date: mockExpense.date,
-          vendor: mockExpense.vendor,
-          description: mockExpense.description || '',
-          receiptNumber: mockExpense.receiptNumber || '',
-          approvedBy: mockExpense.approvedBy || '',
+          title: expense.title,
+          amount: String(expense.amount),
+          category: expense.categoryId,
+          paymentMethod: expense.paymentMethod,
+          date: new Date(expense.date),
+          vendor: expense.vendor,
+          status: (expense.status?.toLowerCase() as any) || 'paid',
+          receiptNumber: expense.receiptNumber || '',
+          approvedBy: expense.approvedBy || '',
+          description: expense.description || expense.notes || '',
         });
       } catch (error) {
-        console.error('Error loading expense:', error);
+        console.error('Error loading expense details:', error);
         toast.error('Failed to load expense details');
       } finally {
         setIsLoading(false);
       }
     };
 
-    loadExpense();
-  }, [params.id, form]);
+    if (id) {
+      loadData();
+    }
+  }, [id, form]);
 
   const onSubmit = async (data: ExpenseFormData) => {
     setIsSubmitting(true);
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 2000));
-
-      console.log('Updated expense data:', {
-        ...data,
+      await expenseService.updateExpense(id, {
+        title: data.title,
         amount: Number(data.amount),
-        id: params.id,
+        categoryId: data.category,
+        paymentMethod: data.paymentMethod,
+        date: data.date.toISOString().split('T')[0],
+        vendor: data.vendor,
+        status: data.status as ExpenseStatus,
+        receiptNumber: data.receiptNumber,
+        approvedBy: data.approvedBy,
+        description: data.description,
       });
 
       toast.success('Expense updated successfully!');
-      router.push(`/dashboard/finance/expenses/${params.id}`);
+      router.push(`/dashboard/finance/expenses/${id}`);
     } catch (error) {
       console.error('Error updating expense:', error);
       toast.error('Failed to update expense. Please try again.');
@@ -162,27 +145,24 @@ export default function EditExpensePage() {
   };
 
   const handleCancel = () => {
-    router.push(`/dashboard/finance/expenses/${params.id}`);
+    router.push(`/dashboard/finance/expenses/${id}`);
   };
 
   if (isLoading) {
     return (
-      <div className="space-y-6">
+      <div className="space-y-6 max-w-6xl">
         <div className="flex items-center gap-4">
-          <LazyLoader className="h-12 w-12 rounded-lg">
-            <div className="h-12 w-12 rounded-lg bg-gray-200 animate-pulse" />
+          <LazyLoader className="h-10 w-10 rounded-lg">
+            <div className="h-10 w-10 rounded-lg bg-muted animate-pulse" />
           </LazyLoader>
           <div className="space-y-2">
-            <LazyLoader className="h-8 w-64">
-              <div className="h-8 w-64 bg-gray-200 rounded animate-pulse" />
-            </LazyLoader>
-            <LazyLoader className="h-4 w-48">
-              <div className="h-4 w-48 bg-gray-200 rounded animate-pulse" />
+            <LazyLoader className="h-6 w-48">
+              <div className="h-6 w-48 bg-muted rounded animate-pulse" />
             </LazyLoader>
           </div>
         </div>
-        <LazyLoader className="h-96 w-full rounded-lg">
-          <div className="h-96 w-full rounded-lg bg-gray-200 animate-pulse" />
+        <LazyLoader className="h-96 w-full rounded-xl">
+          <div className="h-96 w-full rounded-xl bg-muted animate-pulse" />
         </LazyLoader>
       </div>
     );
@@ -193,7 +173,7 @@ export default function EditExpensePage() {
       {/* Header */}
       <div className="flex items-center gap-4">
         <Button variant="ghost" size="icon" asChild>
-          <Link href={`/dashboard/finance/expenses/${params.id}`}>
+          <Link href={`/dashboard/finance/expenses/${id}`}>
             <ArrowLeft className="h-4 w-4" />
           </Link>
         </Button>
@@ -216,7 +196,7 @@ export default function EditExpensePage() {
                     <FormItem className="col-span-12 sm:col-span-8">
                       <FormLabel>Expense Title *</FormLabel>
                       <FormControl>
-                        <Input placeholder="Office supplies purchase" {...field} />
+                        <Input placeholder="Office supplies purchase / Sound equipment repair" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -231,12 +211,12 @@ export default function EditExpensePage() {
                       <FormLabel>Amount *</FormLabel>
                       <FormControl>
                         <div className="relative">
-                          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">₵</span>
+                          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">GH₵</span>
                           <Input
                             type="number"
                             step="0.01"
                             placeholder="0.00"
-                            className="pl-8"
+                            className="pl-12"
                             {...field}
                           />
                         </div>
@@ -255,11 +235,11 @@ export default function EditExpensePage() {
                       <Select onValueChange={field.onChange} value={field.value}>
                         <FormControl>
                           <SelectTrigger>
-                            <SelectValue placeholder="Select expense category" />
+                            <SelectValue placeholder="Select category" />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          {expenseCategories.map((category) => (
+                          {categories.map((category) => (
                             <SelectItem key={category.id} value={category.id}>
                               {category.name}
                             </SelectItem>
@@ -280,7 +260,7 @@ export default function EditExpensePage() {
                       <Select onValueChange={field.onChange} value={field.value}>
                         <FormControl>
                           <SelectTrigger>
-                            <SelectValue placeholder="Select payment method" />
+                            <SelectValue placeholder="Select method" />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
@@ -300,39 +280,16 @@ export default function EditExpensePage() {
                   control={form.control}
                   name="date"
                   render={({ field }) => (
-                    <FormItem className="col-span-12 sm:col-span-4 flex flex-col">
-                      <FormLabel className="mb-2">Expense Date *</FormLabel>
-                      <Popover>
-                        <PopoverTrigger asChild>
-                          <FormControl>
-                            <Button
-                              variant="outline"
-                              className={cn(
-                                "w-full pl-3 text-left font-normal",
-                                !field.value && "text-muted-foreground"
-                              )}
-                            >
-                              {field.value ? (
-                                format(field.value, "PPP")
-                              ) : (
-                                <span>Pick a date</span>
-                              )}
-                              <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                            </Button>
-                          </FormControl>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-auto p-0" align="start">
-                          <Calendar
-                            mode="single"
-                            selected={field.value}
-                            onSelect={field.onChange}
-                            disabled={(date) =>
-                              date > new Date() || date < new Date("1900-01-01")
-                            }
-                            initialFocus
-                          />
-                        </PopoverContent>
-                      </Popover>
+                    <FormItem className="col-span-12 sm:col-span-4">
+                      <FormLabel>Expense Date *</FormLabel>
+                      <FormControl>
+                        <DatePicker
+                          value={field.value}
+                          onChange={field.onChange}
+                          placeholder="Select expense date"
+                          maxDate={new Date()}
+                        />
+                      </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -345,8 +302,33 @@ export default function EditExpensePage() {
                     <FormItem className="col-span-12 sm:col-span-6">
                       <FormLabel>Vendor / Payee *</FormLabel>
                       <FormControl>
-                        <Input placeholder="Office Depot / John Smith" {...field} />
+                        <Input placeholder="ECG Electricity / Office Depot / Pastor John Smith" {...field} />
                       </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="status"
+                  render={({ field }) => (
+                    <FormItem className="col-span-12 sm:col-span-3">
+                      <FormLabel>Status *</FormLabel>
+                      <Select onValueChange={field.onChange} value={field.value}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select status" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {statusOptions.map((st) => (
+                            <SelectItem key={st.id} value={st.id}>
+                              {st.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -370,10 +352,10 @@ export default function EditExpensePage() {
                   control={form.control}
                   name="approvedBy"
                   render={({ field }) => (
-                    <FormItem className="col-span-12 sm:col-span-3">
+                    <FormItem className="col-span-12 sm:col-span-6">
                       <FormLabel>Approved By</FormLabel>
                       <FormControl>
-                        <Input placeholder="Finance Committee / Lead Pastor" {...field} />
+                        <Input placeholder="Finance Board / Lead Pastor" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -385,10 +367,10 @@ export default function EditExpensePage() {
                   name="description"
                   render={({ field }) => (
                     <FormItem className="col-span-12">
-                      <FormLabel>Description / Itemized Breakdown</FormLabel>
+                      <FormLabel>Description / Notes</FormLabel>
                       <FormControl>
                         <Textarea
-                          placeholder="Additional details or itemized breakdown..."
+                          placeholder="Additional details or justification for this expenditure..."
                           rows={3}
                           {...field}
                         />

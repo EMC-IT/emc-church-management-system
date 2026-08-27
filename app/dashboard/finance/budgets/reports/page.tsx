@@ -1,15 +1,29 @@
 'use client';
 
-import { useState } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, BarChart3, Download, TrendingUp, TrendingDown, Calendar, Filter } from 'lucide-react';
+import {
+  ArrowLeft,
+  BarChart3,
+  Download,
+  TrendingUp,
+  Target,
+  Wallet,
+  Calendar,
+  CheckCircle2,
+  PieChart,
+} from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { PageHeader } from '@/components/ui/page-header';
+import { StatCard } from '@/components/ui/stat-card';
+import { Badge } from '@/components/ui/badge';
 import { StatusBadge } from '@/components/ui/status-badge';
+import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { DataTable } from '@/components/ui/data-table';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import {
   LineChart,
@@ -19,549 +33,463 @@ import {
   XAxis,
   YAxis,
   CartesianGrid,
-  PieChart,
-  Pie,
-  Cell,
-  Area,
-  AreaChart,
-  Label,
 } from 'recharts';
-import { ChartContainer, ChartTooltip, ChartTooltipContent, ChartLegend, ChartLegendContent, ChartConfig } from '@/components/ui/chart';
+import {
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+  ChartLegend,
+  ChartLegendContent,
+  ChartConfig,
+} from '@/components/ui/chart';
+import { LazySection } from '@/components/ui/lazy-section';
+import { CardSkeleton, TableSkeleton } from '@/components/ui/skeleton-loaders';
+import { toast } from 'sonner';
+import { budgetService } from '@/services';
+import { BudgetRecord, BudgetAnalytics } from '@/lib/types';
+import { ColumnDef } from '@tanstack/react-table';
 
-// Mock data for reports
-const yearlyComparison = [
-  {
-    year: '2022',
-    totalBudget: 450000,
-    totalSpent: 398000,
-    budgetCount: 25,
-    utilization: 88.4,
-  },
-  {
-    year: '2023',
-    totalBudget: 520000,
-    totalSpent: 467000,
-    budgetCount: 32,
-    utilization: 89.8,
-  },
-  {
-    year: '2024',
-    totalBudget: 680000,
-    totalSpent: 485000,
-    budgetCount: 45,
-    utilization: 71.3,
-  },
-];
+const budgetTrendsConfig = {
+  budget: { label: 'Budget', color: 'hsl(var(--chart-1))' },
+  spent: { label: 'Spent', color: 'hsl(var(--chart-2))' },
+} satisfies ChartConfig;
 
-const monthlyTrends = [
-  { month: 'Jan', budget: 45000, spent: 42000, variance: -3000 },
-  { month: 'Feb', budget: 48000, spent: 51000, variance: 3000 },
-  { month: 'Mar', budget: 52000, spent: 49000, variance: -3000 },
-  { month: 'Apr', budget: 55000, spent: 58000, variance: 3000 },
-  { month: 'May', budget: 60000, spent: 57000, variance: -3000 },
-  { month: 'Jun', budget: 58000, spent: 61000, variance: 3000 },
-  { month: 'Jul', budget: 62000, spent: 59000, variance: -3000 },
-  { month: 'Aug', budget: 65000, spent: 68000, variance: 3000 },
-  { month: 'Sep', budget: 63000, spent: 60000, variance: -3000 },
-  { month: 'Oct', budget: 67000, spent: 70000, variance: 3000 },
-  { month: 'Nov', budget: 70000, spent: 67000, variance: -3000 },
-  { month: 'Dec', budget: 75000, spent: 78000, variance: 3000 },
-];
-
-const departmentPerformance = [
-  {
-    department: 'Worship Ministry',
-    budgets: 8,
-    allocated: 125000,
-    spent: 89500,
-    utilization: 71.6,
-    variance: -35500,
-    status: 'Under Budget',
-  },
-  {
-    department: 'Youth Ministry',
-    budgets: 6,
-    allocated: 95000,
-    spent: 87200,
-    utilization: 91.8,
-    variance: -7800,
-    status: 'On Track',
-  },
-  {
-    department: 'Children Ministry',
-    budgets: 5,
-    allocated: 75000,
-    spent: 78500,
-    utilization: 104.7,
-    variance: 3500,
-    status: 'Over Budget',
-  },
-  {
-    department: 'Missions',
-    budgets: 7,
-    allocated: 110000,
-    spent: 95000,
-    utilization: 86.4,
-    variance: -15000,
-    status: 'Under Budget',
-  },
-  {
-    department: 'Facilities',
-    budgets: 4,
-    allocated: 85000,
-    spent: 82000,
-    utilization: 96.5,
-    variance: -3000,
-    status: 'On Track',
-  },
-  {
-    department: 'Administration',
-    budgets: 3,
-    allocated: 45000,
-    spent: 43800,
-    utilization: 97.3,
-    variance: -1200,
-    status: 'On Track',
-  },
-];
-
-const categoryBreakdown = [
-  { name: 'Ministry Operations', value: 285000, color: '#2E8DB0', percentage: 42 },
-  { name: 'Events & Programs', value: 165000, color: '#28ACD1', percentage: 24 },
-  { name: 'Building Projects', value: 135000, color: '#C49831', percentage: 20 },
-  { name: 'Equipment & Technology', value: 65000, color: '#A5CF5D', percentage: 10 },
-  { name: 'Training & Development', value: 30000, color: '#080A09', percentage: 4 },
-];
-
-const performanceMetrics = [
-  {
-    metric: 'Budget Accuracy',
-    current: 89.2,
-    previous: 85.7,
-    change: 3.5,
-    trend: 'up',
-    description: 'Average variance from planned budget',
-  },
-  {
-    metric: 'Utilization Rate',
-    current: 84.6,
-    previous: 87.3,
-    change: -2.7,
-    trend: 'down',
-    description: 'Percentage of allocated budget spent',
-  },
-  {
-    metric: 'Budget Completion',
-    current: 76.8,
-    previous: 72.1,
-    change: 4.7,
-    trend: 'up',
-    description: 'Percentage of budgets completed on time',
-  },
-  {
-    metric: 'Cost Efficiency',
-    current: 92.4,
-    previous: 89.8,
-    change: 2.6,
-    trend: 'up',
-    description: 'Efficiency in budget allocation and spending',
-  },
-];
-
-const COLORS = ['#2E8DB0', '#28ACD1', '#C49831', '#A5CF5D', '#080A09'];
+const departmentConfig = {
+  budget: { label: 'Budget', color: 'hsl(var(--chart-1))' },
+  spent: { label: 'Spent', color: 'hsl(var(--chart-2))' },
+} satisfies ChartConfig;
 
 export default function BudgetReportsPage() {
   const router = useRouter();
-  const [selectedYear, setSelectedYear] = useState('2024');
-  const [selectedPeriod, setSelectedPeriod] = useState('ytd');
+  const [selectedYear, setSelectedYear] = useState<number>(2026);
+  const [budgets, setBudgets] = useState<BudgetRecord[]>([]);
+  const [stats, setStats] = useState<BudgetAnalytics | null>(null);
+  const [departmentFilter, setDepartmentFilter] = useState('all');
+  const [statusFilter, setStatusFilter] = useState('all');
+  const [searchTerm, setSearchTerm] = useState('');
+  const [loading, setLoading] = useState(true);
 
-  const getVarianceColor = (variance: number) => {
-    if (variance > 0) return 'text-red-600';
-    if (variance < 0) return 'text-green-600';
-    return 'text-gray-600';
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        setLoading(true);
+        const [listRes, statsRes] = await Promise.all([
+          budgetService.getBudgets({ periodYear: selectedYear, limit: 100 }),
+          budgetService.getBudgetStats(selectedYear),
+        ]);
+        setBudgets(listRes.data);
+        setStats(statsRes);
+      } catch (err) {
+        console.error('Failed to load budget report data', err);
+        toast.error('Failed to load budget report data');
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadData();
+  }, [selectedYear]);
+
+  const filteredBudgets = useMemo(() => {
+    return budgets.filter((b) => {
+      const matchesSearch =
+        b.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        b.department.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (b.categoryName && b.categoryName.toLowerCase().includes(searchTerm.toLowerCase()));
+
+      const matchesDept = departmentFilter === 'all' || b.department.toLowerCase() === departmentFilter.toLowerCase();
+      const matchesStatus = statusFilter === 'all' || b.status.toLowerCase() === statusFilter.toLowerCase();
+
+      return matchesSearch && matchesDept && matchesStatus;
+    });
+  }, [budgets, searchTerm, departmentFilter, statusFilter]);
+
+  const formatCurrency = (amount: number) => {
+    return new Intl.NumberFormat('en-GH', {
+      style: 'currency',
+      currency: 'GHS',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 2,
+    }).format(amount);
   };
 
-  const getTrendIcon = (trend: string) => {
-    return trend === 'up' ? (
-      <TrendingUp className="h-4 w-4 text-green-600" />
-    ) : (
-      <TrendingDown className="h-4 w-4 text-red-600" />
+  const getUtilizationColor = (percentage: number) => {
+    if (percentage >= 100) return 'text-destructive';
+    if (percentage >= 90) return 'text-amber-600 dark:text-amber-500';
+    if (percentage >= 75) return 'text-yellow-600 dark:text-yellow-500';
+    return 'text-emerald-600 dark:text-emerald-500';
+  };
+
+  const handleExport = async (formatType: 'pdf' | 'excel' | 'csv' = 'csv') => {
+    try {
+      const blob = await budgetService.exportBudgets(
+        {
+          periodYear: selectedYear,
+          department: departmentFilter !== 'all' ? departmentFilter : undefined,
+          status: statusFilter !== 'all' ? statusFilter : undefined,
+          search: searchTerm || undefined,
+        },
+        formatType
+      );
+
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `budget-report-${selectedYear}-${new Date().toISOString().split('T')[0]}.${formatType === 'excel' ? 'xlsx' : formatType}`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+
+      toast.success(`Budget report downloaded as ${formatType.toUpperCase()}`);
+    } catch {
+      toast.error('Failed to export report');
+    }
+  };
+
+  const columns: ColumnDef<BudgetRecord>[] = [
+    {
+      accessorKey: 'name',
+      header: 'Budget',
+      cell: ({ row }) => (
+        <div>
+          <div className="font-medium text-foreground">{row.original.name}</div>
+          <div className="text-xs text-muted-foreground">{row.original.period}</div>
+        </div>
+      ),
+    },
+    {
+      accessorKey: 'department',
+      header: 'Department',
+      cell: ({ row }) => <Badge variant="neutral">{row.original.department}</Badge>,
+    },
+    {
+      accessorKey: 'amount',
+      header: 'Budget Amount',
+      cell: ({ row }) => (
+        <div className="font-medium text-foreground">{formatCurrency(row.original.amount)}</div>
+      ),
+    },
+    {
+      accessorKey: 'spent',
+      header: 'Actual Spent',
+      cell: ({ row }) => (
+        <div className="font-medium text-destructive">{formatCurrency(row.original.spent)}</div>
+      ),
+    },
+    {
+      id: 'remaining',
+      header: 'Variance / Balance',
+      cell: ({ row }) => {
+        const bal = row.original.amount - row.original.spent;
+        return (
+          <div className={`font-medium ${bal >= 0 ? 'text-emerald-600' : 'text-destructive'}`}>
+            {formatCurrency(bal)}
+          </div>
+        );
+      },
+    },
+    {
+      id: 'utilization',
+      header: 'Utilization',
+      cell: ({ row }) => {
+        const rate = row.original.amount > 0 ? Math.round((row.original.spent / row.original.amount) * 100) : 0;
+        return (
+          <div className="w-24 space-y-1">
+            <span className={`text-xs font-semibold ${getUtilizationColor(rate)}`}>{rate}%</span>
+            <Progress value={Math.min(rate, 100)} className="h-1.5" />
+          </div>
+        );
+      },
+    },
+    {
+      accessorKey: 'status',
+      header: 'Status',
+      cell: ({ row }) => <StatusBadge status={row.original.status} />,
+    },
+  ];
+
+  if (loading && !stats) {
+    return (
+      <div className="space-y-6">
+        <PageHeader title="Budget Reports" />
+        <CardSkeleton count={4} className="grid gap-4 md:grid-cols-2 lg:grid-cols-4" />
+        <TableSkeleton rows={5} columns={7} showHeader className="mt-6" />
+      </div>
     );
-  };
+  }
 
-  const currentYearData = yearlyComparison.find(year => year.year === selectedYear);
-  const totalBudgets = departmentPerformance.reduce((sum, dept) => sum + dept.budgets, 0);
-  const totalAllocated = departmentPerformance.reduce((sum, dept) => sum + dept.allocated, 0);
-  const totalSpent = departmentPerformance.reduce((sum, dept) => sum + dept.spent, 0);
-  const overallUtilization = (totalSpent / totalAllocated) * 100;
-
-  // Chart configurations
-  const budgetChartConfig = {
-    budget: { label: 'Budget', color: 'hsl(var(--chart-1))' },
-    spent: { label: 'Spent', color: 'hsl(var(--chart-2))' },
-    variance: { label: 'Variance', color: 'hsl(var(--chart-3))' },
-  } satisfies ChartConfig;
-
-  const departmentChartConfig = {
-    allocated: { label: 'Allocated', color: 'hsl(var(--chart-1))' },
-    spent: { label: 'Spent', color: 'hsl(var(--chart-2))' },
-  } satisfies ChartConfig;
-
-  const yearlyChartConfig = {
-    totalBudget: { label: 'Total Budget', color: 'hsl(var(--chart-1))' },
-    totalSpent: { label: 'Total Spent', color: 'hsl(var(--chart-2))' },
-  } satisfies ChartConfig;
+  const utilizationRate = stats?.utilizationRate || 0;
 
   return (
-    <div className="space-y-6">
-      {/* Header with Back Navigation */}
-      <div className="flex items-center gap-4 mb-6">
-        <Button
-          variant="outline"
-          size="icon"
-          className="h-9 w-9"
-          asChild
-        >
-          <Link href="/dashboard/finance/budgets" aria-label="Back to Budgets">
+    <div className="space-y-6 max-w-6xl">
+      {/* Header */}
+      <div className="flex items-center gap-4">
+        <Button variant="ghost" size="icon" asChild>
+          <Link href="/dashboard/finance/budgets">
             <ArrowLeft className="h-4 w-4" />
           </Link>
         </Button>
-
-        <div className="flex items-center gap-3 flex-1">
-          <div className="p-2 bg-brand-primary/10 rounded-lg">
-            <BarChart3 className="h-6 w-6 text-brand-primary" />
-          </div>
-          <div className="flex-1">
-            <h1 className="text-2xl font-bold tracking-tight">Budget Reports & Analytics</h1>
-            <p className="text-muted-foreground">Comprehensive budget analysis and performance tracking</p>
-          </div>
-          <div className="flex space-x-2">
-            <Select value={selectedYear} onValueChange={setSelectedYear}>
-              <SelectTrigger className="w-32">
-                <Calendar className="h-4 w-4 mr-2" />
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="2024">2024</SelectItem>
-                <SelectItem value="2023">2023</SelectItem>
-                <SelectItem value="2022">2022</SelectItem>
-              </SelectContent>
-            </Select>
-            <Select value={selectedPeriod} onValueChange={setSelectedPeriod}>
-              <SelectTrigger className="w-40">
-                <Filter className="h-4 w-4 mr-2" />
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="ytd">Year to Date</SelectItem>
-                <SelectItem value="quarterly">Quarterly</SelectItem>
-                <SelectItem value="monthly">Monthly</SelectItem>
-              </SelectContent>
-            </Select>
-            <Button variant="outline" size="sm">
-              <Download className="h-4 w-4 mr-2" />
-              Export Report
-            </Button>
-          </div>
+        <div className="flex-1">
+          <PageHeader
+            title="Budget Reports"
+            actions={
+              <div className="flex items-center gap-2">
+                <Select value={String(selectedYear)} onValueChange={(val) => setSelectedYear(Number(val))}>
+                  <SelectTrigger className="w-28">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="2026">2026</SelectItem>
+                    <SelectItem value="2025">2025</SelectItem>
+                    <SelectItem value="2024">2024</SelectItem>
+                  </SelectContent>
+                </Select>
+                <Button variant="outline" onClick={() => handleExport('csv')}>
+                  <Download className="mr-1.5 h-4 w-4" />
+                  CSV
+                </Button>
+                <Button onClick={() => handleExport('excel')}>
+                  <Download className="mr-1.5 h-4 w-4" />
+                  Export Excel
+                </Button>
+              </div>
+            }
+          />
         </div>
       </div>
 
-      {/* Summary Cards */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      {/* Filter Controls */}
+      <LazySection>
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Budgets</CardTitle>
-            <BarChart3 className="h-4 w-4 text-muted-foreground" />
+          <CardHeader className="pb-3">
+            <CardTitle className="text-base font-semibold">Report Filters</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{totalBudgets}</div>
+            <div className="grid gap-4 md:grid-cols-3">
+              <div className="space-y-1.5">
+                <label className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                  Department
+                </label>
+                <Select value={departmentFilter} onValueChange={setDepartmentFilter}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="All Departments" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Departments</SelectItem>
+                    <SelectItem value="Worship Ministry">Worship Ministry</SelectItem>
+                    <SelectItem value="Youth Ministry">Youth Ministry</SelectItem>
+                    <SelectItem value="Children Ministry">Children Ministry</SelectItem>
+                    <SelectItem value="Missions Department">Missions Department</SelectItem>
+                    <SelectItem value="Facilities Management">Facilities Management</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                  Budget Status
+                </label>
+                <Select value={statusFilter} onValueChange={setStatusFilter}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="All Statuses" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Statuses</SelectItem>
+                    <SelectItem value="active">Active</SelectItem>
+                    <SelectItem value="watch">Watch (75–89%)</SelectItem>
+                    <SelectItem value="near limit">Near Limit (90–99%)</SelectItem>
+                    <SelectItem value="over budget">Over Budget (≥100%)</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                  Year
+                </label>
+                <Select value={String(selectedYear)} onValueChange={(v) => setSelectedYear(Number(v))}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="2026">2026 Fiscal Year</SelectItem>
+                    <SelectItem value="2025">2025 Fiscal Year</SelectItem>
+                    <SelectItem value="2024">2024 Fiscal Year</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
           </CardContent>
         </Card>
+      </LazySection>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Allocated</CardTitle>
-            <TrendingUp className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">₵{totalAllocated.toLocaleString()}</div>
-          </CardContent>
-        </Card>
+      {/* Summary KPI Cards */}
+      <LazySection
+        strategy="immediate"
+        showSkeleton
+        skeletonVariant="card"
+        skeletonCount={4}
+        className="grid gap-4 md:grid-cols-2 lg:grid-cols-4"
+        threshold={0.1}
+      >
+        <StatCard
+          title="Approved Budget"
+          value={formatCurrency(stats?.totalBudget || 0)}
+          icon={Target}
+          accent="primary"
+        />
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Spent</CardTitle>
-            <TrendingDown className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">₵{totalSpent.toLocaleString()}</div>
-          </CardContent>
-        </Card>
+        <StatCard
+          title="Actual Spending"
+          value={formatCurrency(stats?.totalSpent || 0)}
+          icon={Wallet}
+          accent="accent"
+        />
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Remaining</CardTitle>
-            <Calendar className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">₵{(totalAllocated - totalSpent).toLocaleString()}</div>
-          </CardContent>
-        </Card>
-      </div>
+        <StatCard
+          title="Remaining Balance"
+          value={formatCurrency(stats?.remaining || 0)}
+          icon={Calendar}
+          accent="success"
+        />
 
-      {/* Detailed Reports Tabs */}
-      <Tabs defaultValue="overview" className="space-y-4">
-        <TabsList>
-          <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="yearly">Yearly Comparison</TabsTrigger>
-          <TabsTrigger value="departments">Department Performance</TabsTrigger>
-          <TabsTrigger value="categories">Category Analysis</TabsTrigger>
-          <TabsTrigger value="performance">Performance Metrics</TabsTrigger>
-        </TabsList>
+        <StatCard
+          title="Overall Utilization"
+          value={`${utilizationRate}%`}
+          icon={TrendingUp}
+          accent="secondary"
+        />
+      </LazySection>
 
-        <TabsContent value="overview">
-          <div className="grid gap-4 md:grid-cols-2">
-            <Card className="hover:shadow-md transition-shadow">
-              <CardHeader>
-                <CardTitle>Monthly Budget vs Actual</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <ChartContainer config={budgetChartConfig} className="h-[300px] w-full">
-                  <AreaChart data={monthlyTrends} margin={{ left: 12, right: 12 }}>
-                    <CartesianGrid vertical={false} strokeDasharray="3 3" className="stroke-muted" />
-                    <XAxis dataKey="month" tickLine={false} axisLine={false} tickMargin={8} className="text-xs" />
-                    <YAxis tickLine={false} axisLine={false} tickMargin={8} className="text-xs" />
-                    <ChartTooltip cursor={{ stroke: 'hsl(var(--muted))', strokeWidth: 1 }} content={<ChartTooltipContent indicator="line" />} />
-                    <ChartLegend content={<ChartLegendContent />} />
-                    <Area
-                      type="monotone"
-                      dataKey="budget"
-                      stackId="1"
-                      stroke="hsl(var(--chart-1))"
-                      fill="hsl(var(--chart-1))"
-                      fillOpacity={0.6}
-                      strokeWidth={2}
-                      name="Budget"
-                    />
-                    <Area
-                      type="monotone"
-                      dataKey="spent"
-                      stackId="2"
-                      stroke="hsl(var(--chart-2))"
-                      fill="hsl(var(--chart-2))"
-                      fillOpacity={0.6}
-                      strokeWidth={2}
-                      name="Actual"
-                    />
-                  </AreaChart>
-                </ChartContainer>
-              </CardContent>
-            </Card>
+      {/* Analytics Tabs */}
+      <LazySection>
+        <Tabs defaultValue="overview" className="space-y-6">
+          <TabsList className="grid w-full grid-cols-3">
+            <TabsTrigger value="overview">Visual Analytics</TabsTrigger>
+            <TabsTrigger value="departments">Department Breakdown</TabsTrigger>
+            <TabsTrigger value="records">Budget Records Table</TabsTrigger>
+          </TabsList>
 
-            <Card className="hover:shadow-md transition-shadow">
-              <CardHeader>
-                <CardTitle>Budget by Category</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <ChartContainer config={departmentChartConfig} className="h-[300px] w-full">
-                  <PieChart>
-                    <ChartTooltip cursor={false} content={<ChartTooltipContent hideLabel />} />
-                    <Pie
-                      data={categoryBreakdown}
-                      cx="50%"
-                      cy="50%"
-                      labelLine={false}
-                      label={({ name, percentage }) => `${name} ${percentage}%`}
-                      outerRadius={100}
-                      dataKey="value"
-                      strokeWidth={2}
-                    >
-                      {categoryBreakdown.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} stroke="hsl(var(--background))" />
-                      ))}
-                    </Pie>
-                  </PieChart>
-                </ChartContainer>
-              </CardContent>
-            </Card>
-          </div>
-        </TabsContent>
+          <TabsContent value="overview" className="space-y-6">
+            <div className="grid gap-6 lg:grid-cols-2">
+              {/* Trends */}
+              <Card>
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-base font-semibold">Budget vs Spending Trends</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <ChartContainer config={budgetTrendsConfig} className="h-80 w-full">
+                    <LineChart data={stats?.trends || []} margin={{ left: 12, right: 12 }}>
+                      <CartesianGrid vertical={false} strokeDasharray="3 3" className="stroke-muted" />
+                      <XAxis dataKey="month" tickLine={false} axisLine={false} tickMargin={8} className="text-xs" />
+                      <YAxis tickLine={false} axisLine={false} tickMargin={8} className="text-xs" />
+                      <ChartTooltip
+                        cursor={{ stroke: 'hsl(var(--muted))', strokeWidth: 1 }}
+                        content={<ChartTooltipContent indicator="line" />}
+                      />
+                      <ChartLegend content={<ChartLegendContent />} />
+                      <Line
+                        type="monotone"
+                        dataKey="budget"
+                        stroke="hsl(var(--chart-1))"
+                        strokeWidth={2}
+                        dot={{ fill: 'hsl(var(--chart-1))' }}
+                      />
+                      <Line
+                        type="monotone"
+                        dataKey="spent"
+                        stroke="hsl(var(--chart-2))"
+                        strokeWidth={2}
+                        dot={{ fill: 'hsl(var(--chart-2))' }}
+                      />
+                    </LineChart>
+                  </ChartContainer>
+                </CardContent>
+              </Card>
 
-        <TabsContent value="yearly">
-          <div className="grid gap-4">
-            <Card className="hover:shadow-md transition-shadow">
-              <CardHeader>
-                <CardTitle>Year-over-Year Comparison</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <ChartContainer config={yearlyChartConfig} className="h-[400px] w-full">
-                  <BarChart data={yearlyComparison} margin={{ left: 12, right: 12 }}>
-                    <CartesianGrid vertical={false} strokeDasharray="3 3" className="stroke-muted" />
-                    <XAxis dataKey="year" tickLine={false} axisLine={false} tickMargin={8} className="text-xs" />
-                    <YAxis tickLine={false} axisLine={false} tickMargin={8} className="text-xs" />
-                    <ChartTooltip cursor={{ fill: 'hsl(var(--muted))', opacity: 0.3 }} content={<ChartTooltipContent indicator="dot" />} />
-                    <ChartLegend content={<ChartLegendContent />} />
-                    <Bar dataKey="totalBudget" fill="hsl(var(--chart-1))" name="Total Budget" radius={[8, 8, 0, 0]} />
-                    <Bar dataKey="totalSpent" fill="hsl(var(--chart-2))" name="Total Spent" radius={[8, 8, 0, 0]} />
-                  </BarChart>
-                </ChartContainer>
-              </CardContent>
-            </Card>
+              {/* Department Overview */}
+              <Card>
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-base font-semibold">Department Budget Overview</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <ChartContainer config={departmentConfig} className="h-80 w-full">
+                    <BarChart data={stats?.departmentSpending || []} margin={{ left: 12, right: 12 }}>
+                      <CartesianGrid vertical={false} strokeDasharray="3 3" className="stroke-muted" />
+                      <XAxis dataKey="department" tickLine={false} axisLine={false} tickMargin={8} className="text-xs" />
+                      <YAxis tickLine={false} axisLine={false} tickMargin={8} className="text-xs" />
+                      <ChartTooltip
+                        cursor={{ fill: 'hsl(var(--muted)/0.2)' }}
+                        content={<ChartTooltipContent indicator="dot" />}
+                      />
+                      <ChartLegend content={<ChartLegendContent />} />
+                      <Bar dataKey="budget" fill="hsl(var(--chart-1))" radius={[4, 4, 0, 0]} />
+                      <Bar dataKey="spent" fill="hsl(var(--chart-2))" radius={[4, 4, 0, 0]} />
+                    </BarChart>
+                  </ChartContainer>
+                </CardContent>
+              </Card>
+            </div>
+          </TabsContent>
 
+          <TabsContent value="departments" className="space-y-6">
             <Card>
-              <CardHeader>
-                <CardTitle>Yearly Summary</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Year</TableHead>
-                      <TableHead>Total Budget</TableHead>
-                      <TableHead>Total Spent</TableHead>
-                      <TableHead>Budget Count</TableHead>
-                      <TableHead>Utilization</TableHead>
-                      <TableHead>Growth</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {yearlyComparison.map((year, index) => {
-                      const previousYear = yearlyComparison[index - 1];
-                      const growth = previousYear
-                        ? ((year.totalBudget - previousYear.totalBudget) / previousYear.totalBudget) * 100
-                        : 0;
-
-                      return (
-                        <TableRow key={year.year}>
-                          <TableCell className="font-medium">{year.year}</TableCell>
-                          <TableCell>₵{year.totalBudget.toLocaleString()}</TableCell>
-                          <TableCell>₵{year.totalSpent.toLocaleString()}</TableCell>
-                          <TableCell>{year.budgetCount}</TableCell>
-                          <TableCell>{year.utilization.toFixed(1)}%</TableCell>
-                          <TableCell>
-                            {index > 0 && (
-                              <div className={`flex items-center gap-1 ${growth > 0 ? 'text-green-600' : 'text-red-600'
-                                }`}>
-                                {growth > 0 ? <TrendingUp className="h-4 w-4" /> : <TrendingDown className="h-4 w-4" />}
-                                {Math.abs(growth).toFixed(1)}%
-                              </div>
-                            )}
-                          </TableCell>
-                        </TableRow>
-                      );
-                    })}
-                  </TableBody>
-                </Table>
-              </CardContent>
-            </Card>
-          </div>
-        </TabsContent>
-
-        <TabsContent value="departments">
-          <Card>
-            <CardHeader>
-              <CardTitle>Department Performance Analysis</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Department</TableHead>
-                    <TableHead>Budgets</TableHead>
-                    <TableHead>Allocated</TableHead>
-                    <TableHead>Spent</TableHead>
-                    <TableHead>Utilization</TableHead>
-                    <TableHead>Variance</TableHead>
-                    <TableHead>Status</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {departmentPerformance.map((dept) => (
-                    <TableRow key={dept.department}>
-                      <TableCell className="font-medium">{dept.department}</TableCell>
-                      <TableCell>{dept.budgets}</TableCell>
-                      <TableCell>₵{dept.allocated.toLocaleString()}</TableCell>
-                      <TableCell>₵{dept.spent.toLocaleString()}</TableCell>
-                      <TableCell>{dept.utilization.toFixed(1)}%</TableCell>
-                      <TableCell className={getVarianceColor(dept.variance)}>
-                        {dept.variance > 0 ? '+' : ''}₵{Math.abs(dept.variance).toLocaleString()}
-                      </TableCell>
-                      <TableCell>
-                        <StatusBadge status={dept.status} />
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="categories">
-          <div className="grid gap-4">
-            <Card>
-              <CardHeader>
-                <CardTitle>Category Distribution</CardTitle>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-base font-semibold">Department Performance & Utilization</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  {categoryBreakdown.map((category, index) => (
-                    <div key={index} className="space-y-2">
-                      <div className="flex justify-between items-center">
-                        <div className="flex items-center gap-2">
-                          <div
-                            className="w-4 h-4 rounded-full"
-                            style={{ backgroundColor: category.color }}
-                          ></div>
-                          <span className="font-medium">{category.name}</span>
-                        </div>
-                        <div className="text-right">
-                          <div className="font-medium">₵{category.value.toLocaleString()}</div>
-                          <div className="text-sm text-muted-foreground">{category.percentage}%</div>
+                  {stats?.departmentSpending.map((dept, idx) => (
+                    <div key={idx} className="p-4 border rounded-lg space-y-2">
+                      <div className="flex items-center justify-between">
+                        <div className="font-semibold text-foreground">{dept.department}</div>
+                        <div className={`font-bold ${getUtilizationColor(dept.utilization)}`}>
+                          {dept.utilization}% Utilization
                         </div>
                       </div>
-                      <div className="w-full bg-gray-200 rounded-full h-2">
-                        <div
-                          className="h-2 rounded-full"
-                          style={{
-                            backgroundColor: category.color,
-                            width: `${category.percentage}%`
-                          }}
-                        ></div>
+                      <div className="grid grid-cols-3 text-sm text-muted-foreground gap-4">
+                        <div>
+                          <span>Budget: </span>
+                          <span className="font-medium text-foreground">{formatCurrency(dept.budget)}</span>
+                        </div>
+                        <div>
+                          <span>Spent: </span>
+                          <span className="font-medium text-destructive">{formatCurrency(dept.spent)}</span>
+                        </div>
+                        <div>
+                          <span>Remaining: </span>
+                          <span className="font-medium text-emerald-600">{formatCurrency(dept.remaining)}</span>
+                        </div>
                       </div>
+                      <Progress value={Math.min(dept.utilization, 100)} className="h-2" />
                     </div>
                   ))}
                 </div>
               </CardContent>
             </Card>
-          </div>
-        </TabsContent>
+          </TabsContent>
 
-        <TabsContent value="performance">
-          <div className="grid gap-4 md:grid-cols-2">
-            {performanceMetrics.map((metric, index) => (
-              <Card key={index}>
-                <CardHeader>
-                  <CardTitle className="flex items-center justify-between">
-                    <span>{metric.metric}</span>
-                    {getTrendIcon(metric.trend)}
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-2">
-                    <div className="text-3xl font-bold">{metric.current}%</div>
-                    <div className={`text-sm flex items-center gap-1 ${metric.change > 0 ? 'text-green-600' : 'text-red-600'
-                      }`}>
-                      {metric.change > 0 ? '+' : ''}{metric.change}% from previous period
-                    </div>
-                    <p className="text-sm text-muted-foreground">{metric.description}</p>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </TabsContent>
-      </Tabs>
+          <TabsContent value="records" className="space-y-6">
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-base font-semibold">Detailed Budget Records</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <DataTable
+                  columns={columns}
+                  data={filteredBudgets}
+                  recordLabel="budget"
+                  recordLabelPlural="budgets"
+                  searchValue={searchTerm}
+                  onSearchChange={setSearchTerm}
+                  searchKey="name"
+                  searchPlaceholder="Search budget records..."
+                />
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
+      </LazySection>
     </div>
   );
 }

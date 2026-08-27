@@ -1,26 +1,23 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
-import { format } from 'date-fns';
-import { CalendarIcon, Loader2, PlusCircle, Receipt, Wallet, ArrowLeft } from 'lucide-react';
+import { Loader2, Wallet, ArrowLeft } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { PageHeader } from '@/components/ui/page-header';
+import { Card } from '@/components/ui/card';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { DatePicker } from '@/components/ui/date-picker';
-import { LazySection } from '@/components/ui/lazy-section';
-import { LazyLoader } from '@/components/ui/lazy-loader';
 import { toast } from 'sonner';
-import { cn } from '@/lib/utils';
+import { expenseService } from '@/services';
+import { ExpenseCategory } from '@/lib/types';
 
 // Expense form validation schema
 const expenseFormSchema = z.object({
@@ -35,41 +32,38 @@ const expenseFormSchema = z.object({
     required_error: 'Date is required',
   }),
   vendor: z.string().min(1, 'Vendor/Payee is required').max(100, 'Vendor name must be less than 100 characters'),
-  description: z.string().optional(),
   receiptNumber: z.string().optional(),
   approvedBy: z.string().optional(),
+  description: z.string().optional(),
 });
 
 type ExpenseFormData = z.infer<typeof expenseFormSchema>;
 
-// Mock expense categories
-const expenseCategories = [
-  { id: '1', name: 'Salaries & Benefits' },
-  { id: '2', name: 'Missions & Outreach' },
-  { id: '3', name: 'Building Maintenance' },
-  { id: '4', name: 'Utilities' },
-  { id: '5', name: 'Office Supplies' },
-  { id: '6', name: 'Technology & Equipment' },
-  { id: '7', name: 'Insurance' },
-  { id: '8', name: 'Transportation' },
-  { id: '9', name: 'Events & Programs' },
-  { id: '10', name: 'Marketing & Communications' },
-  { id: '11', name: 'Professional Services' },
-  { id: '12', name: 'Miscellaneous' },
-];
-
 const paymentMethods = [
-  { id: 'cash', name: 'Cash' },
-  { id: 'check', name: 'Check' },
-  { id: 'credit-card', name: 'Credit Card' },
-  { id: 'debit-card', name: 'Debit Card' },
-  { id: 'bank-transfer', name: 'Bank Transfer' },
-  { id: 'online-payment', name: 'Online Payment' },
+  { id: 'Cash', name: 'Cash' },
+  { id: 'Bank Transfer', name: 'Bank Transfer' },
+  { id: 'Mobile Money', name: 'Mobile Money' },
+  { id: 'Cheque', name: 'Cheque' },
+  { id: 'Card', name: 'Card' },
+  { id: 'Other', name: 'Other' },
 ];
 
 export default function AddExpensePage() {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [categories, setCategories] = useState<ExpenseCategory[]>([]);
+
+  useEffect(() => {
+    const loadCategories = async () => {
+      try {
+        const res = await expenseService.getCategories();
+        setCategories(res.data.filter((c) => c.isActive));
+      } catch (err) {
+        console.error('Failed to load expense categories', err);
+      }
+    };
+    loadCategories();
+  }, []);
 
   const form = useForm<ExpenseFormData>({
     resolver: zodResolver(expenseFormSchema),
@@ -80,23 +74,28 @@ export default function AddExpensePage() {
       paymentMethod: '',
       date: new Date(),
       vendor: '',
-      description: '',
       receiptNumber: '',
       approvedBy: '',
+      description: '',
     },
   });
 
   const onSubmit = async (data: ExpenseFormData) => {
     setIsSubmitting(true);
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      console.log('Expense data:', {
-        ...data,
+      await expenseService.createExpense({
+        title: data.title,
         amount: Number(data.amount),
+        categoryId: data.category,
+        paymentMethod: data.paymentMethod,
+        date: data.date.toISOString().split('T')[0],
+        vendor: data.vendor,
+        receiptNumber: data.receiptNumber,
+        approvedBy: data.approvedBy,
+        description: data.description,
+        status: 'paid', // Default new completed record as paid
       });
-      
+
       toast.success('Expense recorded successfully!');
       router.push('/dashboard/finance/expenses');
     } catch (error) {
@@ -106,8 +105,6 @@ export default function AddExpensePage() {
       setIsSubmitting(false);
     }
   };
-
-
 
   return (
     <div className="space-y-6 max-w-6xl">
@@ -153,12 +150,12 @@ export default function AddExpensePage() {
                       <FormLabel>Amount *</FormLabel>
                       <FormControl>
                         <div className="relative">
-                          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">₵</span>
+                          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">GH₵</span>
                           <Input 
                             type="number" 
                             step="0.01" 
                             placeholder="0.00" 
-                            className="pl-8" 
+                            className="pl-12" 
                             {...field} 
                           />
                         </div>
@@ -181,7 +178,7 @@ export default function AddExpensePage() {
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          {expenseCategories.map((category) => (
+                          {categories.map((category) => (
                             <SelectItem key={category.id} value={category.id}>
                               {category.name}
                             </SelectItem>
@@ -244,7 +241,7 @@ export default function AddExpensePage() {
                     <FormItem className="col-span-12 sm:col-span-6">
                       <FormLabel>Vendor / Payee *</FormLabel>
                       <FormControl>
-                        <Input placeholder="ECG Electricity / Office Depot / John Smith" {...field} />
+                        <Input placeholder="ECG Electricity / Office Depot / Pastor John Smith" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
