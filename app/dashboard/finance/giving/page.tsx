@@ -14,6 +14,13 @@ import { LazySection } from '@/components/ui/lazy-section';
 import { LazyLoader } from '@/components/ui/lazy-loader';
 import { CardSkeleton, ChartSkeleton, TableSkeleton } from '@/components/ui/skeleton-loaders';
 import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import {
   Plus,
   BadgeCent,
   Users,
@@ -24,7 +31,7 @@ import {
   PieChart,
   FileText,
   ArrowRight,
-  ChevronRight
+  ChevronDown
 } from 'lucide-react';
 import Link from 'next/link';
 import { useToast } from '@/hooks/use-toast';
@@ -105,29 +112,6 @@ const mockRecentGiving: Giving[] = [
   }
 ];
 
-const quickActions = [
-  {
-    title: 'Categories',
-    icon: PieChart,
-    href: '/dashboard/finance/giving/categories'
-  },
-  {
-    title: 'Pledges',
-    icon: Target,
-    href: '/dashboard/finance/giving/pledges'
-  },
-  {
-    title: 'Donations',
-    icon: Heart,
-    href: '/dashboard/finance/giving/donations'
-  },
-  {
-    title: 'Reports',
-    icon: FileText,
-    href: '/dashboard/finance/giving/reports'
-  }
-];
-
 export default function GivingOverviewPage() {
   const [stats, setStats] = useState(mockGivingStats);
   const [recentGiving, setRecentGiving] = useState<Giving[]>(mockRecentGiving);
@@ -139,13 +123,8 @@ export default function GivingOverviewPage() {
     const loadData = async () => {
       try {
         setLoading(true);
-        // For now, use mock data. Replace with actual API calls:
-        // const [statsResponse, recentResponse] = await Promise.all([
-        //   givingService.getGivingStats(),
-        //   givingService.searchGiving({ limit: 5, sortBy: 'date', sortOrder: 'desc' })
-        // ]);
-        // setStats(statsResponse);
-        // setRecentGiving(recentResponse.data);
+        // Simulate API call
+        await new Promise(resolve => setTimeout(resolve, 500));
         setStats(mockGivingStats);
         setRecentGiving(mockRecentGiving);
       } catch (err: any) {
@@ -169,21 +148,6 @@ export default function GivingOverviewPage() {
       currency: 'GHS',
       minimumFractionDigits: 2,
     }).format(amount);
-  };
-
-  const getTypeIcon = (type: GivingType) => {
-    switch (type) {
-      case GivingType.TITHE:
-        return <BadgeCent className="h-4 w-4 text-brand-primary" />;
-      case GivingType.OFFERING:
-        return <Gift className="h-4 w-4 text-brand-success" />;
-      case GivingType.DONATION:
-        return <Heart className="h-4 w-4 text-brand-gold" />;
-      case GivingType.PLEDGE:
-        return <Target className="h-4 w-4 text-brand-secondary" />;
-      default:
-        return <BadgeCent className="h-4 w-4 text-muted-foreground" />;
-    }
   };
 
   const getStatusBadge = (status: GivingStatus) => <StatusBadge status={status} />;
@@ -226,7 +190,7 @@ export default function GivingOverviewPage() {
       header: 'Amount',
       cell: ({ row }) => {
         const amount = parseFloat(row.getValue('amount'));
-        return <div className="font-medium">{formatCurrency(amount)}</div>;
+        return <div className="font-medium text-brand-success">{formatCurrency(amount)}</div>;
       },
     },
     {
@@ -267,10 +231,6 @@ export default function GivingOverviewPage() {
           count={4} 
           className="grid gap-4 md:grid-cols-2 lg:grid-cols-4" 
         />
-        <CardSkeleton 
-          count={4} 
-          className="grid gap-4 md:grid-cols-2 lg:grid-cols-4" 
-        />
         <TableSkeleton 
           rows={3} 
           columns={5} 
@@ -286,20 +246,50 @@ export default function GivingOverviewPage() {
       <PageHeader
         title="Giving Overview"
         actions={
-          <>
-            <Button variant="outline" asChild>
-              <Link href="/dashboard/finance/giving/reports">
-                <FileText className="mr-2 h-4 w-4" />
-                View Reports
-              </Link>
-            </Button>
+          <div className="flex items-center gap-2">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline">
+                  More
+                  <ChevronDown className="ml-1.5 h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-48">
+                <DropdownMenuItem asChild>
+                  <Link href="/dashboard/finance/giving/reports">
+                    <FileText className="mr-2 h-4 w-4" />
+                    View Reports
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem asChild>
+                  <Link href="/dashboard/finance/giving/pledges">
+                    <Target className="mr-2 h-4 w-4" />
+                    Manage Pledges
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link href="/dashboard/finance/giving/categories">
+                    <PieChart className="mr-2 h-4 w-4" />
+                    Manage Categories
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link href="/dashboard/finance/giving/donations">
+                    <Heart className="mr-2 h-4 w-4" />
+                    Manage Donations
+                  </Link>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+
             <Button asChild>
               <Link href="/dashboard/finance/giving/donations/add">
-                <Plus className="mr-2 h-4 w-4" />
+                <Plus className="mr-1.5 h-4 w-4" />
                 Record Giving
               </Link>
             </Button>
-          </>
+          </div>
         }
       />
 
@@ -342,39 +332,12 @@ export default function GivingOverviewPage() {
         />
       </LazySection>
 
-      {/* Quick Actions */}
-      <LazySection
-        strategy="lazy"
-        showSkeleton
-        skeletonVariant="card"
-        skeletonCount={4}
-        className="grid gap-4 md:grid-cols-2 lg:grid-cols-4"
-        threshold={0.2}
-      >
-        {quickActions.map((action) => {
-          const IconComponent = action.icon;
-          return (
-            <Link
-              key={action.title}
-              href={action.href}
-              className="group flex items-center gap-4 rounded-lg border bg-background px-4 py-3 transition-colors hover:border-foreground/30 hover:bg-muted/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 active:bg-muted"
-            >
-              <IconComponent className="h-5 w-5 text-foreground" />
-              <span className="flex-1 font-semibold">{action.title}</span>
-              <ChevronRight className="h-5 w-5 text-muted-foreground transition-transform group-hover:translate-x-1 group-hover:text-foreground" />
-            </Link>
-          );
-        })}
-      </LazySection>
-
       {/* Recent Giving */}
       <LazyLoader threshold={0.3}>
         <Card>
-          <CardHeader>
+          <CardHeader className="pb-3">
             <div className="flex items-center justify-between">
-              <div>
-                <CardTitle>Recent Giving</CardTitle>
-              </div>
+              <CardTitle className="text-base font-semibold">Recent Giving</CardTitle>
               <Button variant="outline" size="sm" asChild>
                 <Link href="/dashboard/finance/giving/donations">
                   View All
@@ -388,7 +351,7 @@ export default function GivingOverviewPage() {
               columns={columns}
               data={recentGiving}
               recordLabel="giving transaction"
-              searchKey="description"
+              searchKey="receiptNumber"
               searchPlaceholder="Search giving..."
             />
           </CardContent>
