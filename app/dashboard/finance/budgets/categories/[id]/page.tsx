@@ -11,6 +11,7 @@ import { StatusBadge } from '@/components/ui/status-badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Progress } from '@/components/ui/progress';
+import { TablePageSkeleton } from '@/components/ui/skeleton-loaders';
 
 // Mock data for category details
 const mockCategoryDetails = {
@@ -154,14 +155,7 @@ export default function CategoryDetailsPage() {
   const completedBudgets = budgets.filter(budget => budget.status === 'Completed').length;
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand-primary mx-auto"></div>
-          <p className="mt-2 text-muted-foreground">Loading category details...</p>
-        </div>
-      </div>
-    );
+    return <TablePageSkeleton hasStats={true} columns={5} rows={5} />;
   }
 
   return (

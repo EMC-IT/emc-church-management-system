@@ -7,6 +7,7 @@ import { StatusBadge } from '@/components/ui/status-badge';
 import { GivingCategoryBadge } from '@/components/ui/finance-badges';
 import { DataTable } from '@/components/ui/data-table';
 import { PageHeader } from '@/components/ui/page-header';
+import { TablePageSkeleton } from '@/components/ui/skeleton-loaders';
 import { StatCard } from '@/components/ui/stat-card';
 import { useToast } from '@/hooks/use-toast';
 import { financeService, givingService, expenseService } from '@/services';
@@ -226,13 +227,7 @@ export default function FinanceOverviewPage() {
   ];
 
   if (loading) {
-    return (
-      <div className="space-y-6">
-        <div className="flex items-center justify-center py-12">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
-        </div>
-      </div>
-    );
+    return <TablePageSkeleton hasStats={true} columns={6} rows={6} />;
   }
 
   return (

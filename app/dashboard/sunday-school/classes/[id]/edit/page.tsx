@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { FormPageSkeleton } from '@/components/ui/skeleton-loaders';
 import {
   Select,
   SelectContent,
@@ -185,11 +186,7 @@ export default function EditClassPage() {
   };
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-      </div>
-    );
+    return <FormPageSkeleton cardCount={2} fieldsPerCard={4} />;
   }
 
   return (

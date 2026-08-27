@@ -8,6 +8,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { PageHeader } from '@/components/ui/page-header';
+import { TablePageSkeleton } from '@/components/ui/skeleton-loaders';
 import { StatCard } from '@/components/ui/stat-card';
 import { useToast } from '@/hooks/use-toast';
 import { membersService } from '@/services';
@@ -206,11 +207,7 @@ export default function MemberHistoryPage() {
   };
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary"></div>
-      </div>
-    );
+    return <TablePageSkeleton hasStats={true} columns={4} rows={6} />;
   }
 
   if (error || !member) {

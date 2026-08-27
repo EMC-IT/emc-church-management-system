@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { TablePageSkeleton } from '@/components/ui/skeleton-loaders';
 import {
   Select,
   SelectContent,
@@ -155,11 +156,7 @@ export default function AddGroupMemberPage() {
   };
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-      </div>
-    );
+    return <TablePageSkeleton hasStats={false} columns={4} rows={6} />;
   }
 
   return (

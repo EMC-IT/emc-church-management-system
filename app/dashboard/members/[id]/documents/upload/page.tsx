@@ -15,6 +15,7 @@ import { Switch } from '@/components/ui/switch';
 import { Badge } from '@/components/ui/badge';
 import { FileUpload } from '@/components/ui/file-upload';
 import { PageHeader } from '@/components/ui/page-header';
+import { FormPageSkeleton } from '@/components/ui/skeleton-loaders';
 import { useToast } from '@/hooks/use-toast';
 import { documentsService } from '@/services';
 import { DocumentCategory, Member } from '@/lib/types';
@@ -208,11 +209,7 @@ export default function DocumentUploadPage() {
   };
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary"></div>
-      </div>
-    );
+    return <FormPageSkeleton cardCount={2} fieldsPerCard={4} />;
   }
 
   if (error || !member) {

@@ -11,6 +11,7 @@ import { StatusBadge } from '@/components/ui/status-badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useToast } from '@/hooks/use-toast';
+import { DetailsPageSkeleton } from '@/components/ui/skeleton-loaders';
 import { membersService } from '@/services';
 import { cn } from '@/lib/utils';
 import { 
@@ -406,11 +407,7 @@ export default function MemberProfilePage() {
   };
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-      </div>
-    );
+    return <DetailsPageSkeleton />;
   }
 
   if (error || !member) {

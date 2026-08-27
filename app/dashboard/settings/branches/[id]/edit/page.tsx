@@ -7,6 +7,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
 import { ArrowLeft, Save, Loader2, Trash2 } from 'lucide-react';
+import { FormPageSkeleton } from '@/components/ui/skeleton-loaders';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -178,11 +179,7 @@ export default function EditBranchPage() {
   };
 
   if (isLoading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-      </div>
-    );
+    return <FormPageSkeleton cardCount={2} fieldsPerCard={6} />;
   }
 
   const watchStatus = form.watch('status');

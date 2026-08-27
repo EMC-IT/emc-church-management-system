@@ -460,4 +460,161 @@ export function ChartSkeleton({
   );
 }
 
-// Components are already exported above with their definitions
+// ============================================================================
+// PAGE-LEVEL SKELETON LOADERS
+// ============================================================================
+
+export function StatCardSkeleton({ count = 4, className }: { count?: number; className?: string }) {
+  return (
+    <div className={cn("grid gap-4 sm:grid-cols-2 lg:grid-cols-4", className)}>
+      {Array.from({ length: count }).map((_, i) => (
+        <Card key={i} className="p-6">
+          <div className="flex items-center justify-between">
+            <div className="space-y-2">
+              <Skeleton className="h-3.5 w-24" />
+              <Skeleton className="h-7 w-16" />
+            </div>
+            <Skeleton className="h-10 w-10 rounded-lg" />
+          </div>
+        </Card>
+      ))}
+    </div>
+  );
+}
+
+export function PageHeaderSkeleton({ hasAction = true }: { hasAction?: boolean }) {
+  return (
+    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div className="flex items-center gap-3">
+        <Skeleton className="h-8 w-8 rounded-md" />
+        <Skeleton className="h-7 w-48" />
+      </div>
+      {hasAction && <Skeleton className="h-9 w-32 rounded-md" />}
+    </div>
+  );
+}
+
+export function TablePageSkeleton({
+  hasStats = true,
+  columns = 5,
+  rows = 6,
+}: {
+  hasStats?: boolean;
+  columns?: number;
+  rows?: number;
+}) {
+  return (
+    <div className="space-y-6">
+      <PageHeaderSkeleton />
+      {hasStats && <StatCardSkeleton />}
+      <Card className="p-6">
+        <TableSkeleton columns={columns} rows={rows} />
+      </Card>
+    </div>
+  );
+}
+
+export function FormPageSkeleton({
+  cardCount = 1,
+  fieldsPerCard = 6,
+}: {
+  cardCount?: number;
+  fieldsPerCard?: number;
+}) {
+  return (
+    <div className="space-y-6 max-w-6xl">
+      <PageHeaderSkeleton hasAction={false} />
+      {Array.from({ length: cardCount }).map((_, i) => (
+        <Card key={i} className="p-6 space-y-4">
+          <Skeleton className="h-5 w-40" />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5 pt-2">
+            {Array.from({ length: fieldsPerCard }).map((_, j) => (
+              <div key={j} className="space-y-2">
+                <Skeleton className="h-3.5 w-24" />
+                <Skeleton className="h-10 w-full rounded-md" />
+              </div>
+            ))}
+          </div>
+        </Card>
+      ))}
+      <div className="flex justify-end gap-3 pt-2">
+        <Skeleton className="h-9 w-20 rounded-md" />
+        <Skeleton className="h-9 w-28 rounded-md" />
+      </div>
+    </div>
+  );
+}
+
+export function DetailsPageSkeleton() {
+  return (
+    <div className="space-y-6 max-w-6xl">
+      <PageHeaderSkeleton />
+      <div className="grid gap-6 lg:grid-cols-3">
+        <Card className="p-6 space-y-4 lg:col-span-1">
+          <div className="flex items-center gap-3">
+            <Skeleton className="h-14 w-14 rounded-full" />
+            <div className="space-y-2 flex-1">
+              <Skeleton className="h-5 w-32" />
+              <Skeleton className="h-3.5 w-20" />
+            </div>
+          </div>
+          <div className="space-y-3 pt-4 border-t">
+            <Skeleton className="h-4 w-full" />
+            <Skeleton className="h-4 w-3/4" />
+            <Skeleton className="h-4 w-5/6" />
+          </div>
+        </Card>
+        <Card className="p-6 space-y-4 lg:col-span-2">
+          <div className="flex gap-3 border-b pb-3">
+            <Skeleton className="h-8 w-24 rounded-md" />
+            <Skeleton className="h-8 w-24 rounded-md" />
+            <Skeleton className="h-8 w-24 rounded-md" />
+          </div>
+          <div className="space-y-3 pt-2">
+            <Skeleton className="h-4 w-full" />
+            <Skeleton className="h-4 w-full" />
+            <Skeleton className="h-4 w-2/3" />
+          </div>
+        </Card>
+      </div>
+    </div>
+  );
+}
+
+export function DashboardSkeleton() {
+  return (
+    <div className="space-y-6">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div className="space-y-1">
+          <Skeleton className="h-7 w-48" />
+          <Skeleton className="h-4 w-64" />
+        </div>
+        <div className="flex gap-2">
+          <Skeleton className="h-9 w-28 rounded-md" />
+          <Skeleton className="h-9 w-28 rounded-md" />
+        </div>
+      </div>
+      <StatCardSkeleton />
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-7">
+        <Card className="p-6 lg:col-span-4 space-y-4">
+          <Skeleton className="h-5 w-36" />
+          <Skeleton className="h-64 w-full rounded-lg" />
+        </Card>
+        <Card className="p-6 lg:col-span-3 space-y-4">
+          <Skeleton className="h-5 w-36" />
+          <div className="space-y-3">
+            {Array.from({ length: 5 }).map((_, i) => (
+              <div key={i} className="flex items-center gap-3">
+                <Skeleton className="h-9 w-9 rounded-full" />
+                <div className="space-y-1 flex-1">
+                  <Skeleton className="h-3.5 w-32" />
+                  <Skeleton className="h-3 w-20" />
+                </div>
+              </div>
+            ))}
+          </div>
+        </Card>
+      </div>
+    </div>
+  );
+}

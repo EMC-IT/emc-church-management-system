@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { StatCard } from '@/components/ui/stat-card';
+import { TablePageSkeleton } from '@/components/ui/skeleton-loaders';
 import { Badge } from '@/components/ui/badge';
 import {
   Users,
@@ -81,11 +82,7 @@ export default function SundaySchoolPage() {
   ];
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-      </div>
-    );
+    return <TablePageSkeleton hasStats={true} columns={4} rows={6} />;
   }
 
   return (

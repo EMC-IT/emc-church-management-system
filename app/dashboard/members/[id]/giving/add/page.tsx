@@ -11,6 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { DatePicker } from '@/components/ui/date-picker';
 import { Switch } from '@/components/ui/switch';
 import { PageHeader } from '@/components/ui/page-header';
+import { FormPageSkeleton } from '@/components/ui/skeleton-loaders';
 import { useToast } from '@/hooks/use-toast';
 import { givingService } from '@/services';
 import { Giving, GivingType, GivingCategory, GivingStatus, Member } from '@/lib/types';
@@ -214,11 +215,7 @@ export default function AddGivingPage() {
   };
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary"></div>
-      </div>
-    );
+    return <FormPageSkeleton cardCount={2} fieldsPerCard={4} />;
   }
 
   if (error || !member) {

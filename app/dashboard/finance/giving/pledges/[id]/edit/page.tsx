@@ -5,6 +5,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { PageHeader } from '@/components/ui/page-header';
+import { FormPageSkeleton } from '@/components/ui/skeleton-loaders';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
@@ -266,14 +267,7 @@ export default function EditPledgePage() {
 
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <div className="flex items-center space-x-2">
-          <Loader2 className="h-6 w-6 animate-spin" />
-          <span>Loading pledge details...</span>
-        </div>
-      </div>
-    );
+    return <FormPageSkeleton cardCount={2} fieldsPerCard={4} />;
   }
 
   if (!pledge) {

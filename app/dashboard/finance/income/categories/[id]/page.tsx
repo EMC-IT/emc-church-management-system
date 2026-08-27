@@ -17,6 +17,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { PageHeader } from '@/components/ui/page-header';
+import { TablePageSkeleton } from '@/components/ui/skeleton-loaders';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -191,21 +192,7 @@ export default function CategoryDetailsPage() {
   ];
 
   if (loading) {
-    return (
-      <div className="space-y-6">
-        <div className="flex items-center gap-4">
-          <Button variant="outline" size="icon" className="h-9 w-9" asChild>
-            <Link href="/dashboard/finance/income/categories" aria-label="Back">
-              <ArrowLeft className="h-4 w-4" />
-            </Link>
-          </Button>
-          <PageHeader title="Category Details" />
-        </div>
-        <div className="h-64 flex items-center justify-center">
-          <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
-        </div>
-      </div>
-    );
+    return <TablePageSkeleton hasStats={true} columns={5} rows={5} />;
   }
 
   if (!category) {

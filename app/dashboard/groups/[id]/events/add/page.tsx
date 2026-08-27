@@ -17,6 +17,7 @@ import {
 } from '@/components/ui/select';
 import { DateTimePicker } from '@/components/ui/date-time-picker';
 import { ArrowLeft, Save, Loader2 } from 'lucide-react';
+import { FormPageSkeleton } from '@/components/ui/skeleton-loaders';
 import { groupsService } from '@/services';
 import { Group, GroupEventFormData } from '@/lib/types/groups';
 import { toast } from 'sonner';
@@ -157,11 +158,7 @@ export default function AddGroupEventPage() {
   };
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-      </div>
-    );
+    return <FormPageSkeleton cardCount={2} fieldsPerCard={4} />;
   }
 
   return (

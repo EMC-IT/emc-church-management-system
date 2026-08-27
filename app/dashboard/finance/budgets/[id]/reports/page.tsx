@@ -12,6 +12,7 @@ import { StatusBadge } from '@/components/ui/status-badge';
 import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { TablePageSkeleton } from '@/components/ui/skeleton-loaders';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import {
   LineChart,
@@ -178,14 +179,7 @@ export default function BudgetReportsPage() {
   const utilizationRate = (mockBudgetInfo.totalSpent / mockBudgetInfo.totalBudget) * 100;
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand-primary mx-auto"></div>
-          <p className="mt-2 text-muted-foreground">Loading reports...</p>
-        </div>
-      </div>
-    );
+    return <TablePageSkeleton hasStats={true} columns={5} rows={6} />;
   }
 
   return (

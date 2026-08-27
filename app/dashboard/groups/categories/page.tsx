@@ -8,6 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { StatCard } from '@/components/ui/stat-card';
+import { TablePageSkeleton } from '@/components/ui/skeleton-loaders';
 import { Badge } from '@/components/ui/badge';
 import { StatusBadge } from '@/components/ui/status-badge';
 import {
@@ -182,11 +183,7 @@ export default function GroupCategoriesPage() {
   const activeCategories = categories.filter(c => c.isActive !== false).length;
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-      </div>
-    );
+    return <TablePageSkeleton hasStats={true} columns={4} rows={5} />;
   }
 
   return (

@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { DataTable } from '@/components/ui/data-table';
+import { TablePageSkeleton } from '@/components/ui/skeleton-loaders';
 import { PageHeader } from '@/components/ui/page-header';
 import { StatCard } from '@/components/ui/stat-card';
 import { useToast } from '@/hooks/use-toast';
@@ -446,11 +447,7 @@ export default function DocumentsPage() {
   ];
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary"></div>
-      </div>
-    );
+    return <TablePageSkeleton hasStats={true} columns={5} rows={6} />;
   }
 
   if (error || !member) {

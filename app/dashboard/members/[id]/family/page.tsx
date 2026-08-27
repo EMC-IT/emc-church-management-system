@@ -9,6 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { StatusBadge } from '@/components/ui/status-badge';
 import { DataTable } from '@/components/ui/data-table';
+import { TablePageSkeleton } from '@/components/ui/skeleton-loaders';
 import { useToast } from '@/hooks/use-toast';
 import { membersService } from '@/services';
 import { Member } from '@/lib/types';
@@ -296,11 +297,7 @@ export default function FamilyPage() {
   ];
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary"></div>
-      </div>
-    );
+    return <TablePageSkeleton hasStats={true} columns={4} rows={5} />;
   }
 
   if (error || !member) {

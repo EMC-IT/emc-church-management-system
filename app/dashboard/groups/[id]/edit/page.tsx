@@ -16,6 +16,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { ArrowLeft, Save, Loader2, Trash2 } from 'lucide-react';
+import { FormPageSkeleton } from '@/components/ui/skeleton-loaders';
 import { groupsService } from '@/services';
 import { Group, GroupFormData } from '@/lib/types/groups';
 import { toast } from 'sonner';
@@ -163,11 +164,7 @@ export default function EditGroupPage() {
   };
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-      </div>
-    );
+    return <FormPageSkeleton cardCount={2} fieldsPerCard={4} />;
   }
 
   if (!group) {

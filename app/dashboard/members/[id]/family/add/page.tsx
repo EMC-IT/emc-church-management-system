@@ -16,6 +16,7 @@ import { DatePicker } from '@/components/ui/date-picker';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { FileUpload } from '@/components/ui/file-upload';
 import { useToast } from '@/hooks/use-toast';
+import { FormPageSkeleton } from '@/components/ui/skeleton-loaders';
 import { membersService } from '@/services';
 import { Member } from '@/lib/types';
 import { 
@@ -198,11 +199,7 @@ export default function AddFamilyMemberPage() {
   };
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary"></div>
-      </div>
-    );
+    return <FormPageSkeleton cardCount={2} fieldsPerCard={6} />;
   }
 
   if (error || !member) {
