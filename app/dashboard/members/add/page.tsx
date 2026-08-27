@@ -187,7 +187,6 @@ export default function AddMemberPage() {
           </Button>
           <div>
             <h1 className="font-heading text-2xl font-bold tracking-tight">Add New Member</h1>
-            <p className="text-sm text-muted-foreground mt-1">Register a church member or new convert to the church directory.</p>
           </div>
         </div>
 
@@ -236,7 +235,7 @@ export default function AddMemberPage() {
                       <FormItem className="col-span-12 sm:col-span-6">
                         <FormLabel>Full Name *</FormLabel>
                         <FormControl>
-                          <Input placeholder="Enter full name" {...field} />
+                          <Input placeholder="Grace Mensah" {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -300,7 +299,7 @@ export default function AddMemberPage() {
                       <FormItem className="col-span-12 sm:col-span-4">
                         <FormLabel>Location / Residence *</FormLabel>
                         <FormControl>
-                          <Input placeholder="e.g. East Legon, Accra" {...field} />
+                          <Input placeholder="East Legon, Accra" {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -443,7 +442,7 @@ export default function AddMemberPage() {
                           <FormItem className="col-span-12 sm:col-span-8 lg:col-span-9">
                             <FormLabel>Full Name *</FormLabel>
                             <FormControl>
-                              <Input placeholder="Enter full name" {...field} />
+                              <Input placeholder="Grace Mensah" {...field} />
                             </FormControl>
                             <FormMessage />
                           </FormItem>
@@ -474,7 +473,7 @@ export default function AddMemberPage() {
                         <FormItem className="col-span-12 sm:col-span-6">
                           <FormLabel>Secondary Contact</FormLabel>
                           <FormControl>
-                            <Input placeholder="Optional phone number" {...field} />
+                            <Input placeholder="+233 20 987 6543" {...field} />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -488,7 +487,7 @@ export default function AddMemberPage() {
                         <FormItem className="col-span-12 sm:col-span-6">
                           <FormLabel>Email Address</FormLabel>
                           <FormControl>
-                            <Input type="email" placeholder="john.doe@example.com" {...field} />
+                            <Input type="email" placeholder="user@example.com" {...field} />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -635,7 +634,7 @@ export default function AddMemberPage() {
                         <FormItem className="col-span-12 sm:col-span-6">
                           <FormLabel>Location / Residence *</FormLabel>
                           <FormControl>
-                            <Input placeholder="e.g. East Legon, Accra" {...field} />
+                            <Input placeholder="East Legon, Accra" {...field} />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -810,7 +809,7 @@ export default function AddMemberPage() {
                         <FormItem className="col-span-12 sm:col-span-6">
                           <FormLabel>Leadership Role</FormLabel>
                           <FormControl>
-                            <Input placeholder="e.g. Deacon, Usher Coordinator" {...field} />
+                            <Input placeholder="Deacon / Usher Coordinator" {...field} />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -843,7 +842,7 @@ export default function AddMemberPage() {
                               render={({ field }) => (
                                 <FormItem className="mt-2">
                                   <FormControl>
-                                    <Input placeholder="Enter inviter's full name" {...field} />
+                                    <Input placeholder="Inviter full name" {...field} />
                                   </FormControl>
                                   <FormMessage />
                                 </FormItem>

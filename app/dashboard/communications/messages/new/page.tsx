@@ -255,9 +255,6 @@ export default function NewMessagePage() {
         </Button>
         <div>
           <h1 className="font-heading text-2xl font-bold tracking-tight">Compose Message</h1>
-          <p className="text-sm text-muted-foreground mt-1">
-            Send internal ministry messages, direct notifications, and department announcements.
-          </p>
         </div>
       </div>
 
@@ -266,10 +263,7 @@ export default function NewMessagePage() {
         <Card className="rounded-xl border border-border p-6">
           <div className="space-y-5">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-              <div>
-                <h2 className="text-base font-semibold text-foreground">Message Type & Recipients</h2>
-                <p className="text-xs text-muted-foreground mt-0.5">Choose dispatch mode and select individual members or teams</p>
-              </div>
+              <h2 className="text-base font-semibold text-foreground">Message Type & Recipients</h2>
               <Tabs 
                 value={formData.type} 
                 onValueChange={(value) => handleInputChange('type', value as 'individual' | 'group')}
@@ -390,17 +384,14 @@ export default function NewMessagePage() {
         {/* Message Content */}
         <Card className="rounded-xl border border-border p-6">
           <div className="space-y-5">
-            <div>
-              <h2 className="text-base font-semibold text-foreground">Message Details</h2>
-              <p className="text-xs text-muted-foreground mt-0.5">Compose your message header, priority level, and body</p>
-            </div>
+            <h2 className="text-base font-semibold text-foreground">Message Details</h2>
 
             <div className="grid grid-cols-12 gap-5">
               <div className="col-span-12 sm:col-span-8 space-y-2">
                 <Label htmlFor="subject">Subject (Optional)</Label>
                 <Input
                   id="subject"
-                  placeholder="e.g. Rehearsal schedule update, Prayer meeting notice"
+                  placeholder="Rehearsal schedule update / Prayer meeting notice"
                   value={formData.subject}
                   onChange={(e) => handleInputChange('subject', e.target.value)}
                 />
@@ -429,7 +420,7 @@ export default function NewMessagePage() {
                 </div>
                 <Textarea
                   id="message"
-                  placeholder="Type your message here..."
+                  placeholder="Message body..."
                   value={formData.message}
                   onChange={(e) => handleInputChange('message', e.target.value)}
                   rows={6}

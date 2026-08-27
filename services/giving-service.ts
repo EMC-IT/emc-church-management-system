@@ -45,6 +45,16 @@ class GivingService {
     }
   }
 
+  // Create new member giving record with success wrapper
+  async createMemberGiving(memberId: string, givingData: any): Promise<{ success: boolean; data?: Giving; message?: string }> {
+    try {
+      const response = await apiClient.post(`/members/${memberId}/giving`, givingData);
+      return { success: true, data: response.data };
+    } catch (error: any) {
+      return { success: false, message: error.response?.data?.message || 'Failed to create giving record' };
+    }
+  }
+
   // Update giving record
   async updateGiving(givingId: string, givingData: Partial<GivingFormData>): Promise<GivingResponse> {
     try {

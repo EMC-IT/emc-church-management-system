@@ -140,9 +140,6 @@ export default function AddBranchPage() {
         </Button>
         <div>
           <h1 className="font-heading text-2xl font-bold tracking-tight">Add New Branch</h1>
-          <p className="text-sm text-muted-foreground mt-1">
-            Register a new branch campus, mission center, or headquarters location.
-          </p>
         </div>
       </div>
 
@@ -151,10 +148,7 @@ export default function AddBranchPage() {
           {/* Basic Information */}
           <Card className="rounded-xl border border-border p-6">
             <div className="space-y-5">
-              <div>
-                <h2 className="text-base font-semibold text-foreground">Basic Information</h2>
-                <p className="text-xs text-muted-foreground mt-0.5">Branch classification, establishment year, and profile</p>
-              </div>
+              <h2 className="text-base font-semibold text-foreground">Basic Information</h2>
 
               <div className="grid grid-cols-12 gap-5">
                 <FormField
@@ -164,7 +158,7 @@ export default function AddBranchPage() {
                     <FormItem className="col-span-12 sm:col-span-6">
                       <FormLabel>Branch Name *</FormLabel>
                       <FormControl>
-                        <Input placeholder="e.g., North Campus, Grace Assembly" {...field} />
+                        <Input placeholder="North Campus / Grace Assembly" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -217,7 +211,7 @@ export default function AddBranchPage() {
                       <FormLabel>Description</FormLabel>
                       <FormControl>
                         <Textarea 
-                          placeholder="Brief description of this branch and its community scope..."
+                          placeholder="Branch description and community scope..."
                           rows={3}
                           {...field}
                         />
@@ -233,10 +227,7 @@ export default function AddBranchPage() {
           {/* Contact Information */}
           <Card className="rounded-xl border border-border p-6">
             <div className="space-y-5">
-              <div>
-                <h2 className="text-base font-semibold text-foreground">Contact Details</h2>
-                <p className="text-xs text-muted-foreground mt-0.5">Direct communication channels for the branch</p>
-              </div>
+              <h2 className="text-base font-semibold text-foreground">Contact Details</h2>
 
               <div className="grid grid-cols-12 gap-5">
                 <FormField
@@ -287,10 +278,7 @@ export default function AddBranchPage() {
           {/* Physical Address */}
           <Card className="rounded-xl border border-border p-6">
             <div className="space-y-5">
-              <div>
-                <h2 className="text-base font-semibold text-foreground">Physical Address & Location</h2>
-                <p className="text-xs text-muted-foreground mt-0.5">Geographic address and postal coordinates</p>
-              </div>
+              <h2 className="text-base font-semibold text-foreground">Physical Address & Location</h2>
 
               <div className="grid grid-cols-12 gap-5">
                 <FormField
@@ -369,10 +357,7 @@ export default function AddBranchPage() {
           {/* Leadership & Operational Status */}
           <Card className="rounded-xl border border-border p-6">
             <div className="space-y-5">
-              <div>
-                <h2 className="text-base font-semibold text-foreground">Leadership & Capacity</h2>
-                <p className="text-xs text-muted-foreground mt-0.5">Pastoral leadership, capacity figures, and operational state</p>
-              </div>
+              <h2 className="text-base font-semibold text-foreground">Leadership & Capacity</h2>
 
               <div className="grid grid-cols-12 gap-5">
                 <FormField
@@ -474,10 +459,7 @@ export default function AddBranchPage() {
           {/* Schedule & Facilities */}
           <Card className="rounded-xl border border-border p-6">
             <div className="space-y-5">
-              <div>
-                <h2 className="text-base font-semibold text-foreground">Service Schedule & Facilities</h2>
-                <p className="text-xs text-muted-foreground mt-0.5">Weekly meeting times and branch amenities</p>
-              </div>
+              <h2 className="text-base font-semibold text-foreground">Service Schedule & Facilities</h2>
 
               <div className="grid grid-cols-12 gap-5">
                 <FormField

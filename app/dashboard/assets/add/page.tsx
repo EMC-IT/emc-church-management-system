@@ -201,9 +201,6 @@ export default function AddAssetPage() {
         </Button>
         <div>
           <h1 className="font-heading text-2xl font-bold tracking-tight">Add New Asset</h1>
-          <p className="text-sm text-muted-foreground mt-1">
-            Register church physical property, equipment, audio-visual instruments, and facilities.
-          </p>
         </div>
       </div>
 
@@ -212,10 +209,7 @@ export default function AddAssetPage() {
           {/* Basic Information */}
           <Card className="rounded-xl border border-border p-6">
             <div className="space-y-5">
-              <div>
-                <h2 className="text-base font-semibold text-foreground">Basic Information</h2>
-                <p className="text-xs text-muted-foreground mt-0.5">Asset designation, classification, and operational status</p>
-              </div>
+              <h2 className="text-base font-semibold text-foreground">Basic Information</h2>
 
               <div className="grid grid-cols-12 gap-5">
                 <FormField
@@ -225,7 +219,7 @@ export default function AddAssetPage() {
                     <FormItem className="col-span-12 sm:col-span-8">
                       <FormLabel>Asset Name *</FormLabel>
                       <FormControl>
-                        <Input placeholder="e.g., Sound Mixing Console, Yamaha Grand Piano" {...field} />
+                        <Input placeholder="Sound Mixing Console / Yamaha Grand Piano" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -340,7 +334,7 @@ export default function AddAssetPage() {
                       <FormLabel>Description</FormLabel>
                       <FormControl>
                         <Textarea
-                          placeholder="Detailed description of the asset, specifications, and accessories included..."
+                          placeholder="Asset description, specifications, and included accessories..."
                           rows={3}
                           {...field}
                         />
@@ -356,10 +350,7 @@ export default function AddAssetPage() {
           {/* Financial Information */}
           <Card className="rounded-xl border border-border p-6">
             <div className="space-y-5">
-              <div>
-                <h2 className="text-base font-semibold text-foreground">Financial & Valuation</h2>
-                <p className="text-xs text-muted-foreground mt-0.5">Procurement costs, replacement valuation, and depreciation</p>
-              </div>
+              <h2 className="text-base font-semibold text-foreground">Financial & Valuation</h2>
 
               <div className="grid grid-cols-12 gap-5">
                 <FormField
@@ -453,10 +444,7 @@ export default function AddAssetPage() {
           {/* Location and Assignment */}
           <Card className="rounded-xl border border-border p-6">
             <div className="space-y-5">
-              <div>
-                <h2 className="text-base font-semibold text-foreground">Location & Custody</h2>
-                <p className="text-xs text-muted-foreground mt-0.5">Physical location and department or ministry assignment</p>
-              </div>
+              <h2 className="text-base font-semibold text-foreground">Location & Custody</h2>
 
               <div className="grid grid-cols-12 gap-5">
                 <FormField
@@ -516,7 +504,7 @@ export default function AddAssetPage() {
                     <FormItem className="col-span-12 sm:col-span-4">
                       <FormLabel>Assigned Group</FormLabel>
                       <FormControl>
-                        <Input placeholder="e.g., Worship Team, Youth Ministry" {...field} />
+                        <Input placeholder="Worship Team / Youth Ministry" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -529,10 +517,7 @@ export default function AddAssetPage() {
           {/* Dates */}
           <Card className="rounded-xl border border-border p-6">
             <div className="space-y-5">
-              <div>
-                <h2 className="text-base font-semibold text-foreground">Timeline & Maintenance</h2>
-                <p className="text-xs text-muted-foreground mt-0.5">Acquisition date, warranty expiration, and scheduled servicing</p>
-              </div>
+              <h2 className="text-base font-semibold text-foreground">Timeline & Maintenance</h2>
 
               <div className="grid grid-cols-12 gap-5">
                 <FormField
@@ -663,10 +648,7 @@ export default function AddAssetPage() {
           {/* Technical Details */}
           <Card className="rounded-xl border border-border p-6">
             <div className="space-y-5">
-              <div>
-                <h2 className="text-base font-semibold text-foreground">Technical Specifications</h2>
-                <p className="text-xs text-muted-foreground mt-0.5">Manufacturer details, model numbers, barcodes, and serials</p>
-              </div>
+              <h2 className="text-base font-semibold text-foreground">Technical Specifications</h2>
 
               <div className="grid grid-cols-12 gap-5">
                 <FormField
@@ -676,7 +658,7 @@ export default function AddAssetPage() {
                     <FormItem className="col-span-12 sm:col-span-4">
                       <FormLabel>Manufacturer</FormLabel>
                       <FormControl>
-                        <Input placeholder="e.g., Yamaha, Sony, Dell" {...field} />
+                        <Input placeholder="Yamaha / Sony / Dell" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -690,7 +672,7 @@ export default function AddAssetPage() {
                     <FormItem className="col-span-12 sm:col-span-4">
                       <FormLabel>Model</FormLabel>
                       <FormControl>
-                        <Input placeholder="e.g., CL5, XPS 15" {...field} />
+                        <Input placeholder="CL5 / XPS 15" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -704,7 +686,7 @@ export default function AddAssetPage() {
                     <FormItem className="col-span-12 sm:col-span-4">
                       <FormLabel>Serial Number</FormLabel>
                       <FormControl>
-                        <Input placeholder="e.g., YM2023CL5001" {...field} />
+                        <Input placeholder="YM2023CL5001" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -718,7 +700,7 @@ export default function AddAssetPage() {
                     <FormItem className="col-span-12 sm:col-span-6">
                       <FormLabel>Barcode Number</FormLabel>
                       <FormControl>
-                        <Input placeholder="e.g. BAR-889021" {...field} />
+                        <Input placeholder="BAR-889021" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -732,7 +714,7 @@ export default function AddAssetPage() {
                     <FormItem className="col-span-12 sm:col-span-6">
                       <FormLabel>QR Code Identifier</FormLabel>
                       <FormControl>
-                        <Input placeholder="e.g. QR-AST-009" {...field} />
+                        <Input placeholder="QR-AST-009" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -745,10 +727,7 @@ export default function AddAssetPage() {
           {/* Additional Information */}
           <Card className="rounded-xl border border-border p-6">
             <div className="space-y-5">
-              <div>
-                <h2 className="text-base font-semibold text-foreground">Notes & Tags</h2>
-                <p className="text-xs text-muted-foreground mt-0.5">Operational notes and indexing tags</p>
-              </div>
+              <h2 className="text-base font-semibold text-foreground">Notes & Tags</h2>
 
               <div className="space-y-5">
                 <FormField
@@ -759,7 +738,7 @@ export default function AddAssetPage() {
                       <FormLabel>Internal Notes</FormLabel>
                       <FormControl>
                         <Textarea
-                          placeholder="Additional operational or historical notes regarding this asset..."
+                          placeholder="Operational or historical notes regarding this asset..."
                           rows={3}
                           {...field}
                         />
@@ -773,7 +752,7 @@ export default function AddAssetPage() {
                   <FormLabel>Tags</FormLabel>
                   <div className="flex gap-2">
                     <Input
-                      placeholder="Add tag (e.g. sanctuary, audio, high-value)..."
+                      placeholder="sanctuary, audio, high-value..."
                       value={tagInput}
                       onChange={(e) => setTagInput(e.target.value)}
                       onKeyPress={handleTagKeyPress}

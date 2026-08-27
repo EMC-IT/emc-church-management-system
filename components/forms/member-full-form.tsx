@@ -47,7 +47,7 @@ export const memberFormSchema = z.object({
   status: z.enum(["Member", "Attender", "Special Guest", "Stop Coming"]),
   contact1: z.string().min(10, "Contact 1 must be at least 10 digits"),
   contact2: z.string().optional(),
-  email: z.string().email("Please enter a valid email address").optional().or(z.literal("")),
+  email: z.string().email("Enter a valid email address").optional().or(z.literal("")),
   gender: z.enum(["Male", "Female"]),
   dateOfBirth: z.string().optional().or(z.literal("")),
   ageGroup: z.enum(["Youth", "Adult", "Children", "Baby"]),
@@ -121,10 +121,7 @@ export function MemberFullForm({ initialValues, onSubmit, loading = false, mode 
         {/* Personal Information */}
         <Card className="rounded-xl border border-border p-6">
           <div className="space-y-5">
-            <div>
-              <h2 className="text-base font-semibold text-foreground">Personal Information</h2>
-              <p className="text-xs text-muted-foreground mt-0.5">Basic member details and contact information</p>
-            </div>
+            <h2 className="text-base font-semibold text-foreground">Personal Information</h2>
 
             <div className="flex flex-col sm:flex-row items-center gap-6 pb-2">
               <div className="flex flex-col items-center space-y-2">
@@ -177,7 +174,7 @@ export function MemberFullForm({ initialValues, onSubmit, loading = false, mode 
                     <FormItem className="col-span-12 sm:col-span-8 lg:col-span-9">
                       <FormLabel>Full Name *</FormLabel>
                       <FormControl>
-                        <Input placeholder="Enter full name" {...field} />
+                        <Input placeholder="Grace Mensah" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -207,7 +204,7 @@ export function MemberFullForm({ initialValues, onSubmit, loading = false, mode 
                   <FormItem className="col-span-12 sm:col-span-6">
                     <FormLabel>Secondary Contact</FormLabel>
                     <FormControl>
-                      <Input placeholder="Optional phone number" {...field} />
+                      <Input placeholder="+233 20 987 6543" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -221,7 +218,7 @@ export function MemberFullForm({ initialValues, onSubmit, loading = false, mode 
                   <FormItem className="col-span-12 sm:col-span-6">
                     <FormLabel>Email Address</FormLabel>
                     <FormControl>
-                      <Input type="email" placeholder="john.doe@example.com" {...field} />
+                      <Input type="email" placeholder="user@example.com" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -368,7 +365,7 @@ export function MemberFullForm({ initialValues, onSubmit, loading = false, mode 
                   <FormItem className="col-span-12 sm:col-span-6">
                     <FormLabel>Location / Residence *</FormLabel>
                     <FormControl>
-                      <Input placeholder="e.g. East Legon, Accra" {...field} />
+                      <Input placeholder="East Legon, Accra" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -381,10 +378,7 @@ export function MemberFullForm({ initialValues, onSubmit, loading = false, mode 
         {/* Church Details */}
         <Card className="rounded-xl border border-border p-6">
           <div className="space-y-5">
-            <div>
-              <h2 className="text-base font-semibold text-foreground">Church Details & Ministry</h2>
-              <p className="text-xs text-muted-foreground mt-0.5">Church-related assignments and spiritual development</p>
-            </div>
+            <h2 className="text-base font-semibold text-foreground">Church Details & Ministry</h2>
 
             <div className="grid grid-cols-12 gap-5">
               <FormItem className="col-span-12 sm:col-span-6">
@@ -536,10 +530,7 @@ export function MemberFullForm({ initialValues, onSubmit, loading = false, mode 
         {/* Leadership & Invitation */}
         <Card className="rounded-xl border border-border p-6">
           <div className="space-y-5">
-            <div>
-              <h2 className="text-base font-semibold text-foreground">Leadership & Invitation</h2>
-              <p className="text-xs text-muted-foreground mt-0.5">Role within the church and invitation details</p>
-            </div>
+            <h2 className="text-base font-semibold text-foreground">Leadership & Invitation</h2>
 
             <div className="grid grid-cols-12 gap-5">
               <FormField
@@ -549,7 +540,7 @@ export function MemberFullForm({ initialValues, onSubmit, loading = false, mode 
                   <FormItem className="col-span-12 sm:col-span-6">
                     <FormLabel>Leadership Role</FormLabel>
                     <FormControl>
-                      <Input placeholder="e.g. Deacon, Usher Coordinator" {...field} />
+                      <Input placeholder="Deacon / Usher Coordinator" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -582,7 +573,7 @@ export function MemberFullForm({ initialValues, onSubmit, loading = false, mode 
                         render={({ field }) => (
                           <FormItem className="mt-2">
                             <FormControl>
-                              <Input placeholder="Enter inviter's full name" {...field} />
+                              <Input placeholder="Inviter full name" {...field} />
                             </FormControl>
                             <FormMessage />
                           </FormItem>

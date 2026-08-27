@@ -139,7 +139,7 @@ export default function EditClassPage() {
   const validateForm = (): boolean => {
     const newErrors: Record<string, string> = {};
     if (!formData.name.trim()) newErrors.name = 'Class name is required';
-    if (!formData.teacherId) newErrors.teacherId = 'Please select a teacher';
+    if (!formData.teacherId) newErrors.teacherId = 'Teacher is required';
     if (!formData.location.trim()) newErrors.location = 'Location/Room is required';
     
     setErrors(newErrors);
@@ -203,7 +203,6 @@ export default function EditClassPage() {
           </Button>
           <div>
             <h1 className="font-heading text-2xl font-bold tracking-tight">Edit Class</h1>
-            <p className="text-sm text-muted-foreground mt-1">Update class details, schedule, capacity, and teacher assignment.</p>
           </div>
         </div>
 
@@ -284,7 +283,7 @@ export default function EditClassPage() {
                   id="description"
                   value={formData.description}
                   onChange={(e) => handleInputChange('description', e.target.value)}
-                  placeholder="Class purpose, focus, and age specifications..."
+                  placeholder="Optional class details and notes..."
                   rows={3}
                 />
               </div>

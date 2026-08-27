@@ -120,7 +120,7 @@ export default function EditGroupPage() {
     }
     
     if (!formData.category) {
-      toast.error('Please select a category');
+      toast.error('Category is required');
       return;
     }
     
@@ -195,7 +195,6 @@ export default function EditGroupPage() {
           </Button>
           <div>
             <h1 className="font-heading text-2xl font-bold tracking-tight">Edit Group</h1>
-            <p className="text-sm text-muted-foreground mt-1">Update group details, meeting schedule, and leadership.</p>
           </div>
         </div>
 
@@ -240,7 +239,7 @@ export default function EditGroupPage() {
                   id="name"
                   value={formData.name}
                   onChange={(e) => handleInputChange('name', e.target.value)}
-                  placeholder="Enter group name"
+                  placeholder="Youth Fellowship"
                   required
                 />
               </div>
@@ -301,7 +300,7 @@ export default function EditGroupPage() {
                   id="meetingSchedule"
                   value={formData.meetingSchedule}
                   onChange={(e) => handleInputChange('meetingSchedule', e.target.value)}
-                  placeholder="e.g., Fridays 6:00 PM"
+                  placeholder="Fridays at 6:00 PM"
                 />
               </div>
               
@@ -311,7 +310,7 @@ export default function EditGroupPage() {
                   id="location"
                   value={formData.location}
                   onChange={(e) => handleInputChange('location', e.target.value)}
-                  placeholder="e.g., Youth Center"
+                  placeholder="Youth Center"
                 />
               </div>
 
@@ -321,7 +320,7 @@ export default function EditGroupPage() {
                   id="description"
                   value={formData.description}
                   onChange={(e) => handleInputChange('description', e.target.value)}
-                  placeholder="Group purpose and details..."
+                  placeholder="Purpose, focus, and meeting details..."
                   rows={3}
                 />
               </div>
@@ -341,7 +340,7 @@ export default function EditGroupPage() {
                   id="leaderName"
                   value={formData.leader.name}
                   onChange={(e) => handleInputChange('leader.name', e.target.value)}
-                  placeholder="Leader full name"
+                  placeholder="Grace Mensah"
                   required
                 />
               </div>
@@ -353,7 +352,7 @@ export default function EditGroupPage() {
                   type="email"
                   value={formData.leader.email}
                   onChange={(e) => handleInputChange('leader.email', e.target.value)}
-                  placeholder="leader@church.com"
+                  placeholder="leader@example.com"
                   required
                 />
               </div>

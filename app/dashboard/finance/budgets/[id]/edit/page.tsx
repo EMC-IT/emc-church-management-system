@@ -179,9 +179,6 @@ export default function EditBudgetPage() {
         </Button>
         <div>
           <h1 className="font-heading text-2xl font-bold tracking-tight">Edit Budget</h1>
-          <p className="text-sm text-muted-foreground mt-1">
-            Update departmental allocation, financial period, fiscal cap, and budget owner.
-          </p>
         </div>
       </div>
 
@@ -189,10 +186,7 @@ export default function EditBudgetPage() {
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
           <Card className="rounded-xl border border-border p-6">
             <div className="space-y-5">
-              <div>
-                <h2 className="text-base font-semibold text-foreground">Budget Scope & Allocation</h2>
-                <p className="text-xs text-muted-foreground mt-0.5">Ministry designation, fiscal period, target sum, and strategic priority</p>
-              </div>
+              <h2 className="text-base font-semibold text-foreground">Budget Scope & Allocation</h2>
 
               <div className="grid grid-cols-12 gap-5">
                 <FormField
@@ -202,7 +196,7 @@ export default function EditBudgetPage() {
                     <FormItem className="col-span-12 sm:col-span-8">
                       <FormLabel>Budget Name *</FormLabel>
                       <FormControl>
-                        <Input placeholder="e.g., Worship Ministry Q2 2024" {...field} />
+                        <Input placeholder="Worship Ministry Q2 / Annual Missions" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -270,7 +264,7 @@ export default function EditBudgetPage() {
                           <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">₵</span>
                           <Input 
                             type="number" 
-                            placeholder="15000" 
+                            placeholder="15000.00" 
                             className="pl-8"
                             {...field} 
                           />
@@ -398,7 +392,7 @@ export default function EditBudgetPage() {
                       <FormLabel>Scope & Justification</FormLabel>
                       <FormControl>
                         <Textarea 
-                          placeholder="Brief description of budget purpose, planned expenditure, and expected ROI..."
+                          placeholder="Budget purpose, planned expenditure, and expected ROI..."
                           rows={3}
                           {...field} 
                         />

@@ -95,9 +95,6 @@ export default function AddExpenseCategoryPage() {
         </Button>
         <div>
           <h1 className="font-heading text-2xl font-bold tracking-tight">Add Expense Category</h1>
-          <p className="text-sm text-muted-foreground mt-1">
-            Create a budget line item or spending classification for church operations.
-          </p>
         </div>
       </div>
 
@@ -105,10 +102,7 @@ export default function AddExpenseCategoryPage() {
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
           <Card className="rounded-xl border border-border p-6">
             <div className="space-y-5">
-              <div>
-                <h2 className="text-base font-semibold text-foreground">Category Details</h2>
-                <p className="text-xs text-muted-foreground mt-0.5">Define category name, descriptive purpose, color token, and status</p>
-              </div>
+              <h2 className="text-base font-semibold text-foreground">Category Details</h2>
 
               <div className="grid grid-cols-12 gap-5">
                 <FormField
@@ -119,7 +113,7 @@ export default function AddExpenseCategoryPage() {
                       <FormLabel>Category Name *</FormLabel>
                       <FormControl>
                         <Input 
-                          placeholder="e.g., Office Supplies, Utilities, Missions" 
+                          placeholder="Office Supplies / Utilities / Missions" 
                           {...field}
                         />
                       </FormControl>
@@ -157,7 +151,7 @@ export default function AddExpenseCategoryPage() {
                       <FormLabel>Description</FormLabel>
                       <FormControl>
                         <Textarea 
-                          placeholder="Describe what types of expenses belong in this category..."
+                          placeholder="Expense types and disbursements belonging to this category..."
                           rows={3}
                           {...field}
                         />

@@ -133,9 +133,6 @@ export default function AddPrayerRequestPage() {
         </Button>
         <div>
           <h1 className="font-heading text-2xl font-bold tracking-tight">Submit Prayer Request</h1>
-          <p className="text-sm text-muted-foreground mt-1">
-            Share intercession requests, spiritual warfare needs, healing petitions, and praise reports.
-          </p>
         </div>
       </div>
 
@@ -144,10 +141,7 @@ export default function AddPrayerRequestPage() {
           {/* Request Details */}
           <Card className="rounded-xl border border-border p-6">
             <div className="space-y-5">
-              <div>
-                <h2 className="text-base font-semibold text-foreground">Request Details</h2>
-                <p className="text-xs text-muted-foreground mt-0.5">Specify request topic, categorization, and pastoral priority</p>
-              </div>
+              <h2 className="text-base font-semibold text-foreground">Request Details</h2>
 
               <div className="grid grid-cols-12 gap-5">
                 <FormField
@@ -158,7 +152,7 @@ export default function AddPrayerRequestPage() {
                       <FormLabel>Request Title *</FormLabel>
                       <FormControl>
                         <Input
-                          placeholder="e.g. Healing prayer for sister, Travelling mercies"
+                          placeholder="Healing prayer for sister / Travelling mercies"
                           {...field}
                         />
                       </FormControl>
@@ -205,10 +199,10 @@ export default function AddPrayerRequestPage() {
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          <SelectItem value="Low">Low - General prayer</SelectItem>
-                          <SelectItem value="Medium">Medium - Important need</SelectItem>
-                          <SelectItem value="High">High - Urgent prayer</SelectItem>
-                          <SelectItem value="Urgent">Urgent - Critical situation</SelectItem>
+                          <SelectItem value="Low">Low</SelectItem>
+                          <SelectItem value="Medium">Medium</SelectItem>
+                          <SelectItem value="High">High</SelectItem>
+                          <SelectItem value="Urgent">Urgent</SelectItem>
                         </SelectContent>
                       </Select>
                       <FormMessage />
@@ -225,7 +219,7 @@ export default function AddPrayerRequestPage() {
                       <Select onValueChange={field.onChange} defaultValue={field.value}>
                         <FormControl>
                           <SelectTrigger>
-                            <SelectValue placeholder="Select team (optional)" />
+                            <SelectValue placeholder="Select team" />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
@@ -285,10 +279,7 @@ export default function AddPrayerRequestPage() {
           {/* Requester & Privacy Information */}
           <Card className="rounded-xl border border-border p-6">
             <div className="space-y-5">
-              <div>
-                <h2 className="text-base font-semibold text-foreground">Requester & Privacy Settings</h2>
-                <p className="text-xs text-muted-foreground mt-0.5">Manage visibility, anonymity, and contact details</p>
-              </div>
+              <h2 className="text-base font-semibold text-foreground">Requester & Privacy Settings</h2>
 
               <div className="grid grid-cols-12 gap-5">
                 <FormField
@@ -358,7 +349,7 @@ export default function AddPrayerRequestPage() {
                         <FormItem className="col-span-12 sm:col-span-4">
                           <FormLabel>Full Name</FormLabel>
                           <FormControl>
-                            <Input placeholder="Your full name" {...field} />
+                            <Input placeholder="Grace Mensah" {...field} />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -374,7 +365,7 @@ export default function AddPrayerRequestPage() {
                           <FormControl>
                             <Input 
                               type="email" 
-                              placeholder="your.email@example.com" 
+                              placeholder="grace@example.com" 
                               {...field} 
                             />
                           </FormControl>
@@ -392,7 +383,7 @@ export default function AddPrayerRequestPage() {
                           <FormControl>
                             <Input 
                               type="tel" 
-                              placeholder="+233 XX XXX XXXX" 
+                              placeholder="+233 24 123 4567" 
                               {...field} 
                             />
                           </FormControl>

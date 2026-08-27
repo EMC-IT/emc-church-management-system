@@ -242,9 +242,6 @@ export default function DocumentUploadPage() {
         </Button>
         <div>
           <h1 className="font-heading text-2xl font-bold tracking-tight">Upload Documents</h1>
-          <p className="text-sm text-muted-foreground mt-1">
-            Attach official records, identification, or certifications for {member.firstName} {member.lastName}.
-          </p>
         </div>
       </div>
 
@@ -253,10 +250,7 @@ export default function DocumentUploadPage() {
           {/* Document Information */}
           <Card className="rounded-xl border border-border p-6">
             <div className="space-y-5">
-              <div>
-                <h2 className="text-base font-semibold text-foreground">Document Details</h2>
-                <p className="text-xs text-muted-foreground mt-0.5">Metadata and categorization for the uploaded document</p>
-              </div>
+              <h2 className="text-base font-semibold text-foreground">Document Details</h2>
 
               <div className="grid grid-cols-12 gap-5">
                 <FormField
@@ -266,7 +260,7 @@ export default function DocumentUploadPage() {
                     <FormItem className="col-span-12 sm:col-span-7">
                       <FormLabel>Document Title *</FormLabel>
                       <FormControl>
-                        <Input placeholder="e.g. Baptism Certificate, National ID" {...field} />
+                        <Input placeholder="Baptism Certificate / National ID" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -331,7 +325,7 @@ export default function DocumentUploadPage() {
                       <FormLabel>Description</FormLabel>
                       <FormControl>
                         <Textarea
-                          placeholder="Enter additional details or notes about this file (optional)"
+                          placeholder="Additional details or notes about this file..."
                           rows={3}
                           {...field}
                         />
@@ -348,7 +342,7 @@ export default function DocumentUploadPage() {
                     <FormItem className="col-span-12 sm:col-span-8">
                       <FormLabel>Tags</FormLabel>
                       <FormControl>
-                        <Input placeholder="e.g. 2024, verified, leadership (comma-separated)" {...field} />
+                        <Input placeholder="2026, verified, leadership (comma-separated)" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -383,7 +377,7 @@ export default function DocumentUploadPage() {
               <div>
                 <h2 className="text-base font-semibold text-foreground">File Attachment</h2>
                 <p className="text-xs text-muted-foreground mt-0.5">
-                  Supported formats: PDF, DOC, DOCX, JPG, PNG (Max 10MB per file)
+                  PDF, DOC, DOCX, JPG, PNG (Max 10MB per file)
                 </p>
               </div>
 

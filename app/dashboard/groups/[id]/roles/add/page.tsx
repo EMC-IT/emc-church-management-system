@@ -137,7 +137,7 @@ export default function AddGroupRolePage() {
     }
     
     if (formData.permissions.length === 0) {
-      toast.error('Please select at least one permission');
+      toast.error('At least one permission is required');
       return;
     }
     
@@ -181,9 +181,6 @@ export default function AddGroupRolePage() {
           <h1 className="font-heading text-2xl font-bold tracking-tight">
             {isEditing ? 'Edit Group Role' : 'Create Group Role'}
           </h1>
-          <p className="text-sm text-muted-foreground mt-1">
-            {isEditing ? 'Update permissions and settings for this role.' : 'Define permissions and access levels for group leadership.'}
-          </p>
         </div>
       </div>
 
@@ -199,7 +196,7 @@ export default function AddGroupRolePage() {
                   id="name"
                   value={formData.name}
                   onChange={(e) => handleInputChange('name', e.target.value)}
-                  placeholder="e.g. Treasurer, Coordinator, Secretary"
+                  placeholder="Treasurer / Coordinator"
                   required
                 />
               </div>

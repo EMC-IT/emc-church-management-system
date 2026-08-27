@@ -203,9 +203,6 @@ export default function AddRolePage() {
         </Button>
         <div>
           <h1 className="font-heading text-2xl font-bold tracking-tight">Create New Role</h1>
-          <p className="text-sm text-muted-foreground mt-1">
-            Define system role identity, description, and module access permissions.
-          </p>
         </div>
       </div>
 
@@ -214,10 +211,7 @@ export default function AddRolePage() {
           {/* Basic Information */}
           <Card className="rounded-xl border border-border p-6">
             <div className="space-y-5">
-              <div>
-                <h2 className="text-base font-semibold text-foreground">Role Information</h2>
-                <p className="text-xs text-muted-foreground mt-0.5">Name and administrative responsibilities of this role</p>
-              </div>
+              <h2 className="text-base font-semibold text-foreground">Role Information</h2>
 
               <div className="grid grid-cols-12 gap-5">
                 <FormField
@@ -227,7 +221,7 @@ export default function AddRolePage() {
                     <FormItem className="col-span-12 sm:col-span-8">
                       <FormLabel>Role Name *</FormLabel>
                       <FormControl>
-                        <Input placeholder="e.g., Youth Leader, Finance Auditor" {...field} />
+                        <Input placeholder="Youth Leader / Finance Auditor" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -242,7 +236,7 @@ export default function AddRolePage() {
                       <FormLabel>Description *</FormLabel>
                       <FormControl>
                         <Textarea
-                          placeholder="Describe the responsibilities and operational scope of this role..."
+                          placeholder="Role responsibilities and operational scope..."
                           rows={3}
                           {...field}
                         />
@@ -259,11 +253,9 @@ export default function AddRolePage() {
           <Card className="rounded-xl border border-border p-6">
             <div className="space-y-6">
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-4 border-b border-border">
-                <div>
+                <div className="flex items-center gap-2">
                   <h2 className="text-base font-semibold text-foreground">Module Access & Permissions</h2>
-                  <p className="text-xs text-muted-foreground mt-0.5">
-                    {selectedPermissions.length} permission(s) granted across system modules
-                  </p>
+                  <Badge variant="neutral">{selectedPermissions.length} selected</Badge>
                 </div>
                 <div className="flex items-center gap-2">
                   <Button

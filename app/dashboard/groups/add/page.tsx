@@ -112,7 +112,6 @@ export default function AddGroupPage() {
         </Button>
         <div>
           <h1 className="font-heading text-2xl font-bold tracking-tight">Create Group</h1>
-          <p className="text-sm text-muted-foreground mt-1">Set up a fellowship, ministry, or community group.</p>
         </div>
       </div>
 
@@ -129,7 +128,7 @@ export default function AddGroupPage() {
                   id="name"
                   value={formData.name}
                   onChange={(e) => handleInputChange('name', e.target.value)}
-                  placeholder="e.g. Youth Fellowship"
+                  placeholder="Youth Fellowship"
                   required
                 />
               </div>
@@ -190,7 +189,7 @@ export default function AddGroupPage() {
                   id="meetingSchedule"
                   value={formData.meetingSchedule}
                   onChange={(e) => handleInputChange('meetingSchedule', e.target.value)}
-                  placeholder="e.g. Saturdays at 4:00 PM"
+                  placeholder="Saturdays at 4:00 PM"
                 />
               </div>
               
@@ -200,7 +199,7 @@ export default function AddGroupPage() {
                   id="location"
                   value={formData.location}
                   onChange={(e) => handleInputChange('location', e.target.value)}
-                  placeholder="e.g. Fellowship Hall Room 2"
+                  placeholder="Fellowship Hall Room 2"
                 />
               </div>
 
@@ -210,7 +209,7 @@ export default function AddGroupPage() {
                   id="description"
                   value={formData.description}
                   onChange={(e) => handleInputChange('description', e.target.value)}
-                  placeholder="Brief summary of the group's purpose and activities..."
+                  placeholder="Purpose, focus, and meeting details..."
                   rows={3}
                 />
               </div>
@@ -230,7 +229,7 @@ export default function AddGroupPage() {
                   id="leaderName"
                   value={formData.leader.name}
                   onChange={(e) => handleInputChange('leader.name', e.target.value)}
-                  placeholder="Leader's full name"
+                  placeholder="Grace Mensah"
                   required
                 />
               </div>
@@ -242,7 +241,7 @@ export default function AddGroupPage() {
                   type="email"
                   value={formData.leader.email}
                   onChange={(e) => handleInputChange('leader.email', e.target.value)}
-                  placeholder="leader@church.com"
+                  placeholder="leader@example.com"
                   required
                 />
               </div>

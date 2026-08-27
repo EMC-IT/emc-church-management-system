@@ -163,9 +163,6 @@ export default function AddIncomeCategoryPage() {
         </Button>
         <div>
           <h1 className="font-heading text-2xl font-bold tracking-tight">Add Income Category</h1>
-          <p className="text-sm text-muted-foreground mt-1">
-            Define a non-giving revenue stream, facility rental, or commercial income classification.
-          </p>
         </div>
       </div>
 
@@ -174,10 +171,7 @@ export default function AddIncomeCategoryPage() {
           {/* Quick Suggestions */}
           <Card className="rounded-xl border border-border p-6">
             <div className="space-y-4">
-              <div>
-                <h2 className="text-sm font-semibold text-foreground">Quick Templates</h2>
-                <p className="text-xs text-muted-foreground mt-0.5">Select a common church income source to auto-populate the form</p>
-              </div>
+              <h2 className="text-sm font-semibold text-foreground">Quick Templates</h2>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                 {categorySuggestions.map((suggestion, index) => (
                   <button
@@ -201,10 +195,7 @@ export default function AddIncomeCategoryPage() {
           {/* Category Details */}
           <Card className="rounded-xl border border-border p-6">
             <div className="space-y-5">
-              <div>
-                <h2 className="text-base font-semibold text-foreground">Category Details</h2>
-                <p className="text-xs text-muted-foreground mt-0.5">Define category name, unique code, operational description, and status</p>
-              </div>
+              <h2 className="text-base font-semibold text-foreground">Category Details</h2>
 
               <div className="grid grid-cols-12 gap-5">
                 <FormField
@@ -215,7 +206,7 @@ export default function AddIncomeCategoryPage() {
                       <FormLabel>Category Name *</FormLabel>
                       <FormControl>
                         <Input
-                          placeholder="e.g., Hall Rental"
+                          placeholder="Hall Rental"
                           {...field}
                           onChange={(e) => {
                             field.onChange(e);
@@ -236,7 +227,7 @@ export default function AddIncomeCategoryPage() {
                       <FormLabel>Category Code</FormLabel>
                       <FormControl>
                         <Input
-                          placeholder="e.g., HALL_RENTAL"
+                          placeholder="HALL_RENTAL"
                           {...field}
                           className="font-mono uppercase"
                         />
@@ -254,7 +245,7 @@ export default function AddIncomeCategoryPage() {
                       <FormLabel>Description *</FormLabel>
                       <FormControl>
                         <Textarea
-                          placeholder="Describe what types of income belong to this category..."
+                          placeholder="Income types and transactions belonging to this category..."
                           rows={3}
                           {...field}
                         />

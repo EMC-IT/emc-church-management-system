@@ -131,19 +131,13 @@ export default function AddTitheOfferingPage() {
         </Button>
         <div>
           <h1 className="font-heading text-2xl font-bold tracking-tight">Record Tithe / Offering</h1>
-          <p className="text-sm text-muted-foreground mt-1">
-            Log tithe remittances, Sunday offerings, first fruits, and special kingdom investment collections.
-          </p>
         </div>
       </div>
 
       {/* Form */}
       <Card className="rounded-xl border border-border p-6">
         <div className="space-y-5">
-          <div>
-            <h2 className="text-base font-semibold text-foreground">Giving Details</h2>
-            <p className="text-xs text-muted-foreground mt-0.5">Specify contributor, giving stream, amount, and payment method</p>
-          </div>
+          <h2 className="text-base font-semibold text-foreground">Giving Details</h2>
 
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
@@ -155,7 +149,7 @@ export default function AddTitheOfferingPage() {
                     <FormItem className="col-span-12 sm:col-span-8">
                       <FormLabel>Member Name / Contributor *</FormLabel>
                       <FormControl>
-                        <Input placeholder="e.g., John Smith or Anonymous" {...field} />
+                        <Input placeholder="John Smith / Anonymous" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -308,7 +302,7 @@ export default function AddTitheOfferingPage() {
                     <FormItem className="col-span-12 sm:col-span-4">
                       <FormLabel>Receipt Number</FormLabel>
                       <FormControl>
-                        <Input placeholder="e.g., TO-2024-001" {...field} />
+                        <Input placeholder="TO-2026-001" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -323,7 +317,7 @@ export default function AddTitheOfferingPage() {
                       <FormLabel>Notes</FormLabel>
                       <FormControl>
                         <Input 
-                          placeholder="Optional notes or remarks"
+                          placeholder="Additional notes or remarks..."
                           {...field} 
                         />
                       </FormControl>

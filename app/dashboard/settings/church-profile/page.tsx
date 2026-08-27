@@ -153,7 +153,9 @@ export default function ChurchProfilePage() {
             <ArrowLeft className="h-4 w-4" />
           </Link>
         </Button>
-        <PageHeader title="Church Profile" />
+        <div>
+          <h1 className="font-heading text-2xl font-bold tracking-tight">Church Profile</h1>
+        </div>
       </div>
 
       <Form {...form}>
@@ -241,7 +243,7 @@ export default function ChurchProfilePage() {
                         <FormLabel>Vision Statement *</FormLabel>
                         <FormControl>
                           <Textarea
-                            placeholder="Where do you see the church going? What's your long-term aspiration?"
+                            placeholder="Vision statement..."
                             rows={4}
                             {...field}
                           />
@@ -259,7 +261,7 @@ export default function ChurchProfilePage() {
                         <FormLabel>Mission Statement *</FormLabel>
                         <FormControl>
                           <Textarea
-                            placeholder="What is your church's purpose? How do you serve your community?"
+                            placeholder="Mission statement..."
                             rows={4}
                             {...field}
                           />
@@ -295,7 +297,7 @@ export default function ChurchProfilePage() {
                         <FormLabel>Church History</FormLabel>
                         <FormControl>
                           <Textarea
-                            placeholder="Share your church's story, major milestones, and journey..."
+                            placeholder="Historical background and milestones..."
                             rows={5}
                             {...field}
                           />

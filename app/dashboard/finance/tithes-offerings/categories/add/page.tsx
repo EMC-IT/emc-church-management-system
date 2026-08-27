@@ -94,9 +94,6 @@ export default function AddCategoryPage() {
         </Button>
         <div>
           <h1 className="font-heading text-2xl font-bold tracking-tight">Add Giving Category</h1>
-          <p className="text-sm text-muted-foreground mt-1">
-            Create a designated fund or offering category for tithes and contributions.
-          </p>
         </div>
       </div>
 
@@ -104,10 +101,7 @@ export default function AddCategoryPage() {
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
           <Card className="rounded-xl border border-border p-6">
             <div className="space-y-5">
-              <div>
-                <h2 className="text-base font-semibold text-foreground">Category Details</h2>
-                <p className="text-xs text-muted-foreground mt-0.5">Specify category name, contribution type, color badges, and status</p>
-              </div>
+              <h2 className="text-base font-semibold text-foreground">Category Details</h2>
 
               <div className="grid grid-cols-12 gap-5">
                 <FormField
@@ -117,7 +111,7 @@ export default function AddCategoryPage() {
                     <FormItem className="col-span-12 sm:col-span-8">
                       <FormLabel>Category Name *</FormLabel>
                       <FormControl>
-                        <Input placeholder="e.g., Building Fund" {...field} />
+                        <Input placeholder="Building Fund" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -156,7 +150,7 @@ export default function AddCategoryPage() {
                       <FormLabel>Description</FormLabel>
                       <FormControl>
                         <Textarea 
-                          placeholder="Describe the purpose of this designated fund..."
+                          placeholder="Purpose of this designated fund..."
                           rows={3}
                           {...field} 
                         />

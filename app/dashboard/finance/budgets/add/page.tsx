@@ -131,19 +131,13 @@ export default function AddBudgetPage() {
         </Button>
         <div>
           <h1 className="font-heading text-2xl font-bold tracking-tight">Create New Budget</h1>
-          <p className="text-sm text-muted-foreground mt-1">
-            Establish financial allocation targets and expenditure limits by ministry department.
-          </p>
         </div>
       </div>
 
       {/* Budget Form */}
       <Card className="rounded-xl border border-border p-6">
         <div className="space-y-5">
-          <div>
-            <h2 className="text-base font-semibold text-foreground">Budget Allocation Details</h2>
-            <p className="text-xs text-muted-foreground mt-0.5">Define department allocation limits, timelines, and operational priorities</p>
-          </div>
+          <h2 className="text-base font-semibold text-foreground">Budget Allocation Details</h2>
 
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
@@ -155,7 +149,7 @@ export default function AddBudgetPage() {
                     <FormItem className="col-span-12 sm:col-span-8">
                       <FormLabel>Budget Name *</FormLabel>
                       <FormControl>
-                        <Input placeholder="e.g., Worship Ministry Q2 2024, Annual Missions Budget" {...field} />
+                        <Input placeholder="Worship Ministry Q2 / Annual Missions" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -173,7 +167,7 @@ export default function AddBudgetPage() {
                           <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">₵</span>
                           <Input 
                             type="number" 
-                            placeholder="15000" 
+                            placeholder="15000.00" 
                             className="pl-8"
                             {...field} 
                           />
@@ -351,7 +345,7 @@ export default function AddBudgetPage() {
                       <FormLabel>Description / Objectives</FormLabel>
                       <FormControl>
                         <Textarea 
-                          placeholder="Brief description of budget purpose, allocation guidelines, and project scope..."
+                          placeholder="Budget purpose, allocation guidelines, and project scope..."
                           rows={3}
                           {...field} 
                         />

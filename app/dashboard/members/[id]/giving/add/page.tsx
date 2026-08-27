@@ -168,22 +168,24 @@ export default function AddGivingPage() {
         metadata: formData.metadata,
       };
 
-      // For now, simulate API call. Replace with actual API call:
-      // const response = await givingService.createGiving(memberId, givingData);
-      
-      // Simulate API delay
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      toast({
-        title: 'Success',
-        description: 'Giving record added successfully',
-      });
-      
-      router.push(`/dashboard/members/${memberId}/giving`);
-    } catch (err: any) {
+      const response = await givingService.createMemberGiving(memberId, formData);
+      if (response.success) {
+        toast({
+          title: 'Success',
+          description: 'Contribution recorded successfully',
+        });
+        router.push(`/dashboard/members/${memberId}/giving`);
+      } else {
+        toast({
+          title: 'Error',
+          description: response.message || 'Failed to record contribution',
+          variant: 'destructive',
+        });
+      }
+    } catch {
       toast({
         title: 'Error',
-        description: err.message || 'Failed to add giving record',
+        description: 'Failed to record contribution',
         variant: 'destructive',
       });
     } finally {
@@ -194,7 +196,7 @@ export default function AddGivingPage() {
   const handleInputChange = (field: string, value: any) => {
     setFormData(prev => ({
       ...prev,
-      [field]: value,
+      [field]: value
     }));
   };
 
@@ -245,9 +247,6 @@ export default function AddGivingPage() {
         </Button>
         <div>
           <h1 className="font-heading text-2xl font-bold tracking-tight">Record Member Contribution</h1>
-          <p className="text-sm text-muted-foreground mt-1">
-            Log a tithe, pledge payment, offering, or special donation for {member.firstName} {member.lastName}.
-          </p>
         </div>
       </div>
 
@@ -255,10 +254,7 @@ export default function AddGivingPage() {
       <form onSubmit={handleSubmit} className="space-y-6">
         <Card className="rounded-xl border border-border p-6">
           <div className="space-y-5">
-            <div>
-              <h2 className="text-base font-semibold text-foreground">Contribution Details</h2>
-              <p className="text-xs text-muted-foreground mt-0.5">Specify amount, category allocation, payment channel, and attribution</p>
-            </div>
+            <h2 className="text-base font-semibold text-foreground">Contribution Details</h2>
 
             <div className="grid grid-cols-12 gap-5">
               <div className="col-span-12 sm:col-span-6 space-y-2">
@@ -343,12 +339,12 @@ export default function AddGivingPage() {
               </div>
 
               <div className="col-span-12 sm:col-span-8 space-y-2">
-                <Label htmlFor="campaign">Associated Campaign (Optional)</Label>
+                <Label htmlFor="campaign">Associated Campaign</Label>
                 <Input
                   id="campaign"
                   value={formData.campaign}
                   onChange={(e) => handleInputChange('campaign', e.target.value)}
-                  placeholder="e.g., Building Fund 2024, Youth Camp Drive"
+                  placeholder="Building Fund 2026 / Youth Camp Drive"
                 />
               </div>
 
@@ -370,7 +366,7 @@ export default function AddGivingPage() {
                   id="description"
                   value={formData.description}
                   onChange={(e) => handleInputChange('description', e.target.value)}
-                  placeholder="Additional receipt notes or cheque reference numbers..."
+                  placeholder="Additional receipt notes or reference numbers..."
                   rows={3}
                 />
               </div>

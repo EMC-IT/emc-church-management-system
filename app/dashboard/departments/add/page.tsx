@@ -177,7 +177,6 @@ export default function AddDepartmentPage() {
           <h1 className="font-heading text-2xl font-bold tracking-tight">
             Add Department
           </h1>
-          <p className="text-sm text-muted-foreground mt-1">Create a ministry, administrative, or operational church department.</p>
         </div>
       </div>
 
@@ -195,7 +194,7 @@ export default function AddDepartmentPage() {
                     <FormItem className="col-span-12 sm:col-span-6">
                       <FormLabel>Department Name *</FormLabel>
                       <FormControl>
-                        <Input placeholder="e.g. Media & Tech Ministry" {...field} />
+                        <Input placeholder="Media & Tech Ministry" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -209,7 +208,7 @@ export default function AddDepartmentPage() {
                     <FormItem className="col-span-12 sm:col-span-6">
                       <FormLabel>Leader Name *</FormLabel>
                       <FormControl>
-                        <Input placeholder="e.g. John Doe" {...field} />
+                        <Input placeholder="John Doe" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -273,7 +272,7 @@ export default function AddDepartmentPage() {
                     <FormItem className="col-span-12 sm:col-span-4">
                       <FormLabel>Location / Room</FormLabel>
                       <FormControl>
-                        <Input placeholder="e.g. Media Booth, Room 204" {...field} />
+                        <Input placeholder="Media Booth, Room 204" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -288,7 +287,7 @@ export default function AddDepartmentPage() {
                       <FormLabel>Description *</FormLabel>
                       <FormControl>
                         <Textarea 
-                          placeholder="Purpose, responsibilities, and scope..."
+                          placeholder="Department purpose, responsibilities, and scope..."
                           className="min-h-[90px]"
                           {...field} 
                         />
@@ -307,7 +306,6 @@ export default function AddDepartmentPage() {
               <div className="flex items-center justify-between">
                 <div>
                   <h2 className="text-base font-semibold text-foreground">Meeting Schedule</h2>
-                  <p className="text-xs text-muted-foreground mt-0.5">Enable regular meeting times for department members</p>
                 </div>
                 <FormField
                   control={form.control}

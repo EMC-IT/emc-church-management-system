@@ -97,9 +97,6 @@ export default function AddCategoryPage() {
         </Button>
         <div>
           <h1 className="font-heading text-2xl font-bold tracking-tight">Add Budget Category</h1>
-          <p className="text-sm text-muted-foreground mt-1">
-            Create an operational budget envelope or fiscal classification.
-          </p>
         </div>
       </div>
 
@@ -107,10 +104,7 @@ export default function AddCategoryPage() {
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
           <Card className="rounded-xl border border-border p-6">
             <div className="space-y-5">
-              <div>
-                <h2 className="text-base font-semibold text-foreground">Category Details</h2>
-                <p className="text-xs text-muted-foreground mt-0.5">Define category name, descriptive purpose, color token, and status</p>
-              </div>
+              <h2 className="text-base font-semibold text-foreground">Category Details</h2>
 
               <div className="grid grid-cols-12 gap-5">
                 <FormField
@@ -120,7 +114,7 @@ export default function AddCategoryPage() {
                     <FormItem className="col-span-12 sm:col-span-8">
                       <FormLabel>Category Name *</FormLabel>
                       <FormControl>
-                        <Input placeholder="e.g., Ministry Operations" {...field} />
+                        <Input placeholder="Ministry Operations" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -160,7 +154,7 @@ export default function AddCategoryPage() {
                       <FormLabel>Description *</FormLabel>
                       <FormControl>
                         <Textarea 
-                          placeholder="Brief description of what this budget category covers..."
+                          placeholder="What this budget category covers..."
                           rows={3}
                           {...field} 
                         />

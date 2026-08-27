@@ -126,19 +126,13 @@ export default function AddIncomePage() {
         </Button>
         <div>
           <h1 className="font-heading text-2xl font-bold tracking-tight">Record Income</h1>
-          <p className="text-sm text-muted-foreground mt-1">
-            Log church revenue, facility rentals, project grants, and other miscellaneous income.
-          </p>
         </div>
       </div>
 
       {/* Form */}
       <Card className="rounded-xl border border-border p-6">
         <div className="space-y-5">
-          <div>
-            <h2 className="text-base font-semibold text-foreground">Income Details</h2>
-            <p className="text-xs text-muted-foreground mt-0.5">Specify receipt details, category, and payer information</p>
-          </div>
+          <h2 className="text-base font-semibold text-foreground">Income Details</h2>
 
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
@@ -152,7 +146,7 @@ export default function AddIncomePage() {
                       <FormLabel>Description *</FormLabel>
                       <FormControl>
                         <Input
-                          placeholder="e.g., Hall Rental - Wedding Event, Bookshop Sales"
+                          placeholder="Hall Rental - Wedding Event / Bookshop Sales"
                           {...field}
                         />
                       </FormControl>
@@ -221,7 +215,7 @@ export default function AddIncomePage() {
                       <FormLabel>Source / Payer *</FormLabel>
                       <FormControl>
                         <Input
-                          placeholder="e.g., Johnson Family, Ministry Partners"
+                          placeholder="Johnson Family / Ministry Partners"
                           {...field}
                         />
                       </FormControl>
@@ -281,7 +275,7 @@ export default function AddIncomePage() {
                       <FormLabel>Reference / Invoice #</FormLabel>
                       <FormControl>
                         <Input
-                          placeholder="e.g., INV-2024-001"
+                          placeholder="INV-2026-001"
                           {...field}
                         />
                       </FormControl>

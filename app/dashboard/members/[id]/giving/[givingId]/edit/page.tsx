@@ -332,9 +332,6 @@ export default function EditGivingPage() {
           </Button>
           <div>
             <h1 className="font-heading text-2xl font-bold tracking-tight">Edit Giving Record</h1>
-            <p className="text-sm text-muted-foreground mt-1">
-              Update contribution details and status for {member.firstName} {member.lastName}.
-            </p>
           </div>
         </div>
         <Button
@@ -356,7 +353,7 @@ export default function EditGivingPage() {
             <div className="flex items-center justify-between">
               <div>
                 <h2 className="text-base font-semibold text-foreground">Contribution & Receipt Info</h2>
-                <p className="text-xs text-muted-foreground mt-0.5">Receipt number: {giving.receiptNumber} • Created {new Date(giving.createdAt).toLocaleDateString()}</p>
+                <p className="text-xs text-muted-foreground mt-0.5">Receipt: {giving.receiptNumber} • Created {new Date(giving.createdAt).toLocaleDateString()}</p>
               </div>
             </div>
 
@@ -459,12 +456,12 @@ export default function EditGivingPage() {
               </div>
 
               <div className="col-span-12 sm:col-span-4 space-y-2">
-                <Label htmlFor="campaign">Campaign (Optional)</Label>
+                <Label htmlFor="campaign">Campaign</Label>
                 <Input
                   id="campaign"
                   value={formData.campaign}
                   onChange={(e) => handleInputChange('campaign', e.target.value)}
-                  placeholder="e.g., Building Fund, Mission Trip"
+                  placeholder="Building Fund / Mission Trip"
                 />
               </div>
 
@@ -486,7 +483,7 @@ export default function EditGivingPage() {
                   id="description"
                   value={formData.description}
                   onChange={(e) => handleInputChange('description', e.target.value)}
-                  placeholder="Additional details about this giving..."
+                  placeholder="Additional receipt notes or reference numbers..."
                   rows={3}
                 />
               </div>

@@ -187,9 +187,6 @@ export default function EditTitheOfferingPage() {
         </Button>
         <div>
           <h1 className="font-heading text-2xl font-bold tracking-tight">Edit Giving Record</h1>
-          <p className="text-sm text-muted-foreground mt-1">
-            Update contributor, offering designation, payment method, and receipt reference.
-          </p>
         </div>
       </div>
 
@@ -197,10 +194,7 @@ export default function EditTitheOfferingPage() {
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
           <Card className="rounded-xl border border-border p-6">
             <div className="space-y-5">
-              <div>
-                <h2 className="text-base font-semibold text-foreground">Giving Details</h2>
-                <p className="text-xs text-muted-foreground mt-0.5">Contributor information, transaction amount, and fund categorization</p>
-              </div>
+              <h2 className="text-base font-semibold text-foreground">Giving Details</h2>
 
               <div className="grid grid-cols-12 gap-5">
                 <FormField
@@ -210,7 +204,7 @@ export default function EditTitheOfferingPage() {
                     <FormItem className="col-span-12 sm:col-span-8">
                       <FormLabel>Contributor Name *</FormLabel>
                       <FormControl>
-                        <Input placeholder="e.g., John Smith" {...field} />
+                        <Input placeholder="John Smith" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -363,7 +357,7 @@ export default function EditTitheOfferingPage() {
                     <FormItem className="col-span-12 sm:col-span-4">
                       <FormLabel>Receipt / Transaction Ref</FormLabel>
                       <FormControl>
-                        <Input placeholder="e.g., TO-2024-001" {...field} />
+                        <Input placeholder="TO-2026-001" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>

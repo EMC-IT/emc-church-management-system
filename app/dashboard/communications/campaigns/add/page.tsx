@@ -308,9 +308,6 @@ export default function AddCampaignPage() {
         </Button>
         <div>
           <h1 className="font-heading text-2xl font-bold tracking-tight">Create New Campaign</h1>
-          <p className="text-sm text-muted-foreground mt-1">
-            Build mass email or SMS communication campaigns targeted to ministry groups.
-          </p>
         </div>
       </div>
 
@@ -432,7 +429,7 @@ export default function AddCampaignPage() {
                     <Label htmlFor="name">Campaign Name *</Label>
                     <Input
                       id="name"
-                      placeholder="Enter campaign name..."
+                      placeholder="Easter Service Campaign"
                       value={formData.name}
                       onChange={(e) => handleInputChange('name', e.target.value)}
                     />
@@ -443,7 +440,7 @@ export default function AddCampaignPage() {
                       <Label htmlFor="subject">Email Subject *</Label>
                       <Input
                         id="subject"
-                        placeholder="Enter email subject..."
+                        placeholder="Special Easter Service & Fellowship"
                         value={formData.subject}
                         onChange={(e) => handleInputChange('subject', e.target.value)}
                       />
@@ -456,10 +453,7 @@ export default function AddCampaignPage() {
                     </Label>
                     <Textarea
                       id="message"
-                      placeholder={formData.type === 'email' 
-                        ? 'Write your email content here...'
-                        : 'Write your SMS message here...'
-                      }
+                      placeholder="Campaign message content..."
                       value={formData.message}
                       onChange={(e) => handleInputChange('message', e.target.value)}
                       className={formData.type === 'email' ? 'min-h-32' : 'min-h-20'}
@@ -721,7 +715,7 @@ export default function AddCampaignPage() {
                   <Input
                     id="testContact"
                     type={formData.type === 'email' ? 'email' : 'tel'}
-                    placeholder={formData.type === 'email' ? 'test@example.com' : '+1234567890'}
+                    placeholder={formData.type === 'email' ? 'pastor@example.com' : '+233 24 123 4567'}
                     value={formData.testContact}
                     onChange={(e) => handleInputChange('testContact', e.target.value)}
                   />
@@ -776,12 +770,6 @@ export default function AddCampaignPage() {
           )}
         </Button>
       </div>
-      
-      {!isFormValid() && (
-        <p className="text-sm text-muted-foreground text-center mt-2">
-          Fill in required fields (name, type, message, audience) to enable sending
-        </p>
-      )}
       
       {/* Schedule Dialog */}
       <ScheduleDialog

@@ -352,9 +352,6 @@ export default function ImportMembersPage() {
           </Button>
           <div>
             <h1 className="font-heading text-2xl font-bold tracking-tight">Import Members</h1>
-            <p className="text-sm text-muted-foreground mt-1">
-              Bulk import members into the database using a CSV or Excel spreadsheet.
-            </p>
           </div>
         </div>
         <Button variant="outline" onClick={handleDownloadTemplate} className="self-start sm:self-auto">
@@ -377,7 +374,7 @@ export default function ImportMembersPage() {
               {currentStep === 'upload' ? '1' : '✓'}
             </div>
             <p className="text-xs text-muted-foreground">
-              Upload your CSV file with member data
+              Upload CSV file with member data
             </p>
           </CardContent>
         </Card>
@@ -411,7 +408,7 @@ export default function ImportMembersPage() {
               {currentStep === 'import' ? '3' : '3'}
             </div>
             <p className="text-xs text-muted-foreground">
-              Import validated members to database
+              Import validated records to database
             </p>
           </CardContent>
         </Card>
@@ -422,9 +419,6 @@ export default function ImportMembersPage() {
         <Card>
           <CardHeader>
             <CardTitle>Upload Member Data</CardTitle>
-            <CardDescription>
-              Upload a CSV file containing member information. Make sure your file follows the template format.
-            </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <FileUpload

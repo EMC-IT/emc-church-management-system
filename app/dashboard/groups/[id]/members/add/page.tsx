@@ -117,7 +117,7 @@ export default function AddGroupMemberPage() {
     e.preventDefault();
     
     if (selectedMembers.size === 0) {
-      toast.error('Please select at least one member to add');
+      toast.error('Select at least one member to add');
       return;
     }
     
@@ -174,9 +174,6 @@ export default function AddGroupMemberPage() {
           </Button>
           <div>
             <h1 className="font-heading text-2xl font-bold tracking-tight">Add Group Members</h1>
-            <p className="text-sm text-muted-foreground mt-1">
-              Select congregants to enroll into {group?.name || 'this group'} and assign their initial roles.
-            </p>
           </div>
         </div>
 
@@ -204,14 +201,14 @@ export default function AddGroupMemberPage() {
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
             <div>
               <h2 className="text-base font-semibold text-foreground">Available Church Members</h2>
-              <p className="text-xs text-muted-foreground mt-0.5">{filteredMembers.length} eligible congregants available for enrollment</p>
+              <p className="text-xs text-muted-foreground mt-0.5">{filteredMembers.length} eligible members</p>
             </div>
           </div>
 
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
-              placeholder="Search members by name, email, or department..."
+              placeholder="Search members by name or email..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="pl-9"

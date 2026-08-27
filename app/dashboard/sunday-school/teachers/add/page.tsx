@@ -102,7 +102,6 @@ export default function AddTeacherPage() {
         </Button>
         <div>
           <h1 className="font-heading text-2xl font-bold tracking-tight">Register Teacher</h1>
-          <p className="text-sm text-muted-foreground mt-1">Add a new teacher to the Sunday School ministry staff.</p>
         </div>
       </div>
 
@@ -119,7 +118,7 @@ export default function AddTeacherPage() {
                   id="name"
                   value={formData.name}
                   onChange={(e) => handleInputChange('name', e.target.value)}
-                  placeholder="e.g. Grace Mensah"
+                  placeholder="Grace Mensah"
                   required
                 />
                 {errors.name && <p className="text-xs text-destructive">{errors.name}</p>}
@@ -132,7 +131,7 @@ export default function AddTeacherPage() {
                   id="experience"
                   value={formData.experience || ''}
                   onChange={(e) => handleInputChange('experience', e.target.value)}
-                  placeholder="e.g. 5 years Children Ministry teaching"
+                  placeholder="5 years Children Ministry teaching"
                 />
               </div>
 
@@ -170,7 +169,7 @@ export default function AddTeacherPage() {
                   <Input
                     value={newQualification}
                     onChange={(e) => setNewQualification(e.target.value)}
-                    placeholder="e.g. Child Evangelism Fellowship Certified"
+                    placeholder="Child Evangelism Fellowship Certified"
                     onKeyDown={(e) => {
                       if (e.key === 'Enter') {
                         e.preventDefault();
@@ -208,7 +207,7 @@ export default function AddTeacherPage() {
                   id="bio"
                   value={formData.bio || ''}
                   onChange={(e) => handleInputChange('bio', e.target.value)}
-                  placeholder="Brief background and notes about the teacher..."
+                  placeholder="Optional background and ministry notes..."
                   rows={3}
                 />
               </div>

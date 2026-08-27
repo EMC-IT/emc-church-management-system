@@ -107,7 +107,7 @@ export default function AddPledgePage() {
     if (!formData.memberId && !formData.isAnonymous) {
       toast({
         title: 'Validation Error',
-        description: 'Please select a member or mark as anonymous',
+        description: 'Select a member or mark as anonymous',
         variant: 'destructive',
       });
       return;
@@ -116,7 +116,7 @@ export default function AddPledgePage() {
     if (formData.amount <= 0) {
       toast({
         title: 'Validation Error',
-        description: 'Amount must be greater than 0',
+        description: 'Enter an amount greater than 0',
         variant: 'destructive',
       });
       return;
@@ -125,7 +125,7 @@ export default function AddPledgePage() {
     if (formData.installments <= 0) {
       toast({
         title: 'Validation Error',
-        description: 'Number of installments must be greater than 0',
+        description: 'Installments must be greater than 0',
         variant: 'destructive',
       });
       return;
@@ -139,13 +139,14 @@ export default function AddPledgePage() {
         date: formData.startDate.toISOString().split('T')[0],
         pledgeDetails: {
           totalAmount: formData.amount,
-          paidAmount: 0,
-          remainingAmount: formData.amount,
           installments: formData.installments,
           frequency: formData.frequency,
           startDate: formData.startDate.toISOString().split('T')[0],
           endDate: formData.endDate?.toISOString().split('T')[0],
-          nextDueDate: formData.startDate.toISOString().split('T')[0]
+          installmentAmount: formData.amount / formData.installments,
+          fulfilledAmount: 0,
+          remainingAmount: formData.amount,
+          status: 'active'
         }
       };
       
@@ -181,9 +182,6 @@ export default function AddPledgePage() {
         </Button>
         <div>
           <h1 className="font-heading text-2xl font-bold tracking-tight">Record New Pledge</h1>
-          <p className="text-sm text-muted-foreground mt-1">
-            Create an installment-based pledge commitment for church projects and campaigns.
-          </p>
         </div>
       </div>
 
@@ -191,10 +189,7 @@ export default function AddPledgePage() {
         {/* Basic Information */}
         <Card className="rounded-xl border border-border p-6">
           <div className="space-y-5">
-            <div>
-              <h2 className="text-base font-semibold text-foreground">Pledge Information</h2>
-              <p className="text-xs text-muted-foreground mt-0.5">Select contributor and specify commitment amount</p>
-            </div>
+            <h2 className="text-base font-semibold text-foreground">Pledge Information</h2>
 
             <div className="grid grid-cols-12 gap-5 items-end">
               <div className="col-span-12 sm:col-span-8 space-y-2">
@@ -311,7 +306,7 @@ export default function AddPledgePage() {
                   id="description"
                   value={formData.description}
                   onChange={(e) => handleInputChange('description', e.target.value)}
-                  placeholder="Enter pledge purpose, campaign name, or notes"
+                  placeholder="Pledge purpose, campaign name, or designated project..."
                   rows={3}
                 />
               </div>
@@ -322,10 +317,7 @@ export default function AddPledgePage() {
         {/* Payment Schedule */}
         <Card className="rounded-xl border border-border p-6">
           <div className="space-y-5">
-            <div>
-              <h2 className="text-base font-semibold text-foreground">Payment Schedule</h2>
-              <p className="text-xs text-muted-foreground mt-0.5">Define installments and repayment timeline</p>
-            </div>
+            <h2 className="text-base font-semibold text-foreground">Payment Schedule</h2>
 
             <div className="grid grid-cols-12 gap-5">
               <div className="col-span-12 sm:col-span-4 space-y-2">

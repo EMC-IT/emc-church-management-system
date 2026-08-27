@@ -184,7 +184,6 @@ export default function EditMemberPage() {
         </Button>
         <div>
           <h1 className="font-heading text-2xl font-bold tracking-tight">Edit Member Profile</h1>
-          <p className="text-sm text-muted-foreground mt-1">Update personal details, membership status, and ministry assignments.</p>
         </div>
       </div>
 

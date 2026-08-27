@@ -209,9 +209,6 @@ export default function EditAnnouncementPage() {
           </Button>
           <div>
             <h1 className="font-heading text-2xl font-bold tracking-tight">Edit Announcement</h1>
-            <p className="text-sm text-muted-foreground mt-1">
-              Update bulletin title, target audience, schedule, and engagement settings.
-            </p>
           </div>
         </div>
         <Badge variant={getStatusColor(formData.status)} className="w-fit text-xs self-start sm:self-auto">
@@ -223,17 +220,14 @@ export default function EditAnnouncementPage() {
         {/* Main Form */}
         <Card className="rounded-xl border border-border p-6">
           <div className="space-y-5">
-            <div>
-              <h2 className="text-base font-semibold text-foreground">Announcement Details</h2>
-              <p className="text-xs text-muted-foreground mt-0.5">Specify title, targeted congregation group, priority, and content</p>
-            </div>
+            <h2 className="text-base font-semibold text-foreground">Announcement Details</h2>
 
             <div className="grid grid-cols-12 gap-5">
               <div className="col-span-12 sm:col-span-8 space-y-2">
                 <Label htmlFor="title">Title *</Label>
                 <Input
                   id="title"
-                  placeholder="Enter announcement title..."
+                  placeholder="Announcement title"
                   value={formData.title}
                   onChange={(e) => handleInputChange('title', e.target.value)}
                 />
@@ -323,7 +317,7 @@ export default function EditAnnouncementPage() {
                 </div>
                 <Textarea
                   id="content"
-                  placeholder="Write your announcement content here..."
+                  placeholder="Announcement details, date, location, and relevant instructions..."
                   value={formData.content}
                   onChange={(e) => handleInputChange('content', e.target.value)}
                   rows={6}
@@ -336,10 +330,7 @@ export default function EditAnnouncementPage() {
         {/* Options Card */}
         <Card className="rounded-xl border border-border p-6">
           <div className="space-y-5">
-            <div>
-              <h2 className="text-base font-semibold text-foreground">Distribution & Engagement</h2>
-              <p className="text-xs text-muted-foreground mt-0.5">Configure push alerts and congregation interaction preferences</p>
-            </div>
+            <h2 className="text-base font-semibold text-foreground">Distribution & Engagement</h2>
 
             <div className="grid grid-cols-12 gap-5">
               <div className="col-span-12 sm:col-span-6 flex items-center justify-between rounded-lg border border-border p-3.5">

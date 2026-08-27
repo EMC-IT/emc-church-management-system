@@ -80,7 +80,7 @@ export default function AddDonationPage() {
     if (!selectedMemberId && !formData.isAnonymous) {
       toast({
         title: 'Validation Error',
-        description: 'Please select a member or mark as anonymous',
+        description: 'Select a member or mark as anonymous',
         variant: 'destructive',
       });
       return;
@@ -89,7 +89,7 @@ export default function AddDonationPage() {
     if (formData.amount <= 0) {
       toast({
         title: 'Validation Error',
-        description: 'Amount must be greater than 0',
+        description: 'Enter an amount greater than 0',
         variant: 'destructive',
       });
       return;
@@ -98,7 +98,7 @@ export default function AddDonationPage() {
     if (!formData.description || !formData.description.trim()) {
       toast({
         title: 'Validation Error',
-        description: 'Please provide a description',
+        description: 'Enter a description',
         variant: 'destructive',
       });
       return;
@@ -152,9 +152,6 @@ export default function AddDonationPage() {
         </Button>
         <div>
           <h1 className="font-heading text-2xl font-bold tracking-tight">Record New Donation</h1>
-          <p className="text-sm text-muted-foreground mt-1">
-            Record tithes, special contributions, and general donations into the financial ledger.
-          </p>
         </div>
       </div>
 
@@ -162,10 +159,7 @@ export default function AddDonationPage() {
         {/* Donor Information */}
         <Card className="rounded-xl border border-border p-6">
           <div className="space-y-5">
-            <div>
-              <h2 className="text-base font-semibold text-foreground">Donor Information</h2>
-              <p className="text-xs text-muted-foreground mt-0.5">Select a registered member or mark as an anonymous donor</p>
-            </div>
+            <h2 className="text-base font-semibold text-foreground">Donor Information</h2>
 
             <div className="grid grid-cols-12 gap-5 items-end">
               <div className="col-span-12 sm:col-span-8 space-y-2">
@@ -211,10 +205,7 @@ export default function AddDonationPage() {
         {/* Donation Details */}
         <Card className="rounded-xl border border-border p-6">
           <div className="space-y-5">
-            <div>
-              <h2 className="text-base font-semibold text-foreground">Donation Details</h2>
-              <p className="text-xs text-muted-foreground mt-0.5">Payment amount, category, and transaction metadata</p>
-            </div>
+            <h2 className="text-base font-semibold text-foreground">Donation Details</h2>
 
             <div className="grid grid-cols-12 gap-5">
               <div className="col-span-12 sm:col-span-4 space-y-2">
@@ -320,7 +311,7 @@ export default function AddDonationPage() {
                   id="description"
                   value={formData.description}
                   onChange={(e) => handleInputChange('description', e.target.value)}
-                  placeholder="e.g. Sunday first service offering, special seed donation"
+                  placeholder="Sunday first service offering / special seed donation"
                   required
                 />
               </div>

@@ -121,19 +121,13 @@ export default function AddExpensePage() {
         </Button>
         <div>
           <h1 className="font-heading text-2xl font-bold tracking-tight">Record New Expense</h1>
-          <p className="text-sm text-muted-foreground mt-1">
-            Log an organizational expenditure, invoice payment, or department operational cost.
-          </p>
         </div>
       </div>
 
       {/* Expense Form */}
       <Card className="rounded-xl border border-border p-6">
         <div className="space-y-5">
-          <div>
-            <h2 className="text-base font-semibold text-foreground">Expense Details</h2>
-            <p className="text-xs text-muted-foreground mt-0.5">Enter disbursement details and accounting category</p>
-          </div>
+          <h2 className="text-base font-semibold text-foreground">Expense Details</h2>
 
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
@@ -145,7 +139,7 @@ export default function AddExpensePage() {
                     <FormItem className="col-span-12 sm:col-span-8">
                       <FormLabel>Expense Title *</FormLabel>
                       <FormControl>
-                        <Input placeholder="e.g. Office supplies purchase, Sound equipment repair" {...field} />
+                        <Input placeholder="Office supplies purchase / Sound equipment repair" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -274,7 +268,7 @@ export default function AddExpensePage() {
                     <FormItem className="col-span-12 sm:col-span-6">
                       <FormLabel>Vendor / Payee *</FormLabel>
                       <FormControl>
-                        <Input placeholder="e.g. ECG Electricity, Office Depot, John Smith" {...field} />
+                        <Input placeholder="ECG Electricity / Office Depot / John Smith" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -288,7 +282,7 @@ export default function AddExpensePage() {
                     <FormItem className="col-span-12 sm:col-span-3">
                       <FormLabel>Receipt / Invoice #</FormLabel>
                       <FormControl>
-                        <Input placeholder="e.g. REC-2024-001" {...field} />
+                        <Input placeholder="REC-2026-001" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -302,7 +296,7 @@ export default function AddExpensePage() {
                     <FormItem className="col-span-12 sm:col-span-3">
                       <FormLabel>Approved By</FormLabel>
                       <FormControl>
-                        <Input placeholder="e.g. Finance Board" {...field} />
+                        <Input placeholder="Finance Board / Lead Pastor" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>

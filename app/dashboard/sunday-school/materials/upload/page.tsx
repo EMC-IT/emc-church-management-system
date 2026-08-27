@@ -125,7 +125,6 @@ export default function UploadMaterialPage() {
         </Button>
         <div>
           <h1 className="font-heading text-2xl font-bold tracking-tight">Upload Teaching Material</h1>
-          <p className="text-sm text-muted-foreground mt-1">Upload curriculum documents, lesson plans, activity worksheets, and media.</p>
         </div>
       </div>
 
@@ -142,7 +141,7 @@ export default function UploadMaterialPage() {
                   id="title"
                   value={formData.title}
                   onChange={(e) => handleInputChange('title', e.target.value)}
-                  placeholder="e.g. David and Goliath - Faith & Courage"
+                  placeholder="David and Goliath - Faith & Courage"
                   required
                 />
                 {errors.title && <p className="text-xs text-destructive">{errors.title}</p>}
@@ -191,7 +190,7 @@ export default function UploadMaterialPage() {
                   id="description"
                   value={formData.description}
                   onChange={(e) => handleInputChange('description', e.target.value)}
-                  placeholder="Overview of lesson, learning objectives, scripture references..."
+                  placeholder="Lesson overview, objectives, and scripture references..."
                   rows={3}
                   required
                 />

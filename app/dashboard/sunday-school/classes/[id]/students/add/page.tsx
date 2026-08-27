@@ -167,9 +167,6 @@ export default function AddStudentsToClassPage() {
           </Button>
           <div>
             <h1 className="font-heading text-2xl font-bold tracking-tight">Add Students to Class</h1>
-            <p className="text-sm text-muted-foreground mt-1">
-              Enroll eligible students into {classData?.name || 'this Sunday school class'}.
-            </p>
           </div>
         </div>
 
@@ -205,10 +202,15 @@ export default function AddStudentsToClassPage() {
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
             <div>
               <h2 className="text-base font-semibold text-foreground">Available Students</h2>
-              <p className="text-xs text-muted-foreground mt-0.5">{filteredStudents.length} eligible students ready for enrollment</p>
+              <p className="text-xs text-muted-foreground mt-0.5">{filteredStudents.length} eligible students</p>
             </div>
             {filteredStudents.length > 0 && (
-              <Button variant="outline" size="sm" onClick={handleSelectAll}>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={handleSelectAll}
+                disabled={remainingSpots === 0}
+              >
                 {selectedStudents.size === filteredStudents.length ? 'Deselect All' : 'Select All Available'}
               </Button>
             )}
@@ -216,9 +218,9 @@ export default function AddStudentsToClassPage() {
 
           <div className="flex flex-col sm:flex-row gap-3">
             <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
-                placeholder="Search students by name or guardian..."
+                placeholder="Search by name or guardian..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="pl-9"

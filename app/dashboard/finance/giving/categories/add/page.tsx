@@ -175,9 +175,6 @@ export default function AddCategoryPage() {
         </Button>
         <div>
           <h1 className="font-heading text-2xl font-bold tracking-tight">Add Giving Category</h1>
-          <p className="text-sm text-muted-foreground mt-1">
-            Create a designated fund or ministry bucket for member gifts and donations.
-          </p>
         </div>
       </div>
 
@@ -185,10 +182,7 @@ export default function AddCategoryPage() {
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
           <Card className="rounded-xl border border-border p-6">
             <div className="space-y-5">
-              <div>
-                <h2 className="text-base font-semibold text-foreground">Category Details</h2>
-                <p className="text-xs text-muted-foreground mt-0.5">Classification type, fundraising target, and guidelines</p>
-              </div>
+              <h2 className="text-base font-semibold text-foreground">Category Details</h2>
 
               <div className="grid grid-cols-12 gap-5">
                 <FormField
@@ -198,7 +192,7 @@ export default function AddCategoryPage() {
                     <FormItem className="col-span-12 sm:col-span-8">
                       <FormLabel>Category Name *</FormLabel>
                       <FormControl>
-                        <Input placeholder="e.g., Building Fund" {...field} />
+                        <Input placeholder="Building Fund" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -238,7 +232,7 @@ export default function AddCategoryPage() {
                       <FormLabel>Description *</FormLabel>
                       <FormControl>
                         <Textarea
-                          placeholder="Describe the purpose, designated projects, and eligible use of this fund..."
+                          placeholder="Purpose, designated projects, and eligible use of this fund..."
                           rows={3}
                           {...field}
                         />
@@ -253,7 +247,7 @@ export default function AddCategoryPage() {
                   name="targetAmount"
                   render={({ field }) => (
                     <FormItem className="col-span-12 sm:col-span-6">
-                      <FormLabel>Target Amount (Optional)</FormLabel>
+                      <FormLabel>Target Amount</FormLabel>
                       <FormControl>
                         <div className="relative">
                           <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">₵</span>
@@ -297,7 +291,7 @@ export default function AddCategoryPage() {
                   name="notes"
                   render={({ field }) => (
                     <FormItem className="col-span-12">
-                      <FormLabel>Additional Notes (Optional)</FormLabel>
+                      <FormLabel>Additional Notes</FormLabel>
                       <FormControl>
                         <Textarea
                           placeholder="Internal guidelines or restrictions for accounting..."

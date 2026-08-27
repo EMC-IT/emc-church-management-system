@@ -193,15 +193,12 @@ export default function EditExpensePage() {
       {/* Header */}
       <div className="flex items-center gap-4">
         <Button variant="ghost" size="icon" asChild>
-          <Link href="/dashboard/finance/expenses">
+          <Link href={`/dashboard/finance/expenses/${params.id}`}>
             <ArrowLeft className="h-4 w-4" />
           </Link>
         </Button>
         <div>
           <h1 className="font-heading text-2xl font-bold tracking-tight">Edit Expense</h1>
-          <p className="text-sm text-muted-foreground mt-1">
-            Update disbursement record, vendor/payee, expense category, and payment channel.
-          </p>
         </div>
       </div>
 
@@ -209,10 +206,7 @@ export default function EditExpensePage() {
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
           <Card className="rounded-xl border border-border p-6">
             <div className="space-y-5">
-              <div>
-                <h2 className="text-base font-semibold text-foreground">Expense Details</h2>
-                <p className="text-xs text-muted-foreground mt-0.5">Payee information, amount, budget categorization, and date</p>
-              </div>
+              <h2 className="text-base font-semibold text-foreground">Expense Details</h2>
 
               <div className="grid grid-cols-12 gap-5">
                 <FormField
@@ -222,7 +216,7 @@ export default function EditExpensePage() {
                     <FormItem className="col-span-12 sm:col-span-8">
                       <FormLabel>Expense Title *</FormLabel>
                       <FormControl>
-                        <Input placeholder="e.g., Office supplies purchase" {...field} />
+                        <Input placeholder="Office supplies purchase" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -351,7 +345,7 @@ export default function EditExpensePage() {
                     <FormItem className="col-span-12 sm:col-span-6">
                       <FormLabel>Vendor / Payee *</FormLabel>
                       <FormControl>
-                        <Input placeholder="e.g., Office Depot, John Smith" {...field} />
+                        <Input placeholder="Office Depot / John Smith" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -365,7 +359,7 @@ export default function EditExpensePage() {
                     <FormItem className="col-span-12 sm:col-span-3">
                       <FormLabel>Receipt / Invoice #</FormLabel>
                       <FormControl>
-                        <Input placeholder="e.g., REC-2024-001" {...field} />
+                        <Input placeholder="REC-2026-001" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -379,7 +373,7 @@ export default function EditExpensePage() {
                     <FormItem className="col-span-12 sm:col-span-3">
                       <FormLabel>Approved By</FormLabel>
                       <FormControl>
-                        <Input placeholder="e.g., Finance Committee" {...field} />
+                        <Input placeholder="Finance Committee / Lead Pastor" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -394,7 +388,7 @@ export default function EditExpensePage() {
                       <FormLabel>Description / Itemized Breakdown</FormLabel>
                       <FormControl>
                         <Textarea
-                          placeholder="Provide additional details or itemized list about this expense..."
+                          placeholder="Additional details or itemized breakdown..."
                           rows={3}
                           {...field}
                         />

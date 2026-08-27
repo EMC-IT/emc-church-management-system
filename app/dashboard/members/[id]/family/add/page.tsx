@@ -37,7 +37,7 @@ import Link from 'next/link';
 const familyMemberFormSchema = z.object({
   firstName: z.string().min(2, 'First name must be at least 2 characters'),
   lastName: z.string().min(2, 'Last name must be at least 2 characters'),
-  email: z.string().email('Please enter a valid email address').optional().or(z.literal('')),
+  email: z.string().email('Enter a valid email address').optional().or(z.literal('')),
   phone: z.string().min(10, 'Phone number must be at least 10 digits'),
   address: z.string().min(10, 'Address must be at least 10 characters'),
   dateOfBirth: z.string().refine((date) => {
@@ -45,7 +45,7 @@ const familyMemberFormSchema = z.object({
     const today = new Date();
     const age = today.getFullYear() - birthDate.getFullYear();
     return age >= 0 && age <= 120;
-  }, 'Please enter a valid date of birth'),
+  }, 'Enter a valid date of birth'),
   gender: z.enum(['Male', 'Female']),
   membershipStatus: z.enum(['Active', 'New', 'Inactive', 'Transferred', 'Archived']),
   joinDate: z.string(),
@@ -231,9 +231,6 @@ export default function AddFamilyMemberPage() {
         </Button>
         <div>
           <h1 className="font-heading text-2xl font-bold tracking-tight">Add Family Member</h1>
-          <p className="text-sm text-muted-foreground mt-1">
-            Register a linked family member for {member.firstName} {member.lastName}.
-          </p>
         </div>
       </div>
 
@@ -242,10 +239,7 @@ export default function AddFamilyMemberPage() {
           {/* Personal Information */}
           <Card className="rounded-xl border border-border p-6">
             <div className="space-y-5">
-              <div>
-                <h2 className="text-base font-semibold text-foreground">Personal Information</h2>
-                <p className="text-xs text-muted-foreground mt-0.5">Basic details and relationship to primary member</p>
-              </div>
+              <h2 className="text-base font-semibold text-foreground">Personal Information</h2>
 
               <div className="flex flex-col sm:flex-row items-center gap-6 pb-2">
                 <div className="flex flex-col items-center space-y-2">
@@ -274,7 +268,7 @@ export default function AddFamilyMemberPage() {
                       <FormItem className="col-span-12 sm:col-span-6">
                         <FormLabel>First Name *</FormLabel>
                         <FormControl>
-                          <Input placeholder="Enter first name" {...field} />
+                          <Input placeholder="Grace" {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -288,7 +282,7 @@ export default function AddFamilyMemberPage() {
                       <FormItem className="col-span-12 sm:col-span-6">
                         <FormLabel>Last Name *</FormLabel>
                         <FormControl>
-                          <Input placeholder="Enter last name" {...field} />
+                          <Input placeholder="Mensah" {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -381,7 +375,7 @@ export default function AddFamilyMemberPage() {
                     <FormItem className="col-span-12 sm:col-span-6">
                       <FormLabel>Email Address</FormLabel>
                       <FormControl>
-                        <Input placeholder="john.doe@example.com" type="email" {...field} />
+                        <Input placeholder="user@example.com" type="email" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -395,7 +389,7 @@ export default function AddFamilyMemberPage() {
                     <FormItem className="col-span-12">
                       <FormLabel>Residential Address *</FormLabel>
                       <FormControl>
-                        <Textarea placeholder="Enter residential address" rows={3} {...field} />
+                        <Textarea placeholder="Residential address..." rows={3} {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -408,10 +402,7 @@ export default function AddFamilyMemberPage() {
           {/* Membership Information */}
           <Card className="rounded-xl border border-border p-6">
             <div className="space-y-5">
-              <div>
-                <h2 className="text-base font-semibold text-foreground">Membership Information</h2>
-                <p className="text-xs text-muted-foreground mt-0.5">Church affiliation and join status</p>
-              </div>
+              <h2 className="text-base font-semibold text-foreground">Membership Information</h2>
 
               <div className="grid grid-cols-12 gap-5">
                 <FormField
@@ -459,10 +450,7 @@ export default function AddFamilyMemberPage() {
           {/* Emergency Contact Section */}
           <Card className="rounded-xl border border-border p-6">
             <div className="space-y-5">
-              <div>
-                <h2 className="text-base font-semibold text-foreground">Emergency Contact</h2>
-                <p className="text-xs text-muted-foreground mt-0.5">Primary emergency point of contact</p>
-              </div>
+              <h2 className="text-base font-semibold text-foreground">Emergency Contact</h2>
 
               <div className="grid grid-cols-12 gap-5">
                 <FormField
@@ -472,7 +460,7 @@ export default function AddFamilyMemberPage() {
                     <FormItem className="col-span-12 sm:col-span-4">
                       <FormLabel>Contact Name *</FormLabel>
                       <FormControl>
-                        <Input placeholder="Enter emergency contact name" {...field} />
+                        <Input placeholder="Jane Smith" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -500,7 +488,7 @@ export default function AddFamilyMemberPage() {
                     <FormItem className="col-span-12 sm:col-span-4">
                       <FormLabel>Relationship *</FormLabel>
                       <FormControl>
-                        <Input placeholder="e.g. Spouse, Mother" {...field} />
+                        <Input placeholder="Spouse / Mother" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>

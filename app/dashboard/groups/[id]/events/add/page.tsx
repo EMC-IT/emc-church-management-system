@@ -176,9 +176,6 @@ export default function AddGroupEventPage() {
           <h1 className="font-heading text-2xl font-bold tracking-tight">
             {isEditing ? 'Edit Group Event' : 'Add Group Event'}
           </h1>
-          <p className="text-sm text-muted-foreground mt-1">
-            {isEditing ? 'Update the details for this event.' : 'Schedule a new meeting, Bible study, prayer session, or outreach.'}
-          </p>
         </div>
       </div>
 
@@ -194,7 +191,7 @@ export default function AddGroupEventPage() {
                   id="title"
                   value={formData.title}
                   onChange={(e) => handleInputChange('title', e.target.value)}
-                  placeholder="e.g. Monthly Fellowship Meetup"
+                  placeholder="Monthly Fellowship Meetup"
                   required
                 />
                 {errors.title && <p className="text-xs text-destructive">{errors.title}</p>}
@@ -275,7 +272,7 @@ export default function AddGroupEventPage() {
                   id="location"
                   value={formData.location}
                   onChange={(e) => handleInputChange('location', e.target.value)}
-                  placeholder="e.g. Main Sanctuary"
+                  placeholder="Main Sanctuary"
                   required
                 />
               </div>

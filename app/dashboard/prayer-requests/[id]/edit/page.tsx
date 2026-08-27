@@ -190,9 +190,6 @@ export default function EditPrayerRequestPage() {
         </Button>
         <div>
           <h1 className="font-heading text-2xl font-bold tracking-tight">Edit Prayer Request</h1>
-          <p className="text-sm text-muted-foreground mt-1">
-            Update intercession details, priority level, confidentiality, and team assignment.
-          </p>
         </div>
       </div>
 
@@ -201,10 +198,7 @@ export default function EditPrayerRequestPage() {
           {/* Main Request Details */}
           <Card className="rounded-xl border border-border p-6">
             <div className="space-y-5">
-              <div>
-                <h2 className="text-base font-semibold text-foreground">Prayer Request Details</h2>
-                <p className="text-xs text-muted-foreground mt-0.5">Specify need, category classification, and urgency</p>
-              </div>
+              <h2 className="text-base font-semibold text-foreground">Prayer Request Details</h2>
 
               <div className="grid grid-cols-12 gap-5">
                 <FormField
@@ -215,7 +209,7 @@ export default function EditPrayerRequestPage() {
                       <FormLabel>Request Title *</FormLabel>
                       <FormControl>
                         <Input
-                          placeholder="e.g., Healing for Sister Mary"
+                          placeholder="Healing for Sister Mary"
                           {...field}
                         />
                       </FormControl>
@@ -262,10 +256,10 @@ export default function EditPrayerRequestPage() {
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          <SelectItem value="Low">Low - General prayer</SelectItem>
-                          <SelectItem value="Medium">Medium - Important need</SelectItem>
-                          <SelectItem value="High">High - Urgent prayer</SelectItem>
-                          <SelectItem value="Urgent">Urgent - Critical situation</SelectItem>
+                          <SelectItem value="Low">Low</SelectItem>
+                          <SelectItem value="Medium">Medium</SelectItem>
+                          <SelectItem value="High">High</SelectItem>
+                          <SelectItem value="Urgent">Urgent</SelectItem>
                         </SelectContent>
                       </Select>
                       <FormMessage />
@@ -310,9 +304,6 @@ export default function EditPrayerRequestPage() {
                           {...field} 
                         />
                       </FormControl>
-                      <FormDescription>
-                        Share the details of the prayer need (10-1000 characters)
-                      </FormDescription>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -324,10 +315,7 @@ export default function EditPrayerRequestPage() {
           {/* Requester Information */}
           <Card className="rounded-xl border border-border p-6">
             <div className="space-y-5">
-              <div>
-                <h2 className="text-base font-semibold text-foreground">Requester Information</h2>
-                <p className="text-xs text-muted-foreground mt-0.5">Contact details or anonymous submission</p>
-              </div>
+              <h2 className="text-base font-semibold text-foreground">Requester Information</h2>
 
               <div className="grid grid-cols-12 gap-5">
                 <FormField
@@ -360,7 +348,7 @@ export default function EditPrayerRequestPage() {
                         <FormItem className="col-span-12 sm:col-span-4">
                           <FormLabel>Full Name</FormLabel>
                           <FormControl>
-                            <Input placeholder="Requester's full name" {...field} />
+                            <Input placeholder="John Smith" {...field} />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -376,7 +364,7 @@ export default function EditPrayerRequestPage() {
                           <FormControl>
                             <Input 
                               type="email" 
-                              placeholder="email@example.com" 
+                              placeholder="john.smith@church.com" 
                               {...field} 
                             />
                           </FormControl>
@@ -394,7 +382,7 @@ export default function EditPrayerRequestPage() {
                           <FormControl>
                             <Input 
                               type="tel" 
-                              placeholder="+233 XX XXX XXXX" 
+                              placeholder="+233 24 123 4567" 
                               {...field} 
                             />
                           </FormControl>
@@ -411,10 +399,7 @@ export default function EditPrayerRequestPage() {
           {/* Privacy & Assignment */}
           <Card className="rounded-xl border border-border p-6">
             <div className="space-y-5">
-              <div>
-                <h2 className="text-base font-semibold text-foreground">Privacy & Team Assignment</h2>
-                <p className="text-xs text-muted-foreground mt-0.5">Intercessory team assignment and confidentiality preferences</p>
-              </div>
+              <h2 className="text-base font-semibold text-foreground">Privacy & Team Assignment</h2>
 
               <div className="grid grid-cols-12 gap-5">
                 <FormField
@@ -426,7 +411,7 @@ export default function EditPrayerRequestPage() {
                       <Select onValueChange={field.onChange} value={field.value}>
                         <FormControl>
                           <SelectTrigger>
-                            <SelectValue placeholder="Select team (optional)" />
+                            <SelectValue placeholder="Select team" />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
@@ -438,9 +423,6 @@ export default function EditPrayerRequestPage() {
                           ))}
                         </SelectContent>
                       </Select>
-                      <FormDescription className="text-xs">
-                        Leave blank for automatic distribution
-                      </FormDescription>
                       <FormMessage />
                     </FormItem>
                   )}

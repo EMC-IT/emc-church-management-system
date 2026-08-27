@@ -258,9 +258,6 @@ export default function EditCampaignPage() {
           </Button>
           <div>
             <h1 className="font-heading text-2xl font-bold tracking-tight">Edit Campaign</h1>
-            <p className="text-sm text-muted-foreground mt-1">
-              Update message copy, target congregation groups, delivery schedule, and tracking.
-            </p>
           </div>
         </div>
         <Badge variant={getStatusColor(formData.status)} className="w-fit text-xs flex items-center gap-1 self-start sm:self-auto">
@@ -314,7 +311,7 @@ export default function EditCampaignPage() {
                     <Label htmlFor="name">Campaign Name *</Label>
                     <Input
                       id="name"
-                      placeholder="Enter campaign name..."
+                      placeholder="Campaign name"
                       value={formData.name}
                       onChange={(e) => handleInputChange('name', e.target.value)}
                       disabled={!canEdit}
@@ -326,7 +323,7 @@ export default function EditCampaignPage() {
                       <Label htmlFor="subject">Email Subject *</Label>
                       <Input
                         id="subject"
-                        placeholder="Enter email subject..."
+                        placeholder="Special Easter Service & Fellowship"
                         value={formData.subject}
                         onChange={(e) => handleInputChange('subject', e.target.value)}
                         disabled={!canEdit}
@@ -340,10 +337,7 @@ export default function EditCampaignPage() {
                     </Label>
                     <Textarea
                       id="message"
-                      placeholder={formData.type === 'email' 
-                        ? 'Write your email content here...'
-                        : 'Write your SMS message here...'
-                      }
+                      placeholder="Campaign message content..."
                       value={formData.message}
                       onChange={(e) => handleInputChange('message', e.target.value)}
                       className={formData.type === 'email' ? 'min-h-32' : 'min-h-20'}
@@ -601,7 +595,7 @@ export default function EditCampaignPage() {
                     <Input
                       id="testContact"
                       type={formData.type === 'email' ? 'email' : 'tel'}
-                      placeholder={formData.type === 'email' ? 'test@example.com' : '+1234567890'}
+                      placeholder={formData.type === 'email' ? 'pastor@example.com' : '+233 24 123 4567'}
                       value={formData.testContact}
                       onChange={(e) => handleInputChange('testContact', e.target.value)}
                     />

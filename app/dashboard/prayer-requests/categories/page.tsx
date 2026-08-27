@@ -374,7 +374,6 @@ export default function PrayerCategoriesPage() {
           </div>
           <div>
             <h1 className="text-2xl font-bold tracking-tight">Prayer Categories</h1>
-            <p className="text-muted-foreground">Manage prayer request categories</p>
           </div>
         </div>
 
@@ -388,16 +387,13 @@ export default function PrayerCategoriesPage() {
           <DialogContent>
             <DialogHeader>
               <DialogTitle>Add Prayer Category</DialogTitle>
-              <DialogDescription>
-                Create a new category for organizing prayer requests
-              </DialogDescription>
             </DialogHeader>
             <div className="space-y-4">
               <div>
                 <Label htmlFor="name">Category Name *</Label>
                 <Input
                   id="name"
-                  placeholder="e.g., Healing & Health"
+                  placeholder="Healing & Health"
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                 />
@@ -406,7 +402,7 @@ export default function PrayerCategoriesPage() {
                 <Label htmlFor="description">Description *</Label>
                 <Textarea
                   id="description"
-                  placeholder="Brief description of this category..."
+                  placeholder="Description of this prayer category..."
                   value={formData.description}
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                   rows={3}
@@ -521,16 +517,13 @@ export default function PrayerCategoriesPage() {
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Edit Prayer Category</DialogTitle>
-            <DialogDescription>
-              Update the details of this prayer category
-            </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
             <div>
               <Label htmlFor="edit-name">Category Name *</Label>
               <Input
                 id="edit-name"
-                placeholder="e.g., Healing & Health"
+                placeholder="Healing & Health"
                 value={formData.name}
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
               />
@@ -539,7 +532,7 @@ export default function PrayerCategoriesPage() {
               <Label htmlFor="edit-description">Description *</Label>
               <Textarea
                 id="edit-description"
-                placeholder="Brief description of this category..."
+                placeholder="Description of this prayer category..."
                 value={formData.description}
                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                 rows={3}

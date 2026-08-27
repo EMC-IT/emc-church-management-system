@@ -274,9 +274,6 @@ export default function AddNewsletterPage() {
         </Button>
         <div>
           <h1 className="font-heading text-2xl font-bold tracking-tight">Create New Newsletter</h1>
-          <p className="text-sm text-muted-foreground mt-1">
-            Design and distribute church newsletters, weekly bulletins, and pastoral letters.
-          </p>
         </div>
       </div>
 
@@ -355,7 +352,7 @@ export default function AddNewsletterPage() {
                     <Label htmlFor="title">Newsletter Title *</Label>
                     <Input
                       id="title"
-                      placeholder="Enter newsletter title..."
+                      placeholder="Weekly Family Bulletin"
                       value={formData.title}
                       onChange={(e) => handleInputChange('title', e.target.value)}
                     />
@@ -365,7 +362,7 @@ export default function AddNewsletterPage() {
                     <Label htmlFor="subject">Email Subject Line *</Label>
                     <Input
                       id="subject"
-                      placeholder="Enter email subject..."
+                      placeholder="EMC Weekly Update & Sunday Highlights"
                       value={formData.subject}
                       onChange={(e) => handleInputChange('subject', e.target.value)}
                     />
@@ -375,13 +372,10 @@ export default function AddNewsletterPage() {
                     <Label htmlFor="preview">Preview Text</Label>
                     <Input
                       id="preview"
-                      placeholder="Brief preview text that appears in email clients..."
+                      placeholder="Highlights from this week's service and upcoming events..."
                       value={formData.previewText}
                       onChange={(e) => handleInputChange('previewText', e.target.value)}
                     />
-                    <p className="text-sm text-muted-foreground">
-                      This text appears in email previews (recommended: 50-100 characters)
-                    </p>
                   </div>
                 </CardContent>
               </Card>
@@ -417,15 +411,11 @@ export default function AddNewsletterPage() {
                   </div>
                   
                   <Textarea
-                    placeholder="Write your newsletter content here... You can use HTML formatting."
+                    placeholder="Newsletter content or HTML markup..."
                     value={formData.content}
                     onChange={(e) => handleInputChange('content', e.target.value)}
                     className="min-h-96 font-mono text-sm"
                   />
-                  
-                  <p className="text-sm text-muted-foreground">
-                    You can use HTML tags for formatting. Images should be hosted externally.
-                  </p>
                 </CardContent>
               </Card>
             </div>
@@ -563,7 +553,7 @@ export default function AddNewsletterPage() {
                   <Input
                     id="testEmail"
                     type="email"
-                    placeholder="your.email@example.com"
+                    placeholder="editor@example.com"
                     value={formData.testEmail}
                     onChange={(e) => handleInputChange('testEmail', e.target.value)}
                   />
@@ -649,12 +639,6 @@ export default function AddNewsletterPage() {
           )}
         </Button>
       </div>
-      
-      {!isFormValid() && (
-        <p className="text-sm text-muted-foreground text-center mt-2">
-          Fill in required fields (title, subject, template, content) to enable sending
-        </p>
-       )}
        
        {/* Schedule Dialog */}
        <ScheduleDialog

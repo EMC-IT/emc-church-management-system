@@ -112,9 +112,6 @@ export default function EditConvertPage() {
         </Button>
         <div>
           <h1 className="font-heading text-2xl font-bold tracking-tight">Edit Convert Profile</h1>
-          <p className="text-sm text-muted-foreground mt-1">
-            Update convert contact details, church branch, and membership assimilation status.
-          </p>
         </div>
       </div>
 
@@ -122,10 +119,7 @@ export default function EditConvertPage() {
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
           <Card className="rounded-xl border border-border p-6">
             <div className="space-y-5">
-              <div>
-                <h2 className="text-base font-semibold text-foreground">Convert Information</h2>
-                <p className="text-xs text-muted-foreground mt-0.5">Demographics, contact info, and fellowship details</p>
-              </div>
+              <h2 className="text-base font-semibold text-foreground">Convert Information</h2>
 
               <div className="grid grid-cols-12 gap-5">
                 <FormField
@@ -199,7 +193,7 @@ export default function EditConvertPage() {
                     <FormItem className="col-span-12 sm:col-span-4">
                       <FormLabel>Location / Residence *</FormLabel>
                       <FormControl>
-                        <Input placeholder="Accra, Ghana" {...field} />
+                        <Input placeholder="East Legon, Accra" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>

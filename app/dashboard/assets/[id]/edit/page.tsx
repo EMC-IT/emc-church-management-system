@@ -289,9 +289,6 @@ export default function EditAssetPage() {
         </Button>
         <div>
           <h1 className="font-heading text-2xl font-bold tracking-tight">Edit Asset</h1>
-          <p className="text-sm text-muted-foreground mt-1">
-            Update asset registration, custody location, valuation, and maintenance timeline.
-          </p>
         </div>
       </div>
 
@@ -300,10 +297,7 @@ export default function EditAssetPage() {
           {/* Basic Information */}
           <Card className="rounded-xl border border-border p-6">
             <div className="space-y-5">
-              <div>
-                <h2 className="text-base font-semibold text-foreground">Basic Information</h2>
-                <p className="text-xs text-muted-foreground mt-0.5">Asset designation, classification, and operational status</p>
-              </div>
+              <h2 className="text-base font-semibold text-foreground">Basic Information</h2>
 
               <div className="grid grid-cols-12 gap-5">
                 <FormField
@@ -313,7 +307,7 @@ export default function EditAssetPage() {
                     <FormItem className="col-span-12 sm:col-span-8">
                       <FormLabel>Asset Name *</FormLabel>
                       <FormControl>
-                        <Input placeholder="Enter asset name" {...field} />
+                        <Input placeholder="Asset name" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -427,7 +421,7 @@ export default function EditAssetPage() {
                       <FormLabel>Description</FormLabel>
                       <FormControl>
                         <Textarea
-                          placeholder="Describe the asset and its purpose..."
+                          placeholder="Asset description and operational purpose..."
                           rows={3}
                           {...field}
                         />
@@ -443,10 +437,7 @@ export default function EditAssetPage() {
           {/* Financial Information */}
           <Card className="rounded-xl border border-border p-6">
             <div className="space-y-5">
-              <div>
-                <h2 className="text-base font-semibold text-foreground">Financial & Valuation</h2>
-                <p className="text-xs text-muted-foreground mt-0.5">Procurement costs, replacement valuation, and depreciation</p>
-              </div>
+              <h2 className="text-base font-semibold text-foreground">Financial & Valuation</h2>
 
               <div className="grid grid-cols-12 gap-5">
                 <FormField
@@ -541,10 +532,7 @@ export default function EditAssetPage() {
           {/* Location & Assignment */}
           <Card className="rounded-xl border border-border p-6">
             <div className="space-y-5">
-              <div>
-                <h2 className="text-base font-semibold text-foreground">Location & Custody</h2>
-                <p className="text-xs text-muted-foreground mt-0.5">Physical location and department or ministry assignment</p>
-              </div>
+              <h2 className="text-base font-semibold text-foreground">Location & Custody</h2>
 
               <div className="grid grid-cols-12 gap-5">
                 <FormField
@@ -628,10 +616,7 @@ export default function EditAssetPage() {
           {/* Important Dates */}
           <Card className="rounded-xl border border-border p-6">
             <div className="space-y-5">
-              <div>
-                <h2 className="text-base font-semibold text-foreground">Timeline & Maintenance</h2>
-                <p className="text-xs text-muted-foreground mt-0.5">Acquisition date, warranty expiration, and scheduled servicing</p>
-              </div>
+              <h2 className="text-base font-semibold text-foreground">Timeline & Maintenance</h2>
 
               <div className="grid grid-cols-12 gap-5">
                 <FormField
@@ -696,10 +681,7 @@ export default function EditAssetPage() {
           {/* Technical Details */}
           <Card className="rounded-xl border border-border p-6">
             <div className="space-y-5">
-              <div>
-                <h2 className="text-base font-semibold text-foreground">Technical Specifications</h2>
-                <p className="text-xs text-muted-foreground mt-0.5">Manufacturer details, model numbers, barcodes, and serials</p>
-              </div>
+              <h2 className="text-base font-semibold text-foreground">Technical Specifications</h2>
 
               <div className="grid grid-cols-12 gap-5">
                 <FormField
@@ -709,7 +691,7 @@ export default function EditAssetPage() {
                     <FormItem className="col-span-12 sm:col-span-4">
                       <FormLabel>Manufacturer</FormLabel>
                       <FormControl>
-                        <Input placeholder="e.g., Yamaha" {...field} />
+                        <Input placeholder="Yamaha / Sony / Dell" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -723,7 +705,7 @@ export default function EditAssetPage() {
                     <FormItem className="col-span-12 sm:col-span-4">
                       <FormLabel>Model</FormLabel>
                       <FormControl>
-                        <Input placeholder="e.g., CL5" {...field} />
+                        <Input placeholder="CL5 / XPS 15" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -737,7 +719,7 @@ export default function EditAssetPage() {
                     <FormItem className="col-span-12 sm:col-span-4">
                       <FormLabel>Serial Number</FormLabel>
                       <FormControl>
-                        <Input placeholder="e.g., YM2023CL5001" {...field} />
+                        <Input placeholder="YM2023CL5001" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -751,7 +733,7 @@ export default function EditAssetPage() {
                     <FormItem className="col-span-12 sm:col-span-6">
                       <FormLabel>Barcode</FormLabel>
                       <FormControl>
-                        <Input placeholder="e.g., 1234567890123" {...field} />
+                        <Input placeholder="BAR-889021" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -765,7 +747,7 @@ export default function EditAssetPage() {
                     <FormItem className="col-span-12 sm:col-span-6">
                       <FormLabel>QR Code</FormLabel>
                       <FormControl>
-                        <Input placeholder="e.g., QR123456789" {...field} />
+                        <Input placeholder="QR-AST-009" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -778,10 +760,7 @@ export default function EditAssetPage() {
           {/* Additional Information */}
           <Card className="rounded-xl border border-border p-6">
             <div className="space-y-5">
-              <div>
-                <h2 className="text-base font-semibold text-foreground">Notes & Tags</h2>
-                <p className="text-xs text-muted-foreground mt-0.5">Operational notes and indexing tags</p>
-              </div>
+              <h2 className="text-base font-semibold text-foreground">Notes & Tags</h2>
 
               <div className="space-y-5">
                 <FormField
@@ -792,7 +771,7 @@ export default function EditAssetPage() {
                       <FormLabel>Internal Notes</FormLabel>
                       <FormControl>
                         <Textarea
-                          placeholder="Additional operational or historical notes regarding this asset..."
+                          placeholder="Operational or historical notes regarding this asset..."
                           rows={3}
                           {...field}
                         />
@@ -806,7 +785,7 @@ export default function EditAssetPage() {
                   <Label>Tags</Label>
                   <div className="flex gap-2">
                     <Input
-                      placeholder="Add a tag..."
+                      placeholder="sanctuary, audio, high-value..."
                       value={newTag}
                       onChange={(e) => setNewTag(e.target.value)}
                       onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddTag())}

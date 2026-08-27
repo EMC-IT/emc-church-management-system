@@ -207,15 +207,12 @@ export default function EditUserPage() {
           </Button>
           <div>
             <h1 className="font-heading text-2xl font-bold tracking-tight">Edit User</h1>
-            <p className="text-sm text-muted-foreground mt-1">
-              Update profile details, assign roles, and configure account access.
-            </p>
           </div>
         </div>
 
         <div className="flex items-center gap-2 self-start sm:self-auto">
           <Button 
-            type="button"
+            type="button" 
             variant="outline" 
             size="sm"
             onClick={handleResetPassword}
@@ -227,7 +224,7 @@ export default function EditUserPage() {
           <AlertDialog>
             <AlertDialogTrigger asChild>
               <Button 
-                type="button"
+                type="button" 
                 variant="outline" 
                 size="sm"
                 className="text-destructive hover:text-destructive"
@@ -264,10 +261,7 @@ export default function EditUserPage() {
           {/* Profile Details */}
           <Card className="rounded-xl border border-border p-6">
             <div className="space-y-5">
-              <div>
-                <h2 className="text-base font-semibold text-foreground">User Profile & Assignment</h2>
-                <p className="text-xs text-muted-foreground mt-0.5">Basic user demographics, contact details, and department</p>
-              </div>
+              <h2 className="text-base font-semibold text-foreground">User Profile & Assignment</h2>
 
               <div className="grid grid-cols-12 gap-5">
                 <FormField
@@ -277,7 +271,7 @@ export default function EditUserPage() {
                     <FormItem className="col-span-12 sm:col-span-4">
                       <FormLabel>First Name *</FormLabel>
                       <FormControl>
-                        <Input placeholder="John" {...field} />
+                        <Input placeholder="Grace" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -291,7 +285,7 @@ export default function EditUserPage() {
                     <FormItem className="col-span-12 sm:col-span-4">
                       <FormLabel>Last Name *</FormLabel>
                       <FormControl>
-                        <Input placeholder="Doe" {...field} />
+                        <Input placeholder="Mensah" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -305,7 +299,7 @@ export default function EditUserPage() {
                     <FormItem className="col-span-12 sm:col-span-4">
                       <FormLabel>Email Address *</FormLabel>
                       <FormControl>
-                        <Input type="email" placeholder="john.doe@church.com" {...field} />
+                        <Input type="email" placeholder="grace.mensah@example.com" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -382,10 +376,7 @@ export default function EditUserPage() {
           {/* Account Status & Notes */}
           <Card className="rounded-xl border border-border p-6">
             <div className="space-y-5">
-              <div>
-                <h2 className="text-base font-semibold text-foreground">Account Access & Status</h2>
-                <p className="text-xs text-muted-foreground mt-0.5">Username, active status, and administrative logs</p>
-              </div>
+              <h2 className="text-base font-semibold text-foreground">Account Access & Status</h2>
 
               <div className="grid grid-cols-12 gap-5">
                 <FormField
@@ -395,7 +386,7 @@ export default function EditUserPage() {
                     <FormItem className="col-span-12 sm:col-span-6">
                       <FormLabel>Username *</FormLabel>
                       <FormControl>
-                        <Input placeholder="johndoe" {...field} />
+                        <Input placeholder="gmensah" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -433,7 +424,7 @@ export default function EditUserPage() {
                       <FormLabel>Notes</FormLabel>
                       <FormControl>
                         <Textarea 
-                          placeholder="Additional information about this user..."
+                          placeholder="Internal remarks or responsibilities for this user account..."
                           rows={3}
                           {...field}
                         />

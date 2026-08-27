@@ -133,9 +133,6 @@ export default function AddUserPage() {
         </Button>
         <div>
           <h1 className="font-heading text-2xl font-bold tracking-tight">Add New User</h1>
-          <p className="text-sm text-muted-foreground mt-1">
-            Create an administrative account, designate role permissions, and configure security access.
-          </p>
         </div>
       </div>
 
@@ -144,10 +141,7 @@ export default function AddUserPage() {
           {/* Personal & Profile Information */}
           <Card className="rounded-xl border border-border p-6">
             <div className="space-y-5">
-              <div>
-                <h2 className="text-base font-semibold text-foreground">User Profile & Assignment</h2>
-                <p className="text-xs text-muted-foreground mt-0.5">Basic user demographics, contact coordinates, and department</p>
-              </div>
+              <h2 className="text-base font-semibold text-foreground">User Profile & Assignment</h2>
 
               <div className="grid grid-cols-12 gap-5">
                 <FormField
@@ -157,7 +151,7 @@ export default function AddUserPage() {
                     <FormItem className="col-span-12 sm:col-span-4">
                       <FormLabel>First Name *</FormLabel>
                       <FormControl>
-                        <Input placeholder="John" {...field} />
+                        <Input placeholder="Grace" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -171,7 +165,7 @@ export default function AddUserPage() {
                     <FormItem className="col-span-12 sm:col-span-4">
                       <FormLabel>Last Name *</FormLabel>
                       <FormControl>
-                        <Input placeholder="Doe" {...field} />
+                        <Input placeholder="Mensah" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -185,7 +179,7 @@ export default function AddUserPage() {
                     <FormItem className="col-span-12 sm:col-span-4">
                       <FormLabel>Email Address *</FormLabel>
                       <FormControl>
-                        <Input type="email" placeholder="john.doe@church.com" {...field} />
+                        <Input type="email" placeholder="grace.mensah@example.com" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -262,10 +256,7 @@ export default function AddUserPage() {
           {/* Account & Security */}
           <Card className="rounded-xl border border-border p-6">
             <div className="space-y-5">
-              <div>
-                <h2 className="text-base font-semibold text-foreground">Account Credentials & Access</h2>
-                <p className="text-xs text-muted-foreground mt-0.5">Username, secure password, status, and onboarding switches</p>
-              </div>
+              <h2 className="text-base font-semibold text-foreground">Account Credentials & Access</h2>
 
               <div className="grid grid-cols-12 gap-5">
                 <FormField
@@ -275,7 +266,7 @@ export default function AddUserPage() {
                     <FormItem className="col-span-12 sm:col-span-6">
                       <FormLabel>Username *</FormLabel>
                       <FormControl>
-                        <Input placeholder="johndoe" {...field} />
+                        <Input placeholder="gmensah" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>

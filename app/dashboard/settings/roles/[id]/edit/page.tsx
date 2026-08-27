@@ -349,9 +349,6 @@ export default function EditRolePage() {
           </Button>
           <div>
             <h1 className="font-heading text-2xl font-bold tracking-tight">Edit Role</h1>
-            <p className="text-sm text-muted-foreground mt-1">
-              Update role identification, descriptions, and assigned system permissions.
-            </p>
           </div>
         </div>
 
@@ -388,10 +385,7 @@ export default function EditRolePage() {
         {/* Role Information Card */}
         <Card className="rounded-xl border border-border p-6">
           <div className="space-y-5">
-            <div>
-              <h2 className="text-base font-semibold text-foreground">Role Information</h2>
-              <p className="text-xs text-muted-foreground mt-0.5">Role name, usage metrics, and descriptive purpose</p>
-            </div>
+            <h2 className="text-base font-semibold text-foreground">Role Information</h2>
 
             <div className="grid grid-cols-12 gap-5">
               <div className="col-span-12 sm:col-span-8 space-y-2">
@@ -400,7 +394,7 @@ export default function EditRolePage() {
                   id="roleName"
                   value={roleName}
                   onChange={(e) => setRoleName(e.target.value)}
-                  placeholder="e.g., Administrator"
+                  placeholder="Administrator / Leader"
                 />
               </div>
 
@@ -418,7 +412,7 @@ export default function EditRolePage() {
                   id="description"
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
-                  placeholder="Describe the role and its responsibilities..."
+                  placeholder="Role responsibilities and operational scope..."
                   rows={3}
                 />
               </div>
@@ -430,11 +424,9 @@ export default function EditRolePage() {
         <Card className="rounded-xl border border-border p-6">
           <div className="space-y-6">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-4 border-b border-border">
-              <div>
+              <div className="flex items-center gap-2">
                 <h2 className="text-base font-semibold text-foreground">Role Permissions</h2>
-                <p className="text-xs text-muted-foreground mt-0.5">
-                  {selectedPermissions.size} of {totalPermissions} permissions selected
-                </p>
+                <Badge variant="neutral">{selectedPermissions.size} of {totalPermissions} selected</Badge>
               </div>
               <div className="flex items-center gap-2">
                 <Button 

@@ -194,9 +194,6 @@ export default function AddCategoryPage() {
         </Button>
         <div>
           <h1 className="font-heading text-2xl font-bold tracking-tight">Add Asset Category</h1>
-          <p className="text-sm text-muted-foreground mt-1">
-            Create an equipment or asset category with custom attributes, default depreciation, and workflow rules.
-          </p>
         </div>
       </div>
 
@@ -205,10 +202,7 @@ export default function AddCategoryPage() {
           {/* Basic Information */}
           <Card className="rounded-xl border border-border p-6">
             <div className="space-y-5">
-              <div>
-                <h2 className="text-base font-semibold text-foreground">Basic Information</h2>
-                <p className="text-xs text-muted-foreground mt-0.5">Define name, classification code, and description</p>
-              </div>
+              <h2 className="text-base font-semibold text-foreground">Basic Information</h2>
 
               <div className="grid grid-cols-12 gap-5">
                 <FormField
@@ -219,7 +213,7 @@ export default function AddCategoryPage() {
                       <FormLabel>Category Name *</FormLabel>
                       <FormControl>
                         <Input 
-                          placeholder="e.g., Audio & Sound Equipment" 
+                          placeholder="Audio & Sound Equipment" 
                           {...field}
                           onChange={(e) => {
                             field.onChange(e);
@@ -242,7 +236,7 @@ export default function AddCategoryPage() {
                       <FormLabel>Category Code *</FormLabel>
                       <FormControl>
                         <Input 
-                          placeholder="e.g., AUDIO" 
+                          placeholder="AUDIO" 
                           {...field}
                           onChange={(e) => {
                             field.onChange(e.target.value.toUpperCase());
@@ -262,7 +256,7 @@ export default function AddCategoryPage() {
                       <FormLabel>Description *</FormLabel>
                       <FormControl>
                         <Textarea 
-                          placeholder="Describe what assets belong to this category and their general purpose..."
+                          placeholder="Category classification, scope, and general purpose..."
                           rows={3}
                           {...field}
                         />
@@ -277,7 +271,7 @@ export default function AddCategoryPage() {
                   <Label>Category Tags</Label>
                   <div className="flex gap-2">
                     <Input
-                      placeholder="Add a search tag (e.g. musical, sanctuary, portable)..."
+                      placeholder="musical, sanctuary, portable..."
                       value={newTag}
                       onChange={(e) => setNewTag(e.target.value)}
                       onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddTag())}
@@ -304,10 +298,7 @@ export default function AddCategoryPage() {
           {/* Appearance & Settings */}
           <Card className="rounded-xl border border-border p-6">
             <div className="space-y-5">
-              <div>
-                <h2 className="text-base font-semibold text-foreground">Appearance & Workflow Rules</h2>
-                <p className="text-xs text-muted-foreground mt-0.5">Color badges and categorization governance</p>
-              </div>
+              <h2 className="text-base font-semibold text-foreground">Appearance & Workflow Rules</h2>
 
               <div className="grid grid-cols-12 gap-5">
                 <FormField
@@ -402,10 +393,7 @@ export default function AddCategoryPage() {
           {/* Default Values */}
           <Card className="rounded-xl border border-border p-6">
             <div className="space-y-5">
-              <div>
-                <h2 className="text-base font-semibold text-foreground">Default Accounting & Warranty Defaults</h2>
-                <p className="text-xs text-muted-foreground mt-0.5">Standard values auto-populated when creating assets under this category</p>
-              </div>
+              <h2 className="text-base font-semibold text-foreground">Default Accounting & Warranty Defaults</h2>
 
               <div className="grid grid-cols-12 gap-5">
                 <FormField

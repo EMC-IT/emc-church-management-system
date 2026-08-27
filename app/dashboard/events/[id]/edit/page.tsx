@@ -151,7 +151,7 @@ export default function EditEventPage() {
     if (!formData.contactEmail.trim()) newErrors.contactEmail = 'Contact email is required';
 
     if (formData.contactEmail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.contactEmail)) {
-      newErrors.contactEmail = 'Please enter a valid email address';
+      newErrors.contactEmail = 'Enter a valid email address';
     }
 
     if (formData.maxAttendees && isNaN(Number(formData.maxAttendees))) {
@@ -183,7 +183,7 @@ export default function EditEventPage() {
       toast.success('Event updated successfully!');
       router.push(`/dashboard/events/${params.id}`);
     } catch (error) {
-      toast.error('Failed to update event. Please try again.');
+      toast.error('Failed to update event');
     } finally {
       setLoading(false);
     }
@@ -217,7 +217,6 @@ export default function EditEventPage() {
         </Button>
         <div>
           <h1 className="font-heading text-2xl font-bold tracking-tight">Edit Event</h1>
-          <p className="text-sm text-muted-foreground mt-1">Update event schedule, location, capacity, and organizer details.</p>
         </div>
       </div>
 
@@ -234,7 +233,7 @@ export default function EditEventPage() {
                   id="title"
                   value={formData.title}
                   onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
-                  placeholder="e.g. Annual Church Conference 2026"
+                  placeholder="Annual Church Conference 2026"
                 />
                 {errors.title && <p className="text-xs text-destructive">{errors.title}</p>}
               </div>
@@ -262,7 +261,7 @@ export default function EditEventPage() {
                   id="description"
                   value={formData.description}
                   onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
-                  placeholder="Describe event focus, key speakers, schedule, and purpose..."
+                  placeholder="Event focus, schedule, and objectives..."
                   rows={3}
                 />
                 {errors.description && <p className="text-xs text-destructive">{errors.description}</p>}
@@ -329,7 +328,7 @@ export default function EditEventPage() {
                   id="location"
                   value={formData.location}
                   onChange={(e) => setFormData(prev => ({ ...prev, location: e.target.value }))}
-                  placeholder="e.g. Main Sanctuary"
+                  placeholder="Main Sanctuary"
                 />
                 {errors.location && <p className="text-xs text-destructive">{errors.location}</p>}
               </div>
@@ -403,7 +402,7 @@ export default function EditEventPage() {
                   id="organizer"
                   value={formData.organizer}
                   onChange={(e) => setFormData(prev => ({ ...prev, organizer: e.target.value }))}
-                  placeholder="e.g. Pastor David Appiah"
+                  placeholder="Pastor David Appiah"
                 />
                 {errors.organizer && <p className="text-xs text-destructive">{errors.organizer}</p>}
               </div>
@@ -415,7 +414,7 @@ export default function EditEventPage() {
                   type="email"
                   value={formData.contactEmail}
                   onChange={(e) => setFormData(prev => ({ ...prev, contactEmail: e.target.value }))}
-                  placeholder="organizer@church.com"
+                  placeholder="organizer@example.com"
                 />
                 {errors.contactEmail && <p className="text-xs text-destructive">{errors.contactEmail}</p>}
               </div>
@@ -464,7 +463,7 @@ export default function EditEventPage() {
                   id="notes"
                   value={formData.notes}
                   onChange={(e) => setFormData(prev => ({ ...prev, notes: e.target.value }))}
-                  placeholder="Add any special instructions, setup requirements, or equipment needs..."
+                  placeholder="Special instructions, setup requirements, or equipment needs..."
                   rows={3}
                 />
               </div>

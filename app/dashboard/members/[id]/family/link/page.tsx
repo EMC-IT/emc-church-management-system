@@ -356,9 +356,6 @@ export default function LinkFamilyMemberPage() {
           </Button>
           <div>
             <h1 className="font-heading text-2xl font-bold tracking-tight">Link Existing Member</h1>
-            <p className="text-sm text-muted-foreground mt-1">
-              Link an existing member to {member.firstName} {member.lastName}&apos;s family
-            </p>
           </div>
         </div>
       </div>
@@ -426,7 +423,7 @@ export default function LinkFamilyMemberPage() {
         <CardHeader>
           <CardTitle>Search Results</CardTitle>
           <CardDescription>
-            {filteredMembers.length} member(s) found
+            {filteredMembers.length} available members
           </CardDescription>
         </CardHeader>
         <CardContent>
