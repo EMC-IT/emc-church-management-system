@@ -315,7 +315,7 @@ export default function PrayerRequestDetailsPage() {
           <Card>
             <Tabs defaultValue="comments" className="w-full">
               <CardHeader className="pb-3">
-                <TabsList className="grid w-full grid-cols-2">
+                <TabsList>
                   <TabsTrigger value="comments">
                     Comments ({prayerRequest.comments.length})
                   </TabsTrigger>

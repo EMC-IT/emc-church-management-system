@@ -267,7 +267,7 @@ export default function ComparisonReportsPage() {
 
       {/* Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid w-full grid-cols-5">
+        <TabsList>
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="income-expenses">Income vs Expenses</TabsTrigger>
           <TabsTrigger value="year-over-year">Year over Year</TabsTrigger>

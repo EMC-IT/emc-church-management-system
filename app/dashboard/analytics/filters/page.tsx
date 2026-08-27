@@ -3,7 +3,6 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { PageHeader } from '@/components/ui/page-header';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -200,30 +199,27 @@ export default function AdvancedFiltersPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center gap-4">
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={() => router.push('/dashboard/analytics')}
-        >
-          <ArrowLeft className="h-4 w-4" />
-        </Button>
-        <div className="flex-1">
-          <PageHeader
-            title="Advanced Filters"
-            actions={
-              <>
-                <Button variant="outline" onClick={handleResetFilters}>
-                  <RotateCcw className="mr-2 h-4 w-4" />
-                  Reset
-                </Button>
-                <Button onClick={handleApplyFilters} className="bg-brand-primary hover:bg-brand-primary/90">
-                  <Filter className="mr-2 h-4 w-4" />
-                  Apply Filters
-                </Button>
-              </>
-            }
-          />
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex items-center gap-3">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => router.push('/dashboard/analytics')}
+          >
+            <ArrowLeft className="h-4 w-4" />
+          </Button>
+          <h1 className="font-heading text-2xl font-bold tracking-tight">Advanced Filters</h1>
+        </div>
+
+        <div className="flex items-center gap-2">
+          <Button variant="outline" size="sm" onClick={handleResetFilters}>
+            <RotateCcw className="mr-1.5 h-4 w-4" />
+            Reset
+          </Button>
+          <Button size="sm" onClick={handleApplyFilters}>
+            <Filter className="mr-1.5 h-4 w-4" />
+            Apply Filters
+          </Button>
         </div>
       </div>
 
@@ -262,7 +258,6 @@ export default function AdvancedFiltersPage() {
                     variant={selectedDataSources.includes(source) ? 'default' : 'outline'}
                     size="sm"
                     onClick={() => toggleDataSource(source)}
-                    className={selectedDataSources.includes(source) ? 'bg-brand-primary hover:bg-brand-primary/90' : ''}
                   >
                     {source}
                     {selectedDataSources.includes(source) && (
@@ -396,7 +391,7 @@ export default function AdvancedFiltersPage() {
                 />
               </div>
 
-              <Button onClick={handleSaveFilter} className="w-full bg-brand-primary hover:bg-brand-primary/90">
+              <Button onClick={handleSaveFilter} className="w-full">
                 <Save className="mr-2 h-4 w-4" />
                 Save Filter
               </Button>

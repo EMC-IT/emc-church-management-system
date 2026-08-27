@@ -114,19 +114,9 @@ export default function StudentProfilePage() {
 
       {/* Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
-        <TabsList className="border-b border-border w-full justify-start rounded-none bg-transparent p-0 gap-6">
-          <TabsTrigger
-            value="overview"
-            className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-1 pb-3 text-sm font-medium"
-          >
-            Profile Information
-          </TabsTrigger>
-          <TabsTrigger
-            value="attendance"
-            className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-1 pb-3 text-sm font-medium"
-          >
-            Attendance History ({attendance.length})
-          </TabsTrigger>
+        <TabsList>
+          <TabsTrigger value="overview">Profile Information</TabsTrigger>
+          <TabsTrigger value="attendance">Attendance History ({attendance.length})</TabsTrigger>
         </TabsList>
 
         <TabsContent value="overview" className="space-y-6">

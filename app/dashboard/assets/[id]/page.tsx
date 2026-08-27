@@ -370,11 +370,13 @@ export default function AssetDetailsPage() {
           <Card>
             <CardContent className="p-0">
               <Tabs defaultValue="maintenance" className="w-full">
-                <TabsList className="grid w-full grid-cols-3">
-                  <TabsTrigger value="maintenance">Maintenance History</TabsTrigger>
-                  <TabsTrigger value="assignments">Assignment History</TabsTrigger>
-                  <TabsTrigger value="documents">Documents & Photos</TabsTrigger>
-                </TabsList>
+                <div className="px-6 pt-2 border-b border-border">
+                  <TabsList className="border-b-0">
+                    <TabsTrigger value="maintenance">Maintenance History</TabsTrigger>
+                    <TabsTrigger value="assignments">Assignment History</TabsTrigger>
+                    <TabsTrigger value="documents">Documents & Photos</TabsTrigger>
+                  </TabsList>
+                </div>
 
                 <TabsContent value="maintenance" className="p-6">
                   <div className="space-y-4">

@@ -289,7 +289,7 @@ export default function MemberHistoryPage() {
         </CardHeader>
         <CardContent>
           <Tabs defaultValue="all" className="w-full">
-            <TabsList className="grid w-full grid-cols-4">
+            <TabsList>
               <TabsTrigger value="all">All Activities</TabsTrigger>
               <TabsTrigger value="attendance">Attendance</TabsTrigger>
               <TabsTrigger value="volunteer">Volunteer</TabsTrigger>

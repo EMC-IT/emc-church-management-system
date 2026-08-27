@@ -596,41 +596,13 @@ export default function MemberProfilePage() {
           </div>
 
           <Tabs defaultValue="overview" className="w-full">
-            {/* Underline Tabs Navigation */}
-            <div className="border-b border-border">
-              <TabsList className="h-auto bg-transparent p-0 gap-6 justify-start rounded-none">
-                <TabsTrigger
-                  value="overview"
-                  className="rounded-none border-b-2 border-transparent px-1 py-2 text-sm font-medium text-muted-foreground hover:text-foreground data-[state=active]:border-primary data-[state=active]:text-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none"
-                >
-                  Overview
-                </TabsTrigger>
-                <TabsTrigger
-                  value="family"
-                  className="rounded-none border-b-2 border-transparent px-1 py-2 text-sm font-medium text-muted-foreground hover:text-foreground data-[state=active]:border-primary data-[state=active]:text-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none"
-                >
-                  Family
-                </TabsTrigger>
-                <TabsTrigger
-                  value="history"
-                  className="rounded-none border-b-2 border-transparent px-1 py-2 text-sm font-medium text-muted-foreground hover:text-foreground data-[state=active]:border-primary data-[state=active]:text-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none"
-                >
-                  History
-                </TabsTrigger>
-                <TabsTrigger
-                  value="documents"
-                  className="rounded-none border-b-2 border-transparent px-1 py-2 text-sm font-medium text-muted-foreground hover:text-foreground data-[state=active]:border-primary data-[state=active]:text-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none"
-                >
-                  Documents
-                </TabsTrigger>
-                <TabsTrigger
-                  value="giving"
-                  className="rounded-none border-b-2 border-transparent px-1 py-2 text-sm font-medium text-muted-foreground hover:text-foreground data-[state=active]:border-primary data-[state=active]:text-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none"
-                >
-                  Giving
-                </TabsTrigger>
-              </TabsList>
-            </div>
+            <TabsList>
+              <TabsTrigger value="overview">Overview</TabsTrigger>
+              <TabsTrigger value="family">Family</TabsTrigger>
+              <TabsTrigger value="history">History</TabsTrigger>
+              <TabsTrigger value="documents">Documents</TabsTrigger>
+              <TabsTrigger value="giving">Giving</TabsTrigger>
+            </TabsList>
 
             {/* ========================================================================= */}
             {/* TAB 1: OVERVIEW */}

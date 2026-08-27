@@ -5,30 +5,21 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { PageHeader } from '@/components/ui/page-header';
 import { StatCard } from '@/components/ui/stat-card';
 import { Badge } from '@/components/ui/badge';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { 
   Plus, 
   Search, 
   MapPin, 
   Users, 
-  Phone,
-  Mail,
-  Edit,
-  Trash2,
-  Building2,
-  ArrowLeft
+  Phone, 
+  Mail, 
+  Edit, 
+  Trash2, 
+  Building2, 
+  ArrowLeft 
 } from 'lucide-react';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -118,7 +109,6 @@ export default function BranchesPage() {
 
   const totalMembers = mockBranches.reduce((sum, branch) => sum + branch.members, 0);
   const totalCapacity = mockBranches.reduce((sum, branch) => sum + branch.capacity, 0);
-  const activeBranches = mockBranches.filter(b => b.status === 'active').length;
 
   const handleDelete = (branchId: string, branchName: string) => {
     // TODO: Replace with actual API call
@@ -131,14 +121,14 @@ export default function BranchesPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div className="flex items-center gap-3">
           <Button variant="ghost" size="icon" asChild>
             <Link href="/dashboard/settings?tab=general">
               <ArrowLeft className="h-4 w-4" />
             </Link>
           </Button>
-          <PageHeader title="Branch Management" />
+          <h1 className="font-heading text-2xl font-bold tracking-tight">Branch Management</h1>
         </div>
         <Button asChild>
           <Link href="/dashboard/settings/branches/add">
@@ -176,20 +166,31 @@ export default function BranchesPage() {
         />
       </div>
 
+      {/* Search Bar */}
+      <div className="relative max-w-sm">
+        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+        <Input
+          placeholder="Search branches..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="pl-10"
+        />
+      </div>
+
       {/* Branches Grid View */}
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         {filteredBranches.map((branch) => (
-          <Card key={branch.id} className="hover:shadow-lg transition-shadow">
-            <CardHeader>
+          <Card key={branch.id}>
+            <CardHeader className="pb-3">
               <div className="flex items-start justify-between">
                 <div className="flex items-center gap-3">
-                  <Avatar className="h-12 w-12">
-                    <AvatarFallback className="bg-primary text-primary-foreground">
+                  <Avatar className="h-10 w-10">
+                    <AvatarFallback className="bg-primary text-primary-foreground font-semibold">
                       {branch.name.split(' ').map(n => n[0]).join('').slice(0, 2)}
                     </AvatarFallback>
                   </Avatar>
                   <div>
-                    <CardTitle className="text-lg">{branch.name}</CardTitle>
+                    <CardTitle className="text-base font-semibold">{branch.name}</CardTitle>
                     <Badge variant={branch.type === 'Headquarters' ? 'primary' : 'neutral'} className="mt-1">
                       {branch.type}
                     </Badge>
@@ -199,30 +200,30 @@ export default function BranchesPage() {
             </CardHeader>
             <CardContent className="space-y-3">
               <div className="flex items-start gap-2 text-sm">
-                <MapPin className="h-4 w-4 text-muted-foreground mt-0.5" />
+                <MapPin className="h-4 w-4 text-muted-foreground mt-0.5 shrink-0" />
                 <span className="text-muted-foreground">{branch.address}</span>
               </div>
 
               <div className="flex items-center gap-2 text-sm">
-                <Phone className="h-4 w-4 text-muted-foreground" />
+                <Phone className="h-4 w-4 text-muted-foreground shrink-0" />
                 <span className="text-muted-foreground">{branch.phone}</span>
               </div>
 
               <div className="flex items-center gap-2 text-sm">
-                <Mail className="h-4 w-4 text-muted-foreground" />
+                <Mail className="h-4 w-4 text-muted-foreground shrink-0" />
                 <span className="text-muted-foreground">{branch.email}</span>
               </div>
 
-              <div className="pt-2 border-t">
-                <div className="flex items-center justify-between text-sm mb-2">
+              <div className="pt-2 border-t space-y-1.5 text-sm">
+                <div className="flex items-center justify-between">
                   <span className="text-muted-foreground">Pastor:</span>
                   <span className="font-medium">{branch.pastor}</span>
                 </div>
-                <div className="flex items-center justify-between text-sm mb-2">
+                <div className="flex items-center justify-between">
                   <span className="text-muted-foreground">Members:</span>
                   <span className="font-medium">{branch.members} / {branch.capacity}</span>
                 </div>
-                <div className="flex items-center justify-between text-sm">
+                <div className="flex items-center justify-between">
                   <span className="text-muted-foreground">Established:</span>
                   <span className="font-medium">{branch.established}</span>
                 </div>
@@ -231,14 +232,14 @@ export default function BranchesPage() {
               <div className="flex gap-2 pt-2">
                 <Button variant="outline" size="sm" className="flex-1" asChild>
                   <Link href={`/dashboard/settings/branches/${branch.id}/edit`}>
-                    <Edit className="mr-1 h-3 w-3" />
+                    <Edit className="mr-1 h-3.5 w-3.5" />
                     Edit
                   </Link>
                 </Button>
                 <AlertDialog>
                   <AlertDialogTrigger asChild>
                     <Button variant="outline" size="sm" className="text-destructive hover:text-destructive">
-                      <Trash2 className="h-3 w-3" />
+                      <Trash2 className="h-3.5 w-3.5" />
                     </Button>
                   </AlertDialogTrigger>
                   <AlertDialogContent>
@@ -265,96 +266,6 @@ export default function BranchesPage() {
           </Card>
         ))}
       </div>
-
-      {/* Table View (Alternative) */}
-      <Card className="hidden">
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <div>
-              <CardTitle>All Branches</CardTitle>
-            </div>
-            <div className="flex items-center gap-4">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input
-                  placeholder="Search branches..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10 w-[300px]"
-                />
-              </div>
-            </div>
-          </div>
-        </CardHeader>
-        <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Branch Name</TableHead>
-                <TableHead>Location</TableHead>
-                <TableHead>Pastor</TableHead>
-                <TableHead>Members</TableHead>
-                <TableHead>Type</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filteredBranches.map((branch) => (
-                <TableRow key={branch.id}>
-                  <TableCell className="font-medium">{branch.name}</TableCell>
-                  <TableCell>{branch.city}, {branch.state}</TableCell>
-                  <TableCell>{branch.pastor}</TableCell>
-                  <TableCell>{branch.members}</TableCell>
-                  <TableCell>
-                    <Badge variant={branch.type === 'Headquarters' ? 'primary' : 'neutral'}>
-                      {branch.type}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>
-                    <Badge variant="neutral" className="text-green-600">
-                      {branch.status}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex space-x-1">
-                      <Button variant="ghost" size="icon" asChild>
-                        <Link href={`/dashboard/settings/branches/${branch.id}/edit`}>
-                          <Edit className="h-4 w-4" />
-                        </Link>
-                      </Button>
-                      <AlertDialog>
-                        <AlertDialogTrigger asChild>
-                          <Button variant="ghost" size="icon">
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </AlertDialogTrigger>
-                        <AlertDialogContent>
-                          <AlertDialogHeader>
-                            <AlertDialogTitle>Delete Branch?</AlertDialogTitle>
-                            <AlertDialogDescription>
-                              Are you sure you want to delete {branch.name}? This action cannot be undone.
-                            </AlertDialogDescription>
-                          </AlertDialogHeader>
-                          <AlertDialogFooter>
-                            <AlertDialogCancel>Cancel</AlertDialogCancel>
-                            <AlertDialogAction
-                              onClick={() => handleDelete(branch.id, branch.name)}
-                              className="bg-destructive hover:bg-destructive/90"
-                            >
-                              Delete
-                            </AlertDialogAction>
-                          </AlertDialogFooter>
-                        </AlertDialogContent>
-                      </AlertDialog>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
     </div>
   );
 }

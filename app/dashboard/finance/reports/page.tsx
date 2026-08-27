@@ -310,7 +310,7 @@ export default function FinancialReportsPage() {
       {/* Tabbed Progressive Disclosure */}
       <LazySection>
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-2 sm:grid-cols-5">
+          <TabsList>
             <TabsTrigger value="statement">Statement of Activities</TabsTrigger>
             <TabsTrigger value="variance">Budget vs Actual</TabsTrigger>
             <TabsTrigger value="revenue">Inflows Breakdown</TabsTrigger>

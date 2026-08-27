@@ -465,10 +465,10 @@ export default function IncomeReportsPage() {
 
       {/* Tabs */}
       <Tabs defaultValue="overview" className="space-y-4">
-        <TabsList className="h-9">
-          <TabsTrigger value="overview" className="text-xs">Overview & Breakdown</TabsTrigger>
-          <TabsTrigger value="source" className="text-xs">By Source / Payer</TabsTrigger>
-          <TabsTrigger value="ledger" className="text-xs">Income Ledger</TabsTrigger>
+        <TabsList>
+          <TabsTrigger value="overview">Overview & Breakdown</TabsTrigger>
+          <TabsTrigger value="source">By Source / Payer</TabsTrigger>
+          <TabsTrigger value="ledger">Income Ledger</TabsTrigger>
         </TabsList>
 
         {/* Overview Tab */}

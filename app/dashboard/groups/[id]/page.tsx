@@ -147,7 +147,7 @@ export default function GroupDetailsPage() {
 
       {/* Main Content Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
-        <TabsList className="grid w-full grid-cols-3 max-w-sm">
+        <TabsList>
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="members">Members ({members.length})</TabsTrigger>
           <TabsTrigger value="events">Events ({events.length})</TabsTrigger>

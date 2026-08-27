@@ -364,7 +364,7 @@ export default function BudgetReportsPage() {
       {/* Analytics Tabs */}
       <LazySection>
         <Tabs defaultValue="overview" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-3">
+          <TabsList>
             <TabsTrigger value="overview">Visual Analytics</TabsTrigger>
             <TabsTrigger value="departments">Department Breakdown</TabsTrigger>
             <TabsTrigger value="records">Budget Records Table</TabsTrigger>

@@ -7,7 +7,6 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { PageHeader } from '@/components/ui/page-header';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
@@ -204,43 +203,36 @@ export default function ReportBuilderPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center gap-4">
-        <Button
-          variant="outline"
-          size="icon"
-          className="h-12 w-12"
-          onClick={() => router.push('/dashboard/analytics')}
-        >
-          <ArrowLeft className="h-4 w-4" />
-        </Button>
-        
-        <div className="p-2 bg-brand-primary/10 rounded-lg">
-          <FileBarChart className="h-6 w-6 text-brand-primary" />
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex items-center gap-3">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => router.push('/dashboard/analytics')}
+          >
+            <ArrowLeft className="h-4 w-4" />
+          </Button>
+          <h1 className="font-heading text-2xl font-bold tracking-tight">Custom Report Builder</h1>
         </div>
-        <div className="flex-1">
-          <PageHeader
-            title="Custom Report Builder"
-            actions={
-              <>
-                <Button
-                  variant="outline"
-                  onClick={handleRunReport}
-                  disabled={isRunning || !selectedDataSource || selectedFields.length === 0}
-                >
-                  <Play className="mr-2 h-4 w-4" />
-                  {isRunning ? 'Running...' : 'Run Report'}
-                </Button>
-                <Button
-                  onClick={handleSaveReport}
-                  disabled={isSaving}
-                  className="bg-brand-primary hover:bg-brand-primary/90"
-                >
-                  <Save className="mr-2 h-4 w-4" />
-                  {isSaving ? 'Saving...' : 'Save Report'}
-                </Button>
-              </>
-            }
-          />
+
+        <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleRunReport}
+            disabled={isRunning || !selectedDataSource || selectedFields.length === 0}
+          >
+            <Play className="mr-1.5 h-4 w-4" />
+            {isRunning ? 'Running...' : 'Run Report'}
+          </Button>
+          <Button
+            onClick={handleSaveReport}
+            disabled={isSaving}
+            size="sm"
+          >
+            <Save className="mr-1.5 h-4 w-4" />
+            {isSaving ? 'Saving...' : 'Save Report'}
+          </Button>
         </div>
       </div>
 
@@ -288,8 +280,8 @@ export default function ReportBuilderPage() {
                     key={source.id}
                     className={`cursor-pointer transition-all ${
                       selectedDataSource === source.id
-                        ? 'border-brand-primary bg-brand-primary/5'
-                        : 'hover:border-brand-primary/50'
+                        ? 'border-primary bg-primary/5'
+                        : 'hover:border-primary/50'
                     }`}
                     onClick={() => {
                       setSelectedDataSource(source.id);
@@ -379,8 +371,8 @@ export default function ReportBuilderPage() {
                     key={viz.id}
                     className={`cursor-pointer transition-all ${
                       selectedVisualization === viz.id
-                        ? 'border-brand-primary bg-brand-primary/5'
-                        : 'hover:border-brand-primary/50'
+                        ? 'border-primary bg-primary/5'
+                        : 'hover:border-primary/50'
                     }`}
                     onClick={() => setSelectedVisualization(viz.id)}
                   >

@@ -314,7 +314,7 @@ export default function AddCampaignPage() {
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-        <TabsList className="grid w-full grid-cols-4">
+        <TabsList>
           <TabsTrigger value="type" className="flex items-center gap-2">
             <Zap className="h-4 w-4" />
             Type

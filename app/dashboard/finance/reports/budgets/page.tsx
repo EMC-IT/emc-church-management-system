@@ -330,7 +330,7 @@ export default function BudgetReportsPage() {
 
       {/* Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid w-full grid-cols-5">
+        <TabsList>
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="categories">By Category</TabsTrigger>
           <TabsTrigger value="departments">By Department</TabsTrigger>

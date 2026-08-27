@@ -224,7 +224,7 @@ export default function TithesOfferingsReportsPage() {
 
       {/* Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid w-full grid-cols-5">
+        <TabsList>
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="tithes">Tithes Analysis</TabsTrigger>
           <TabsTrigger value="offerings">Offerings Analysis</TabsTrigger>

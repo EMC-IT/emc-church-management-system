@@ -30,15 +30,12 @@ import {
   type ChartConfig,
 } from '@/components/ui/chart';
 import { 
-  BarChart3, 
   TrendingUp, 
-  TrendingDown, 
   Users, 
   BadgeCent,
   Calendar,
   Download,
   Filter,
-  Eye,
   FileBarChart,
   FileText,
   FileSpreadsheet,
@@ -93,10 +90,10 @@ const givingTrends = [
 
 const ageDistribution = [
   { name: 'Children (0-12)', value: 120, color: '#2E8DB0' },
-  { name: 'Youth (13-17)', value: 85, color: '#C49831' },
-  { name: 'Young Adults (18-35)', value: 150, color: '#A5CF5D' },
-  { name: 'Adults (36-55)', value: 110, color: '#E74C3C' },
-  { name: 'Seniors (55+)', value: 55, color: '#9B59B6' },
+  { name: 'Youth (13-17)', value: 85, color: '#28ACD1' },
+  { name: 'Young Adults (18-35)', value: 150, color: '#C49831' },
+  { name: 'Adults (36-55)', value: 110, color: '#A5CF5D' },
+  { name: 'Seniors (55+)', value: 55, color: '#080A09' },
 ];
 
 const departmentEngagement = [
@@ -163,13 +160,7 @@ export default function AnalyticsPage() {
       <PageHeader
         title="Analytics"
         actions={
-          <div className="flex space-x-2">
-            <Button variant="outline" asChild>
-              <Link href="/dashboard/analytics/reports">
-                <FileBarChart className="mr-2 h-4 w-4" />
-                Saved Reports
-              </Link>
-            </Button>
+          <div className="flex items-center space-x-2">
             <Select defaultValue="6months">
               <SelectTrigger className="w-[140px] h-9">
                 <SelectValue placeholder="Period" />
@@ -187,7 +178,7 @@ export default function AnalyticsPage() {
 
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="outline">
+                <Button variant="outline" size="sm">
                   More
                   <Download className="ml-1.5 h-4 w-4" />
                 </Button>
@@ -229,7 +220,7 @@ export default function AnalyticsPage() {
               </DropdownMenuContent>
             </DropdownMenu>
 
-            <Button asChild>
+            <Button size="sm" asChild>
               <Link href="/dashboard/analytics/report-builder">
                 <PlusCircle className="mr-1.5 h-4 w-4" />
                 Custom Report
@@ -496,47 +487,29 @@ export default function AnalyticsPage() {
         </CardContent>
       </Card>
 
-      {/* Additional Visualizations */}
+      {/* Multi-Dimensional Analysis */}
       <Card>
-        <CardHeader>
-          <CardTitle>Multi-Dimensional Analysis</CardTitle>
+        <CardHeader className="pb-3">
+          <CardTitle className="text-base font-semibold">Multi-Dimensional Analysis</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="grid gap-4 md:grid-cols-3">
-            <div className="text-center space-y-2">
-              <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-gradient-to-br from-brand-primary/20 to-brand-primary/10 border-4 border-brand-primary">
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-brand-primary">78%</div>
-                </div>
-              </div>
-              <div>
-                <p className="font-medium text-sm">Engagement Score</p>
-                <p className="text-xs text-muted-foreground">Overall member engagement</p>
-              </div>
+            <div className="text-center p-4 rounded-lg bg-muted/40 border border-border/50 space-y-1">
+              <div className="text-2xl font-bold text-primary">78%</div>
+              <p className="font-medium text-sm text-foreground">Engagement Score</p>
+              <p className="text-xs text-muted-foreground">Overall member engagement</p>
             </div>
 
-            <div className="text-center space-y-2">
-              <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-gradient-to-br from-brand-success/20 to-brand-success/10 border-4 border-brand-success">
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-brand-success">92%</div>
-                </div>
-              </div>
-              <div>
-                <p className="font-medium text-sm">Retention Rate</p>
-                <p className="text-xs text-muted-foreground">6-month member retention</p>
-              </div>
+            <div className="text-center p-4 rounded-lg bg-muted/40 border border-border/50 space-y-1">
+              <div className="text-2xl font-bold text-primary">92%</div>
+              <p className="font-medium text-sm text-foreground">Retention Rate</p>
+              <p className="text-xs text-muted-foreground">6-month member retention</p>
             </div>
 
-            <div className="text-center space-y-2">
-              <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-gradient-to-br from-brand-secondary/20 to-brand-secondary/10 border-4 border-brand-secondary">
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-brand-secondary">85%</div>
-                </div>
-              </div>
-              <div>
-                <p className="font-medium text-sm">Service Satisfaction</p>
-                <p className="text-xs text-muted-foreground">Based on feedback surveys</p>
-              </div>
+            <div className="text-center p-4 rounded-lg bg-muted/40 border border-border/50 space-y-1">
+              <div className="text-2xl font-bold text-primary">85%</div>
+              <p className="font-medium text-sm text-foreground">Service Satisfaction</p>
+              <p className="text-xs text-muted-foreground">Based on feedback surveys</p>
             </div>
           </div>
         </CardContent>
@@ -545,75 +518,57 @@ export default function AnalyticsPage() {
       {/* Insights and Recommendations */}
       <div className="grid gap-4 md:grid-cols-2">
         <Card>
-          <CardHeader>
-            <CardTitle>Key Insights</CardTitle>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-base font-semibold">Key Insights</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-3">
-            <div className="flex items-start space-x-3">
-              <TrendingUp className="h-5 w-5 text-green-600 mt-0.5" />
-              <div>
-                <p className="text-sm font-medium">Strong Growth Momentum</p>
-                <p className="text-xs text-muted-foreground">
-                  Membership has grown by 23.8% this year, with consistent monthly additions.
-                </p>
-              </div>
+          <CardContent className="space-y-4">
+            <div className="space-y-1 pb-3 border-b border-border/50">
+              <p className="text-sm font-medium text-foreground">Strong Growth Momentum</p>
+              <p className="text-xs text-muted-foreground leading-relaxed">
+                Membership has grown by 23.8% this year, with consistent monthly additions.
+              </p>
             </div>
             
-            <div className="flex items-start space-x-3">
-              <Users className="h-5 w-5 text-blue-600 mt-0.5" />
-              <div>
-                <p className="text-sm font-medium">High Youth Engagement</p>
-                <p className="text-xs text-muted-foreground">
-                  Youth ministry shows 88% engagement rate with growing participation.
-                </p>
-              </div>
+            <div className="space-y-1 pb-3 border-b border-border/50">
+              <p className="text-sm font-medium text-foreground">High Youth Engagement</p>
+              <p className="text-xs text-muted-foreground leading-relaxed">
+                Youth ministry shows 88% engagement rate with growing participation.
+              </p>
             </div>
             
-            <div className="flex items-start space-x-3">
-              <BadgeCent className="h-5 w-5 text-green-600 mt-0.5" />
-              <div>
-                <p className="text-sm font-medium">Increased Giving</p>
-                <p className="text-xs text-muted-foreground">
-                  Monthly giving has increased by 18.5% compared to last year.
-                </p>
-              </div>
+            <div className="space-y-1">
+              <p className="text-sm font-medium text-foreground">Increased Giving</p>
+              <p className="text-xs text-muted-foreground leading-relaxed">
+                Monthly giving has increased by 18.5% compared to last year.
+              </p>
             </div>
           </CardContent>
         </Card>
 
         <Card>
-          <CardHeader>
-            <CardTitle>Recommendations</CardTitle>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-base font-semibold">Recommendations</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-3">
-            <div className="flex items-start space-x-3">
-              <Eye className="h-5 w-5 text-primary mt-0.5" />
-              <div>
-                <p className="text-sm font-medium">Focus on Senior Ministry</p>
-                <p className="text-xs text-muted-foreground">
-                  Consider expanding programs for seniors (55+) as they represent the smallest demographic.
-                </p>
-              </div>
+          <CardContent className="space-y-4">
+            <div className="space-y-1 pb-3 border-b border-border/50">
+              <p className="text-sm font-medium text-foreground">Focus on Senior Ministry</p>
+              <p className="text-xs text-muted-foreground leading-relaxed">
+                Consider expanding programs for seniors (55+) as they represent the smallest demographic.
+              </p>
             </div>
             
-            <div className="flex items-start space-x-3">
-              <Calendar className="h-5 w-5 text-secondary mt-0.5" />
-              <div>
-                <p className="text-sm font-medium">Enhance Midweek Services</p>
-                <p className="text-xs text-muted-foreground">
-                  Midweek attendance could be improved with more engaging programs.
-                </p>
-              </div>
+            <div className="space-y-1 pb-3 border-b border-border/50">
+              <p className="text-sm font-medium text-foreground">Enhance Midweek Services</p>
+              <p className="text-xs text-muted-foreground leading-relaxed">
+                Midweek attendance could be improved with more engaging programs.
+              </p>
             </div>
             
-            <div className="flex items-start space-x-3">
-              <BarChart3 className="h-5 w-5 text-accent mt-0.5" />
-              <div>
-                <p className="text-sm font-medium">Leverage High Engagement</p>
-                <p className="text-xs text-muted-foreground">
-                  Use Prayer Team's 98% engagement as a model for other ministries.
-                </p>
-              </div>
+            <div className="space-y-1">
+              <p className="text-sm font-medium text-foreground">Leverage High Engagement</p>
+              <p className="text-xs text-muted-foreground leading-relaxed">
+                Use Prayer Team's 98% engagement as a model for other ministries.
+              </p>
             </div>
           </CardContent>
         </Card>

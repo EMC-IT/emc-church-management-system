@@ -341,11 +341,11 @@ export default function GivingReportsPage() {
       </LazySection>
 
       <Tabs defaultValue="giving" className="space-y-4">
-        <TabsList className="h-9">
-          <TabsTrigger value="giving" className="text-xs">Actual Giving</TabsTrigger>
-          <TabsTrigger value="pledges" className="text-xs">Pledges & Fulfillment</TabsTrigger>
-          <TabsTrigger value="campaigns" className="text-xs">Campaigns</TabsTrigger>
-          <TabsTrigger value="transactions" className="text-xs">Transactions</TabsTrigger>
+        <TabsList>
+          <TabsTrigger value="giving">Actual Giving</TabsTrigger>
+          <TabsTrigger value="pledges">Pledges & Fulfillment</TabsTrigger>
+          <TabsTrigger value="campaigns">Campaigns</TabsTrigger>
+          <TabsTrigger value="transactions">Transactions</TabsTrigger>
         </TabsList>
 
         {/* Tab 1: Actual Giving Breakdown */}

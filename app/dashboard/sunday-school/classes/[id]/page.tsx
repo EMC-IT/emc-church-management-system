@@ -156,25 +156,10 @@ export default function ClassDetailsPage() {
 
       {/* Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
-        <TabsList className="border-b border-border w-full justify-start rounded-none bg-transparent p-0 gap-6">
-          <TabsTrigger
-            value="overview"
-            className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-1 pb-3 text-sm font-medium"
-          >
-            Overview
-          </TabsTrigger>
-          <TabsTrigger
-            value="students"
-            className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-1 pb-3 text-sm font-medium"
-          >
-            Students ({students.length})
-          </TabsTrigger>
-          <TabsTrigger
-            value="attendance"
-            className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-1 pb-3 text-sm font-medium"
-          >
-            Recent Attendance
-          </TabsTrigger>
+        <TabsList>
+          <TabsTrigger value="overview">Overview</TabsTrigger>
+          <TabsTrigger value="students">Students ({students.length})</TabsTrigger>
+          <TabsTrigger value="attendance">Recent Attendance</TabsTrigger>
         </TabsList>
 
         <TabsContent value="overview" className="space-y-6">

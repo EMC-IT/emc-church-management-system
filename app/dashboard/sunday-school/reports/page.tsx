@@ -291,31 +291,12 @@ export default function ReportsPage() {
 
       {/* Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
-        <TabsList className="border-b border-border w-full justify-start rounded-none bg-transparent p-0 gap-6">
-          <TabsTrigger
-            value="overview"
-            className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-1 pb-3 text-sm font-medium"
-          >
-            Attendance Trends
-          </TabsTrigger>
-          <TabsTrigger
-            value="classes"
-            className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-1 pb-3 text-sm font-medium"
-          >
-            Class Performance
-          </TabsTrigger>
-          <TabsTrigger
-            value="teachers"
-            className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-1 pb-3 text-sm font-medium"
-          >
-            Teacher Workload
-          </TabsTrigger>
-          <TabsTrigger
-            value="growth"
-            className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-1 pb-3 text-sm font-medium"
-          >
-            Age Group Growth
-          </TabsTrigger>
+        <TabsList>
+          <TabsTrigger value="overview">Attendance Trends</TabsTrigger>
+          <TabsTrigger value="classes">Class Performance</TabsTrigger>
+          <TabsTrigger value="departments">Department Comparison</TabsTrigger>
+          <TabsTrigger value="teachers">Teacher Workload</TabsTrigger>
+          <TabsTrigger value="growth">Age Group Growth</TabsTrigger>
         </TabsList>
 
         <TabsContent value="overview" className="space-y-4">

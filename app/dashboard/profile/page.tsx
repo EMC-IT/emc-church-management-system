@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Link from 'next/link';
 import { useAuth } from '@/lib/contexts/auth-context';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { PageHeader } from '@/components/ui/page-header';
@@ -21,11 +22,8 @@ import {
 } from '@/components/ui/select';
 import { DatePicker } from '@/components/ui/date-picker';
 import {
-  User,
   Mail,
-  Phone,
   MapPin,
-  Calendar,
   Briefcase,
   Shield,
   Camera,
@@ -33,11 +31,9 @@ import {
   Lock,
   Activity,
   Clock,
-  Bell,
   Eye,
   EyeOff,
   CheckCircle,
-  AlertCircle,
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
@@ -233,7 +229,7 @@ export default function ProfilePage() {
       <PageHeader
         title="My Profile"
         actions={
-          <Badge variant="neutral" className="text-brand-primary border-brand-primary">
+          <Badge variant="primary">
             {typeof user?.role === 'object' ? user?.role.name : (user?.role || 'Admin')}
           </Badge>
         }
@@ -246,7 +242,7 @@ export default function ProfilePage() {
             <div className="relative">
               <Avatar className="h-24 w-24">
                 <AvatarImage src={user?.avatar || undefined} />
-                <AvatarFallback className="text-2xl bg-brand-primary text-white">
+                <AvatarFallback className="text-2xl bg-primary text-primary-foreground font-semibold">
                   {user?.name?.split(' ').map(n => n[0]).join('')}
                 </AvatarFallback>
               </Avatar>
@@ -276,12 +272,10 @@ export default function ProfilePage() {
                 </div>
               </div>
               <div className="flex items-center gap-2">
-                <Badge variant="neutral" className="text-green-600 border-green-600">
-                  <CheckCircle className="h-3 w-3 mr-1" />
+                <Badge variant="success">
                   Active
                 </Badge>
                 <Badge variant="neutral">
-                  <Calendar className="h-3 w-3 mr-1" />
                   Joined {new Date().toLocaleDateString()}
                 </Badge>
               </div>
@@ -292,21 +286,17 @@ export default function ProfilePage() {
 
       {/* Tabs */}
       <Tabs defaultValue="profile" className="space-y-4">
-        <TabsList className="grid w-full grid-cols-4">
+        <TabsList>
           <TabsTrigger value="profile">
-            <User className="h-4 w-4 mr-2" />
             Profile
           </TabsTrigger>
           <TabsTrigger value="security">
-            <Lock className="h-4 w-4 mr-2" />
             Security
           </TabsTrigger>
           <TabsTrigger value="notifications">
-            <Bell className="h-4 w-4 mr-2" />
             Notifications
           </TabsTrigger>
           <TabsTrigger value="activity">
-            <Activity className="h-4 w-4 mr-2" />
             Activity
           </TabsTrigger>
         </TabsList>
@@ -314,8 +304,8 @@ export default function ProfilePage() {
         {/* Profile Tab */}
         <TabsContent value="profile" className="space-y-4">
           <Card>
-            <CardHeader>
-              <CardTitle>Personal Information</CardTitle>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base font-semibold">Personal Information</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="grid gap-6 md:grid-cols-2">
@@ -441,7 +431,6 @@ export default function ProfilePage() {
                 <Button
                   onClick={handleSaveProfile}
                   disabled={isSaving}
-                  className="bg-brand-primary hover:bg-brand-primary/90"
                 >
                   <Save className="h-4 w-4 mr-2" />
                   {isSaving ? 'Saving...' : 'Save Changes'}
@@ -454,8 +443,8 @@ export default function ProfilePage() {
         {/* Security Tab */}
         <TabsContent value="security" className="space-y-4">
           <Card>
-            <CardHeader>
-              <CardTitle>Change Password</CardTitle>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base font-semibold">Change Password</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-4 max-w-md">
@@ -544,7 +533,6 @@ export default function ProfilePage() {
                 <Button
                   onClick={handleChangePassword}
                   disabled={isSaving}
-                  className="bg-brand-primary hover:bg-brand-primary/90"
                 >
                   <Lock className="h-4 w-4 mr-2" />
                   {isSaving ? 'Changing...' : 'Change Password'}
@@ -554,8 +542,8 @@ export default function ProfilePage() {
           </Card>
 
           <Card>
-            <CardHeader>
-              <CardTitle>Two-Factor Authentication</CardTitle>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base font-semibold">Two-Factor Authentication</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="flex items-center justify-between">
@@ -573,15 +561,15 @@ export default function ProfilePage() {
           </Card>
 
           <Card>
-            <CardHeader>
-              <CardTitle>Active Sessions</CardTitle>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base font-semibold">Active Sessions</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
                 <div className="flex items-center justify-between p-4 border rounded-lg">
                   <div className="space-y-1">
                     <div className="flex items-center gap-2">
-                      <CheckCircle className="h-4 w-4 text-green-600" />
+                      <CheckCircle className="h-4 w-4 text-brand-success" />
                       <p className="font-medium">Current Session</p>
                     </div>
                     <p className="text-sm text-muted-foreground">
@@ -591,7 +579,7 @@ export default function ProfilePage() {
                       Last active: Just now
                     </p>
                   </div>
-                  <Badge variant="neutral" className="text-green-600 border-green-600">
+                  <Badge variant="success">
                     Active
                   </Badge>
                 </div>
@@ -603,8 +591,8 @@ export default function ProfilePage() {
         {/* Notifications Tab */}
         <TabsContent value="notifications" className="space-y-4">
           <Card>
-            <CardHeader>
-              <CardTitle>Notification Preferences</CardTitle>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base font-semibold">Notification Preferences</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-6">
@@ -703,7 +691,6 @@ export default function ProfilePage() {
                 <Button
                   onClick={handleSaveNotifications}
                   disabled={isSaving}
-                  className="bg-brand-primary hover:bg-brand-primary/90"
                 >
                   <Save className="h-4 w-4 mr-2" />
                   {isSaving ? 'Saving...' : 'Save Preferences'}
@@ -716,15 +703,15 @@ export default function ProfilePage() {
         {/* Activity Tab */}
         <TabsContent value="activity" className="space-y-4">
           <Card>
-            <CardHeader>
-              <CardTitle>Recent Activity</CardTitle>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base font-semibold">Recent Activity</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
                 {recentActivities.map((activity) => (
                   <div key={activity.id} className="flex items-start gap-4 p-4 border rounded-lg">
                     <div className="mt-1">
-                      <Activity className="h-5 w-5 text-brand-primary" />
+                      <Activity className="h-5 w-5 text-primary" />
                     </div>
                     <div className="flex-1 space-y-1">
                       <p className="font-medium">{activity.action}</p>
@@ -747,8 +734,10 @@ export default function ProfilePage() {
               <Separator className="my-6" />
               
               <div className="flex justify-center">
-                <Button variant="outline">
-                  View Full Activity History
+                <Button variant="outline" asChild>
+                  <Link href="/dashboard/activity-logs">
+                    View Full Activity History
+                  </Link>
                 </Button>
               </div>
             </CardContent>

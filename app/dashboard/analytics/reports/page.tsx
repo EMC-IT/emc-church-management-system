@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { StatCard } from '@/components/ui/stat-card';
 import { Badge } from '@/components/ui/badge';
 import {
   Select,
@@ -171,86 +172,53 @@ export default function SavedReportsPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center gap-4">
-        <Button
-          variant="outline"
-          size="icon"
-          className="h-12 w-12"
-          onClick={() => router.push('/dashboard/analytics')}
-        >
-          <ArrowLeft className="h-4 w-4" />
-        </Button>
-        
-        <div className="flex items-center gap-3 flex-1">
-          <div className="p-2 bg-brand-primary/10 rounded-lg">
-            <FileBarChart className="h-6 w-6 text-brand-primary" />
-          </div>
-          <div>
-            <h1 className="text-2xl font-bold tracking-tight">Saved Reports</h1>
-            <p className="text-muted-foreground">Manage and run your custom reports</p>
-          </div>
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex items-center gap-3">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => router.push('/dashboard/analytics')}
+          >
+            <ArrowLeft className="h-4 w-4" />
+          </Button>
+          <h1 className="font-heading text-2xl font-bold tracking-tight">Saved Reports</h1>
         </div>
 
         <Button
           onClick={() => router.push('/dashboard/analytics/report-builder')}
-          className="bg-brand-primary hover:bg-brand-primary/90"
+          size="sm"
         >
-          <Plus className="mr-2 h-4 w-4" />
+          <Plus className="mr-1.5 h-4 w-4" />
           New Report
         </Button>
       </div>
 
       {/* Stats Cards */}
-      <div className="grid gap-4 md:grid-cols-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Reports</CardTitle>
-            <FileBarChart className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{savedReports.length}</div>
-            <p className="text-xs text-muted-foreground">
-              {savedReports.filter(r => r.favorite).length} favorites
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Runs</CardTitle>
-            <BarChart3 className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {savedReports.reduce((sum, r) => sum + r.runCount, 0)}
-            </div>
-            <p className="text-xs text-muted-foreground">All time</p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Most Used</CardTitle>
-            <TrendingUp className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {Math.max(...savedReports.map(r => r.runCount))}
-            </div>
-            <p className="text-xs text-muted-foreground">Giving Trends Analysis</p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Last Run</CardTitle>
-            <Clock className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-base font-bold">Today</div>
-            <p className="text-xs text-muted-foreground">10:20 AM</p>
-          </CardContent>
-        </Card>
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <StatCard
+          title="Total Reports"
+          value={savedReports.length}
+          icon={FileBarChart}
+          accent="primary"
+        />
+        <StatCard
+          title="Total Runs"
+          value={savedReports.reduce((sum, r) => sum + r.runCount, 0)}
+          icon={BarChart3}
+          accent="secondary"
+        />
+        <StatCard
+          title="Most Used"
+          value={Math.max(...savedReports.map(r => r.runCount))}
+          icon={TrendingUp}
+          accent="accent"
+        />
+        <StatCard
+          title="Last Run"
+          value="Today"
+          icon={Clock}
+          accent="success"
+        />
       </div>
 
       {/* Filters */}
@@ -323,7 +291,7 @@ export default function SavedReportsPage() {
                     <DropdownMenuSeparator />
                     <DropdownMenuItem
                       onClick={() => handleDeleteReport(report)}
-                      className="text-red-600 focus:text-red-600"
+                      className="text-destructive focus:text-destructive"
                     >
                       <Trash2 className="mr-2 h-4 w-4" />
                       Delete

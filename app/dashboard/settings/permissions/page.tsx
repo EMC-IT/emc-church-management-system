@@ -4,7 +4,6 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { PageHeader } from '@/components/ui/page-header';
 import { StatCard } from '@/components/ui/stat-card';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
@@ -32,282 +31,74 @@ import {
   Calendar,
   Mail,
   DollarSign,
-  School,
-  UserCog,
   BarChart3,
   CheckSquare,
-  Clock,
   Tag,
   FileText,
   Folder,
   Building2,
-  MessageSquare,
   Settings as SettingsIcon,
   TrendingUp,
   Package,
-  ChevronDown,
   Search,
-  Filter
+  Activity,
+  Heart,
+  GraduationCap,
+  UsersRound,
+  User,
+  type LucideIcon,
 } from 'lucide-react';
 import { toast } from 'sonner';
+import { PERMISSION_CATEGORIES, ROLE_PERMISSIONS, ROLES } from '@/lib/permissions';
 
-// Comprehensive permission structure covering all features
-const permissionCategories = [
-  {
-    id: 'dashboard',
-    name: 'Dashboard & Analytics',
-    icon: BarChart3,
-    description: 'Dashboard views and analytics access',
-    permissions: [
-      { id: 'dashboard.view', name: 'View Dashboard', description: 'Access main dashboard' },
-      { id: 'analytics.view', name: 'View Analytics', description: 'Access analytics and reports dashboard' },
-      { id: 'analytics.export', name: 'Export Analytics', description: 'Export analytics data and reports' },
-      { id: 'analytics.attendance', name: 'View Attendance Analytics', description: 'Access attendance analytics' },
-    ]
-  },
-  {
-    id: 'members',
-    name: 'Members Management',
-    icon: Users,
-    description: 'Member records and profiles',
-    permissions: [
-      { id: 'members.view', name: 'View Members', description: 'View member list and profiles' },
-      { id: 'members.create', name: 'Add Members', description: 'Create new member records' },
-      { id: 'members.edit', name: 'Edit Members', description: 'Update member information' },
-      { id: 'members.delete', name: 'Delete Members', description: 'Remove member records' },
-      { id: 'members.import', name: 'Import Members', description: 'Bulk import members from file' },
-      { id: 'members.export', name: 'Export Members', description: 'Export member data' },
-      { id: 'members.contact', name: 'View Contact Info', description: 'Access member contact details' },
-    ]
-  },
-  {
-    id: 'attendance',
-    name: 'Attendance Management',
-    icon: CheckSquare,
-    description: 'Attendance tracking and reports',
-    permissions: [
-      { id: 'attendance.view', name: 'View Attendance', description: 'View attendance records' },
-      { id: 'attendance.take', name: 'Take Attendance', description: 'Mark attendance for services' },
-      { id: 'attendance.edit', name: 'Edit Attendance', description: 'Modify attendance records' },
-      { id: 'attendance.delete', name: 'Delete Attendance', description: 'Remove attendance records' },
-      { id: 'attendance.qr', name: 'QR Check-in', description: 'Use QR code check-in system' },
-      { id: 'attendance.history', name: 'View History', description: 'Access attendance history' },
-      { id: 'attendance.reports', name: 'View Reports', description: 'Access attendance reports' },
-      { id: 'attendance.groups', name: 'Group Attendance', description: 'Manage group attendance' },
-      { id: 'attendance.department', name: 'Department Attendance', description: 'Manage department attendance' },
-      { id: 'attendance.member', name: 'Member Attendance', description: 'View individual member attendance' },
-    ]
-  },
-  {
-    id: 'groups',
-    name: 'Groups Management',
-    icon: Users,
-    description: 'Small groups and ministries',
-    permissions: [
-      { id: 'groups.view', name: 'View Groups', description: 'View groups list' },
-      { id: 'groups.create', name: 'Create Groups', description: 'Add new groups' },
-      { id: 'groups.edit', name: 'Edit Groups', description: 'Modify group information' },
-      { id: 'groups.delete', name: 'Delete Groups', description: 'Remove groups' },
-      { id: 'groups.categories', name: 'Manage Categories', description: 'Manage group categories' },
-      { id: 'groups.members', name: 'Manage Members', description: 'Add/remove group members' },
-    ]
-  },
-  {
-    id: 'events',
-    name: 'Events Management',
-    icon: Calendar,
-    description: 'Church events and activities',
-    permissions: [
-      { id: 'events.view', name: 'View Events', description: 'View events list' },
-      { id: 'events.create', name: 'Create Events', description: 'Add new events' },
-      { id: 'events.edit', name: 'Edit Events', description: 'Modify event details' },
-      { id: 'events.delete', name: 'Delete Events', description: 'Remove events' },
-      { id: 'events.calendar', name: 'View Calendar', description: 'Access events calendar' },
-      { id: 'events.categories', name: 'Manage Categories', description: 'Manage event categories' },
-      { id: 'events.templates', name: 'Manage Templates', description: 'Create and edit event templates' },
-      { id: 'events.registrations', name: 'Manage Registrations', description: 'Handle event registrations' },
-      { id: 'events.attendance', name: 'Event Attendance', description: 'Track event attendance' },
-      { id: 'events.export', name: 'Export Events', description: 'Export event data' },
-      { id: 'events.bulk', name: 'Bulk Actions', description: 'Perform bulk operations on events' },
-    ]
-  },
-  {
-    id: 'communications',
-    name: 'Communications',
-    icon: Mail,
-    description: 'Messages and campaigns',
-    permissions: [
-      { id: 'communications.view', name: 'View Communications', description: 'View messages and campaigns' },
-      { id: 'communications.send', name: 'Send Messages', description: 'Send SMS and email messages' },
-      { id: 'communications.campaigns', name: 'Manage Campaigns', description: 'Create and manage campaigns' },
-      { id: 'communications.campaigns.create', name: 'Create Campaigns', description: 'Create new campaigns' },
-      { id: 'communications.campaigns.edit', name: 'Edit Campaigns', description: 'Modify campaigns' },
-      { id: 'communications.campaigns.delete', name: 'Delete Campaigns', description: 'Remove campaigns' },
-      { id: 'communications.announcements', name: 'Manage Announcements', description: 'Create and edit announcements' },
-      { id: 'communications.newsletters', name: 'Manage Newsletters', description: 'Create and send newsletters' },
-      { id: 'communications.templates', name: 'Message Templates', description: 'Manage message templates' },
-    ]
-  },
-  {
-    id: 'finance',
-    name: 'Finance Management',
-    icon: DollarSign,
-    description: 'Financial records and reports',
-    permissions: [
-      { id: 'finance.view', name: 'View Finance', description: 'View financial dashboard' },
-      { id: 'finance.income.view', name: 'View Income', description: 'View income records' },
-      { id: 'finance.income.create', name: 'Record Income', description: 'Add income entries' },
-      { id: 'finance.income.edit', name: 'Edit Income', description: 'Modify income records' },
-      { id: 'finance.income.delete', name: 'Delete Income', description: 'Remove income records' },
-      { id: 'finance.expenses.view', name: 'View Expenses', description: 'View expense records' },
-      { id: 'finance.expenses.create', name: 'Record Expenses', description: 'Add expense entries' },
-      { id: 'finance.expenses.edit', name: 'Edit Expenses', description: 'Modify expense records' },
-      { id: 'finance.expenses.delete', name: 'Delete Expenses', description: 'Remove expense records' },
-      { id: 'finance.giving.view', name: 'View Giving', description: 'View giving records' },
-      { id: 'finance.giving.manage', name: 'Manage Giving', description: 'Manage giving records' },
-      { id: 'finance.tithes.view', name: 'View Tithes & Offerings', description: 'View tithes and offerings' },
-      { id: 'finance.tithes.manage', name: 'Manage Tithes & Offerings', description: 'Manage tithes and offerings' },
-      { id: 'finance.budgets.view', name: 'View Budgets', description: 'View budget information' },
-      { id: 'finance.budgets.create', name: 'Create Budgets', description: 'Create new budgets' },
-      { id: 'finance.budgets.edit', name: 'Edit Budgets', description: 'Modify budgets' },
-      { id: 'finance.budgets.delete', name: 'Delete Budgets', description: 'Remove budgets' },
-      { id: 'finance.budgets.categories', name: 'Manage Budget Categories', description: 'Manage budget categories' },
-      { id: 'finance.budgets.allocations', name: 'Manage Allocations', description: 'Allocate budget funds' },
-      { id: 'finance.reports', name: 'View Financial Reports', description: 'Access financial reports' },
-      { id: 'finance.export', name: 'Export Financial Data', description: 'Export financial records' },
-    ]
-  },
-  {
-    id: 'assets',
-    name: 'Assets Management',
-    icon: Package,
-    description: 'Church assets and inventory',
-    permissions: [
-      { id: 'assets.view', name: 'View Assets', description: 'View asset list' },
-      { id: 'assets.create', name: 'Add Assets', description: 'Create new asset records' },
-      { id: 'assets.edit', name: 'Edit Assets', description: 'Modify asset information' },
-      { id: 'assets.delete', name: 'Delete Assets', description: 'Remove asset records' },
-      { id: 'assets.categories', name: 'Manage Categories', description: 'Manage asset categories' },
-      { id: 'assets.reports', name: 'View Reports', description: 'Access asset reports' },
-      { id: 'assets.export', name: 'Export Assets', description: 'Export asset data' },
-    ]
-  },
-  {
-    id: 'departments',
-    name: 'Departments',
-    icon: Building2,
-    description: 'Department management',
-    permissions: [
-      { id: 'departments.view', name: 'View Departments', description: 'View department list' },
-      { id: 'departments.create', name: 'Create Departments', description: 'Add new departments' },
-      { id: 'departments.edit', name: 'Edit Departments', description: 'Modify department information' },
-      { id: 'departments.delete', name: 'Delete Departments', description: 'Remove departments' },
-      { id: 'departments.categories', name: 'Manage Categories', description: 'Manage department categories' },
-      { id: 'departments.members', name: 'Manage Members', description: 'Assign members to departments' },
-    ]
-  },
-  {
-    id: 'sunday-school',
-    name: 'Sunday School',
-    icon: School,
-    description: 'Sunday school management',
-    permissions: [
-      { id: 'sunday-school.view', name: 'View Sunday School', description: 'View Sunday school dashboard' },
-      { id: 'sunday-school.classes.view', name: 'View Classes', description: 'View class list' },
-      { id: 'sunday-school.classes.create', name: 'Create Classes', description: 'Add new classes' },
-      { id: 'sunday-school.classes.edit', name: 'Edit Classes', description: 'Modify class information' },
-      { id: 'sunday-school.classes.delete', name: 'Delete Classes', description: 'Remove classes' },
-      { id: 'sunday-school.students.view', name: 'View Students', description: 'View student records' },
-      { id: 'sunday-school.students.manage', name: 'Manage Students', description: 'Add/edit student records' },
-      { id: 'sunday-school.teachers.view', name: 'View Teachers', description: 'View teacher list' },
-      { id: 'sunday-school.teachers.manage', name: 'Manage Teachers', description: 'Assign and manage teachers' },
-      { id: 'sunday-school.materials.view', name: 'View Materials', description: 'View teaching materials' },
-      { id: 'sunday-school.materials.manage', name: 'Manage Materials', description: 'Upload and manage materials' },
-      { id: 'sunday-school.attendance', name: 'Take Attendance', description: 'Mark class attendance' },
-      { id: 'sunday-school.reports', name: 'View Reports', description: 'Access Sunday school reports' },
-    ]
-  },
-  {
-    id: 'prayer-requests',
-    name: 'Prayer Requests',
-    icon: MessageSquare,
-    description: 'Prayer request management',
-    permissions: [
-      { id: 'prayer-requests.view', name: 'View Prayer Requests', description: 'View all prayer requests' },
-      { id: 'prayer-requests.view-confidential', name: 'View Confidential Requests', description: 'Access confidential requests' },
-      { id: 'prayer-requests.create', name: 'Create Requests', description: 'Submit new prayer requests' },
-      { id: 'prayer-requests.edit', name: 'Edit Requests', description: 'Modify prayer requests' },
-      { id: 'prayer-requests.delete', name: 'Delete Requests', description: 'Remove prayer requests' },
-      { id: 'prayer-requests.respond', name: 'Respond to Requests', description: 'Add comments and updates' },
-      { id: 'prayer-requests.assign', name: 'Assign to Prayer Team', description: 'Assign requests to team members' },
-      { id: 'prayer-requests.categories', name: 'Manage Categories', description: 'Manage prayer request categories' },
-      { id: 'prayer-requests.status', name: 'Update Status', description: 'Update request status' },
-    ]
-  },
-  {
-    id: 'settings',
-    name: 'Settings & Administration',
-    icon: SettingsIcon,
-    description: 'System configuration',
-    permissions: [
-      { id: 'settings.view', name: 'View Settings', description: 'Access settings dashboard' },
-      { id: 'settings.church-profile', name: 'Manage Church Profile', description: 'Edit church information' },
-      { id: 'settings.branches.view', name: 'View Branches', description: 'View branch list' },
-      { id: 'settings.branches.create', name: 'Create Branches', description: 'Add new branches' },
-      { id: 'settings.branches.edit', name: 'Edit Branches', description: 'Modify branch information' },
-      { id: 'settings.branches.delete', name: 'Delete Branches', description: 'Remove branches' },
-      { id: 'settings.users.view', name: 'View Users', description: 'View user list' },
-      { id: 'settings.users.create', name: 'Create Users', description: 'Add new users' },
-      { id: 'settings.users.edit', name: 'Edit Users', description: 'Modify user accounts' },
-      { id: 'settings.users.delete', name: 'Delete Users', description: 'Remove user accounts' },
-      { id: 'settings.users.suspend', name: 'Suspend Users', description: 'Suspend user accounts' },
-      { id: 'settings.roles.view', name: 'View Roles', description: 'View role list' },
-      { id: 'settings.roles.create', name: 'Create Roles', description: 'Add new roles' },
-      { id: 'settings.roles.edit', name: 'Edit Roles', description: 'Modify role permissions' },
-      { id: 'settings.roles.delete', name: 'Delete Roles', description: 'Remove roles' },
-      { id: 'settings.permissions.manage', name: 'Manage Permissions', description: 'Configure system permissions' },
-      { id: 'settings.system', name: 'System Configuration', description: 'Access system settings' },
-    ]
-  },
-];
+const categoryIcons: Record<string, LucideIcon> = {
+  'dashboard': BarChart3,
+  'activity-logs': Activity,
+  'members': Users,
+  'attendance': CheckSquare,
+  'groups': UsersRound,
+  'departments': Building2,
+  'sunday-school': GraduationCap,
+  'prayer-requests': Heart,
+  'events': Calendar,
+  'finance': DollarSign,
+  'assets': Package,
+  'communications': Mail,
+  'settings': SettingsIcon,
+  'profile': User,
+};
 
 // Role templates for quick setup
 const roleTemplates = [
   {
     name: 'Administrator',
-    description: 'Full access to all features',
+    description: 'Full access to all modules and configurations',
     icon: Shield,
-    color: 'bg-red-500'
   },
   {
     name: 'Pastor',
-    description: 'Leadership team access',
+    description: 'Pastoral care, preaching, groups, and ministry leadership',
     icon: Users,
-    color: 'bg-blue-500'
   },
   {
     name: 'Secretary',
-    description: 'Administrative and records management',
+    description: 'Administrative records, members, attendance, and communications',
     icon: FileText,
-    color: 'bg-green-500'
   },
   {
     name: 'Finance Officer',
-    description: 'Financial management and reports',
+    description: 'Comprehensive financial records, giving, budgets, and statements',
     icon: DollarSign,
-    color: 'bg-yellow-500'
   },
   {
     name: 'Department Head',
-    description: 'Department-specific management',
+    description: 'Departmental management, small groups, events, and rosters',
     icon: Building2,
-    color: 'bg-purple-500'
   },
   {
     name: 'View Only',
-    description: 'Read-only access to most features',
+    description: 'Read-only access across all general pages and dashboards',
     icon: Tag,
-    color: 'bg-gray-500'
   }
 ];
 
@@ -315,12 +106,16 @@ export default function PermissionsPage() {
   const router = useRouter();
   const [selectedRole, setSelectedRole] = useState<string>('');
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedPermissions, setSelectedPermissions] = useState<Set<string>>(new Set());
-  const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set(['dashboard']));
+  const [selectedPermissions, setSelectedPermissions] = useState<Set<string>>(
+    new Set(PERMISSION_CATEGORIES.flatMap(c => c.permissions.map(p => p.id)))
+  );
+  const [expandedCategories, setExpandedCategories] = useState<Set<string>>(
+    new Set(['dashboard', 'members', 'finance'])
+  );
 
   // Handle category-level permission toggle
   const handleCategoryToggle = (categoryId: string, checked: boolean) => {
-    const category = permissionCategories.find(c => c.id === categoryId);
+    const category = PERMISSION_CATEGORIES.find(c => c.id === categoryId);
     if (!category) return;
 
     const newPermissions = new Set(selectedPermissions);
@@ -347,14 +142,14 @@ export default function PermissionsPage() {
 
   // Check if category is fully selected
   const isCategoryFullySelected = (categoryId: string) => {
-    const category = permissionCategories.find(c => c.id === categoryId);
+    const category = PERMISSION_CATEGORIES.find(c => c.id === categoryId);
     if (!category) return false;
     return category.permissions.every(p => selectedPermissions.has(p.id));
   };
 
   // Check if category is partially selected
   const isCategoryPartiallySelected = (categoryId: string) => {
-    const category = permissionCategories.find(c => c.id === categoryId);
+    const category = PERMISSION_CATEGORIES.find(c => c.id === categoryId);
     if (!category) return false;
     const selectedCount = category.permissions.filter(p => selectedPermissions.has(p.id)).length;
     return selectedCount > 0 && selectedCount < category.permissions.length;
@@ -366,8 +161,7 @@ export default function PermissionsPage() {
     
     switch (templateName) {
       case 'Administrator':
-        // Full access to everything
-        permissionCategories.forEach(category => {
+        PERMISSION_CATEGORIES.forEach(category => {
           category.permissions.forEach(permission => {
             newPermissions.add(permission.id);
           });
@@ -375,60 +169,31 @@ export default function PermissionsPage() {
         break;
         
       case 'Pastor':
-        // Access to most features except some finance and system settings
-        permissionCategories.forEach(category => {
-          if (category.id !== 'settings') {
-            category.permissions.forEach(permission => {
-              newPermissions.add(permission.id);
-            });
-          } else {
-            // Limited settings access
-            ['settings.view', 'settings.church-profile', 'settings.branches.view'].forEach(p => {
-              newPermissions.add(p);
-            });
-          }
-        });
+        (ROLE_PERMISSIONS[ROLES.PASTOR] || []).forEach(p => newPermissions.add(p));
         break;
         
       case 'Secretary':
-        // Members, attendance, events, communications
-        ['members', 'attendance', 'events', 'communications', 'departments', 'groups'].forEach(catId => {
-          const category = permissionCategories.find(c => c.id === catId);
+        (ROLE_PERMISSIONS[ROLES.SECRETARY] || []).forEach(p => newPermissions.add(p));
+        break;
+        
+      case 'Finance Officer':
+        (ROLE_PERMISSIONS[ROLES.ACCOUNTANT] || []).forEach(p => newPermissions.add(p));
+        break;
+        
+      case 'Department Head':
+        ['departments', 'groups', 'events', 'attendance'].forEach(catId => {
+          const category = PERMISSION_CATEGORIES.find(c => c.id === catId);
           category?.permissions.forEach(permission => {
             newPermissions.add(permission.id);
           });
         });
-        // View-only for dashboard and analytics
-        ['dashboard.view', 'analytics.view'].forEach(p => newPermissions.add(p));
-        break;
-        
-      case 'Finance Officer':
-        // Full finance access
-        const financeCategory = permissionCategories.find(c => c.id === 'finance');
-        financeCategory?.permissions.forEach(permission => {
-          newPermissions.add(permission.id);
-        });
-        // View access to dashboard
-        ['dashboard.view', 'analytics.view', 'members.view'].forEach(p => {
+        ['dashboard.view', 'members.view', 'members.contact', 'profile.view', 'profile.edit'].forEach(p => {
           newPermissions.add(p);
         });
         break;
         
-      case 'Department Head':
-        // Department-specific permissions
-        ['departments', 'groups', 'events', 'attendance'].forEach(catId => {
-          const category = permissionCategories.find(c => c.id === catId);
-          category?.permissions.forEach(permission => {
-            newPermissions.add(permission.id);
-          });
-        });
-        // View permissions for members
-        ['members.view', 'members.contact'].forEach(p => newPermissions.add(p));
-        break;
-        
       case 'View Only':
-        // View-only permissions
-        permissionCategories.forEach(category => {
+        PERMISSION_CATEGORIES.forEach(category => {
           category.permissions.forEach(permission => {
             if (permission.id.includes('.view') || permission.name.toLowerCase().includes('view')) {
               newPermissions.add(permission.id);
@@ -442,8 +207,34 @@ export default function PermissionsPage() {
     toast.success(`Applied ${templateName} template`);
   };
 
+  const handleRoleSelect = (roleKey: string) => {
+    setSelectedRole(roleKey);
+    const newPermissions = new Set<string>();
+
+    if (roleKey === 'admin') {
+      (ROLE_PERMISSIONS[ROLES.SUPER_ADMIN] || []).forEach(p => newPermissions.add(p));
+    } else if (roleKey === 'pastor') {
+      (ROLE_PERMISSIONS[ROLES.PASTOR] || []).forEach(p => newPermissions.add(p));
+    } else if (roleKey === 'secretary') {
+      (ROLE_PERMISSIONS[ROLES.SECRETARY] || []).forEach(p => newPermissions.add(p));
+    } else if (roleKey === 'finance') {
+      (ROLE_PERMISSIONS[ROLES.ACCOUNTANT] || []).forEach(p => newPermissions.add(p));
+    } else if (roleKey === 'teacher') {
+      (ROLE_PERMISSIONS[ROLES.TEACHER] || []).forEach(p => newPermissions.add(p));
+    } else if (roleKey === 'user') {
+      PERMISSION_CATEGORIES.forEach(cat => {
+        cat.permissions.forEach(p => {
+          if (p.id.includes('.view')) newPermissions.add(p.id);
+        });
+      });
+    }
+
+    setSelectedPermissions(newPermissions);
+    toast.success(`Loaded permissions from ${roleKey}`);
+  };
+
   // Filter permissions based on search
-  const filteredCategories = permissionCategories.map(category => {
+  const filteredCategories = PERMISSION_CATEGORIES.map(category => {
     if (!searchTerm) return category;
     
     const filteredPermissions = category.permissions.filter(permission =>
@@ -456,31 +247,31 @@ export default function PermissionsPage() {
   }).filter(category => category.permissions.length > 0);
 
   const handleSave = () => {
-    // TODO: Implement actual save logic
     console.log('Saving permissions:', Array.from(selectedPermissions));
     toast.success('Permissions updated successfully');
   };
 
   const selectedCount = selectedPermissions.size;
-  const totalCount = permissionCategories.reduce((sum, cat) => sum + cat.permissions.length, 0);
+  const totalCount = PERMISSION_CATEGORIES.reduce((sum, cat) => sum + cat.permissions.length, 0);
 
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center gap-4">
-        <Button
-          variant="outline"
-          size="icon"
-          className="h-12 w-12"
-          onClick={() => router.push('/dashboard/settings?tab=roles')}
-        >
-          <ArrowLeft className="h-4 w-4" />
-        </Button>
-
-        <div className="p-2 bg-brand-primary/10 rounded-lg">
-          <Shield className="h-6 w-6 text-brand-primary" />
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div className="flex items-center gap-3">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => router.push('/dashboard/settings?tab=roles')}
+          >
+            <ArrowLeft className="h-4 w-4" />
+          </Button>
+          <h1 className="font-heading text-2xl font-bold tracking-tight">Permissions Management</h1>
         </div>
-        <PageHeader title="Permissions Management" />
+        <Button onClick={handleSave}>
+          <Save className="mr-1.5 h-4 w-4" />
+          Save Changes
+        </Button>
       </div>
 
       {/* Stats Cards */}
@@ -498,12 +289,13 @@ export default function PermissionsPage() {
         />
         <StatCard
           title="Categories"
-          value={permissionCategories.length}
+          value={PERMISSION_CATEGORIES.length}
           icon={Folder}
+          accent="secondary"
         />
         <StatCard
           title="Coverage"
-          value={permissionCategories.filter(c => isCategoryFullySelected(c.id)).length}
+          value={PERMISSION_CATEGORIES.filter(c => isCategoryFullySelected(c.id)).length}
           icon={TrendingUp}
           accent="success"
         />
@@ -512,23 +304,23 @@ export default function PermissionsPage() {
       <div className="grid gap-6 lg:grid-cols-3">
         {/* Left Column: Role Templates */}
         <Card className="lg:col-span-1">
-          <CardHeader>
-            <CardTitle>Quick Templates</CardTitle>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-base font-semibold">Quick Templates</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
             {roleTemplates.map((template) => (
               <Card
                 key={template.name}
-                className="p-4 cursor-pointer hover:shadow-md transition-shadow border-2 hover:border-brand-primary"
+                className="p-4 cursor-pointer hover:shadow-md transition-shadow border hover:border-primary"
                 onClick={() => applyTemplate(template.name)}
               >
                 <div className="flex items-start gap-3">
-                  <div className={`p-2 rounded-lg ${template.color}`}>
-                    <template.icon className="h-5 w-5 text-white" />
+                  <div className="p-2 rounded-lg bg-primary/10 text-primary">
+                    <template.icon className="h-5 w-5" />
                   </div>
                   <div className="flex-1">
-                    <h3 className="font-semibold">{template.name}</h3>
-                    <p className="text-sm text-muted-foreground">{template.description}</p>
+                    <h3 className="font-semibold text-sm text-foreground">{template.name}</h3>
+                    <p className="text-xs text-muted-foreground">{template.description}</p>
                   </div>
                 </div>
               </Card>
@@ -538,7 +330,7 @@ export default function PermissionsPage() {
 
             <div className="space-y-2">
               <Label>Load from Existing Role</Label>
-              <Select value={selectedRole} onValueChange={setSelectedRole}>
+              <Select value={selectedRole} onValueChange={handleRoleSelect}>
                 <SelectTrigger>
                   <SelectValue placeholder="Select a role" />
                 </SelectTrigger>
@@ -547,6 +339,7 @@ export default function PermissionsPage() {
                   <SelectItem value="pastor">Senior Pastor</SelectItem>
                   <SelectItem value="secretary">Church Secretary</SelectItem>
                   <SelectItem value="finance">Finance Officer</SelectItem>
+                  <SelectItem value="teacher">Sunday School Teacher</SelectItem>
                   <SelectItem value="user">Regular User</SelectItem>
                 </SelectContent>
               </Select>
@@ -556,13 +349,10 @@ export default function PermissionsPage() {
 
         {/* Right Column: Permissions List */}
         <Card className="lg:col-span-2">
-          <CardHeader>
+          <CardHeader className="pb-3">
             <div className="flex items-center justify-between">
-              <CardTitle>Configure Permissions</CardTitle>
-              <Button onClick={handleSave}>
-                <Save className="mr-1.5 h-4 w-4" />
-                Save Changes
-              </Button>
+              <CardTitle className="text-base font-semibold">Configure Permissions</CardTitle>
+              <Badge variant="neutral">{selectedCount}/{totalCount} active</Badge>
             </div>
           </CardHeader>
           <CardContent>
@@ -570,7 +360,7 @@ export default function PermissionsPage() {
             <div className="relative mb-6">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
-                placeholder="Search permissions..."
+                placeholder="Search all permissions, categories, or actions..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="pl-10"
@@ -580,7 +370,7 @@ export default function PermissionsPage() {
             {/* Permissions Accordion */}
             <Accordion type="multiple" value={Array.from(expandedCategories)} className="space-y-4">
               {filteredCategories.map((category) => {
-                const CategoryIcon = category.icon;
+                const CategoryIcon = categoryIcons[category.id] || Folder;
                 const isFullySelected = isCategoryFullySelected(category.id);
                 const isPartiallySelected = isCategoryPartiallySelected(category.id);
                 const selectedInCategory = category.permissions.filter(p => 
@@ -608,12 +398,12 @@ export default function PermissionsPage() {
                             handleCategoryToggle(category.id, checked as boolean);
                           }}
                           onClick={(e) => e.stopPropagation()}
-                          className={isPartiallySelected ? 'data-[state=checked]:bg-brand-secondary' : ''}
+                          className={isPartiallySelected ? 'data-[state=checked]:bg-primary/60' : ''}
                         />
-                        <CategoryIcon className="h-5 w-5 text-brand-primary" />
+                        <CategoryIcon className="h-5 w-5 text-primary" />
                         <div className="flex-1 text-left">
-                          <div className="font-semibold">{category.name}</div>
-                          <div className="text-sm text-muted-foreground">{category.description}</div>
+                          <div className="font-semibold text-sm text-foreground">{category.name}</div>
+                          <div className="text-xs text-muted-foreground">{category.description}</div>
                         </div>
                         <Badge variant="neutral">
                           {selectedInCategory}/{category.permissions.length}
@@ -636,8 +426,8 @@ export default function PermissionsPage() {
                               htmlFor={permission.id}
                               className="flex-1 cursor-pointer"
                             >
-                              <div className="font-medium">{permission.name}</div>
-                              <div className="text-sm text-muted-foreground">{permission.description}</div>
+                              <div className="font-medium text-sm text-foreground">{permission.name}</div>
+                              <div className="text-xs text-muted-foreground">{permission.description}</div>
                             </Label>
                           </div>
                         ))}
@@ -651,8 +441,8 @@ export default function PermissionsPage() {
             {filteredCategories.length === 0 && (
               <div className="text-center py-12">
                 <Search className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                <h3 className="text-lg font-medium">No permissions found</h3>
-                <p className="text-muted-foreground">Try adjusting your search term</p>
+                <h3 className="text-base font-semibold text-foreground">No permissions found</h3>
+                <p className="text-sm text-muted-foreground">Try adjusting your search term</p>
               </div>
             )}
           </CardContent>

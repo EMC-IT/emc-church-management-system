@@ -3,7 +3,6 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { PageHeader } from '@/components/ui/page-header';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -123,35 +122,32 @@ export default function PreferencesPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center gap-4">
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={() => router.push('/dashboard/analytics')}
-        >
-          <ArrowLeft className="h-4 w-4" />
-        </Button>
-        <div className="flex-1">
-          <PageHeader
-            title="Analytics Preferences"
-            actions={
-              <>
-                <Button variant="outline" onClick={handleReset}>
-                  <RotateCcw className="mr-2 h-4 w-4" />
-                  Reset to Defaults
-                </Button>
-                <Button onClick={handleSave} className="bg-brand-primary hover:bg-brand-primary/90">
-                  <Save className="mr-2 h-4 w-4" />
-                  Save Preferences
-                </Button>
-              </>
-            }
-          />
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex items-center gap-3">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => router.push('/dashboard/analytics')}
+          >
+            <ArrowLeft className="h-4 w-4" />
+          </Button>
+          <h1 className="font-heading text-2xl font-bold tracking-tight">Analytics Preferences</h1>
+        </div>
+
+        <div className="flex items-center gap-2">
+          <Button variant="outline" size="sm" onClick={handleReset}>
+            <RotateCcw className="mr-1.5 h-4 w-4" />
+            Reset to Defaults
+          </Button>
+          <Button size="sm" onClick={handleSave}>
+            <Save className="mr-1.5 h-4 w-4" />
+            Save Preferences
+          </Button>
         </div>
       </div>
 
       <Tabs defaultValue="display" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-5">
+        <TabsList>
           <TabsTrigger value="display" className="flex items-center gap-2">
             <Eye className="h-4 w-4" />
             <span className="hidden sm:inline">Display</span>

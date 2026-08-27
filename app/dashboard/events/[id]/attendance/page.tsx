@@ -410,9 +410,9 @@ export default function AttendancePage() {
         
         <CardContent>
           <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
-            <TabsList className="h-9">
-              <TabsTrigger value="list" className="text-xs">List View</TabsTrigger>
-              <TabsTrigger value="checkin" className="text-xs">Quick Check-in</TabsTrigger>
+            <TabsList>
+              <TabsTrigger value="list">List View</TabsTrigger>
+              <TabsTrigger value="checkin">Quick Check-in</TabsTrigger>
             </TabsList>
 
             <TabsContent value="list" className="space-y-4 pt-1">

@@ -39,31 +39,19 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
   Activity,
   Search,
-  Filter,
   Download,
   RefreshCw,
   Eye,
   User,
-  Calendar,
   MapPin,
   FileText,
-  Edit,
-  Trash2,
-  Plus,
-  Settings,
   Clock,
   AlertCircle,
   CheckCircle,
   XCircle,
-  UserPlus,
-  UserMinus,
-  Mail,
-  Bell,
-  DollarSign,
   Users,
   MoreVertical,
 } from 'lucide-react';
@@ -342,13 +330,6 @@ const mockActivityLogs: ActivityLog[] = [
   }
 ];
 
-const activityStats = [
-  { label: 'Total Activities', value: '12,456', icon: Activity, color: 'text-blue-600', bgColor: 'bg-blue-50' },
-  { label: "Today's Actions", value: '234', icon: Clock, color: 'text-green-600', bgColor: 'bg-green-50' },
-  { label: 'Failed Actions', value: '12', icon: AlertCircle, color: 'text-red-600', bgColor: 'bg-red-50' },
-  { label: 'Active Users', value: '45', icon: Users, color: 'text-purple-600', bgColor: 'bg-purple-50' },
-];
-
 export default function ActivityLogsPage() {
   const router = useRouter();
   const [searchTerm, setSearchTerm] = useState('');
@@ -380,13 +361,13 @@ export default function ActivityLogsPage() {
   const getStatusIcon = (status: string) => {
     switch (status) {
       case 'SUCCESS':
-        return <CheckCircle className="h-4 w-4 text-green-600" />;
+        return <CheckCircle className="h-4 w-4 text-brand-success" />;
       case 'FAILED':
-        return <XCircle className="h-4 w-4 text-red-600" />;
+        return <XCircle className="h-4 w-4 text-destructive" />;
       case 'PENDING':
-        return <Clock className="h-4 w-4 text-yellow-600" />;
+        return <Clock className="h-4 w-4 text-brand-accent" />;
       default:
-        return <AlertCircle className="h-4 w-4 text-gray-600" />;
+        return <AlertCircle className="h-4 w-4 text-muted-foreground" />;
     }
   };
 
@@ -405,16 +386,16 @@ export default function ActivityLogsPage() {
       <PageHeader
         title="Activity Logs"
         actions={
-          <>
+          <div className="flex items-center gap-2">
             <Button variant="outline" size="sm" onClick={handleRefresh}>
-              <RefreshCw className="h-4 w-4 mr-2" />
+              <RefreshCw className="h-4 w-4 mr-1.5" />
               Refresh
             </Button>
             <Button variant="outline" size="sm" onClick={handleExport}>
-              <Download className="h-4 w-4 mr-2" />
+              <Download className="h-4 w-4 mr-1.5" />
               Export
             </Button>
-          </>
+          </div>
         }
       />
 
@@ -448,8 +429,8 @@ export default function ActivityLogsPage() {
 
       {/* Filters and Search */}
       <Card>
-        <CardHeader>
-          <CardTitle>Activity Filters</CardTitle>
+        <CardHeader className="pb-3">
+          <CardTitle className="text-base font-semibold">Activity Filters</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="grid gap-4 md:grid-cols-5">
@@ -528,10 +509,10 @@ export default function ActivityLogsPage() {
 
       {/* Activity Logs Table */}
       <Card>
-        <CardHeader>
+        <CardHeader className="pb-3">
           <div className="flex items-center justify-between">
             <div>
-              <CardTitle>Activity Timeline</CardTitle>
+              <CardTitle className="text-base font-semibold">Activity Timeline</CardTitle>
               <CardDescription>
                 {filteredLogs.length} activities found
               </CardDescription>
@@ -567,8 +548,8 @@ export default function ActivityLogsPage() {
                       </TableCell>
                       <TableCell>
                         <div className="flex items-center gap-2">
-                          <div className="h-8 w-8 rounded-full bg-brand-primary/10 flex items-center justify-center">
-                            <User className="h-4 w-4 text-brand-primary" />
+                          <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center">
+                            <User className="h-4 w-4 text-primary" />
                           </div>
                           <div>
                             <p className="font-medium text-sm">{log.userName}</p>
@@ -786,11 +767,11 @@ export default function ActivityLogsPage() {
                           <div key={index} className="bg-background rounded p-3 text-sm">
                             <p className="font-medium mb-1">{change.field}</p>
                             <div className="flex items-center gap-2 text-xs">
-                              <span className="text-red-600">
+                              <span className="text-destructive">
                                 Old: {change.oldValue === null ? 'N/A' : String(change.oldValue)}
                               </span>
                               <span>→</span>
-                              <span className="text-green-600">
+                              <span className="text-brand-success">
                                 New: {String(change.newValue)}
                               </span>
                             </div>

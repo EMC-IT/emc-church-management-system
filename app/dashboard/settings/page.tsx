@@ -47,20 +47,11 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { 
-  Settings, 
-  Users, 
-  Shield, 
-  Bell, 
-  Mail,
-  Database,
-  Palette,
-  Globe,
   Save,
   Plus,
   Edit,
   Trash2,
   Key,
-  Building2,
   MoreHorizontal
 } from 'lucide-react';
 import { useAuth } from '@/lib/contexts/auth-context';
@@ -196,7 +187,7 @@ export default function SettingsPage() {
       <PageHeader title="Settings" />
 
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid w-full grid-cols-6">
+        <TabsList>
           <TabsTrigger value="general">General</TabsTrigger>
           <TabsTrigger value="users">Users</TabsTrigger>
           <TabsTrigger value="roles">Roles</TabsTrigger>
@@ -208,23 +199,20 @@ export default function SettingsPage() {
         <TabsContent value="general" className="space-y-4">
           <div className="grid gap-4 md:grid-cols-2">
             <Card>
-              <CardHeader>
+              <CardHeader className="pb-3">
                 <div className="flex items-center justify-between">
-                  <div>
-                    <CardTitle className="flex items-center">
-                      <Settings className="mr-2 h-5 w-5" />
-                      Church Information
-                    </CardTitle>
-                  </div>
+                  <CardTitle className="text-base font-semibold">
+                    Church Information
+                  </CardTitle>
                   <Button variant="outline" size="sm" asChild>
                     <Link href="/dashboard/settings/church-profile">
-                      <Edit className="mr-2 h-3 w-3" />
+                      <Edit className="mr-1.5 h-3.5 w-3.5" />
                       Full Profile
                     </Link>
                   </Button>
                 </div>
               </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent className="space-y-3">
                 <div className="space-y-3">
                   <div className="flex justify-between text-sm">
                     <span className="text-muted-foreground">Church Name:</span>
@@ -247,24 +235,15 @@ export default function SettingsPage() {
                     <span className="font-medium">+1 (555) 123-4567</span>
                   </div>
                 </div>
-                
-                <Button asChild className="w-full">
-                  <Link href="/dashboard/settings/church-profile">
-                    Edit Complete Profile
-                  </Link>
-                </Button>
               </CardContent>
             </Card>
 
             <Card>
-              <CardHeader>
+              <CardHeader className="pb-3">
                 <div className="flex items-center justify-between">
-                  <div>
-                    <CardTitle className="flex items-center">
-                      <Building2 className="mr-2 h-5 w-5" />
-                      Branch Management
-                    </CardTitle>
-                  </div>
+                  <CardTitle className="text-base font-semibold">
+                    Branch Management
+                  </CardTitle>
                   <Button variant="outline" size="sm" asChild>
                     <Link href="/dashboard/settings/branches">
                       View All
@@ -272,7 +251,7 @@ export default function SettingsPage() {
                   </Button>
                 </div>
               </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent className="space-y-3">
                 <div className="space-y-3">
                   <div className="flex justify-between text-sm">
                     <span className="text-muted-foreground">Total Branches:</span>
@@ -291,20 +270,12 @@ export default function SettingsPage() {
                     <span className="font-medium">4</span>
                   </div>
                 </div>
-                
-                <Button asChild className="w-full">
-                  <Link href="/dashboard/settings/branches">
-                    <Building2 className="mr-2 h-4 w-4" />
-                    Manage Branches
-                  </Link>
-                </Button>
               </CardContent>
             </Card>
 
             <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center">
-                  <Palette className="mr-2 h-5 w-5" />
+              <CardHeader className="pb-3">
+                <CardTitle className="text-base font-semibold">
                   Appearance
                 </CardTitle>
               </CardHeader>
@@ -382,7 +353,7 @@ export default function SettingsPage() {
                 </div>
                 
                 <Button onClick={handleSavePreferences} disabled={isSaving}>
-                  <Save className="mr-2 h-4 w-4" />
+                  <Save className="mr-1.5 h-4 w-4" />
                   {isSaving ? "Saving..." : "Save Preferences"}
                 </Button>
               </CardContent>
@@ -392,14 +363,11 @@ export default function SettingsPage() {
 
         <TabsContent value="users" className="space-y-4">
           <Card>
-            <CardHeader>
+            <CardHeader className="pb-3">
               <div className="flex items-center justify-between">
-                <div>
-                  <CardTitle className="flex items-center">
-                    <Users className="mr-2 h-5 w-5" />
-                    User Management
-                  </CardTitle>
-                </div>
+                <CardTitle className="text-base font-semibold">
+                  User Management
+                </CardTitle>
                 <Button asChild>
                   <Link href="/dashboard/settings/users/add">
                     <Plus className="mr-1.5 h-4 w-4" />
@@ -467,18 +435,14 @@ export default function SettingsPage() {
 
         <TabsContent value="roles" className="space-y-4">
           <Card>
-            <CardHeader>
+            <CardHeader className="pb-3">
               <div className="flex items-center justify-between">
-                <div>
-                  <CardTitle className="flex items-center">
-                    <Shield className="mr-2 h-5 w-5" />
-                    Role Management
-                  </CardTitle>
-                </div>
+                <CardTitle className="text-base font-semibold">
+                  Role Management
+                </CardTitle>
                 <div className="flex gap-2">
                   <Button variant="outline" asChild>
                     <Link href="/dashboard/settings/permissions">
-                      <Shield className="mr-2 h-4 w-4" />
                       Manage Permissions
                     </Link>
                   </Button>
@@ -497,7 +461,7 @@ export default function SettingsPage() {
                   <Card key={role.name}>
                     <CardHeader className="pb-3">
                       <div className="flex items-center justify-between">
-                        <CardTitle className="text-base">{role.name}</CardTitle>
+                        <CardTitle className="text-base font-semibold">{role.name}</CardTitle>
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
                             <Button variant="ghost" size="icon">
@@ -513,14 +477,13 @@ export default function SettingsPage() {
                             </DropdownMenuItem>
                             <DropdownMenuItem asChild>
                               <Link href="/dashboard/settings/permissions">
-                                <Shield className="mr-2 h-4 w-4" />
                                 Manage Permissions
                               </Link>
                             </DropdownMenuItem>
                             <DropdownMenuSeparator />
                             <DropdownMenuItem 
                               onClick={() => handleDeleteRole(role)}
-                              className="text-red-600 focus:text-red-600"
+                              className="text-destructive focus:text-destructive"
                             >
                               <Trash2 className="mr-2 h-4 w-4" />
                               Delete Role
@@ -532,25 +495,14 @@ export default function SettingsPage() {
                     <CardContent>
                       <div className="space-y-2 text-sm">
                         <div className="flex justify-between">
-                          <span>Users:</span>
+                          <span className="text-muted-foreground">Users:</span>
                           <span className="font-medium">{role.users}</span>
                         </div>
                         <div className="flex justify-between">
-                          <span>Permissions:</span>
+                          <span className="text-muted-foreground">Permissions:</span>
                           <span className="font-medium">{role.permissions}</span>
                         </div>
                       </div>
-                      <Button 
-                        variant="outline" 
-                        size="sm" 
-                        className="w-full mt-3"
-                        asChild
-                      >
-                        <Link href="/dashboard/settings/permissions">
-                          <Shield className="mr-2 h-3 w-3" />
-                          Manage Permissions
-                        </Link>
-                      </Button>
                     </CardContent>
                   </Card>
                 ))}
@@ -561,15 +513,14 @@ export default function SettingsPage() {
 
         <TabsContent value="notifications" className="space-y-4">
           <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center">
-                <Bell className="mr-2 h-5 w-5" />
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base font-semibold">
                 Notification Settings
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="space-y-4">
-                <h3 className="text-lg font-medium">Email Notifications</h3>
+                <h3 className="text-sm font-semibold text-foreground">Email Notifications</h3>
                 
                 <div className="flex items-center justify-between">
                   <div className="space-y-0.5">
@@ -603,7 +554,7 @@ export default function SettingsPage() {
               </div>
               
               <div className="space-y-4">
-                <h3 className="text-lg font-medium">SMS Notifications</h3>
+                <h3 className="text-sm font-semibold text-foreground">SMS Notifications</h3>
                 
                 <div className="flex items-center justify-between">
                   <div className="space-y-0.5">
@@ -627,7 +578,7 @@ export default function SettingsPage() {
               </div>
               
               <Button>
-                <Save className="mr-2 h-4 w-4" />
+                <Save className="mr-1.5 h-4 w-4" />
                 Save Notification Settings
               </Button>
             </CardContent>
@@ -636,9 +587,8 @@ export default function SettingsPage() {
 
         <TabsContent value="integrations" className="space-y-4">
           <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center">
-                <Globe className="mr-2 h-5 w-5" />
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base font-semibold">
                 Third-Party Integrations
               </CardTitle>
             </CardHeader>
@@ -646,7 +596,7 @@ export default function SettingsPage() {
               <div className="grid gap-4 md:grid-cols-2">
                 <Card>
                   <CardHeader className="pb-3">
-                    <CardTitle className="text-base">Email Service</CardTitle>
+                    <CardTitle className="text-base font-semibold">Email Service</CardTitle>
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-3">
@@ -670,7 +620,7 @@ export default function SettingsPage() {
                 
                 <Card>
                   <CardHeader className="pb-3">
-                    <CardTitle className="text-base">SMS Service</CardTitle>
+                    <CardTitle className="text-base font-semibold">SMS Service</CardTitle>
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-3">
@@ -695,7 +645,7 @@ export default function SettingsPage() {
                 
                 <Card>
                   <CardHeader className="pb-3">
-                    <CardTitle className="text-base">Payment Gateway</CardTitle>
+                    <CardTitle className="text-base font-semibold">Payment Gateway</CardTitle>
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-3">
@@ -720,7 +670,7 @@ export default function SettingsPage() {
                 
                 <Card>
                   <CardHeader className="pb-3">
-                    <CardTitle className="text-base">Cloud Storage</CardTitle>
+                    <CardTitle className="text-base font-semibold">Cloud Storage</CardTitle>
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-3">
@@ -749,16 +699,15 @@ export default function SettingsPage() {
 
         <TabsContent value="backup" className="space-y-4">
           <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center">
-                <Database className="mr-2 h-5 w-5" />
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base font-semibold">
                 Backup & Recovery
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="grid gap-4 md:grid-cols-2">
                 <div className="space-y-4">
-                  <h3 className="text-lg font-medium">Automatic Backups</h3>
+                  <h3 className="text-sm font-semibold text-foreground">Automatic Backups</h3>
                   
                   <div className="flex items-center justify-between">
                     <div className="space-y-0.5">
@@ -801,7 +750,7 @@ export default function SettingsPage() {
                 </div>
                 
                 <div className="space-y-4">
-                  <h3 className="text-lg font-medium">Manual Actions</h3>
+                  <h3 className="text-sm font-semibold text-foreground">Manual Actions</h3>
                   
                   <div className="space-y-2">
                     <Button className="w-full">

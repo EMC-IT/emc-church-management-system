@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter, useParams } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { PageHeader } from '@/components/ui/page-header';
+import { StatCard } from '@/components/ui/stat-card';
 import { ChartHeader } from '@/components/ui/chart-header';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -33,7 +33,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
   ArrowLeft,
   Activity,
@@ -41,24 +40,17 @@ import {
   Download,
   RefreshCw,
   Eye,
-  User,
   Calendar,
-  MapPin,
   Clock,
   AlertCircle,
   CheckCircle,
   XCircle,
   Mail,
   Phone,
-  Shield,
-  TrendingUp,
-  TrendingDown,
   BarChart3,
-  FileText,
-  Filter,
 } from 'lucide-react';
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, PieChart, Pie, Cell } from 'recharts';
-import { ChartContainer, ChartTooltip, ChartTooltipContent, ChartLegend, ChartLegendContent, ChartConfig } from '@/components/ui/chart';
+import { ChartContainer, ChartTooltip, ChartTooltipContent, ChartConfig } from '@/components/ui/chart';
 
 // Activity Log Type (same as main page)
 interface ActivityLog {
@@ -339,8 +331,8 @@ const activityByModule = [
   { name: 'Finance', value: 25, color: '#28ACD1' },
   { name: 'Events', value: 15, color: '#C49831' },
   { name: 'Settings', value: 12, color: '#A5CF5D' },
-  { name: 'Auth', value: 8, color: '#FF6B6B' },
-  { name: 'Others', value: 5, color: '#4ECDC4' },
+  { name: 'Auth', value: 8, color: '#080A09' },
+  { name: 'Others', value: 5, color: '#5A6560' },
 ];
 
 const activityByAction = [
@@ -419,40 +411,35 @@ export default function UserActivityHistoryPage() {
   const getStatusIcon = (status: string) => {
     switch (status) {
       case 'SUCCESS':
-        return <CheckCircle className="h-4 w-4 text-green-600" />;
+        return <CheckCircle className="h-4 w-4 text-brand-success" />;
       case 'FAILED':
-        return <XCircle className="h-4 w-4 text-red-600" />;
+        return <XCircle className="h-4 w-4 text-destructive" />;
       case 'PENDING':
-        return <Clock className="h-4 w-4 text-yellow-600" />;
+        return <Clock className="h-4 w-4 text-brand-accent" />;
       default:
-        return <AlertCircle className="h-4 w-4 text-gray-600" />;
+        return <AlertCircle className="h-4 w-4 text-muted-foreground" />;
     }
   };
 
   return (
-    <div className="space-y-6 max-w-6xl">
+    <div className="space-y-6">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-3">
           <Button variant="ghost" size="icon" asChild>
             <Link href="/dashboard/activity-logs">
               <ArrowLeft className="h-4 w-4" />
             </Link>
           </Button>
-          <div>
-            <h1 className="font-heading text-2xl font-bold tracking-tight">User Activity History</h1>
-            <p className="text-sm text-muted-foreground mt-1">
-              Complete activity timeline for {userProfile.name}
-            </p>
-          </div>
+          <h1 className="font-heading text-2xl font-bold tracking-tight">User Activity History</h1>
         </div>
         <div className="flex items-center gap-2 self-start sm:self-auto">
           <Button variant="outline" size="sm" onClick={handleRefresh} disabled={loading}>
-            <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
+            <RefreshCw className={`h-4 w-4 mr-1.5 ${loading ? 'animate-spin' : ''}`} />
             Refresh
           </Button>
           <Button variant="outline" size="sm" onClick={handleExport}>
-            <Download className="h-4 w-4 mr-2" />
+            <Download className="h-4 w-4 mr-1.5" />
             Export
           </Button>
         </div>
@@ -463,16 +450,16 @@ export default function UserActivityHistoryPage() {
         <CardContent className="p-6">
           <div className="flex items-start justify-between">
             <div className="flex items-start gap-4">
-              <Avatar className="h-20 w-20">
+              <Avatar className="h-16 w-16">
                 <AvatarImage src={userProfile.avatar} />
-                <AvatarFallback className="text-xl bg-brand-primary text-white">
+                <AvatarFallback className="text-lg bg-primary text-primary-foreground font-semibold">
                   {userProfile.name.split(' ').map(n => n[0]).join('')}
                 </AvatarFallback>
               </Avatar>
-              <div className="space-y-3">
+              <div className="space-y-2">
                 <div>
-                  <h2 className="text-2xl font-bold">{userProfile.name}</h2>
-                  <p className="text-muted-foreground">{userProfile.role} • {userProfile.department}</p>
+                  <h2 className="text-xl font-bold">{userProfile.name}</h2>
+                  <p className="text-sm text-muted-foreground">{userProfile.role} • {userProfile.department}</p>
                 </div>
                 <div className="flex items-center gap-4 text-sm">
                   <div className="flex items-center gap-1">
@@ -496,62 +483,39 @@ export default function UserActivityHistoryPage() {
       </Card>
 
       {/* Activity Statistics */}
-      <div className="grid gap-4 md:grid-cols-4">
-        <Card>
-          <CardContent className="p-6">
-            <div className="space-y-2">
-              <p className="text-sm text-muted-foreground">Total Activities</p>
-              <p className="text-3xl font-bold">{activities.length}</p>
-              <div className="flex items-center gap-1 text-xs text-green-600">
-                <TrendingUp className="h-3 w-3" />
-                <span>+12% from last week</span>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-6">
-            <div className="space-y-2">
-              <p className="text-sm text-muted-foreground">Today's Activity</p>
-              <p className="text-3xl font-bold">8</p>
-              <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                <Clock className="h-3 w-3" />
-                <span>Last: 2 hours ago</span>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-6">
-            <div className="space-y-2">
-              <p className="text-sm text-muted-foreground">Most Active Module</p>
-              <p className="text-3xl font-bold">Members</p>
-              <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                <BarChart3 className="h-3 w-3" />
-                <span>35% of activities</span>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-6">
-            <div className="space-y-2">
-              <p className="text-sm text-muted-foreground">Success Rate</p>
-              <p className="text-3xl font-bold">98.5%</p>
-              <div className="flex items-center gap-1 text-xs text-green-600">
-                <CheckCircle className="h-3 w-3" />
-                <span>Excellent performance</span>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <StatCard
+          title="Total Activities"
+          value={activities.length}
+          icon={Activity}
+          accent="primary"
+          trend={{ value: "+12% from last week", direction: "up" }}
+        />
+        <StatCard
+          title="Today's Activity"
+          value="8"
+          icon={Clock}
+          accent="secondary"
+        />
+        <StatCard
+          title="Most Active Module"
+          value="Members"
+          icon={BarChart3}
+          accent="accent"
+        />
+        <StatCard
+          title="Success Rate"
+          value="98.5%"
+          icon={CheckCircle}
+          accent="success"
+        />
       </div>
 
       {/* Charts */}
       <div className="grid gap-4 md:grid-cols-3">
         <Card>
-          <CardHeader>
-            <CardTitle>Activity by Module</CardTitle>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-base font-semibold">Activity by Module</CardTitle>
           </CardHeader>
           <CardContent>
             <ChartContainer config={moduleChartConfig} className="h-[250px] w-full">
@@ -576,8 +540,8 @@ export default function UserActivityHistoryPage() {
         </Card>
 
         <Card>
-          <CardHeader>
-            <CardTitle>Activity by Action Type</CardTitle>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-base font-semibold">Activity by Action Type</CardTitle>
           </CardHeader>
           <CardContent>
             <ChartContainer config={actionChartConfig} className="h-[250px] w-full">
@@ -607,7 +571,7 @@ export default function UserActivityHistoryPage() {
         </Card>
 
         <Card>
-          <CardHeader>
+          <CardHeader className="pb-3">
             <ChartHeader title="Weekly Activity Trend" badge="Last 7 Days" />
           </CardHeader>
           <CardContent>
@@ -646,8 +610,8 @@ export default function UserActivityHistoryPage() {
 
       {/* Filters and Activity List */}
       <Card>
-        <CardHeader>
-          <CardTitle>Activity Timeline</CardTitle>
+        <CardHeader className="pb-3">
+          <CardTitle className="text-base font-semibold">Activity Timeline</CardTitle>
         </CardHeader>
         <CardContent>
           {/* Filters */}
@@ -818,11 +782,11 @@ export default function UserActivityHistoryPage() {
                         <div key={index} className="text-sm bg-background rounded p-2">
                           <p className="font-medium">{change.field}</p>
                           <div className="flex items-center gap-2 text-xs mt-1">
-                            <span className="text-red-600">
+                            <span className="text-destructive">
                               {change.oldValue === null ? 'N/A' : String(change.oldValue)}
                             </span>
                             <span>→</span>
-                            <span className="text-green-600">{String(change.newValue)}</span>
+                            <span className="text-brand-success">{String(change.newValue)}</span>
                           </div>
                         </div>
                       ))}

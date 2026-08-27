@@ -11,7 +11,6 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { PageHeader } from '@/components/ui/page-header';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import {
@@ -147,15 +146,13 @@ export default function ChurchProfilePage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-3">
         <Button variant="ghost" size="icon" asChild>
           <Link href="/dashboard/settings?tab=general">
             <ArrowLeft className="h-4 w-4" />
           </Link>
         </Button>
-        <div>
-          <h1 className="font-heading text-2xl font-bold tracking-tight">Church Profile</h1>
-        </div>
+        <h1 className="font-heading text-2xl font-bold tracking-tight">Church Profile</h1>
       </div>
 
       <Form {...form}>
@@ -165,8 +162,8 @@ export default function ChurchProfilePage() {
             <div className="lg:col-span-2 space-y-6">
               {/* Basic Information */}
               <Card>
-                <CardHeader>
-                  <CardTitle>Basic Information</CardTitle>
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-base font-semibold">Basic Information</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <FormField
@@ -231,8 +228,8 @@ export default function ChurchProfilePage() {
 
               {/* Vision, Mission & Values */}
               <Card>
-                <CardHeader>
-                  <CardTitle>Vision, Mission & Core Values</CardTitle>
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-base font-semibold">Vision, Mission & Core Values</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <FormField
@@ -311,8 +308,8 @@ export default function ChurchProfilePage() {
 
               {/* Contact Information */}
               <Card>
-                <CardHeader>
-                  <CardTitle>Contact Information</CardTitle>
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-base font-semibold">Contact Information</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="grid gap-4 md:grid-cols-2">
@@ -379,8 +376,8 @@ export default function ChurchProfilePage() {
 
               {/* Physical Address */}
               <Card>
-                <CardHeader>
-                  <CardTitle>Physical Address</CardTitle>
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-base font-semibold">Physical Address</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <FormField
@@ -461,8 +458,8 @@ export default function ChurchProfilePage() {
 
               {/* Social Media */}
               <Card>
-                <CardHeader>
-                  <CardTitle>Social Media</CardTitle>
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-base font-semibold">Social Media</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="grid gap-4 md:grid-cols-2">
@@ -529,8 +526,8 @@ export default function ChurchProfilePage() {
 
               {/* Leadership */}
               <Card>
-                <CardHeader>
-                  <CardTitle>Church Leadership</CardTitle>
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-base font-semibold">Church Leadership</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="grid gap-4 md:grid-cols-2">
@@ -597,8 +594,8 @@ export default function ChurchProfilePage() {
 
               {/* Additional Information */}
               <Card>
-                <CardHeader>
-                  <CardTitle>Additional Information</CardTitle>
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-base font-semibold">Additional Information</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="grid gap-4 md:grid-cols-2">
@@ -656,8 +653,8 @@ export default function ChurchProfilePage() {
             <div className="space-y-6">
               {/* Church Logo */}
               <Card>
-                <CardHeader>
-                  <CardTitle>Church Logo</CardTitle>
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-base font-semibold">Church Logo</CardTitle>
                 </CardHeader>
                 <CardContent className="flex flex-col items-center space-y-4">
                   <Avatar className="h-32 w-32">
@@ -671,7 +668,7 @@ export default function ChurchProfilePage() {
                   </Avatar>
                   <div className="w-full">
                     <Label htmlFor="logo-upload" className="cursor-pointer">
-                      <div className="flex items-center justify-center w-full p-3 border-2 border-dashed rounded-lg hover:border-brand-primary transition-colors">
+                      <div className="flex items-center justify-center w-full p-3 border-2 border-dashed rounded-lg hover:border-primary transition-colors">
                         <Upload className="mr-2 h-4 w-4" />
                         <span className="text-sm">Upload Logo</span>
                       </div>
@@ -692,8 +689,8 @@ export default function ChurchProfilePage() {
 
               {/* Quick Stats */}
               <Card>
-                <CardHeader>
-                  <CardTitle>Quick Stats</CardTitle>
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-base font-semibold">Quick Stats</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3">
                   <div className="flex justify-between text-sm">

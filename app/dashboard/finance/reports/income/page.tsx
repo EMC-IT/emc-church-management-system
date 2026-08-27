@@ -219,7 +219,7 @@ export default function IncomeReportsPage() {
 
       {/* Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid w-full grid-cols-4">
+        <TabsList>
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="sources">By Source</TabsTrigger>
           <TabsTrigger value="trends">Trends</TabsTrigger>

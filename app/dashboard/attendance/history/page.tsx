@@ -457,7 +457,7 @@ export default function AttendanceHistoryPage() {
         </CardHeader>
         <CardContent>
           <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-4">
-            <TabsList className="grid w-full grid-cols-5 max-w-lg">
+            <TabsList>
               <TabsTrigger value="all">All</TabsTrigger>
               <TabsTrigger value="present">Present</TabsTrigger>
               <TabsTrigger value="late">Late</TabsTrigger>

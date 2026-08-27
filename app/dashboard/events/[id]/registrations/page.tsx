@@ -376,9 +376,9 @@ export default function RegistrationsPage() {
         
         <CardContent>
           <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
-            <TabsList className="h-9">
-              <TabsTrigger value="list" className="text-xs">Registration List</TabsTrigger>
-              <TabsTrigger value="summary" className="text-xs">Summary Report</TabsTrigger>
+            <TabsList>
+              <TabsTrigger value="list">Registration List</TabsTrigger>
+              <TabsTrigger value="summary">Summary Report</TabsTrigger>
             </TabsList>
 
             <TabsContent value="list" className="space-y-4 pt-1">

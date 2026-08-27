@@ -269,7 +269,7 @@ export default function NewMessagePage() {
                 onValueChange={(value) => handleInputChange('type', value as 'individual' | 'group')}
                 className="w-full sm:w-auto"
               >
-                <TabsList className="grid grid-cols-2 w-full sm:w-[260px]">
+                <TabsList className="w-full sm:w-auto">
                   <TabsTrigger value="individual" className="flex items-center gap-1.5 text-xs">
                     <User className="h-3.5 w-3.5" />
                     Individual

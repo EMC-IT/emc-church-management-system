@@ -292,19 +292,9 @@ export default function ClassReportsPage() {
 
       {/* Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
-        <TabsList className="border-b border-border w-full justify-start rounded-none bg-transparent p-0 gap-6">
-          <TabsTrigger
-            value="overview"
-            className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-1 pb-3 text-sm font-medium"
-          >
-            Overview & Trends
-          </TabsTrigger>
-          <TabsTrigger
-            value="students"
-            className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-1 pb-3 text-sm font-medium"
-          >
-            Student Breakdown ({studentPerformance.length})
-          </TabsTrigger>
+        <TabsList>
+          <TabsTrigger value="overview">Overview & Trends</TabsTrigger>
+          <TabsTrigger value="students">Student Breakdown ({studentPerformance.length})</TabsTrigger>
         </TabsList>
 
         <TabsContent value="overview" className="space-y-6">
