@@ -6,8 +6,8 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { PageHeader } from '@/components/ui/page-header';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Calendar } from '@/components/ui/calendar';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { DateRangePicker } from '@/components/ui/date-range-picker';
+import { type DateRange } from 'react-day-picker';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
 import { 
@@ -15,7 +15,6 @@ import {
   Download, 
   FileText, 
   FileSpreadsheet, 
-  Calendar as CalendarIcon,
   Filter,
   Eye
 } from 'lucide-react';
@@ -60,8 +59,7 @@ export default function ExportEventsPage() {
   const router = useRouter();
   const [selectedFormat, setSelectedFormat] = useState('csv');
   const [selectedCategory, setSelectedCategory] = useState('All');
-  const [dateFrom, setDateFrom] = useState<Date>();
-  const [dateTo, setDateTo] = useState<Date>();
+  const [dateRange, setDateRange] = useState<DateRange | undefined>();
   const [selectedFields, setSelectedFields] = useState([
     'title', 'date', 'category', 'attendees', 'status'
   ]);
@@ -103,8 +101,8 @@ export default function ExportEventsPage() {
   const filteredEvents = mockEvents.filter(event => {
     const matchesCategory = selectedCategory === 'All' || event.category === selectedCategory;
     const eventDate = new Date(event.date);
-    const matchesDateFrom = !dateFrom || eventDate >= dateFrom;
-    const matchesDateTo = !dateTo || eventDate <= dateTo;
+    const matchesDateFrom = !dateRange?.from || eventDate >= dateRange.from;
+    const matchesDateTo = !dateRange?.to || eventDate <= dateRange.to;
     
     return matchesCategory && matchesDateFrom && matchesDateTo;
   });
@@ -193,46 +191,15 @@ export default function ExportEventsPage() {
               </div>
 
               {/* Date Range */}
-              <div className="grid gap-4 md:grid-cols-2">
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">From Date</label>
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <Button variant="outline" className="w-full justify-start">
-                        <CalendarIcon className="mr-2 h-4 w-4" />
-                        {dateFrom ? format(dateFrom, 'PPP') : 'Select date'}
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0">
-                      <Calendar
-                        mode="single"
-                        selected={dateFrom}
-                        onSelect={setDateFrom}
-                        initialFocus
-                      />
-                    </PopoverContent>
-                  </Popover>
-                </div>
-
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">To Date</label>
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <Button variant="outline" className="w-full justify-start">
-                        <CalendarIcon className="mr-2 h-4 w-4" />
-                        {dateTo ? format(dateTo, 'PPP') : 'Select date'}
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0">
-                      <Calendar
-                        mode="single"
-                        selected={dateTo}
-                        onSelect={setDateTo}
-                        initialFocus
-                      />
-                    </PopoverContent>
-                  </Popover>
-                </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Date Range</label>
+                <DateRangePicker
+                  date={dateRange}
+                  onDateChange={setDateRange}
+                  placeholder="Pick a date range"
+                  showPresets
+                  clearable
+                />
               </div>
             </CardContent>
           </Card>

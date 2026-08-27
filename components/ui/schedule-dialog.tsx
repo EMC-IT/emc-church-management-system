@@ -11,7 +11,6 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
   Select,
@@ -21,9 +20,11 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
-import { Badge } from '@/components/ui/badge';
-import { Calendar, Clock, Repeat, Globe } from 'lucide-react';
+import { Calendar as CalendarIcon, Clock, Repeat, Globe } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { DatePicker } from '@/components/ui/date-picker';
+import { TimePicker } from '@/components/ui/time-picker';
+import { formatDate, formatTime, parseDateValue } from '@/lib/date-utils';
 
 export interface ScheduleData {
   date: string;
@@ -75,7 +76,7 @@ export function ScheduleDialog({
 }: ScheduleDialogProps) {
   const [scheduleData, setScheduleData] = useState<ScheduleData>({
     date: '',
-    time: '',
+    time: '09:00',
     timezone: 'UTC',
     recurring: false,
     ...initialData,
@@ -89,7 +90,7 @@ export function ScheduleDialog({
       [field]: value,
     }));
     
-    // Clear error when user starts typing
+    // Clear error when user changes value
     if (errors[field]) {
       setErrors(prev => ({ ...prev, [field]: '' }));
     }
@@ -137,17 +138,8 @@ export function ScheduleDialog({
   const getPreviewText = () => {
     if (!scheduleData.date || !scheduleData.time) return 'Please select date and time';
     
-    const dateTime = new Date(`${scheduleData.date}T${scheduleData.time}`);
-    const formattedDate = dateTime.toLocaleDateString('en-US', {
-      weekday: 'long',
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-    });
-    const formattedTime = dateTime.toLocaleTimeString('en-US', {
-      hour: '2-digit',
-      minute: '2-digit',
-    });
+    const formattedDate = formatDate(scheduleData.date);
+    const formattedTime = formatTime(scheduleData.time);
 
     let preview = `${formattedDate} at ${formattedTime}`;
     
@@ -159,7 +151,7 @@ export function ScheduleDialog({
     if (scheduleData.recurring && scheduleData.recurringType) {
       preview += ` - Repeats ${scheduleData.recurringType}`;
       if (scheduleData.recurringEnd) {
-        const endDate = new Date(scheduleData.recurringEnd).toLocaleDateString();
+        const endDate = formatDate(scheduleData.recurringEnd);
         preview += ` until ${endDate}`;
       }
     }
@@ -167,22 +159,12 @@ export function ScheduleDialog({
     return preview;
   };
 
-  const getTodayDate = () => {
-    const today = new Date();
-    return today.toISOString().split('T')[0];
-  };
-
-  const getCurrentTime = () => {
-    const now = new Date();
-    return now.toTimeString().slice(0, 5);
-  };
-
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent className={cn('sm:max-w-[500px]', className)}>
         <DialogHeader>
           <div className="flex items-center space-x-2">
-            <Calendar className="h-5 w-5 text-brand-primary" />
+            <CalendarIcon className="h-5 w-5 text-brand-primary" />
             <DialogTitle className="text-lg font-semibold">{title}</DialogTitle>
           </div>
           <DialogDescription>{description}</DialogDescription>
@@ -190,16 +172,15 @@ export function ScheduleDialog({
 
         <div className="space-y-6 py-4">
           {/* Date and Time */}
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="date">Date *</Label>
-              <Input
+              <DatePicker
                 id="date"
-                type="date"
                 value={scheduleData.date}
-                min={getTodayDate()}
-                onChange={(e) => handleInputChange('date', e.target.value)}
-                className={errors.date ? 'border-destructive' : ''}
+                onChange={(_, dateStr) => handleInputChange('date', dateStr)}
+                minDate={new Date()}
+                error={!!errors.date}
               />
               {errors.date && (
                 <p className="text-sm text-destructive">{errors.date}</p>
@@ -207,12 +188,11 @@ export function ScheduleDialog({
             </div>
             <div className="space-y-2">
               <Label htmlFor="time">Time *</Label>
-              <Input
+              <TimePicker
                 id="time"
-                type="time"
                 value={scheduleData.time}
-                onChange={(e) => handleInputChange('time', e.target.value)}
-                className={errors.time ? 'border-destructive' : ''}
+                onChange={(timeStr) => handleInputChange('time', timeStr)}
+                error={!!errors.time}
               />
               {errors.time && (
                 <p className="text-sm text-destructive">{errors.time}</p>
@@ -251,7 +231,7 @@ export function ScheduleDialog({
                 checked={scheduleData.recurring}
                 onCheckedChange={(checked) => handleInputChange('recurring', checked)}
               />
-              <Label htmlFor="recurring" className="flex items-center gap-2">
+              <Label htmlFor="recurring" className="flex items-center gap-2 cursor-pointer">
                 <Repeat className="h-4 w-4" />
                 Make this recurring
               </Label>
@@ -285,13 +265,13 @@ export function ScheduleDialog({
 
                 <div className="space-y-2">
                   <Label htmlFor="recurringEnd">End Date (Optional)</Label>
-                  <Input
+                  <DatePicker
                     id="recurringEnd"
-                    type="date"
                     value={scheduleData.recurringEnd || ''}
-                    min={scheduleData.date}
-                    onChange={(e) => handleInputChange('recurringEnd', e.target.value)}
-                    className={errors.recurringEnd ? 'border-destructive' : ''}
+                    minDate={parseDateValue(scheduleData.date) || new Date()}
+                    onChange={(_, dateStr) => handleInputChange('recurringEnd', dateStr)}
+                    error={!!errors.recurringEnd}
+                    placeholder="Select end date"
                   />
                   {errors.recurringEnd && (
                     <p className="text-sm text-destructive">{errors.recurringEnd}</p>
@@ -321,22 +301,8 @@ export function ScheduleDialog({
           >
             Cancel
           </Button>
-          <Button
-            onClick={handleConfirm}
-            disabled={loading || !scheduleData.date || !scheduleData.time}
-            className="bg-brand-primary hover:bg-brand-primary/90"
-          >
-            {loading ? (
-              <>
-                <Clock className="mr-2 h-4 w-4 animate-spin" />
-                Scheduling...
-              </>
-            ) : (
-              <>
-                <Calendar className="mr-2 h-4 w-4" />
-                Schedule
-              </>
-            )}
+          <Button onClick={handleConfirm} disabled={loading}>
+            {loading ? 'Scheduling...' : 'Schedule'}
           </Button>
         </DialogFooter>
       </DialogContent>
@@ -344,42 +310,21 @@ export function ScheduleDialog({
   );
 }
 
-ScheduleDialog.displayName = 'ScheduleDialog';
-
-// Hook for managing schedule dialog state
 export function useScheduleDialog() {
   const [isOpen, setIsOpen] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [scheduleData, setScheduleData] = useState<Partial<ScheduleData>>({});
+  const [scheduleData, setScheduleData] = useState<ScheduleData | null>(null);
 
-  const openDialog = (initialData?: Partial<ScheduleData>) => {
-    setScheduleData(initialData || {});
-    setIsOpen(true);
-  };
-
-  const closeDialog = () => {
-    setIsOpen(false);
-    setScheduleData({});
-    setLoading(false);
-  };
-
-  const handleConfirm = async (onSchedule: (data: ScheduleData) => Promise<void>) => {
-    try {
-      setLoading(true);
-      await onSchedule(scheduleData as ScheduleData);
-      closeDialog();
-    } catch (error) {
-      setLoading(false);
-      throw error;
-    }
-  };
+  const openSchedule = () => setIsOpen(true);
+  const closeSchedule = () => setIsOpen(false);
 
   return {
     isOpen,
-    loading,
+    setIsOpen,
+    openSchedule,
+    closeSchedule,
+    openDialog: openSchedule,
+    closeDialog: closeSchedule,
     scheduleData,
-    openDialog,
-    closeDialog,
-    handleConfirm,
+    setScheduleData,
   };
 }

@@ -25,6 +25,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { TimePicker } from '@/components/ui/time-picker';
 import { Switch } from '@/components/ui/switch';
 import { ArrowLeft, Save, Loader2 } from 'lucide-react';
 import { DepartmentFormData, DepartmentCategory } from '@/lib/types/departments';
@@ -382,7 +383,11 @@ export default function AddDepartmentPage() {
                       <FormItem className="col-span-12 sm:col-span-6 lg:col-span-3">
                         <FormLabel>Start Time *</FormLabel>
                         <FormControl>
-                          <Input type="time" {...field} />
+                          <TimePicker
+                            value={field.value}
+                            onChange={field.onChange}
+                            placeholder="Start time"
+                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -396,7 +401,11 @@ export default function AddDepartmentPage() {
                       <FormItem className="col-span-12 sm:col-span-6 lg:col-span-3">
                         <FormLabel>End Time *</FormLabel>
                         <FormControl>
-                          <Input type="time" {...field} />
+                          <TimePicker
+                            value={field.value}
+                            onChange={field.onChange}
+                            placeholder="End time"
+                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>

@@ -12,8 +12,8 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Calendar } from '@/components/ui/calendar';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { DatePicker } from '@/components/ui/date-picker';
+import { TimePicker } from '@/components/ui/time-picker';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { toast } from 'sonner';
 import { 
@@ -288,30 +288,14 @@ export default function TakeAttendancePage() {
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Service Date</FormLabel>
-                        <Popover>
-                          <PopoverTrigger asChild>
-                            <FormControl>
-                              <Button
-                                variant="outline"
-                                className={cn(
-                                  "w-full pl-3 text-left font-normal",
-                                  !field.value && "text-muted-foreground"
-                                )}
-                              >
-                                {field.value ? format(field.value, "PPP") : <span>Pick a date</span>}
-                                <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                              </Button>
-                            </FormControl>
-                          </PopoverTrigger>
-                          <PopoverContent className="w-auto p-0" align="start">
-                            <Calendar
-                              mode="single"
-                              selected={field.value}
-                              onSelect={field.onChange}
-                              initialFocus
-                            />
-                          </PopoverContent>
-                        </Popover>
+                        <FormControl>
+                          <DatePicker
+                            value={field.value}
+                            onChange={field.onChange}
+                            placeholder="Select service date"
+                            maxDate={new Date()}
+                          />
+                        </FormControl>
                         <FormMessage />
                       </FormItem>
                     )}
@@ -324,7 +308,11 @@ export default function TakeAttendancePage() {
                       <FormItem>
                         <FormLabel>Start Time</FormLabel>
                         <FormControl>
-                          <Input type="time" {...field} />
+                          <TimePicker
+                            value={field.value}
+                            onChange={field.onChange}
+                            placeholder="Select start time"
+                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -338,7 +326,11 @@ export default function TakeAttendancePage() {
                       <FormItem>
                         <FormLabel>End Time (Optional)</FormLabel>
                         <FormControl>
-                          <Input type="time" {...field} />
+                          <TimePicker
+                            value={field.value}
+                            onChange={field.onChange}
+                            placeholder="Select end time"
+                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>

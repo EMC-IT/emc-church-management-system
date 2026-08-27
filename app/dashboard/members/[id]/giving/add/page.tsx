@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { DatePicker } from '@/components/ui/date-picker';
 import { Switch } from '@/components/ui/switch';
 import { PageHeader } from '@/components/ui/page-header';
 import { useToast } from '@/hooks/use-toast';
@@ -330,11 +331,11 @@ export default function AddGivingPage() {
 
               <div className="col-span-12 sm:col-span-4 space-y-2">
                 <Label htmlFor="date">Transaction Date *</Label>
-                <Input
+                <DatePicker
                   id="date"
-                  type="date"
                   value={formData.date}
-                  onChange={(e) => handleInputChange('date', e.target.value)}
+                  onChange={(_, dateStr) => handleInputChange('date', dateStr)}
+                  placeholder="Select date"
                 />
               </div>
 

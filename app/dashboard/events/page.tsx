@@ -15,22 +15,21 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Calendar } from '@/components/ui/calendar';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { DatePicker } from '@/components/ui/date-picker';
 import { 
-  Calendar as CalendarIcon, 
+  Calendar as CalendarIcon,
   Plus, 
   Search, 
   MapPin, 
   Clock, 
-  Users,
-  Filter,
-  Eye,
-  Edit,
-  Trash2,
-  Download,
-  FileText,
-  CheckSquare
+  Users, 
+  Filter, 
+  Eye, 
+  Edit, 
+  Trash2, 
+  Download, 
+  FileText, 
+  CheckSquare 
 } from 'lucide-react';
 import { format } from 'date-fns';
 import Link from 'next/link';
@@ -292,28 +291,13 @@ export default function EventsPage() {
               </SelectContent>
             </Select>
             
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button variant="outline" className="w-48">
-                  <CalendarIcon className="mr-2 h-4 w-4" />
-                  {selectedDate ? format(selectedDate, 'PPP') : 'Select date'}
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-auto p-0">
-                <Calendar
-                  mode="single"
-                  selected={selectedDate}
-                  onSelect={setSelectedDate}
-                  initialFocus
-                />
-              </PopoverContent>
-            </Popover>
-            
-            {selectedDate && (
-              <Button variant="outline" onClick={() => setSelectedDate(undefined)}>
-                Clear Date
-              </Button>
-            )}
+            <DatePicker
+              value={selectedDate}
+              onChange={setSelectedDate}
+              placeholder="Filter by date"
+              clearable
+              className="w-48"
+            />
           </div>
 
           {/* Events Grid */}

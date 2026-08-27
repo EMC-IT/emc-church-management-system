@@ -16,6 +16,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import { DatePicker } from '@/components/ui/date-picker';
+import { TimePicker } from '@/components/ui/time-picker';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -349,23 +351,21 @@ export default function DepartmentMeetingsPage() {
             <div className="grid gap-3 sm:grid-cols-2">
               <div className="space-y-2">
                 <Label htmlFor="date">Date *</Label>
-                <Input
+                <DatePicker
                   id="date"
-                  type="date"
                   value={formData.date}
-                  onChange={(e) => setFormData({ ...formData, date: e.target.value })}
-                  required
+                  onChange={(_, dateStr) => setFormData({ ...formData, date: dateStr })}
+                  placeholder="Select meeting date"
                 />
               </div>
 
               <div className="space-y-2">
                 <Label htmlFor="time">Start Time *</Label>
-                <Input
+                <TimePicker
                   id="time"
-                  type="time"
                   value={formData.time}
-                  onChange={(e) => setFormData({ ...formData, time: e.target.value })}
-                  required
+                  onChange={(timeStr) => setFormData({ ...formData, time: timeStr })}
+                  placeholder="Select meeting time"
                 />
               </div>
             </div>

@@ -16,6 +16,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { DatePicker } from '@/components/ui/date-picker';
+import { TimePicker } from '@/components/ui/time-picker';
 import { Switch } from '@/components/ui/switch';
 import { Badge } from '@/components/ui/badge';
 import { 
@@ -254,11 +256,12 @@ export default function AddAnnouncementPage() {
 
               <div className="col-span-12 sm:col-span-4 space-y-2">
                 <Label htmlFor="expiryDate">Expiry Date (Optional)</Label>
-                <Input
+                <DatePicker
                   id="expiryDate"
-                  type="date"
                   value={formData.expiryDate}
-                  onChange={(e) => handleInputChange('expiryDate', e.target.value)}
+                  onChange={(_, dateStr) => handleInputChange('expiryDate', dateStr)}
+                  placeholder="Select expiry date"
+                  clearable
                 />
               </div>
 
@@ -278,20 +281,21 @@ export default function AddAnnouncementPage() {
                 <>
                   <div className="col-span-12 sm:col-span-6 space-y-2">
                     <Label htmlFor="scheduledDate">Scheduled Date *</Label>
-                    <Input
+                    <DatePicker
                       id="scheduledDate"
-                      type="date"
                       value={formData.scheduledDate}
-                      onChange={(e) => handleInputChange('scheduledDate', e.target.value)}
+                      onChange={(_, dateStr) => handleInputChange('scheduledDate', dateStr)}
+                      minDate={new Date()}
+                      placeholder="Select publish date"
                     />
                   </div>
                   <div className="col-span-12 sm:col-span-6 space-y-2">
                     <Label htmlFor="scheduledTime">Scheduled Time *</Label>
-                    <Input
+                    <TimePicker
                       id="scheduledTime"
-                      type="time"
                       value={formData.scheduledTime}
-                      onChange={(e) => handleInputChange('scheduledTime', e.target.value)}
+                      onChange={(timeStr) => handleInputChange('scheduledTime', timeStr)}
+                      placeholder="Select publish time"
                     />
                   </div>
                 </>

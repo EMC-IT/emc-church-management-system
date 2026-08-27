@@ -18,6 +18,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Calendar } from "@/components/ui/calendar";
+import { DatePicker } from "@/components/ui/date-picker";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
@@ -165,31 +166,13 @@ export function SearchInput({
         return (
           <div className="space-y-2">
             <Label className="text-sm font-medium">{filter.label}</Label>
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button
-                  variant="outline"
-                  className="h-8 justify-start text-left font-normal"
-                >
-                  <CalendarIcon className="mr-2 h-4 w-4" />
-                  {activeFilters[filter.key] ? (
-                    format(new Date(activeFilters[filter.key]), 'PPP')
-                  ) : (
-                    <span className="text-muted-foreground">
-                      {filter.placeholder || 'Pick a date'}
-                    </span>
-                  )}
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-auto p-0" align="start">
-                <Calendar
-                  mode="single"
-                  selected={activeFilters[filter.key] ? new Date(activeFilters[filter.key]) : undefined}
-                  onSelect={(date) => handleFilterChange(filter.key, date ? format(date, 'yyyy-MM-dd') : null)}
-                  initialFocus
-                />
-              </PopoverContent>
-            </Popover>
+            <DatePicker
+              value={activeFilters[filter.key] || ''}
+              onChange={(_, dateStr) => handleFilterChange(filter.key, dateStr || null)}
+              placeholder={filter.placeholder || 'Pick a date'}
+              size="sm"
+              clearable
+            />
           </div>
         );
 

@@ -23,6 +23,7 @@ import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, For
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { DatePicker } from '@/components/ui/date-picker';
 import { LazySection } from '@/components/ui/lazy-section';
 import { PageHeader } from '@/components/ui/page-header';
 import { toast } from 'sonner';
@@ -232,9 +233,10 @@ export default function AddIncomePage() {
                     <FormItem className="col-span-12 sm:col-span-4">
                       <FormLabel>Date *</FormLabel>
                       <FormControl>
-                        <Input
-                          type="date"
-                          {...field}
+                        <DatePicker
+                          value={field.value}
+                          onChange={(_, dateStr) => field.onChange(dateStr)}
+                          placeholder="Select transaction date"
                         />
                       </FormControl>
                       <FormMessage />

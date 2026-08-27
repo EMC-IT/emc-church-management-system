@@ -16,6 +16,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { DatePicker } from '@/components/ui/date-picker';
+import { TimePicker } from '@/components/ui/time-picker';
 import { Switch } from '@/components/ui/switch';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -504,25 +506,26 @@ export default function EditCampaignPage() {
                 </div>
                 
                 {formData.isScheduled && (
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <Label htmlFor="scheduledDate">Date</Label>
-                      <Input
+                      <DatePicker
                         id="scheduledDate"
-                        type="date"
                         value={formData.scheduledDate}
-                        onChange={(e) => handleInputChange('scheduledDate', e.target.value)}
+                        onChange={(_, dateStr) => handleInputChange('scheduledDate', dateStr)}
                         disabled={!canEdit}
+                        minDate={new Date()}
+                        placeholder="Select date"
                       />
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="scheduledTime">Time</Label>
-                      <Input
+                      <TimePicker
                         id="scheduledTime"
-                        type="time"
                         value={formData.scheduledTime}
-                        onChange={(e) => handleInputChange('scheduledTime', e.target.value)}
+                        onChange={(timeStr) => handleInputChange('scheduledTime', timeStr)}
                         disabled={!canEdit}
+                        placeholder="Select time"
                       />
                     </div>
                   </div>

@@ -29,6 +29,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { DatePicker } from '@/components/ui/date-picker';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Badge, type BadgeVariant } from '@/components/ui/badge';
 import { StatusBadge } from '@/components/ui/status-badge';
@@ -478,7 +479,11 @@ export default function AssignmentPage() {
                         <FormItem>
                           <FormLabel>Assignment Date *</FormLabel>
                           <FormControl>
-                            <Input type="date" {...field} />
+                            <DatePicker
+                              value={field.value}
+                              onChange={(_, dateStr) => field.onChange(dateStr)}
+                              placeholder="Select assignment date"
+                            />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -520,7 +525,12 @@ export default function AssignmentPage() {
                         <FormItem>
                           <FormLabel>Actual Return Date</FormLabel>
                           <FormControl>
-                            <Input type="date" {...field} />
+                            <DatePicker
+                              value={field.value}
+                              onChange={(_, dateStr) => field.onChange(dateStr)}
+                              placeholder="Select return date"
+                              clearable
+                            />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -547,7 +557,12 @@ export default function AssignmentPage() {
                         <FormItem>
                           <FormLabel>Expected Return Date</FormLabel>
                           <FormControl>
-                            <Input type="date" {...field} />
+                            <DatePicker
+                              value={field.value}
+                              onChange={(_, dateStr) => field.onChange(dateStr)}
+                              placeholder="Select expected return date"
+                              clearable
+                            />
                           </FormControl>
                           <FormMessage />
                         </FormItem>

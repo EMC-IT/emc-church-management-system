@@ -8,16 +8,17 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Calendar } from "@/components/ui/calendar";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { DatePicker } from "@/components/ui/date-picker";
+import { TimePicker } from "@/components/ui/time-picker";
+import { DateTimePicker } from "@/components/ui/date-time-picker";
+import { DateRangePicker } from "@/components/ui/date-range-picker";
 import { Button } from "@/components/ui/button";
-import { CalendarIcon, Eye, EyeOff, Upload, X, ChevronDown } from "lucide-react";
-import { format } from "date-fns";
+import { Eye, EyeOff, X, ChevronDown } from "lucide-react";
 
 export interface FormFieldProps {
   name: string;
   label?: string;
-  type: 'text' | 'email' | 'password' | 'number' | 'date' | 'select' | 'textarea' | 'checkbox' | 'radio' | 'file' | 'phone' | 'currency';
+  type: 'text' | 'email' | 'password' | 'number' | 'date' | 'time' | 'datetime' | 'date-range' | 'select' | 'textarea' | 'checkbox' | 'radio' | 'file' | 'phone' | 'currency';
   placeholder?: string;
   required?: boolean;
   disabled?: boolean;
@@ -59,7 +60,6 @@ export function FormInput({
   variant = 'default',
 }: FormFieldProps) {
   const [showPassword, setShowPassword] = React.useState(false);
-  const [date, setDate] = React.useState<Date | undefined>(value ? new Date(value) : undefined);
 
   const handleChange = (newValue: any) => {
     if (onChange) {
@@ -67,12 +67,7 @@ export function FormInput({
     }
   };
 
-  const handleDateChange = (newDate: Date | undefined) => {
-    setDate(newDate);
-    if (onChange) {
-      onChange(newDate ? format(newDate, 'yyyy-MM-dd') : '');
-    }
-  };
+  const pickerSize = size === 'md' ? 'default' : size;
 
   const sizeClasses = {
     sm: 'h-8 text-sm',
@@ -168,32 +163,63 @@ export function FormInput({
 
       case 'date':
         return (
-          <Popover>
-            <PopoverTrigger asChild>
-              <Button
-                variant="outline"
-                className={cn(
-                  sizeClasses[size],
-                  variantClasses[variant],
-                  error && 'border-destructive focus-visible:ring-destructive',
-                  'justify-start text-left font-normal',
-                  className
-                )}
-                disabled={disabled}
-              >
-                <CalendarIcon className="mr-2 h-4 w-4" />
-                {date ? format(date, 'PPP') : <span className="text-muted-foreground">{placeholder}</span>}
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-auto p-0" align="start">
-              <Calendar
-                mode="single"
-                selected={date}
-                onSelect={handleDateChange}
-                initialFocus
-              />
-            </PopoverContent>
-          </Popover>
+          <DatePicker
+            id={name}
+            name={name}
+            value={value}
+            onChange={(_, dateStr) => handleChange(dateStr)}
+            placeholder={placeholder || 'DD/MM/YYYY'}
+            disabled={disabled}
+            isDateOfBirth={name.toLowerCase().includes('birth')}
+            error={!!error}
+            size={pickerSize}
+            className={className}
+          />
+        );
+
+      case 'time':
+        return (
+          <TimePicker
+            id={name}
+            name={name}
+            value={value}
+            onChange={(timeStr) => handleChange(timeStr)}
+            placeholder={placeholder || 'Select time'}
+            disabled={disabled}
+            error={!!error}
+            size={pickerSize}
+            className={className}
+          />
+        );
+
+      case 'datetime':
+        return (
+          <DateTimePicker
+            id={name}
+            name={name}
+            value={value}
+            onChange={(_, isoStr) => handleChange(isoStr)}
+            datePlaceholder={placeholder || 'Pick a date'}
+            timePlaceholder="Select time"
+            disabled={disabled}
+            error={!!error}
+            size={pickerSize}
+            className={className}
+          />
+        );
+
+      case 'date-range':
+        return (
+          <DateRangePicker
+            id={name}
+            name={name}
+            date={value}
+            onDateChange={(range) => handleChange(range)}
+            placeholder={placeholder || 'Pick a date range'}
+            disabled={disabled}
+            size={pickerSize}
+            className={className}
+          />
         );
 
       case 'checkbox':
@@ -438,4 +464,4 @@ export function FormSection({
       )}
     </div>
   );
-} 
+}

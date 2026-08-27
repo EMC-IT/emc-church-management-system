@@ -10,13 +10,11 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
-import { Calendar } from '@/components/ui/calendar';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { DatePicker } from '@/components/ui/date-picker';
 import { 
   ArrowLeft, 
   Save, 
   BadgeCent,
-  Calendar as CalendarIcon,
   Target,
   Clock,
   Loader2
@@ -26,7 +24,7 @@ import { useToast } from '@/hooks/use-toast';
 import { givingService } from '@/services';
 import { GivingType, GivingCategory, GivingFormData, Giving, GivingStatus } from '@/lib/types';
 import { cn } from '@/lib/utils';
-import { format } from 'date-fns';
+import { formatDate } from '@/lib/date-utils';
 
 // Mock members data for selection
 const mockMembers = [
@@ -482,39 +480,20 @@ export default function EditPledgePage() {
               </div>
 
               <div className="col-span-12 sm:col-span-6 space-y-2">
-                <Label>Start Date</Label>
-                <Popover open={startDateOpen} onOpenChange={setStartDateOpen}>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant="outline"
-                      className={cn(
-                        'w-full justify-start text-left font-normal',
-                        !formData.startDate && 'text-muted-foreground'
-                      )}
-                    >
-                      <CalendarIcon className="mr-2 h-4 w-4" />
-                      {formData.startDate ? format(formData.startDate, 'PPP') : 'Pick a date'}
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0" align="start">
-                    <Calendar
-                      mode="single"
-                      selected={formData.startDate}
-                      onSelect={(date) => {
-                        if (date) {
-                          handleInputChange('startDate', date);
-                          setStartDateOpen(false);
-                        }
-                      }}
-                      initialFocus
-                    />
-                  </PopoverContent>
-                </Popover>
+                <Label htmlFor="startDate">Start Date</Label>
+                <DatePicker
+                  id="startDate"
+                  value={formData.startDate}
+                  onChange={(date) => {
+                    if (date) handleInputChange('startDate', date);
+                  }}
+                  placeholder="Pick start date"
+                />
               </div>
 
               <div className="col-span-12 sm:col-span-6 space-y-2">
                 <div className="flex items-center justify-between">
-                  <Label>End Date</Label>
+                  <Label htmlFor="endDate">End Date</Label>
                   <div className="flex items-center space-x-2">
                     <Switch
                       id="autoEndDate"
@@ -526,34 +505,17 @@ export default function EditPledgePage() {
                 </div>
                 {formData.autoCalculateEndDate ? (
                   <div className="h-10 px-3 flex items-center bg-muted/40 border border-border rounded-md text-sm text-foreground">
-                    {formData.endDate ? format(formData.endDate, 'PPP') : 'Calculating...'}
+                    {formData.endDate ? formatDate(formData.endDate) : 'Calculating...'}
                   </div>
                 ) : (
-                  <Popover open={endDateOpen} onOpenChange={setEndDateOpen}>
-                    <PopoverTrigger asChild>
-                      <Button
-                        variant="outline"
-                        className={cn(
-                          'w-full justify-start text-left font-normal',
-                          !formData.endDate && 'text-muted-foreground'
-                        )}
-                      >
-                        <CalendarIcon className="mr-2 h-4 w-4" />
-                        {formData.endDate ? format(formData.endDate, 'PPP') : 'Pick a date'}
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0" align="start">
-                      <Calendar
-                        mode="single"
-                        selected={formData.endDate}
-                        onSelect={(date) => {
-                          handleInputChange('endDate', date);
-                          setEndDateOpen(false);
-                        }}
-                        initialFocus
-                      />
-                    </PopoverContent>
-                  </Popover>
+                  <DatePicker
+                    id="endDate"
+                    value={formData.endDate}
+                    onChange={(date) => {
+                      if (date) handleInputChange('endDate', date);
+                    }}
+                    placeholder="Pick end date"
+                  />
                 )}
               </div>
             </div>

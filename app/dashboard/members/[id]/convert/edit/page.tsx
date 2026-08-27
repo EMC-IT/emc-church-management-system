@@ -9,6 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { DatePicker } from '@/components/ui/date-picker';
 import { PageHeader } from '@/components/ui/page-header';
 import { useToast } from '@/hooks/use-toast';
 import Link from 'next/link';
@@ -179,7 +180,12 @@ export default function EditConvertPage() {
                     <FormItem className="col-span-12 sm:col-span-4">
                       <FormLabel>Date of Birth</FormLabel>
                       <FormControl>
-                        <Input type="date" {...field} />
+                        <DatePicker
+                          value={field.value}
+                          onChange={(_, dateStr) => field.onChange(dateStr)}
+                          placeholder="DD/MM/YYYY"
+                          isDateOfBirth
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>

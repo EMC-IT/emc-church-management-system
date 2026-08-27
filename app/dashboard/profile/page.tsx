@@ -19,6 +19,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { DatePicker } from '@/components/ui/date-picker';
 import {
   User,
   Mail,
@@ -358,11 +359,12 @@ export default function ProfilePage() {
                 
                 <div className="space-y-2">
                   <Label htmlFor="dateOfBirth">Date of Birth</Label>
-                  <Input
+                  <DatePicker
                     id="dateOfBirth"
-                    type="date"
                     value={profileData.dateOfBirth}
-                    onChange={(e) => updateProfileField('dateOfBirth', e.target.value)}
+                    onChange={(_, dateStr) => updateProfileField('dateOfBirth', dateStr)}
+                    placeholder="DD/MM/YYYY"
+                    isDateOfBirth
                   />
                 </div>
                 

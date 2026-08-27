@@ -4,11 +4,10 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { DateRangePicker } from '@/components/ui/date-range-picker';
 import { Badge } from '@/components/ui/badge';
-import { X, CalendarIcon, Filter } from 'lucide-react';
-import { format } from 'date-fns';
+import { X, Filter } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface AdvancedFiltersProps {
@@ -218,74 +217,19 @@ export function AdvancedFilters({ onFilterChange, categories = [], prayerTeams =
           {/* Date Range Filter */}
           <div className="space-y-2">
             <Label className="text-xs font-medium">Date Range</Label>
-            <div className="flex gap-2">
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant="outline"
-                    className={cn(
-                      "flex-1 justify-start text-left font-normal",
-                      !filters.dateRange.from && "text-muted-foreground"
-                    )}
-                  >
-                    <CalendarIcon className="mr-2 h-4 w-4" />
-                    {filters.dateRange.from ? (
-                      format(filters.dateRange.from, "MMM dd, yyyy")
-                    ) : (
-                      <span>From date</span>
-                    )}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="start">
-                  <Calendar
-                    mode="single"
-                    selected={filters.dateRange.from}
-                    onSelect={(date) => updateFilters('dateRange', { ...filters.dateRange, from: date })}
-                    initialFocus
-                  />
-                </PopoverContent>
-              </Popover>
-
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant="outline"
-                    className={cn(
-                      "flex-1 justify-start text-left font-normal",
-                      !filters.dateRange.to && "text-muted-foreground"
-                    )}
-                  >
-                    <CalendarIcon className="mr-2 h-4 w-4" />
-                    {filters.dateRange.to ? (
-                      format(filters.dateRange.to, "MMM dd, yyyy")
-                    ) : (
-                      <span>To date</span>
-                    )}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="start">
-                  <Calendar
-                    mode="single"
-                    selected={filters.dateRange.to}
-                    onSelect={(date) => updateFilters('dateRange', { ...filters.dateRange, to: date })}
-                    disabled={(date) => 
-                      filters.dateRange.from ? date < filters.dateRange.from : false
-                    }
-                    initialFocus
-                  />
-                </PopoverContent>
-              </Popover>
-            </div>
-            {(filters.dateRange.from || filters.dateRange.to) && (
-              <Button 
-                variant="ghost" 
-                size="sm" 
-                onClick={() => updateFilters('dateRange', { from: undefined, to: undefined })}
-                className="h-6 text-xs w-full"
-              >
-                Clear Date Range
-              </Button>
-            )}
+            <DateRangePicker
+              date={filters.dateRange}
+              onDateChange={(range) =>
+                updateFilters('dateRange', {
+                  from: range?.from,
+                  to: range?.to,
+                })
+              }
+              placeholder="Pick a date range"
+              size="sm"
+              clearable
+              showPresets
+            />
           </div>
 
           {/* Confidential Filter */}

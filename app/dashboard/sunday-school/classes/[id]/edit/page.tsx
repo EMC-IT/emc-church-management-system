@@ -15,6 +15,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { TimePicker } from '@/components/ui/time-picker';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -317,21 +318,21 @@ export default function EditClassPage() {
 
               <div className="col-span-12 sm:col-span-6 lg:col-span-3 space-y-2">
                 <Label htmlFor="startTime">Start Time</Label>
-                <Input
+                <TimePicker
                   id="startTime"
-                  type="time"
                   value={formData.schedule.startTime}
-                  onChange={(e) => handleInputChange('schedule', { startTime: e.target.value })}
+                  onChange={(timeStr) => handleInputChange('schedule', { startTime: timeStr })}
+                  placeholder="Start time"
                 />
               </div>
 
               <div className="col-span-12 sm:col-span-6 lg:col-span-3 space-y-2">
                 <Label htmlFor="endTime">End Time</Label>
-                <Input
+                <TimePicker
                   id="endTime"
-                  type="time"
                   value={formData.schedule.endTime}
-                  onChange={(e) => handleInputChange('schedule', { endTime: e.target.value })}
+                  onChange={(timeStr) => handleInputChange('schedule', { endTime: timeStr })}
+                  placeholder="End time"
                 />
               </div>
 

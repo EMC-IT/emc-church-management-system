@@ -15,6 +15,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { DateTimePicker } from '@/components/ui/date-time-picker';
 import { ArrowLeft, Save, Loader2 } from 'lucide-react';
 import { groupsService } from '@/services';
 import { Group, GroupEventFormData } from '@/lib/types/groups';
@@ -244,25 +245,25 @@ export default function AddGroupEventPage() {
             <h2 className="text-base font-semibold text-foreground">Date & Location</h2>
 
             <div className="grid grid-cols-12 gap-5">
-              <div className="col-span-12 sm:col-span-6 lg:col-span-3 space-y-2">
+              <div className="col-span-12 sm:col-span-6 space-y-2">
                 <Label htmlFor="startDate">Start Date & Time *</Label>
-                <Input
+                <DateTimePicker
                   id="startDate"
-                  type="datetime-local"
                   value={formData.startDate}
-                  onChange={(e) => handleInputChange('startDate', e.target.value)}
-                  required
+                  onChange={(_, isoStr) => handleInputChange('startDate', isoStr)}
+                  datePlaceholder="Start date"
+                  timePlaceholder="Start time"
                 />
               </div>
 
-              <div className="col-span-12 sm:col-span-6 lg:col-span-3 space-y-2">
+              <div className="col-span-12 sm:col-span-6 space-y-2">
                 <Label htmlFor="endDate">End Date & Time *</Label>
-                <Input
+                <DateTimePicker
                   id="endDate"
-                  type="datetime-local"
                   value={formData.endDate}
-                  onChange={(e) => handleInputChange('endDate', e.target.value)}
-                  required
+                  onChange={(_, isoStr) => handleInputChange('endDate', isoStr)}
+                  datePlaceholder="End date"
+                  timePlaceholder="End time"
                 />
               </div>
 

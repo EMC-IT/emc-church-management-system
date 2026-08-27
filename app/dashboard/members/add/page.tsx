@@ -27,6 +27,7 @@ import Link from 'next/link';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Checkbox } from '@/components/ui/checkbox';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { DatePicker } from '@/components/ui/date-picker';
 
 // Mock data for departments, groups, and members
 const MOCK_DEPARTMENTS = [
@@ -285,7 +286,12 @@ export default function AddMemberPage() {
                       <FormItem className="col-span-12 sm:col-span-4">
                         <FormLabel>Date of Birth</FormLabel>
                         <FormControl>
-                          <Input type="date" {...field} />
+                          <DatePicker
+                            value={field.value}
+                            onChange={(_, dateStr) => field.onChange(dateStr)}
+                            placeholder="DD/MM/YYYY"
+                            isDateOfBirth
+                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -501,7 +507,12 @@ export default function AddMemberPage() {
                         <FormItem className="col-span-12 sm:col-span-3">
                           <FormLabel>Date of Birth</FormLabel>
                           <FormControl>
-                            <Input type="date" {...field} />
+                            <DatePicker
+                              value={field.value}
+                              onChange={(_, dateStr) => field.onChange(dateStr)}
+                              placeholder="DD/MM/YYYY"
+                              isDateOfBirth
+                            />
                           </FormControl>
                           <FormMessage />
                         </FormItem>

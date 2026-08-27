@@ -27,6 +27,7 @@ import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, For
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { DatePicker } from '@/components/ui/date-picker';
 import { Badge } from '@/components/ui/badge';
 import { StatusBadge } from '@/components/ui/status-badge';
 import { Separator } from '@/components/ui/separator';
@@ -426,14 +427,12 @@ export default function IncomeDetailsPage() {
                       name="date"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel className="flex items-center">
-                            <Calendar className="mr-2 h-4 w-4" />
-                            Date
-                          </FormLabel>
+                          <FormLabel>Date</FormLabel>
                           <FormControl>
-                            <Input
-                              type="date"
-                              {...field}
+                            <DatePicker
+                              value={field.value}
+                              onChange={(_, dateStr) => field.onChange(dateStr)}
+                              placeholder="Select date"
                             />
                           </FormControl>
                           <FormMessage />

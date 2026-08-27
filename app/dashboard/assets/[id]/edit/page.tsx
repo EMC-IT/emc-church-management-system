@@ -28,6 +28,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { DatePicker } from '@/components/ui/date-picker';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
@@ -626,7 +627,12 @@ export default function EditAssetPage() {
                     <FormItem className="col-span-12 sm:col-span-3">
                       <FormLabel>Purchase Date *</FormLabel>
                       <FormControl>
-                        <Input type="date" {...field} />
+                        <DatePicker
+                          value={field.value}
+                          onChange={(_, dateStr) => field.onChange(dateStr)}
+                          placeholder="Select purchase date"
+                          maxDate={new Date()}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -640,7 +646,13 @@ export default function EditAssetPage() {
                     <FormItem className="col-span-12 sm:col-span-3">
                       <FormLabel>Warranty Expiry</FormLabel>
                       <FormControl>
-                        <Input type="date" {...field} />
+                        <DatePicker
+                          value={field.value}
+                          onChange={(_, dateStr) => field.onChange(dateStr)}
+                          placeholder="Select warranty expiry"
+                          minDate={new Date()}
+                          clearable
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -654,7 +666,12 @@ export default function EditAssetPage() {
                     <FormItem className="col-span-12 sm:col-span-3">
                       <FormLabel>Last Maintenance</FormLabel>
                       <FormControl>
-                        <Input type="date" {...field} />
+                        <DatePicker
+                          value={field.value}
+                          onChange={(_, dateStr) => field.onChange(dateStr)}
+                          placeholder="Select last maintenance"
+                          clearable
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -668,7 +685,13 @@ export default function EditAssetPage() {
                     <FormItem className="col-span-12 sm:col-span-3">
                       <FormLabel>Next Maintenance</FormLabel>
                       <FormControl>
-                        <Input type="date" {...field} />
+                        <DatePicker
+                          value={field.value}
+                          onChange={(_, dateStr) => field.onChange(dateStr)}
+                          placeholder="Select next maintenance"
+                          minDate={new Date()}
+                          clearable
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>

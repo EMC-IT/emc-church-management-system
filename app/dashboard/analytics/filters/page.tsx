@@ -9,9 +9,9 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
+import { DateRangePicker } from '@/components/ui/date-range-picker';
+import { type DateRange } from 'react-day-picker';
 import { Separator } from '@/components/ui/separator';
-import { Calendar } from '@/components/ui/calendar';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { 
   ArrowLeft, 
   Filter, 
@@ -45,8 +45,7 @@ interface SavedFilter {
 
 export default function AdvancedFiltersPage() {
   const router = useRouter();
-  const [dateFrom, setDateFrom] = useState<Date>();
-  const [dateTo, setDateTo] = useState<Date>();
+  const [dateRange, setDateRange] = useState<DateRange | undefined>();
   const [filterRules, setFilterRules] = useState<FilterRule[]>([
     { id: '1', field: '', operator: '', value: '' }
   ]);
@@ -178,8 +177,7 @@ export default function AdvancedFiltersPage() {
 
   const handleResetFilters = () => {
     setFilterRules([{ id: '1', field: '', operator: '', value: '' }]);
-    setDateFrom(undefined);
-    setDateTo(undefined);
+    setDateRange(undefined);
     setSelectedDataSources([]);
     setFilterName('');
     setFilterDescription('');
@@ -238,89 +236,15 @@ export default function AdvancedFiltersPage() {
               <CardTitle>Date Range</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="grid gap-4 md:grid-cols-2">
-                <div className="space-y-2">
-                  <Label>From Date</Label>
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <Button
-                        variant="outline"
-                        className={cn(
-                          'w-full justify-start text-left font-normal',
-                          !dateFrom && 'text-muted-foreground'
-                        )}
-                      >
-                        <CalendarIcon className="mr-2 h-4 w-4" />
-                        {dateFrom ? format(dateFrom, 'PPP') : 'Pick a date'}
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0">
-                      <Calendar
-                        mode="single"
-                        selected={dateFrom}
-                        onSelect={setDateFrom}
-                        initialFocus
-                      />
-                    </PopoverContent>
-                  </Popover>
-                </div>
-
-                <div className="space-y-2">
-                  <Label>To Date</Label>
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <Button
-                        variant="outline"
-                        className={cn(
-                          'w-full justify-start text-left font-normal',
-                          !dateTo && 'text-muted-foreground'
-                        )}
-                      >
-                        <CalendarIcon className="mr-2 h-4 w-4" />
-                        {dateTo ? format(dateTo, 'PPP') : 'Pick a date'}
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0">
-                      <Calendar
-                        mode="single"
-                        selected={dateTo}
-                        onSelect={setDateTo}
-                        initialFocus
-                      />
-                    </PopoverContent>
-                  </Popover>
-                </div>
-              </div>
-
-              <div className="flex gap-2">
-                <Button size="sm" variant="outline" onClick={() => {
-                  const today = new Date();
-                  setDateFrom(new Date(today.getFullYear(), today.getMonth(), today.getDate() - 7));
-                  setDateTo(today);
-                }}>
-                  Last 7 Days
-                </Button>
-                <Button size="sm" variant="outline" onClick={() => {
-                  const today = new Date();
-                  setDateFrom(new Date(today.getFullYear(), today.getMonth(), today.getDate() - 30));
-                  setDateTo(today);
-                }}>
-                  Last 30 Days
-                </Button>
-                <Button size="sm" variant="outline" onClick={() => {
-                  const today = new Date();
-                  setDateFrom(new Date(today.getFullYear(), today.getMonth(), today.getDate() - 90));
-                  setDateTo(today);
-                }}>
-                  Last 90 Days
-                </Button>
-                <Button size="sm" variant="outline" onClick={() => {
-                  const today = new Date();
-                  setDateFrom(new Date(today.getFullYear(), 0, 1));
-                  setDateTo(today);
-                }}>
-                  This Year
-                </Button>
+              <div className="space-y-2">
+                <Label>Date Range</Label>
+                <DateRangePicker
+                  date={dateRange}
+                  onDateChange={setDateRange}
+                  placeholder="Pick date range"
+                  showPresets
+                  clearable
+                />
               </div>
             </CardContent>
           </Card>
@@ -551,7 +475,7 @@ export default function AdvancedFiltersPage() {
               <div className="flex justify-between text-sm">
                 <span className="text-muted-foreground">Date Range:</span>
                 <span className="font-medium">
-                  {dateFrom && dateTo ? 'Custom' : 'All Time'}
+                  {dateRange?.from && dateRange?.to ? 'Custom' : 'All Time'}
                 </span>
               </div>
               <div className="flex justify-between text-sm">

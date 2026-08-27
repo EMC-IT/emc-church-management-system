@@ -15,6 +15,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { DatePicker } from '@/components/ui/date-picker';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { toast } from 'sonner';
 
@@ -332,9 +333,10 @@ export default function EditBudgetPage() {
                     <FormItem className="col-span-12 sm:col-span-4">
                       <FormLabel>Start Date *</FormLabel>
                       <FormControl>
-                        <Input 
-                          type="date" 
-                          {...field} 
+                        <DatePicker
+                          value={field.value}
+                          onChange={(_, dateStr) => field.onChange(dateStr)}
+                          placeholder="Select start date"
                         />
                       </FormControl>
                       <FormMessage />
@@ -349,9 +351,10 @@ export default function EditBudgetPage() {
                     <FormItem className="col-span-12 sm:col-span-4">
                       <FormLabel>End Date *</FormLabel>
                       <FormControl>
-                        <Input 
-                          type="date" 
-                          {...field} 
+                        <DatePicker
+                          value={field.value}
+                          onChange={(_, dateStr) => field.onChange(dateStr)}
+                          placeholder="Select end date"
                         />
                       </FormControl>
                       <FormMessage />

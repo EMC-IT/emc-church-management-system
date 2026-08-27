@@ -12,6 +12,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { DatePicker } from '@/components/ui/date-picker';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { FileUpload } from '@/components/ui/file-upload';
 import { useToast } from '@/hooks/use-toast';
@@ -347,7 +348,12 @@ export default function AddFamilyMemberPage() {
                     <FormItem className="col-span-12 sm:col-span-4">
                       <FormLabel>Date of Birth *</FormLabel>
                       <FormControl>
-                        <Input type="date" {...field} />
+                        <DatePicker
+                          value={field.value}
+                          onChange={(_, dateStr) => field.onChange(dateStr)}
+                          placeholder="DD/MM/YYYY"
+                          isDateOfBirth
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -412,7 +418,12 @@ export default function AddFamilyMemberPage() {
                     <FormItem className="col-span-12 sm:col-span-6">
                       <FormLabel>Join Date *</FormLabel>
                       <FormControl>
-                        <Input type="date" {...field} />
+                        <DatePicker
+                          value={field.value}
+                          onChange={(_, dateStr) => field.onChange(dateStr)}
+                          placeholder="Select join date"
+                          maxDate={new Date()}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>

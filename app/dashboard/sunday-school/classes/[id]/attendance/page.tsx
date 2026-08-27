@@ -17,6 +17,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { DatePicker } from '@/components/ui/date-picker';
 import { 
   ArrowLeft,
   Calendar as CalendarIcon,
@@ -252,11 +253,14 @@ export default function ClassAttendancePage() {
             <CardHeader className="pb-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
               <div className="flex items-center gap-3">
                 <CardTitle className="text-base font-semibold">Attendance Roster</CardTitle>
-                <Input
-                  type="date"
+                <DatePicker
                   value={selectedDate}
-                  onChange={(e) => setSelectedDate(e.target.value)}
-                  className="w-40 h-8 text-xs"
+                  onChange={(_, dateStr) => {
+                    if (dateStr) setSelectedDate(dateStr);
+                  }}
+                  size="sm"
+                  maxDate={new Date()}
+                  className="w-44"
                 />
               </div>
 

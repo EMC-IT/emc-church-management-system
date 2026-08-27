@@ -14,6 +14,7 @@ import { FileUpload } from "@/components/ui/file-upload";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Checkbox } from "@/components/ui/checkbox";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { DatePicker } from "@/components/ui/date-picker";
 import { Save, Upload, Users, User } from "lucide-react";
 
 // Mock data for departments, groups, and members (should be replaced with real data in production)
@@ -232,7 +233,12 @@ export function MemberFullForm({ initialValues, onSubmit, loading = false, mode 
                   <FormItem className="col-span-12 sm:col-span-3">
                     <FormLabel>Date of Birth</FormLabel>
                     <FormControl>
-                      <Input type="date" {...field} />
+                      <DatePicker
+                        value={field.value}
+                        onChange={(_, dateStr) => field.onChange(dateStr)}
+                        placeholder="DD/MM/YYYY"
+                        isDateOfBirth
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>

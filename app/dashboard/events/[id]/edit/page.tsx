@@ -10,11 +10,10 @@ import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { PageHeader } from '@/components/ui/page-header';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Calendar } from '@/components/ui/calendar';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { DatePicker } from '@/components/ui/date-picker';
+import { TimePicker } from '@/components/ui/time-picker';
 import { Checkbox } from '@/components/ui/checkbox';
-import { ArrowLeft, Calendar as CalendarIcon, Clock, MapPin, Users, Edit, Loader2 } from 'lucide-react';
-import { format } from 'date-fns';
+import { ArrowLeft, Clock, MapPin, Users, Edit, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 
 const categories = [
@@ -277,47 +276,37 @@ export default function EditEventPage() {
 
             <div className="grid grid-cols-12 gap-5">
               <div className="col-span-12 sm:col-span-6 lg:col-span-3 space-y-2">
-                <Label>Event Date *</Label>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant="outline"
-                      className="w-full justify-start text-left font-normal"
-                    >
-                      <CalendarIcon className="mr-2 h-4 w-4" />
-                      {formData.date ? format(formData.date, 'PPP') : 'Select date'}
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0">
-                    <Calendar
-                      mode="single"
-                      selected={formData.date}
-                      onSelect={(date) => setFormData(prev => ({ ...prev, date }))}
-                      initialFocus
-                    />
-                  </PopoverContent>
-                </Popover>
+                <Label htmlFor="date">Event Date *</Label>
+                <DatePicker
+                  id="date"
+                  value={formData.date}
+                  onChange={(date) => setFormData(prev => ({ ...prev, date }))}
+                  placeholder="Select event date"
+                  error={!!errors.date}
+                />
                 {errors.date && <p className="text-xs text-destructive">{String(errors.date)}</p>}
               </div>
 
               <div className="col-span-12 sm:col-span-6 lg:col-span-3 space-y-2">
                 <Label htmlFor="startTime">Start Time *</Label>
-                <Input
+                <TimePicker
                   id="startTime"
-                  type="time"
                   value={formData.startTime}
-                  onChange={(e) => setFormData(prev => ({ ...prev, startTime: e.target.value }))}
+                  onChange={(startTime) => setFormData(prev => ({ ...prev, startTime }))}
+                  placeholder="Select start time"
+                  error={!!errors.startTime}
                 />
                 {errors.startTime && <p className="text-xs text-destructive">{errors.startTime}</p>}
               </div>
 
               <div className="col-span-12 sm:col-span-6 lg:col-span-3 space-y-2">
                 <Label htmlFor="endTime">End Time</Label>
-                <Input
+                <TimePicker
                   id="endTime"
-                  type="time"
                   value={formData.endTime}
-                  onChange={(e) => setFormData(prev => ({ ...prev, endTime: e.target.value }))}
+                  onChange={(endTime) => setFormData(prev => ({ ...prev, endTime }))}
+                  placeholder="Select end time"
+                  error={!!errors.endTime}
                 />
                 {errors.endTime && <p className="text-xs text-destructive">{errors.endTime}</p>}
               </div>
@@ -367,23 +356,13 @@ export default function EditEventPage() {
 
               {formData.registrationRequired && (
                 <div className="col-span-12 sm:col-span-4 space-y-2">
-                  <Label>Registration Deadline</Label>
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <Button variant="outline" className="w-full justify-start text-left font-normal">
-                        <CalendarIcon className="mr-2 h-4 w-4" />
-                        {formData.registrationDeadline ? format(formData.registrationDeadline, 'PPP') : 'Select deadline'}
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0">
-                      <Calendar
-                        mode="single"
-                        selected={formData.registrationDeadline}
-                        onSelect={(date) => setFormData(prev => ({ ...prev, registrationDeadline: date }))}
-                        initialFocus
-                      />
-                    </PopoverContent>
-                  </Popover>
+                  <Label htmlFor="registrationDeadline">Registration Deadline</Label>
+                  <DatePicker
+                    id="registrationDeadline"
+                    value={formData.registrationDeadline}
+                    onChange={(date) => setFormData(prev => ({ ...prev, registrationDeadline: date }))}
+                    placeholder="Select deadline"
+                  />
                 </div>
               )}
             </div>
