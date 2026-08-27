@@ -1,715 +1,649 @@
 'use client';
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import React, { useState, useEffect, useMemo } from 'react';
+import Link from 'next/link';
+import {
+  FileText,
+  Download,
+  TrendingUp,
+  TrendingDown,
+  Calendar,
+  BarChart3,
+  PieChart,
+  Wallet,
+  Receipt,
+  Heart,
+  Target,
+  ArrowRight,
+  Filter,
+  CheckCircle2,
+  AlertTriangle,
+} from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { PageHeader } from '@/components/ui/page-header';
 import { StatCard } from '@/components/ui/stat-card';
 import { Badge } from '@/components/ui/badge';
 import { StatusBadge } from '@/components/ui/status-badge';
-import { 
+import { Progress } from '@/components/ui/progress';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { DataTable } from '@/components/ui/data-table';
+import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { 
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { 
-  FileText, 
-  Download, 
-  TrendingUp, 
-  TrendingDown,
-  BadgeCent,
-  Calendar,
-  BarChart3,
-  PieChart,
-  Eye,
-  Filter,
-  Wallet,
-  Receipt,
-  Package,
-  ArrowRight,
-  Heart,
-  Target,
-  Building
-} from 'lucide-react';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, BarChart, Bar, PieChart as RechartsPieChart, Pie, Cell, Label } from 'recharts';
-import { 
+import {
+  LineChart,
+  Line,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+} from 'recharts';
+import {
   ChartContainer,
   ChartTooltip,
   ChartTooltipContent,
   ChartLegend,
   ChartLegendContent,
-  ChartConfig
+  ChartConfig,
 } from '@/components/ui/chart';
-
-const financialSummary = {
-  totalIncome: 285000,
-  totalExpenses: 245000,
-  netIncome: 40000,
-  totalGiving: 270000,
-  budgetUtilization: 87.5,
-  assetValue: 1250000,
-  growthRate: 12.5,
-  previousPeriod: {
-    totalIncome: 254000,
-    totalExpenses: 220000,
-    netIncome: 34000,
-    totalGiving: 245000,
-    budgetUtilization: 82.3,
-    assetValue: 1180000,
-  }
-};
-
-const monthlyData = [
-  { month: 'Jan', income: 45000, expenses: 38000, net: 7000 },
-  { month: 'Feb', income: 48000, expenses: 41000, net: 7000 },
-  { month: 'Mar', income: 52000, expenses: 44000, net: 8000 },
-  { month: 'Apr', income: 47000, expenses: 40000, net: 7000 },
-  { month: 'May', income: 51000, expenses: 42000, net: 9000 },
-  { month: 'Jun', income: 42000, expenses: 40000, net: 2000 },
-];
-
-const incomeBreakdown = [
-  { category: 'Tithes', amount: 180000, percentage: 63.2, color: '#2E8CB0' },
-  { category: 'Offerings', amount: 65000, percentage: 22.8, color: '#C49831' },
-  { category: 'Special Donations', amount: 25000, percentage: 8.8, color: '#A2CD5E' },
-  { category: 'Fundraising', amount: 15000, percentage: 5.3, color: '#E74C3C' },
-];
-
-const expenseBreakdown = [
-  { category: 'Salaries & Benefits', amount: 120000, percentage: 49.0, color: '#2E8CB0' },
-  { category: 'Facilities & Utilities', amount: 45000, percentage: 18.4, color: '#C49831' },
-  { category: 'Missions & Outreach', amount: 35000, percentage: 14.3, color: '#A2CD5E' },
-  { category: 'Ministry Programs', amount: 25000, percentage: 10.2, color: '#E74C3C' },
-  { category: 'Administration', amount: 20000, percentage: 8.2, color: '#9B59B6' },
-];
-
-const departmentReports = [
-  {
-    id: '1',
-    department: 'Worship Ministry',
-    budget: 15000,
-    spent: 12500,
-    income: 8000,
-    variance: -4500,
-    status: 'On Track',
-  },
-  {
-    id: '2',
-    department: 'Youth Ministry',
-    budget: 10000,
-    spent: 8200,
-    income: 5000,
-    variance: -3200,
-    status: 'On Track',
-  },
-  {
-    id: '3',
-    department: 'Missions',
-    budget: 25000,
-    spent: 23800,
-    income: 15000,
-    variance: -8800,
-    status: 'Over Budget',
-  },
-  {
-    id: '4',
-    department: 'Facilities',
-    budget: 20000,
-    spent: 18500,
-    income: 2000,
-    variance: -16500,
-    status: 'On Track',
-  },
-];
+import { LazySection } from '@/components/ui/lazy-section';
+import { CardSkeleton, TableSkeleton } from '@/components/ui/skeleton-loaders';
+import { toast } from 'sonner';
+import { financeService } from '@/services';
+import {
+  ConsolidatedFinancialReport,
+  FinancialAuditRecord,
+} from '@/lib/types';
+import { ColumnDef } from '@tanstack/react-table';
 
 // Chart configurations
-const monthlyChartConfig = {
-  income: {
-    label: 'Income',
+const monthlyInflowOutflowConfig = {
+  totalInflows: {
+    label: 'Total Inflows (Giving + Income)',
     color: 'hsl(var(--chart-1))',
   },
   expenses: {
-    label: 'Expenses',
+    label: 'Operating Expenses',
     color: 'hsl(var(--chart-2))',
   },
-  net: {
-    label: 'Net',
+  netSurplus: {
+    label: 'Net Operating Surplus',
     color: 'hsl(var(--chart-3))',
   },
 } satisfies ChartConfig;
 
-const incomeChartConfig = {
-  amount: {
-    label: 'Amount',
+const budgetVarianceConfig = {
+  budget: {
+    label: 'Approved Budget',
+    color: 'hsl(var(--chart-1))',
+  },
+  spent: {
+    label: 'Actual Spent',
+    color: 'hsl(var(--chart-2))',
   },
 } satisfies ChartConfig;
 
-const expenseChartConfig = {
-  amount: {
-    label: 'Amount',
-  },
-} satisfies ChartConfig;
+export default function FinancialReportsPage() {
+  const [selectedYear, setSelectedYear] = useState<number>(2026);
+  const [activeTab, setActiveTab] = useState('statement');
+  const [report, setReport] = useState<ConsolidatedFinancialReport | null>(null);
+  const [auditRecords, setAuditRecords] = useState<FinancialAuditRecord[]>([]);
+  const [auditDomain, setAuditDomain] = useState<string>('all');
+  const [auditSearch, setAuditSearch] = useState<string>('');
+  const [loading, setLoading] = useState(true);
 
-const quickLinks = [
-  {
-    title: 'Income Reports',
-    description: 'Source analysis, trends, and monthly breakdown',
-    icon: TrendingUp,
-    href: '/dashboard/finance/reports/income',
-    color: 'bg-green-500/10 text-green-600',
-  },
-  {
-    title: 'Expense Reports',
-    description: 'Category and department expense analysis',
-    icon: Receipt,
-    href: '/dashboard/finance/reports/expenses',
-    color: 'bg-red-500/10 text-red-600',
-  },
-  {
-    title: 'Giving Reports',
-    description: 'All giving categories and donor analysis',
-    icon: Heart,
-    href: '/dashboard/finance/reports/giving',
-    color: 'bg-pink-500/10 text-pink-600',
-  },
-  {
-    title: 'Tithes & Offerings',
-    description: 'Specific tithes and offerings reports',
-    icon: Wallet,
-    href: '/dashboard/finance/reports/tithes-offerings',
-    color: 'bg-blue-500/10 text-blue-600',
-  },
-  {
-    title: 'Budget Reports',
-    description: 'Planned vs actual budget analysis',
-    icon: Target,
-    href: '/dashboard/finance/reports/budgets',
-    color: 'bg-purple-500/10 text-purple-600',
-  },
-  {
-    title: 'Asset Reports',
-    description: 'Value, depreciation, and maintenance costs',
-    icon: Package,
-    href: '/dashboard/finance/reports/assets',
-    color: 'bg-orange-500/10 text-orange-600',
-  },
-  {
-    title: 'Comparison Reports',
-    description: 'Income vs Expenses and Year-to-Year trends',
-    icon: BarChart3,
-    href: '/dashboard/finance/reports/comparisons',
-    color: 'bg-indigo-500/10 text-indigo-600',
-  },
-];
+  useEffect(() => {
+    const loadReportData = async () => {
+      try {
+        setLoading(true);
+        const [rep, audit] = await Promise.all([
+          financeService.getConsolidatedFinancialReport(selectedYear),
+          financeService.getFinancialAuditRecords(),
+        ]);
+        setReport(rep);
+        setAuditRecords(audit);
+      } catch (err) {
+        console.error('Failed to load financial reports', err);
+        toast.error('Failed to load financial reports data');
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadReportData();
+  }, [selectedYear]);
 
-const availableReports = [
-  {
-    id: '1',
-    name: 'Monthly Financial Summary',
-    description: 'Complete overview of income, expenses, and net position',
-    type: 'Summary',
-    period: 'Monthly',
-    lastGenerated: '2024-01-21',
-  },
-  {
-    id: '2',
-    name: 'Donor Contribution Report',
-    description: 'Individual and family giving patterns and totals',
-    type: 'Giving',
-    period: 'Quarterly',
-    lastGenerated: '2024-01-15',
-  },
-  {
-    id: '3',
-    name: 'Budget vs Actual Analysis',
-    description: 'Variance analysis across all departments and categories',
-    type: 'Budget',
-    period: 'Monthly',
-    lastGenerated: '2024-01-20',
-  },
-  {
-    id: '4',
-    name: 'Tax Deduction Statements',
-    description: 'Annual giving statements for tax purposes',
-    type: 'Tax',
-    period: 'Annual',
-    lastGenerated: '2024-01-01',
-  },
-  {
-    id: '5',
-    name: 'Cash Flow Projection',
-    description: 'Future cash flow analysis and projections',
-    type: 'Projection',
-    period: 'Quarterly',
-    lastGenerated: '2024-01-18',
-  },
-];
+  const formatCurrency = (amount: number) => {
+    return new Intl.NumberFormat('en-GH', {
+      style: 'currency',
+      currency: 'GHS',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 2,
+    }).format(amount);
+  };
 
-export default function ReportsPage() {
-  const router = useRouter();
-  const [selectedPeriod, setSelectedPeriod] = useState('current-quarter');
-  const [activeTab, setActiveTab] = useState('overview');
-
-  const getReportTypeColor = (type: string) => {
-    switch (type.toLowerCase()) {
-      case 'summary': return 'primary';
-      case 'giving': return 'neutral';
-      case 'budget': return 'neutral';
-      case 'tax': return 'danger';
-      case 'projection': return 'primary';
-      default: return 'primary';
+  const handleExport = async (format: 'csv' | 'excel' | 'pdf' = 'csv') => {
+    try {
+      const blob = await financeService.exportConsolidatedReport(selectedYear, format);
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `financial-statement-${selectedYear}-${new Date().toISOString().split('T')[0]}.${format === 'excel' ? 'xlsx' : format}`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+      toast.success(`Financial report downloaded as ${format.toUpperCase()}`);
+    } catch {
+      toast.error('Failed to export report');
     }
   };
 
+  const filteredAuditRecords = useMemo(() => {
+    return auditRecords.filter((r) => {
+      const matchDomain = auditDomain === 'all' || r.domain.toLowerCase() === auditDomain.toLowerCase();
+      const matchSearch =
+        !auditSearch ||
+        r.description.toLowerCase().includes(auditSearch.toLowerCase()) ||
+        r.category.toLowerCase().includes(auditSearch.toLowerCase()) ||
+        r.payeeOrDonor.toLowerCase().includes(auditSearch.toLowerCase()) ||
+        (r.reference && r.reference.toLowerCase().includes(auditSearch.toLowerCase()));
+      return matchDomain && matchSearch;
+    });
+  }, [auditRecords, auditDomain, auditSearch]);
+
+  const auditColumns: ColumnDef<FinancialAuditRecord>[] = [
+    {
+      accessorKey: 'date',
+      header: 'Date',
+      cell: ({ row }) => <span className="text-xs text-muted-foreground whitespace-nowrap">{row.original.date}</span>,
+    },
+    {
+      accessorKey: 'domain',
+      header: 'Domain',
+      cell: ({ row }) => {
+        const d = row.original.domain;
+        const variant = d === 'Giving' ? 'primary' : d === 'Income' ? 'success' : 'warning';
+        return <Badge variant={variant}>{d}</Badge>;
+      },
+    },
+    {
+      accessorKey: 'category',
+      header: 'Category / Account',
+      cell: ({ row }) => (
+        <span className="text-xs font-medium text-foreground">{row.original.category}</span>
+      ),
+    },
+    {
+      accessorKey: 'description',
+      header: 'Description & Reference',
+      cell: ({ row }) => (
+        <div>
+          <div className="font-medium text-foreground text-sm">{row.original.description}</div>
+          {row.original.reference && (
+            <div className="text-xs text-muted-foreground">{row.original.reference}</div>
+          )}
+        </div>
+      ),
+    },
+    {
+      accessorKey: 'payeeOrDonor',
+      header: 'Payee / Contributor',
+      cell: ({ row }) => (
+        <span className="text-sm text-muted-foreground">{row.original.payeeOrDonor}</span>
+      ),
+    },
+    {
+      accessorKey: 'paymentMethod',
+      header: 'Method',
+      cell: ({ row }) => <span className="text-xs text-muted-foreground">{row.original.paymentMethod}</span>,
+    },
+    {
+      accessorKey: 'amount',
+      header: 'Amount',
+      cell: ({ row }) => {
+        const item = row.original;
+        const isInflow = item.flow === 'inflow';
+        return (
+          <div className={`font-semibold whitespace-nowrap ${isInflow ? 'text-emerald-600' : 'text-destructive'}`}>
+            {isInflow ? '+' : '-'}{formatCurrency(item.amount)}
+          </div>
+        );
+      },
+    },
+    {
+      accessorKey: 'status',
+      header: 'Status',
+      cell: ({ row }) => <StatusBadge status={row.original.status} />,
+    },
+  ];
+
+  if (loading && !report) {
+    return (
+      <div className="space-y-6">
+        <PageHeader title="Financial Reports" />
+        <CardSkeleton count={4} className="grid gap-4 md:grid-cols-2 lg:grid-cols-4" />
+        <div className="grid gap-4 md:grid-cols-2 mt-6">
+          <CardSkeleton count={2} />
+        </div>
+        <TableSkeleton rows={6} columns={7} showHeader className="mt-6" />
+      </div>
+    );
+  }
+
+  const netSurplusPositive = (report?.netSurplus || 0) >= 0;
+
   return (
     <div className="space-y-6">
+      {/* Header */}
       <PageHeader
         title="Financial Reports"
         actions={
           <>
-            <Select value={selectedPeriod} onValueChange={setSelectedPeriod}>
-              <SelectTrigger className="w-48">
-                <SelectValue placeholder="Select period" />
+            <Select value={String(selectedYear)} onValueChange={(v) => setSelectedYear(Number(v))}>
+              <SelectTrigger className="w-36">
+                <Calendar className="mr-1.5 h-3.5 w-3.5 text-muted-foreground" />
+                <SelectValue placeholder="Fiscal Period" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="current-month">Current Month</SelectItem>
-                <SelectItem value="current-quarter">Current Quarter</SelectItem>
-                <SelectItem value="current-year">Current Year</SelectItem>
-                <SelectItem value="last-quarter">Last Quarter</SelectItem>
-                <SelectItem value="last-year">Last Year</SelectItem>
+                <SelectItem value="2026">2026 Fiscal Year</SelectItem>
+                <SelectItem value="2025">2025 Fiscal Year</SelectItem>
+                <SelectItem value="2024">2024 Fiscal Year</SelectItem>
               </SelectContent>
             </Select>
-            <Button variant="outline">
-              <Filter className="mr-2 h-4 w-4" />
-              Advanced Filters
+
+            <Button variant="outline" onClick={() => handleExport('csv')}>
+              <Download className="mr-1.5 h-4 w-4" />
+              Export CSV
+            </Button>
+            <Button onClick={() => handleExport('excel')}>
+              <Download className="mr-1.5 h-4 w-4" />
+              Export Report
             </Button>
           </>
         }
       />
 
-      <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid w-full grid-cols-4">
-          <TabsTrigger value="overview">Financial Overview</TabsTrigger>
-          <TabsTrigger value="income">Income Analysis</TabsTrigger>
-          <TabsTrigger value="expenses">Expense Analysis</TabsTrigger>
-          <TabsTrigger value="reports">Report Library</TabsTrigger>
-        </TabsList>
+      {/* 4 Executive Financial KPI Cards */}
+      <LazySection
+        strategy="immediate"
+        showSkeleton
+        skeletonVariant="card"
+        skeletonCount={4}
+        className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 min-w-0"
+        threshold={0.1}
+      >
+        <StatCard
+          title="Total Voluntary Giving"
+          value={formatCurrency(report?.totalGiving || 0)}
+          icon={Heart}
+          accent="primary"
+        />
 
-        <TabsContent value="overview" className="space-y-4">
-          {/* Key Metrics */}
-          <div className="grid gap-4 grid-cols-2 md:grid-cols-4">
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Total Income</CardTitle>
-                <TrendingUp className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">₵{financialSummary.totalIncome.toLocaleString()}</div>
-                <p className="text-xs text-muted-foreground">
-                  <span className="text-green-600">
-                    +₵{(financialSummary.totalIncome - financialSummary.previousPeriod.totalIncome).toLocaleString()}
-                  </span> from last period
-                </p>
-              </CardContent>
-            </Card>
-            
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Total Expenses</CardTitle>
-                <TrendingDown className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">₵{financialSummary.totalExpenses.toLocaleString()}</div>
-                <p className="text-xs text-muted-foreground">
-                  <span className="text-red-600">
-                    +₵{(financialSummary.totalExpenses - financialSummary.previousPeriod.totalExpenses).toLocaleString()}
-                  </span> from last period
-                </p>
-              </CardContent>
-            </Card>
-            
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Net Income</CardTitle>
-                <BadgeCent className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold text-green-600">
-                  ₵{financialSummary.netIncome.toLocaleString()}
-                </div>
-                <p className="text-xs text-muted-foreground">
-                  <span className="text-green-600">
-                    +₵{(financialSummary.netIncome - financialSummary.previousPeriod.netIncome).toLocaleString()}
-                  </span> from last period
-                </p>
-              </CardContent>
-            </Card>
-            
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Growth Rate</CardTitle>
-                <BarChart3 className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold text-green-600">
-                  +{financialSummary.growthRate}%
-                </div>
-                <p className="text-xs text-muted-foreground">Year over year</p>
-              </CardContent>
-            </Card>
-            
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Total Giving</CardTitle>
-                <Heart className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">₵{financialSummary.totalGiving.toLocaleString()}</div>
-                <p className="text-xs text-muted-foreground">
-                  <span className="text-green-600">
-                    +₵{(financialSummary.totalGiving - financialSummary.previousPeriod.totalGiving).toLocaleString()}
-                  </span> from last period
-                </p>
-              </CardContent>
-            </Card>
-            
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Budget Utilization</CardTitle>
-                <Target className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">{financialSummary.budgetUtilization}%</div>
-                <p className="text-xs text-muted-foreground">
-                  <span className="text-green-600">
-                    +{(financialSummary.budgetUtilization - financialSummary.previousPeriod.budgetUtilization).toFixed(1)}%
-                  </span> from last period
-                </p>
-              </CardContent>
-            </Card>
-            
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Asset Value</CardTitle>
-                <Building className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">₵{financialSummary.assetValue.toLocaleString()}</div>
-                <p className="text-xs text-muted-foreground">
-                  <span className="text-green-600">
-                    +₵{(financialSummary.assetValue - financialSummary.previousPeriod.assetValue).toLocaleString()}
-                  </span> from last period
-                </p>
-              </CardContent>
-            </Card>
-          </div>
+        <StatCard
+          title="Non-Giving Revenue"
+          value={formatCurrency(report?.totalIncome || 0)}
+          icon={TrendingUp}
+          accent="accent"
+        />
 
-          {/* Charts */}
-          <div className="grid gap-4 md:grid-cols-2">
-            <Card className="hover:shadow-md transition-shadow">
-              <CardHeader>
-                <CardTitle>Monthly Financial Trends</CardTitle>
+        <StatCard
+          title="Operating Expenses"
+          value={formatCurrency(report?.totalExpenses || 0)}
+          icon={Receipt}
+          accent="secondary"
+        />
+
+        <StatCard
+          title="Net Financial Surplus"
+          value={formatCurrency(report?.netSurplus || 0)}
+          icon={netSurplusPositive ? TrendingUp : TrendingDown}
+          accent={netSurplusPositive ? 'success' : 'secondary'}
+        />
+      </LazySection>
+
+      {/* Tabbed Progressive Disclosure */}
+      <LazySection>
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+          <TabsList className="grid w-full grid-cols-2 sm:grid-cols-5">
+            <TabsTrigger value="statement">Statement of Activities</TabsTrigger>
+            <TabsTrigger value="variance">Budget vs Actual</TabsTrigger>
+            <TabsTrigger value="revenue">Inflows Breakdown</TabsTrigger>
+            <TabsTrigger value="expenses">Outflows Breakdown</TabsTrigger>
+            <TabsTrigger value="audit">Transaction Audit Log</TabsTrigger>
+          </TabsList>
+
+          {/* TAB 1: Statement of Activities (Income Statement) */}
+          <TabsContent value="statement" className="space-y-6">
+            {/* Monthly Trend Chart */}
+            <Card className="min-w-0 overflow-hidden">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-base font-semibold">
+                  Monthly Financial Inflows vs Operating Outflows ({selectedYear})
+                </CardTitle>
               </CardHeader>
-              <CardContent>
-                <ChartContainer config={monthlyChartConfig} className="h-[300px] w-full">
-                  <LineChart data={monthlyData} margin={{ left: 12, right: 12 }}>
+              <CardContent className="min-w-0">
+                <ChartContainer config={monthlyInflowOutflowConfig} className="h-80 w-full">
+                  <LineChart data={report?.monthlyTrends || []} margin={{ left: 12, right: 12, top: 10 }}>
                     <CartesianGrid vertical={false} strokeDasharray="3 3" className="stroke-muted" />
-                    <XAxis
-                      dataKey="month"
-                      tickLine={false}
-                      axisLine={false}
-                      tickMargin={8}
-                      className="text-xs"
-                    />
-                    <YAxis
-                      tickLine={false}
-                      axisLine={false}
-                      tickMargin={8}
-                      className="text-xs"
-                    />
-                    <ChartTooltip 
+                    <XAxis dataKey="month" tickLine={false} axisLine={false} tickMargin={8} className="text-xs" />
+                    <YAxis tickLine={false} axisLine={false} tickMargin={8} className="text-xs" />
+                    <ChartTooltip
                       cursor={{ stroke: 'hsl(var(--muted))', strokeWidth: 1 }}
-                      content={<ChartTooltipContent indicator="line" />} 
+                      content={<ChartTooltipContent indicator="line" />}
                     />
                     <ChartLegend content={<ChartLegendContent />} />
-                    <Line 
-                      type="monotone" 
-                      dataKey="income" 
-                      stroke="hsl(var(--chart-1))" 
-                      strokeWidth={2.5}
-                      dot={{ r: 4 }}
-                      activeDot={{ r: 6 }}
+                    <Line
+                      type="monotone"
+                      dataKey="totalInflows"
+                      stroke="hsl(var(--chart-1))"
+                      strokeWidth={2}
+                      dot={{ fill: 'hsl(var(--chart-1))' }}
                     />
-                    <Line 
-                      type="monotone" 
-                      dataKey="expenses" 
-                      stroke="hsl(var(--chart-2))" 
-                      strokeWidth={2.5}
-                      dot={{ r: 4 }}
-                      activeDot={{ r: 6 }}
+                    <Line
+                      type="monotone"
+                      dataKey="expenses"
+                      stroke="hsl(var(--chart-2))"
+                      strokeWidth={2}
+                      dot={{ fill: 'hsl(var(--chart-2))' }}
                     />
-                    <Line 
-                      type="monotone" 
-                      dataKey="net" 
-                      stroke="hsl(var(--chart-3))" 
-                      strokeWidth={2.5}
-                      dot={{ r: 4 }}
-                      activeDot={{ r: 6 }}
+                    <Line
+                      type="monotone"
+                      dataKey="netSurplus"
+                      stroke="hsl(var(--chart-3))"
+                      strokeWidth={2}
+                      dot={{ fill: 'hsl(var(--chart-3))' }}
                     />
                   </LineChart>
                 </ChartContainer>
               </CardContent>
             </Card>
 
+            {/* Statement of Financial Activities Table */}
             <Card>
-              <CardHeader>
-                <CardTitle>Department Performance</CardTitle>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-base font-semibold">Statement of Financial Activities</CardTitle>
               </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  {departmentReports.map((dept) => (
-                    <div key={dept.id} className="flex items-center justify-between">
-                      <div className="flex-1">
-                        <div className="flex items-center justify-between mb-1">
-                          <span className="text-sm font-medium">{dept.department}</span>
-                          <div className="flex items-center space-x-2">
-                            <span className="text-sm text-muted-foreground">
-                              ₵{dept.spent.toLocaleString()} / ₵{dept.budget.toLocaleString()}
-                            </span>
-                            <StatusBadge status={dept.status} />
-                          </div>
+              <CardContent className="space-y-6">
+                {/* 1. REVENUES */}
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between pb-2 border-b">
+                    <span className="font-semibold text-sm tracking-wide text-foreground uppercase">
+                      Revenues & Inflows
+                    </span>
+                    <span className="text-xs font-semibold text-muted-foreground uppercase">Share %</span>
+                  </div>
+                  <div className="space-y-2">
+                    {report?.statementRevenues.map((rev, idx) => (
+                      <div key={idx} className="flex items-center justify-between text-sm py-1">
+                        <div className="flex items-center gap-2">
+                          <span className="text-muted-foreground">•</span>
+                          <span className="font-medium text-foreground">{rev.category}</span>
+                        </div>
+                        <div className="flex items-center gap-6">
+                          <span className="font-medium text-foreground">{formatCurrency(rev.amount)}</span>
+                          <span className="text-xs text-muted-foreground w-12 text-right">{rev.percentage}%</span>
                         </div>
                       </div>
+                    ))}
+                  </div>
+                  <div className="flex items-center justify-between pt-2 border-t font-semibold text-sm bg-muted/30 px-3 py-2 rounded">
+                    <span>Total Revenues & Inflows</span>
+                    <span>{formatCurrency(report?.totalRevenue || 0)}</span>
+                  </div>
+                </div>
+
+                {/* 2. OPERATING EXPENDITURES */}
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between pb-2 border-b">
+                    <span className="font-semibold text-sm tracking-wide text-foreground uppercase">
+                      Operating Expenditures
+                    </span>
+                    <span className="text-xs font-semibold text-muted-foreground uppercase">Share %</span>
+                  </div>
+                  <div className="space-y-2">
+                    {report?.statementExpenses.map((exp, idx) => (
+                      <div key={idx} className="flex items-center justify-between text-sm py-1">
+                        <div className="flex items-center gap-2">
+                          <span className="text-muted-foreground">•</span>
+                          <span className="font-medium text-foreground">{exp.category}</span>
+                        </div>
+                        <div className="flex items-center gap-6">
+                          <span className="font-medium text-destructive">{formatCurrency(exp.amount)}</span>
+                          <span className="text-xs text-muted-foreground w-12 text-right">{exp.percentage}%</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="flex items-center justify-between pt-2 border-t font-semibold text-sm bg-muted/30 px-3 py-2 rounded">
+                    <span>Total Operating Expenditures</span>
+                    <span className="text-destructive">{formatCurrency(report?.totalExpenses || 0)}</span>
+                  </div>
+                </div>
+
+                {/* 3. NET OPERATING SURPLUS */}
+                <div className="flex items-center justify-between p-4 border rounded-lg bg-card shadow-xs">
+                  <div>
+                    <div className="font-bold text-base text-foreground">
+                      Net Financial Operating Position
                     </div>
-                  ))}
+                    <div className="text-xs text-muted-foreground">
+                      Gross Revenues minus Operating Expenditures
+                    </div>
+                  </div>
+                  <div className={`text-xl font-bold ${netSurplusPositive ? 'text-emerald-600' : 'text-destructive'}`}>
+                    {netSurplusPositive ? '+' : ''}{formatCurrency(report?.netSurplus || 0)}
+                  </div>
                 </div>
               </CardContent>
             </Card>
-          </div>
+          </TabsContent>
 
-          {/* Quick Links */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Quick Links</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                {quickLinks.map((link) => {
-                  const IconComponent = link.icon;
-                  return (
-                    <Card 
-                      key={link.href} 
-                      className="hover:shadow-lg transition-all duration-200 cursor-pointer group"
-                      onClick={() => router.push(link.href)}
-                    >
-                      <CardContent className="p-4">
-                        <div className="flex items-start space-x-3">
-                          <div className={`p-2 rounded-lg ${link.color}`}>
-                            <IconComponent className="h-5 w-5" />
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center justify-between">
-                              <h3 className="font-semibold text-sm group-hover:text-brand-primary transition-colors">
-                                {link.title}
-                              </h3>
-                              <ArrowRight className="h-4 w-4 text-muted-foreground group-hover:text-brand-primary transition-colors" />
-                            </div>
-                            <p className="text-xs text-muted-foreground mt-1 line-clamp-2">
-                              {link.description}
-                            </p>
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  );
-                })}
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="income" className="space-y-4">
-          <div className="grid gap-4 md:grid-cols-2">
-            <Card className="hover:shadow-md transition-shadow">
-              <CardHeader>
-                <CardTitle>Income Distribution</CardTitle>
+          {/* TAB 2: Budget vs Actual Variance Analysis */}
+          <TabsContent value="variance" className="space-y-6">
+            <Card className="min-w-0 overflow-hidden">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-base font-semibold">Department Budget vs Spending Overview</CardTitle>
               </CardHeader>
-              <CardContent>
-                <ChartContainer config={incomeChartConfig} className="h-[300px] w-full">
-                  <RechartsPieChart>
-                    <ChartTooltip 
-                      cursor={false}
-                      content={<ChartTooltipContent hideLabel />} 
+              <CardContent className="min-w-0">
+                <ChartContainer config={budgetVarianceConfig} className="h-80 w-full">
+                  <BarChart data={report?.departmentVariances || []} margin={{ left: 12, right: 12, top: 10 }}>
+                    <CartesianGrid vertical={false} strokeDasharray="3 3" className="stroke-muted" />
+                    <XAxis dataKey="department" tickLine={false} axisLine={false} tickMargin={8} className="text-xs" />
+                    <YAxis tickLine={false} axisLine={false} tickMargin={8} className="text-xs" />
+                    <ChartTooltip
+                      cursor={{ fill: 'hsl(var(--muted)/0.2)' }}
+                      content={<ChartTooltipContent indicator="dot" />}
                     />
-                    <Pie
-                      data={incomeBreakdown}
-                      cx="50%"
-                      cy="50%"
-                      labelLine={false}
-                      label={({ name, percentage }) => `${name} ${percentage}%`}
-                      outerRadius={100}
-                      dataKey="amount"
-                      strokeWidth={2}
-                    >
-                      {incomeBreakdown.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={entry.color} stroke="hsl(var(--background))" />
-                      ))}
-                    </Pie>
-                  </RechartsPieChart>
+                    <ChartLegend content={<ChartLegendContent />} />
+                    <Bar dataKey="budget" fill="hsl(var(--chart-1))" radius={[4, 4, 0, 0]} />
+                    <Bar dataKey="spent" fill="hsl(var(--chart-2))" radius={[4, 4, 0, 0]} />
+                  </BarChart>
                 </ChartContainer>
               </CardContent>
             </Card>
 
             <Card>
-              <CardHeader>
-                <CardTitle>Income Details</CardTitle>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-base font-semibold">Departmental Variance Breakdown</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  {incomeBreakdown.map((item) => (
-                    <div key={item.category} className="flex items-center justify-between">
-                      <div className="flex items-center space-x-3">
-                        <div 
-                          className="w-3 h-3 rounded-full" 
-                          style={{ backgroundColor: item.color }}
-                        />
-                        <span className="font-medium">{item.category}</span>
+                  {report?.departmentVariances.map((dv, idx) => {
+                    const badgeVariant =
+                      dv.status === 'Over Budget'
+                        ? 'danger'
+                        : dv.status === 'Near Limit' || dv.status === 'Watch'
+                        ? 'warning'
+                        : 'success';
+                    return (
+                      <div key={idx} className="p-4 border rounded-lg space-y-2">
+                        <div className="flex items-center justify-between">
+                          <div className="font-semibold text-foreground">{dv.department}</div>
+                          <Badge variant={badgeVariant}>{dv.status}</Badge>
+                        </div>
+                        <div className="grid grid-cols-3 text-sm text-muted-foreground gap-4">
+                          <div>
+                            <span>Approved Budget: </span>
+                            <span className="font-medium text-foreground">{formatCurrency(dv.budget)}</span>
+                          </div>
+                          <div>
+                            <span>Actual Spent: </span>
+                            <span className="font-medium text-destructive">{formatCurrency(dv.spent)}</span>
+                          </div>
+                          <div>
+                            <span>Remaining Variance: </span>
+                            <span className="font-medium text-emerald-600">{formatCurrency(dv.variance)}</span>
+                          </div>
+                        </div>
+                        <div className="space-y-1 pt-1">
+                          <div className="flex items-center justify-between text-xs">
+                            <span className="text-muted-foreground">Utilization</span>
+                            <span className="font-bold text-foreground">{dv.utilization}%</span>
+                          </div>
+                          <Progress value={Math.min(dv.utilization, 100)} className="h-2" />
+                        </div>
                       </div>
-                      <div className="text-right">
-                        <p className="font-semibold">₵{item.amount.toLocaleString()}</p>
-                        <p className="text-sm text-muted-foreground">{item.percentage}%</p>
-                      </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </CardContent>
             </Card>
-          </div>
-        </TabsContent>
+          </TabsContent>
 
-        <TabsContent value="expenses" className="space-y-4">
-          <div className="grid gap-4 md:grid-cols-2">
-            <Card className="hover:shadow-md transition-shadow">
-              <CardHeader>
-                <CardTitle>Expense Distribution</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <ChartContainer config={expenseChartConfig} className="h-[300px] w-full">
-                  <RechartsPieChart>
-                    <ChartTooltip 
-                      cursor={false}
-                      content={<ChartTooltipContent hideLabel />} 
-                    />
-                    <Pie
-                      data={expenseBreakdown}
-                      cx="50%"
-                      cy="50%"
-                      labelLine={false}
-                      label={({ name, percentage }) => `${name} ${percentage}%`}
-                      outerRadius={100}
-                      dataKey="amount"
-                      strokeWidth={2}
-                    >
-                      {expenseBreakdown.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={entry.color} stroke="hsl(var(--background))" />
-                      ))}
-                    </Pie>
-                  </RechartsPieChart>
-                </ChartContainer>
-              </CardContent>
-            </Card>
+          {/* TAB 3: Inflows Breakdown */}
+          <TabsContent value="revenue" className="space-y-6">
+            <div className="grid gap-6 md:grid-cols-2">
+              {/* Giving Distribution */}
+              <Card>
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-base font-semibold">Voluntary Giving Composition</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  {report?.givingCategoryDistribution.map((item, idx) => (
+                    <div key={idx} className="space-y-1">
+                      <div className="flex items-center justify-between text-sm">
+                        <span className="font-medium text-foreground">{item.category}</span>
+                        <span className="font-semibold text-foreground">
+                          {formatCurrency(item.amount)} ({item.percentage}%)
+                        </span>
+                      </div>
+                      <Progress value={item.percentage} className="h-1.5" />
+                    </div>
+                  ))}
+                </CardContent>
+              </Card>
 
+              {/* Income Distribution */}
+              <Card>
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-base font-semibold">Non-Giving Revenue Sources</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  {report?.incomeCategoryDistribution.map((item, idx) => (
+                    <div key={idx} className="space-y-1">
+                      <div className="flex items-center justify-between text-sm">
+                        <span className="font-medium text-foreground">{item.category}</span>
+                        <span className="font-semibold text-foreground">
+                          {formatCurrency(item.amount)} ({item.percentage}%)
+                        </span>
+                      </div>
+                      <Progress value={item.percentage} className="h-1.5" />
+                    </div>
+                  ))}
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Payment Channels */}
             <Card>
-              <CardHeader>
-                <CardTitle>Expense Details</CardTitle>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-base font-semibold">Collection Channels & Payment Methods</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="space-y-4">
-                  {expenseBreakdown.map((item) => (
-                    <div key={item.category} className="flex items-center justify-between">
-                      <div className="flex items-center space-x-3">
-                        <div 
-                          className="w-3 h-3 rounded-full" 
-                          style={{ backgroundColor: item.color }}
-                        />
-                        <span className="font-medium">{item.category}</span>
+                <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                  {report?.paymentMethodDistribution.map((pm, idx) => (
+                    <div key={idx} className="p-4 border rounded-lg space-y-2 bg-card">
+                      <div className="text-xs text-muted-foreground font-medium uppercase tracking-wider">
+                        {pm.method}
                       </div>
-                      <div className="text-right">
-                        <p className="font-semibold">₵{item.amount.toLocaleString()}</p>
-                        <p className="text-sm text-muted-foreground">{item.percentage}%</p>
+                      <div className="text-lg font-bold text-foreground">{formatCurrency(pm.amount)}</div>
+                      <div className="flex items-center justify-between text-xs text-muted-foreground">
+                        <span>Share of Collections</span>
+                        <span className="font-semibold">{pm.percentage}%</span>
                       </div>
+                      <Progress value={pm.percentage} className="h-1.5" />
                     </div>
                   ))}
                 </div>
               </CardContent>
             </Card>
-          </div>
-        </TabsContent>
+          </TabsContent>
 
-        <TabsContent value="reports" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Available Reports</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                {availableReports.map((report) => (
-                  <Card key={report.id} className="hover:shadow-lg transition-shadow">
-                    <CardHeader className="pb-3">
-                      <div className="flex items-start justify-between">
-                        <div className="space-y-1">
-                          <CardTitle className="text-base">{report.name}</CardTitle>
-                          <Badge variant={getReportTypeColor(report.type)}>
-                            {report.type}
-                          </Badge>
-                        </div>
-                        <FileText className="h-5 w-5 text-muted-foreground" />
-                      </div>
-                    </CardHeader>
-                    <CardContent className="space-y-3">
-                      <p className="text-sm text-muted-foreground">{report.description}</p>
-                      
-                      <div className="text-sm">
-                        <div className="flex justify-between">
-                          <span>Period:</span>
-                          <span className="font-medium">{report.period}</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span>Last Generated:</span>
-                          <span className="font-medium">{new Date(report.lastGenerated).toLocaleDateString()}</span>
-                        </div>
-                      </div>
-                      
-                      <div className="flex space-x-2">
-                        <Button variant="outline" size="sm" className="flex-1">
-                          <Eye className="mr-2 h-4 w-4" />
-                          Preview
-                        </Button>
-                        <Button size="sm" className="flex-1">
-                          <Download className="mr-2 h-4 w-4" />
-                          Generate
-                        </Button>
-                      </div>
-                    </CardContent>
-                  </Card>
+          {/* TAB 4: Outflows Breakdown */}
+          <TabsContent value="expenses" className="space-y-6">
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-base font-semibold">Operating Expense Categories</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {report?.expenseCategoryDistribution.map((item, idx) => (
+                  <div key={idx} className="space-y-1.5 p-3 border rounded-lg">
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="font-medium text-foreground">{item.category}</span>
+                      <span className="font-bold text-destructive">
+                        {formatCurrency(item.amount)} ({item.percentage}%)
+                      </span>
+                    </div>
+                    <Progress value={item.percentage} className="h-2 [&>div]:bg-destructive" />
+                  </div>
                 ))}
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* TAB 5: Transaction Audit Log */}
+          <TabsContent value="audit" className="space-y-6">
+            <Card>
+              <CardHeader className="pb-3">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                  <CardTitle className="text-base font-semibold">Consolidated Financial Audit Log</CardTitle>
+                  <div className="flex items-center gap-2">
+                    <Select value={auditDomain} onValueChange={setAuditDomain}>
+                      <SelectTrigger className="w-36">
+                        <SelectValue placeholder="All Domains" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">All Domains</SelectItem>
+                        <SelectItem value="giving">Giving Only</SelectItem>
+                        <SelectItem value="income">Income Only</SelectItem>
+                        <SelectItem value="expense">Expenses Only</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <DataTable
+                  columns={auditColumns}
+                  data={filteredAuditRecords}
+                  recordLabel="transaction"
+                  recordLabelPlural="transactions"
+                  searchValue={auditSearch}
+                  onSearchChange={setAuditSearch}
+                  searchKey="description"
+                  searchPlaceholder="Search audit log by description, payee, category..."
+                />
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
+      </LazySection>
     </div>
   );
 }

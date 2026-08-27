@@ -1568,3 +1568,65 @@ export interface GroupSearchParams {
   sortBy?: 'name' | 'members' | 'engagement' | 'createdAt';
   sortOrder?: 'asc' | 'desc';
 }
+
+// ─── CONSOLIDATED FINANCIAL REPORTING ──────────────────────────────────────────
+
+export interface StatementOfActivitiesItem {
+  id?: string;
+  category: string;
+  type: 'giving' | 'income' | 'expense';
+  amount: number;
+  percentage: number;
+  priorPeriodAmount?: number;
+}
+
+export interface MonthlyFinancialPoint {
+  month: string;
+  giving: number;
+  income: number;
+  totalInflows: number;
+  expenses: number;
+  netSurplus: number;
+}
+
+export interface DepartmentVariancePoint {
+  department: string;
+  budget: number;
+  spent: number;
+  variance: number;
+  utilization: number;
+  status: string;
+}
+
+export interface ConsolidatedFinancialReport {
+  fiscalYear: number;
+  totalGiving: number;
+  totalIncome: number;
+  totalRevenue: number;
+  totalExpenses: number;
+  netSurplus: number;
+  totalBudget: number;
+  budgetUtilizationRate: number;
+  monthlyTrends: MonthlyFinancialPoint[];
+  statementRevenues: StatementOfActivitiesItem[];
+  statementExpenses: StatementOfActivitiesItem[];
+  departmentVariances: DepartmentVariancePoint[];
+  givingCategoryDistribution: { category: string; amount: number; percentage: number; color?: string }[];
+  incomeCategoryDistribution: { category: string; amount: number; percentage: number; color?: string }[];
+  expenseCategoryDistribution: { category: string; amount: number; percentage: number; color?: string }[];
+  paymentMethodDistribution: { method: string; amount: number; percentage: number }[];
+}
+
+export interface FinancialAuditRecord {
+  id: string;
+  date: string;
+  domain: 'Giving' | 'Income' | 'Expense';
+  category: string;
+  description: string;
+  payeeOrDonor: string;
+  paymentMethod: string;
+  amount: number;
+  flow: 'inflow' | 'outflow';
+  status: string;
+  reference?: string;
+}
