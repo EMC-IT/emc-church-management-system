@@ -17,6 +17,12 @@ import {
 } from '@/components/ui/select';
 import { DatePicker } from '@/components/ui/date-picker';
 import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import {
   Calendar as CalendarIcon,
   Plus,
   Search,
@@ -28,7 +34,8 @@ import {
   Edit,
   Trash2,
   Download,
-  FileText
+  FileText,
+  ChevronDown
 } from 'lucide-react';
 import { format } from 'date-fns';
 import Link from 'next/link';
@@ -128,31 +135,42 @@ export default function EventsPage() {
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <h1 className="font-heading text-2xl font-bold tracking-tight">Events</h1>
 
-        <div className="flex flex-wrap items-center gap-2">
-          <Button variant="outline" size="sm" asChild>
-            <Link href="/dashboard/events/calendar">
-              <CalendarIcon className="mr-1.5 h-4 w-4" />
-              Calendar
-            </Link>
-          </Button>
-          <Button variant="outline" size="sm" asChild>
-            <Link href="/dashboard/events/categories">
-              <Filter className="mr-1.5 h-4 w-4" />
-              Categories
-            </Link>
-          </Button>
-          <Button variant="outline" size="sm" asChild>
-            <Link href="/dashboard/events/templates">
-              <FileText className="mr-1.5 h-4 w-4" />
-              Templates
-            </Link>
-          </Button>
-          <Button variant="outline" size="sm" asChild>
-            <Link href="/dashboard/events/export">
-              <Download className="mr-1.5 h-4 w-4" />
-              Export
-            </Link>
-          </Button>
+        <div className="flex items-center gap-2">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" size="sm">
+                More
+                <ChevronDown className="ml-1.5 h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-48">
+              <DropdownMenuItem asChild>
+                <Link href="/dashboard/events/calendar">
+                  <CalendarIcon className="mr-2 h-4 w-4" />
+                  Calendar View
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link href="/dashboard/events/categories">
+                  <Filter className="mr-2 h-4 w-4" />
+                  Categories
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link href="/dashboard/events/templates">
+                  <FileText className="mr-2 h-4 w-4" />
+                  Templates
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link href="/dashboard/events/export">
+                  <Download className="mr-2 h-4 w-4" />
+                  Export Events
+                </Link>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+
           <Button size="sm" asChild>
             <Link href="/dashboard/events/add">
               <Plus className="mr-1.5 h-4 w-4" />
@@ -164,10 +182,10 @@ export default function EventsPage() {
 
       {/* Stats Cards */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <StatCard title="Total Events" value={events.length} icon={CalendarIcon} />
-        <StatCard title="Upcoming Events" value={upcomingEvents} icon={Clock} />
-        <StatCard title="Total Attendees" value={totalAttendees} icon={Users} />
-        <StatCard title="This Week" value={3} icon={CalendarIcon} />
+        <StatCard title="Total Events" value={events.length} icon={CalendarIcon} accent="primary" />
+        <StatCard title="Upcoming Events" value={upcomingEvents} icon={Clock} accent="success" />
+        <StatCard title="Total Attendees" value={totalAttendees} icon={Users} accent="secondary" />
+        <StatCard title="This Week" value={3} icon={CalendarIcon} accent="accent" />
       </div>
 
       {/* Filter Toolbar */}

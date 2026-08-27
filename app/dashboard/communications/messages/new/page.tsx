@@ -225,10 +225,10 @@ export default function NewMessagePage() {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'online': return 'bg-green-500';
-      case 'away': return 'bg-yellow-500';
-      case 'offline': return 'bg-gray-400';
-      default: return 'bg-gray-400';
+      case 'online': return 'bg-emerald-500';
+      case 'away': return 'bg-amber-500';
+      case 'offline': return 'bg-muted-foreground';
+      default: return 'bg-muted-foreground';
     }
   };
 

@@ -8,6 +8,12 @@ import { StatCard } from '@/components/ui/stat-card';
 import { Badge } from '@/components/ui/badge';
 import { StatusBadge } from '@/components/ui/status-badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import { DataTable } from '@/components/ui/data-table';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
@@ -188,18 +194,29 @@ export default function AttendancePage() {
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <h1 className="font-heading text-2xl font-bold tracking-tight">Attendance</h1>
 
-        <div className="flex items-center gap-2 flex-wrap">
+        <div className="flex items-center gap-2">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" size="sm">
+                More
+                <Download className="ml-1.5 h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-48">
+              <DropdownMenuItem onClick={handleQRCheckin}>
+                <QrCode className="mr-2 h-4 w-4" />
+                QR Check-in
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={handleExportData} disabled={isLoading}>
+                <Download className="mr-2 h-4 w-4" />
+                Export Data
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+
           <Button onClick={handleTakeAttendance} size="sm">
             <Plus className="h-4 w-4 mr-1.5" />
             Take Attendance
-          </Button>
-          <Button variant="outline" onClick={handleQRCheckin} size="sm">
-            <QrCode className="h-4 w-4 mr-1.5" />
-            QR Check-in
-          </Button>
-          <Button variant="outline" onClick={handleExportData} disabled={isLoading} size="sm">
-            <Download className="h-4 w-4 mr-1.5" />
-            Export Data
           </Button>
         </div>
       </div>
@@ -210,22 +227,26 @@ export default function AttendancePage() {
           title="Total Members"
           value={attendanceOverviewStats.totalMembers}
           icon={Users}
+          accent="primary"
         />
         <StatCard
           title="Present Today"
           value={attendanceOverviewStats.presentToday}
           icon={UserCheck}
+          accent="success"
           trend={{ value: `+${attendanceOverviewStats.weeklyTrend}% from last week`, direction: 'up' }}
         />
         <StatCard
           title="Attendance Rate"
           value={`${attendanceOverviewStats.attendanceRate}%`}
           icon={UserCheck}
+          accent="secondary"
         />
         <StatCard
           title="Late Arrivals"
           value={attendanceOverviewStats.lateToday}
           icon={Clock}
+          accent="accent"
         />
       </div>
 

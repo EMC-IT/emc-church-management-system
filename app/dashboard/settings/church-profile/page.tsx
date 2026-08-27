@@ -720,7 +720,7 @@ export default function ChurchProfilePage() {
                 <CardContent className="pt-6 space-y-2">
                   <Button 
                     type="submit" 
-                    className="w-full bg-brand-primary hover:bg-brand-primary/90"
+                    className="w-full"
                     disabled={isSubmitting}
                   >
                     {isSubmitting ? (

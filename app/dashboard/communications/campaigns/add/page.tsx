@@ -343,13 +343,13 @@ export default function AddCampaignPage() {
               <div className="grid gap-6 md:grid-cols-2">
                 <Card 
                   className={`cursor-pointer transition-all hover:shadow-md ${
-                    formData.type === 'email' ? 'ring-2 ring-brand-primary' : ''
+                    formData.type === 'email' ? 'ring-2 ring-primary' : ''
                   }`}
                   onClick={() => handleTypeSelect('email')}
                 >
                   <CardHeader className="text-center">
-                    <div className="mx-auto p-4 bg-blue-100 rounded-full w-fit mb-4">
-                      <Mail className="h-8 w-8 text-blue-600" />
+                    <div className="mx-auto p-4 bg-primary/10 rounded-full w-fit mb-4">
+                      <Mail className="h-8 w-8 text-primary" />
                     </div>
                     <CardTitle>Email Campaign</CardTitle>
                     <CardDescription>Send rich HTML emails with tracking</CardDescription>
@@ -357,19 +357,19 @@ export default function AddCampaignPage() {
                   <CardContent>
                     <ul className="space-y-2 text-sm">
                       <li className="flex items-center gap-2">
-                        <div className="w-1.5 h-1.5 bg-green-500 rounded-full"></div>
+                        <div className="w-1.5 h-1.5 bg-brand-success rounded-full"></div>
                         Rich text formatting
                       </li>
                       <li className="flex items-center gap-2">
-                        <div className="w-1.5 h-1.5 bg-green-500 rounded-full"></div>
+                        <div className="w-1.5 h-1.5 bg-brand-success rounded-full"></div>
                         Open & click tracking
                       </li>
                       <li className="flex items-center gap-2">
-                        <div className="w-1.5 h-1.5 bg-green-500 rounded-full"></div>
+                        <div className="w-1.5 h-1.5 bg-brand-success rounded-full"></div>
                         Images & attachments
                       </li>
                       <li className="flex items-center gap-2">
-                        <div className="w-1.5 h-1.5 bg-green-500 rounded-full"></div>
+                        <div className="w-1.5 h-1.5 bg-brand-success rounded-full"></div>
                         Detailed analytics
                       </li>
                     </ul>
@@ -378,13 +378,13 @@ export default function AddCampaignPage() {
 
                 <Card 
                   className={`cursor-pointer transition-all hover:shadow-md ${
-                    formData.type === 'sms' ? 'ring-2 ring-brand-primary' : ''
+                    formData.type === 'sms' ? 'ring-2 ring-primary' : ''
                   }`}
                   onClick={() => handleTypeSelect('sms')}
                 >
                   <CardHeader className="text-center">
-                    <div className="mx-auto p-4 bg-green-100 rounded-full w-fit mb-4">
-                      <MessageSquare className="h-8 w-8 text-green-600" />
+                    <div className="mx-auto p-4 bg-secondary/10 rounded-full w-fit mb-4">
+                      <MessageSquare className="h-8 w-8 text-secondary" />
                     </div>
                     <CardTitle>SMS Campaign</CardTitle>
                     <CardDescription>Send instant text messages</CardDescription>
@@ -392,19 +392,19 @@ export default function AddCampaignPage() {
                   <CardContent>
                     <ul className="space-y-2 text-sm">
                       <li className="flex items-center gap-2">
-                        <div className="w-1.5 h-1.5 bg-green-500 rounded-full"></div>
+                        <div className="w-1.5 h-1.5 bg-brand-success rounded-full"></div>
                         Instant delivery
                       </li>
                       <li className="flex items-center gap-2">
-                        <div className="w-1.5 h-1.5 bg-green-500 rounded-full"></div>
+                        <div className="w-1.5 h-1.5 bg-brand-success rounded-full"></div>
                         High open rates
                       </li>
                       <li className="flex items-center gap-2">
-                        <div className="w-1.5 h-1.5 bg-green-500 rounded-full"></div>
+                        <div className="w-1.5 h-1.5 bg-brand-success rounded-full"></div>
                         Mobile-first
                       </li>
                       <li className="flex items-center gap-2">
-                        <div className="w-1.5 h-1.5 bg-green-500 rounded-full"></div>
+                        <div className="w-1.5 h-1.5 bg-brand-success rounded-full"></div>
                         Cost-effective
                       </li>
                     </ul>
@@ -599,14 +599,14 @@ export default function AddCampaignPage() {
               </div>
               
               {formData.targetAudience.length > 0 && (
-                <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                <div className="mt-6 p-4 bg-muted/40 border border-border rounded-lg">
                   <div className="flex items-center gap-2 mb-2">
-                    <Users className="h-5 w-5 text-blue-600" />
-                    <span className="font-medium text-blue-900">Selected Audience Summary</span>
+                    <Users className="h-5 w-5 text-primary" />
+                    <span className="font-medium text-foreground">Selected Audience Summary</span>
                   </div>
-                  <p className="text-blue-800">
-                    <strong>{getTotalRecipients()}</strong> total recipients across{' '}
-                    <strong>{formData.targetAudience.length}</strong> group{formData.targetAudience.length > 1 ? 's' : ''}
+                  <p className="text-sm text-muted-foreground">
+                    <strong className="text-foreground">{getTotalRecipients()}</strong> total recipients across{' '}
+                    <strong className="text-foreground">{formData.targetAudience.length}</strong> group{formData.targetAudience.length > 1 ? 's' : ''}
                   </p>
                 </div>
               )}

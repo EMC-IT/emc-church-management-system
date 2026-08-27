@@ -552,9 +552,9 @@ export default function MembersPage() {
               <Download className="mr-2 h-4 w-4" />
               Export
             </Button>
-            <Button asChild className="bg-brand-primary hover:bg-brand-primary/90">
+            <Button asChild>
               <Link href="/dashboard/members/add">
-                <Plus className="mr-2 h-4 w-4" />
+                <Plus className="mr-1.5 h-4 w-4" />
                 Add Member
               </Link>
             </Button>

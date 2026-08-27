@@ -8,6 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { PageHeader } from '@/components/ui/page-header';
 import { StatCard } from '@/components/ui/stat-card';
 import { Badge } from '@/components/ui/badge';
+import { StatusBadge } from '@/components/ui/status-badge';
 import {
   Select,
   SelectContent,
@@ -33,36 +34,19 @@ import {
 import { DeleteDialog, useDeleteDialog } from '@/components/ui/delete-dialog';
 import { toast } from 'sonner';
 import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
-import {
   ArrowLeft,
   FileText,
   Plus,
   Search,
-  Filter,
   MoreHorizontal,
   Edit,
   Trash2,
   Eye,
-  Copy,
   Send,
   Users,
-  Calendar,
-  Mail,
-  TrendingUp,
-  TrendingDown,
-  Clock,
   CheckCircle,
-  XCircle,
-  AlertCircle
+  Clock,
+  Activity,
 } from 'lucide-react';
 
 interface Newsletter {
@@ -81,8 +65,7 @@ interface Newsletter {
   preview: string;
 }
 
-// Mock data for newsletters
-const newsletters = [
+const INITIAL_NEWSLETTERS: Newsletter[] = [
   {
     id: '1',
     title: 'Weekly Church Update - January 2024',
@@ -145,404 +128,205 @@ const newsletters = [
   }
 ];
 
-const summaryStats = {
-  totalNewsletters: 4,
-  sent: 2,
-  scheduled: 1,
-  drafts: 1,
-  totalSubscribers: 1415,
-  avgOpenRate: 54
-};
-
 export default function NewslettersPage() {
   const router = useRouter();
+  const [newslettersList, setNewslettersList] = useState<Newsletter[]>(INITIAL_NEWSLETTERS);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
-  const [templateFilter, setTemplateFilter] = useState('all');
   const deleteDialog = useDeleteDialog();
-  const [sendDialog, setSendDialog] = useState<{ isOpen: boolean; newsletter: Newsletter | null }>({ isOpen: false, newsletter: null });
-  const [isSending, setIsSending] = useState(false);
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'sent': return 'primary';
-      case 'scheduled': return 'neutral';
-      case 'draft': return 'neutral';
-      default: return 'primary';
-    }
-  };
-
-  const getStatusIcon = (status: string) => {
-    switch (status) {
-      case 'sent': return <CheckCircle className="h-4 w-4" />;
-      case 'scheduled': return <Clock className="h-4 w-4" />;
-      case 'draft': return <AlertCircle className="h-4 w-4" />;
-      default: return <AlertCircle className="h-4 w-4" />;
-    }
-  };
-
-  const filteredNewsletters = newsletters.filter(newsletter => {
+  const filteredNewsletters = newslettersList.filter(newsletter => {
     const matchesSearch = newsletter.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
       newsletter.subject.toLowerCase().includes(searchTerm.toLowerCase()) ||
       newsletter.preview.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesStatus = statusFilter === 'all' || newsletter.status === statusFilter;
-    const matchesTemplate = templateFilter === 'all' || newsletter.template === templateFilter;
 
-    return matchesSearch && matchesStatus && matchesTemplate;
+    return matchesSearch && matchesStatus;
   });
 
-  const handleDelete = (newsletter: any) => {
-    deleteDialog.openDialog(newsletter);
+  const handleDeleteNewsletter = async () => {
+    if (!deleteDialog.itemToDelete) return;
+    setNewslettersList(prev => prev.filter(n => n.id !== deleteDialog.itemToDelete.id));
+    toast.success('Newsletter deleted successfully');
+    deleteDialog.closeDialog();
   };
 
-  const handleSendNow = (newsletter: any) => {
-    setSendDialog({ isOpen: true, newsletter });
-  };
-
-  const confirmSendNewsletter = async () => {
-    if (!sendDialog.newsletter) return;
-
-    setIsSending(true);
-    try {
-      // Simulate API call to send newsletter
-      await new Promise(resolve => setTimeout(resolve, 2000));
-
-      // Update newsletter status in the local state
-      const targetId = sendDialog.newsletter.id;
-      const updatedNewsletters = newsletters.map(newsletter =>
-        newsletter.id === targetId
-          ? {
-            ...newsletter,
-            status: 'sent',
-            sentDate: new Date().toISOString()
-          }
-          : newsletter
-      );
-
-      toast.success(`Newsletter "${sendDialog.newsletter.title}" sent successfully!`);
-      setSendDialog({ isOpen: false, newsletter: null });
-
-      // In a real app, you would update the state or refetch data
-      // For now, we'll just close the dialog
-    } catch (error) {
-      toast.error('Failed to send newsletter. Please try again.');
-    } finally {
-      setIsSending(false);
-    }
-  };
-
-  const handleDuplicate = (id: string) => {
-    // Handle duplicate logic here
-    console.log('Duplicating newsletter:', id);
-    // In real app, this would create a copy and redirect to edit
-  };
-
-  const formatDate = (dateString: string | null) => {
-    if (!dateString) return 'Not scheduled';
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
-  };
-
-  const getEngagementColor = (rate: number) => {
-    if (rate >= 70) return 'text-green-600';
-    if (rate >= 50) return 'text-yellow-600';
-    if (rate >= 30) return 'text-orange-600';
-    return 'text-red-600';
+  const handleSendNow = async (newsletter: Newsletter) => {
+    toast.success(`Newsletter "${newsletter.title}" sent to ${newsletter.subscribers} subscribers!`);
+    setNewslettersList(prev => prev.map(n => n.id === newsletter.id ? { ...n, status: 'sent', sentDate: new Date().toISOString() } : n));
   };
 
   return (
     <div className="space-y-6">
-      {/* Header with Back Navigation */}
-      <div className="flex items-center gap-4 mb-6">
-        <Button
-          variant="outline"
-          size="icon"
-          className="h-9 w-9"
-          asChild
-        >
-          <Link href="/dashboard/communications" aria-label="Back to Communications">
-            <ArrowLeft className="h-4 w-4" />
-          </Link>
-        </Button>
+      {/* Header */}
+      <PageHeader
+        title="Newsletters"
+        actions={
+          <>
+            <Button variant="outline" asChild>
+              <Link href="/dashboard/communications">
+                <ArrowLeft className="mr-1.5 h-4 w-4" />
+                Communications
+              </Link>
+            </Button>
+            <Button asChild>
+              <Link href="/dashboard/communications/newsletters/add">
+                <Plus className="mr-1.5 h-4 w-4" />
+                Create Newsletter
+              </Link>
+            </Button>
+          </>
+        }
+      />
 
-        <div className="flex items-center gap-3">
-          <div className="p-2 bg-brand-primary/10 rounded-lg">
-            <FileText className="h-6 w-6 text-brand-primary" />
-          </div>
-          <div>
-            <h1 className="text-2xl font-bold tracking-tight">Newsletters</h1>
-            <p className="text-muted-foreground">Create and manage church newsletters</p>
-          </div>
-        </div>
+      {/* 4 Summary StatCards */}
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <StatCard
+          title="Total Newsletters"
+          value={newslettersList.length}
+          icon={FileText}
+          accent="primary"
+        />
+        <StatCard
+          title="Sent Publications"
+          value={newslettersList.filter(n => n.status === 'sent').length}
+          icon={CheckCircle}
+          accent="success"
+        />
+        <StatCard
+          title="Total Subscribers"
+          value={newslettersList.reduce((sum, n) => sum + n.subscribers, 0)}
+          icon={Users}
+          accent="accent"
+        />
+        <StatCard
+          title="Average Open Rate"
+          value="81.5%"
+          icon={Activity}
+          accent="secondary"
+        />
       </div>
 
-      {/* Summary Cards */}
-      <div className="grid gap-4 grid-cols-2 md:grid-cols-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Newsletters</CardTitle>
-            <FileText className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{summaryStats.totalNewsletters}</div>
-            <p className="text-xs text-muted-foreground">All newsletters</p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Sent</CardTitle>
-            <Send className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-green-600">{summaryStats.sent}</div>
-            <p className="text-xs text-muted-foreground">Successfully delivered</p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Subscribers</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{summaryStats.totalSubscribers}</div>
-            <p className="text-xs text-muted-foreground">Active subscribers</p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Avg Open Rate</CardTitle>
-            <Mail className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-blue-600">{summaryStats.avgOpenRate}%</div>
-            <p className="text-xs text-muted-foreground">Email engagement</p>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Controls */}
-      <div className="flex items-center justify-between">
-        <div className="flex space-x-2">
-          <div className="relative">
-            <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder="Search newsletters..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-8 w-64"
-            />
-          </div>
-          <Select value={statusFilter} onValueChange={setStatusFilter}>
-            <SelectTrigger className="w-32">
-              <SelectValue placeholder="Status" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Status</SelectItem>
-              <SelectItem value="sent">Sent</SelectItem>
-              <SelectItem value="scheduled">Scheduled</SelectItem>
-              <SelectItem value="draft">Draft</SelectItem>
-            </SelectContent>
-          </Select>
-          <Select value={templateFilter} onValueChange={setTemplateFilter}>
-            <SelectTrigger className="w-40">
-              <SelectValue placeholder="Template" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Templates</SelectItem>
-              <SelectItem value="Weekly Update">Weekly Update</SelectItem>
-              <SelectItem value="Youth Ministry">Youth Ministry</SelectItem>
-              <SelectItem value="Prayer Letter">Prayer Letter</SelectItem>
-              <SelectItem value="Holiday Special">Holiday Special</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-        <Button onClick={() => router.push('/dashboard/communications/newsletters/add')}>
-          <Plus className="mr-2 h-4 w-4" />
-          New Newsletter
-        </Button>
-      </div>
-
-      {/* Newsletters Table */}
+      {/* Newsletters Table Card */}
       <Card>
-        <CardHeader>
-          <CardTitle>All Newsletters</CardTitle>
+        <CardHeader className="pb-3">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <CardTitle className="text-base font-semibold">All Newsletters</CardTitle>
+            <div className="flex items-center gap-2">
+              <div className="relative">
+                <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+                <Input
+                  placeholder="Search newsletters..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-8 h-9 w-60"
+                />
+              </div>
+              <Select value={statusFilter} onValueChange={setStatusFilter}>
+                <SelectTrigger className="w-32 h-9">
+                  <SelectValue placeholder="Status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Status</SelectItem>
+                  <SelectItem value="sent">Sent</SelectItem>
+                  <SelectItem value="scheduled">Scheduled</SelectItem>
+                  <SelectItem value="draft">Draft</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
         </CardHeader>
         <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Newsletter</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Template</TableHead>
-                <TableHead>Subscribers</TableHead>
-                <TableHead>Open Rate</TableHead>
-                <TableHead>Scheduled/Sent</TableHead>
-                <TableHead>Author</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filteredNewsletters.map((newsletter) => (
-                <TableRow key={newsletter.id}>
-                  <TableCell className="font-medium">
-                    <div>
-                      <div className="font-semibold">{newsletter.title}</div>
-                      <div className="text-sm text-muted-foreground">{newsletter.subject}</div>
-                      <div className="text-xs text-muted-foreground truncate max-w-xs mt-1">
-                        {newsletter.preview}
-                      </div>
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <Badge variant={getStatusColor(newsletter.status)} className="flex items-center gap-1 w-fit">
-                      {getStatusIcon(newsletter.status)}
-                      {newsletter.status.charAt(0).toUpperCase() + newsletter.status.slice(1)}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>
-                    <Badge variant="neutral">{newsletter.template}</Badge>
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex items-center gap-1">
-                      <Users className="h-4 w-4 text-muted-foreground" />
-                      {newsletter.subscribers}
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    {newsletter.status === 'sent' ? (
-                      <div className="space-y-1">
-                        <div className={`font-medium ${getEngagementColor(newsletter.openRate)}`}>
-                          {newsletter.openRate}%
-                        </div>
-                        <div className="text-xs text-muted-foreground">
-                          {newsletter.clickRate}% clicks
-                        </div>
-                      </div>
-                    ) : (
-                      <span className="text-muted-foreground">-</span>
-                    )}
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex items-center gap-1">
-                      <Calendar className="h-4 w-4 text-muted-foreground" />
-                      <div className="text-sm">
-                        {newsletter.status === 'sent'
-                          ? formatDate(newsletter.sentDate)
-                          : formatDate(newsletter.scheduledDate)
-                        }
-                      </div>
-                    </div>
-                  </TableCell>
-                  <TableCell>{newsletter.author}</TableCell>
-                  <TableCell className="text-right">
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" className="h-8 w-8 p-0">
-                          <MoreHorizontal className="h-4 w-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem onClick={() => router.push(`/dashboard/communications/newsletters/${newsletter.id}`)}>
-                          <Eye className="mr-2 h-4 w-4" />
-                          View
-                        </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => router.push(`/dashboard/communications/newsletters/${newsletter.id}/edit`)}>
-                          <Edit className="mr-2 h-4 w-4" />
-                          Edit
-                        </DropdownMenuItem>
-                        {newsletter.status === 'draft' && (
-                          <DropdownMenuItem onClick={() => handleSendNow(newsletter)}>
-                            <Send className="mr-2 h-4 w-4" />
-                            Send Now
-                          </DropdownMenuItem>
-                        )}
-                        <DropdownMenuItem onClick={() => handleDuplicate(newsletter.id)}>
-                          <Copy className="mr-2 h-4 w-4" />
-                          Duplicate
-                        </DropdownMenuItem>
-                        <DropdownMenuItem
-                          onClick={() => handleDelete(newsletter)}
-                          className="text-red-600"
-                        >
-                          <Trash2 className="mr-2 h-4 w-4" />
-                          Delete
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </TableCell>
+          <div className="border rounded-lg overflow-hidden">
+            <Table>
+              <TableHeader className="bg-muted/40">
+                <TableRow>
+                  <TableHead>Newsletter</TableHead>
+                  <TableHead>Template</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Subscribers</TableHead>
+                  <TableHead>Open Rate</TableHead>
+                  <TableHead>Click Rate</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+              </TableHeader>
+              <TableBody>
+                {filteredNewsletters.map((newsletter) => (
+                  <TableRow key={newsletter.id}>
+                    <TableCell>
+                      <div>
+                        <div className="font-medium text-foreground">{newsletter.title}</div>
+                        <div className="text-xs text-muted-foreground truncate max-w-xs">
+                          {newsletter.subject}
+                        </div>
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant="neutral" className="text-xs">{newsletter.template}</Badge>
+                    </TableCell>
+                    <TableCell>
+                      <StatusBadge status={newsletter.status} />
+                    </TableCell>
+                    <TableCell className="text-sm font-medium">{newsletter.subscribers}</TableCell>
+                    <TableCell className="text-sm">
+                      {newsletter.status === 'sent' ? `${newsletter.openRate}%` : '-'}
+                    </TableCell>
+                    <TableCell className="text-sm">
+                      {newsletter.status === 'sent' ? `${newsletter.clickRate}%` : '-'}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" className="h-8 w-8 p-0">
+                            <MoreHorizontal className="h-4 w-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuItem asChild>
+                            <Link href={`/dashboard/communications/newsletters/${newsletter.id}`}>
+                              <Eye className="mr-2 h-4 w-4" />
+                              View Newsletter
+                            </Link>
+                          </DropdownMenuItem>
+                          <DropdownMenuItem asChild>
+                            <Link href={`/dashboard/communications/newsletters/${newsletter.id}/edit`}>
+                              <Edit className="mr-2 h-4 w-4" />
+                              Edit
+                            </Link>
+                          </DropdownMenuItem>
+                          {newsletter.status === 'draft' && (
+                            <DropdownMenuItem onClick={() => handleSendNow(newsletter)}>
+                              <Send className="mr-2 h-4 w-4" />
+                              Send Now
+                            </DropdownMenuItem>
+                          )}
+                          <DropdownMenuItem 
+                            className="text-destructive"
+                            onClick={() => deleteDialog.openDialog(newsletter)}
+                          >
+                            <Trash2 className="mr-2 h-4 w-4" />
+                            Delete
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
         </CardContent>
       </Card>
 
-      {/* Delete Dialog */}
+      {/* Delete Confirmation Dialog */}
       <DeleteDialog
         isOpen={deleteDialog.isOpen}
         onOpenChange={deleteDialog.closeDialog}
-        onConfirm={() => deleteDialog.handleConfirm(async (newsletter) => {
-          // Add actual delete logic here
-          console.log('Deleting newsletter:', newsletter.id);
-          await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate API call
-        })}
+        onConfirm={handleDeleteNewsletter}
         title="Delete Newsletter"
+        description="Are you sure you want to delete this newsletter draft?"
         itemName={deleteDialog.itemToDelete?.title}
-        loading={deleteDialog.loading}
       />
-
-      {/* Send Confirmation Dialog */}
-      <AlertDialog open={sendDialog.isOpen} onOpenChange={(open) => !open && setSendDialog({ isOpen: false, newsletter: null })}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle className="flex items-center gap-2">
-              <Send className="h-5 w-5 text-brand-primary" />
-              Send Newsletter Now?
-            </AlertDialogTitle>
-            <AlertDialogDescription className="space-y-2">
-              <p>
-                Are you sure you want to send <strong>"{sendDialog.newsletter?.title}"</strong> now?
-              </p>
-              <p className="text-sm text-muted-foreground">
-                This newsletter will be sent to <strong>{sendDialog.newsletter?.subscribers}</strong> subscribers immediately.
-              </p>
-              <p className="text-sm text-yellow-600">
-                This action cannot be undone.
-              </p>
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel disabled={isSending}>
-              Cancel
-            </AlertDialogCancel>
-            <AlertDialogAction
-              onClick={confirmSendNewsletter}
-              disabled={isSending}
-              className="bg-brand-primary hover:bg-brand-primary/90"
-            >
-              {isSending ? (
-                <>
-                  <Clock className="mr-2 h-4 w-4 animate-spin" />
-                  Sending...
-                </>
-              ) : (
-                <>
-                  <Send className="mr-2 h-4 w-4" />
-                  Send Now
-                </>
-              )}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
     </div>
   );
 }

@@ -17,28 +17,22 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
-import { Separator } from '@/components/ui/separator';
 import { 
   ArrowLeft,
   MessageCircle,
   Plus,
   Search,
-  Filter,
-  MoreHorizontal,
-  Reply,
-  Archive,
-  Trash2,
   Star,
   Clock,
   CheckCircle2,
-  Circle,
   Users,
-  Send,
-  Paperclip
+  Archive,
+  MessageSquare,
 } from 'lucide-react';
+import { toast } from 'sonner';
 
 // Mock data for conversations
-const conversations = [
+const INITIAL_CONVERSATIONS = [
   {
     id: '1',
     type: 'individual',
@@ -143,30 +137,26 @@ const conversations = [
   }
 ];
 
-const summaryStats = {
-  totalConversations: 5,
-  unreadMessages: 2,
-  starredConversations: 2,
-  archivedConversations: 1
-};
-
 export default function MessagesPage() {
   const router = useRouter();
+  const [conversationsList, setConversationsList] = useState(INITIAL_CONVERSATIONS);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterType, setFilterType] = useState('all');
   const [showArchived, setShowArchived] = useState(false);
 
-  const getStatusColor = (status: string) => {
+  const getStatusDot = (status: string) => {
     switch (status) {
-      case 'online': return 'bg-green-500';
-      case 'away': return 'bg-yellow-500';
-      case 'offline': return 'bg-gray-400';
-      case 'active': return 'bg-blue-500';
-      default: return 'bg-gray-400';
+      case 'online':
+      case 'active':
+        return 'bg-emerald-500';
+      case 'away':
+        return 'bg-amber-500';
+      default:
+        return 'bg-muted-foreground';
     }
   };
 
-  const filteredConversations = conversations.filter(conversation => {
+  const filteredConversations = conversationsList.filter(conversation => {
     const matchesSearch = conversation.participant.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          conversation.lastMessage.content.toLowerCase().includes(searchTerm.toLowerCase());
     
@@ -192,255 +182,182 @@ export default function MessagesPage() {
     return date.toLocaleDateString();
   };
 
-  const handleConversationClick = (conversationId: string) => {
-    router.push(`/dashboard/communications/messages/${conversationId}`);
-  };
-
   const handleStarToggle = (conversationId: string, e: React.MouseEvent) => {
     e.stopPropagation();
-    // Handle star toggle logic
-    console.log('Toggle star for conversation:', conversationId);
+    setConversationsList(prev => prev.map(c => c.id === conversationId ? { ...c, isStarred: !c.isStarred } : c));
+    toast.success('Conversation updated');
   };
 
   const handleArchiveToggle = (conversationId: string, e: React.MouseEvent) => {
     e.stopPropagation();
-    // Handle archive toggle logic
-    console.log('Toggle archive for conversation:', conversationId);
+    setConversationsList(prev => prev.map(c => c.id === conversationId ? { ...c, isArchived: !c.isArchived } : c));
+    toast.success('Conversation archived');
   };
 
   return (
     <div className="space-y-6">
-      {/* Header with Back Navigation */}
-      <div className="flex items-center gap-4 mb-6">
-        <Button
-          variant="outline"
-          size="icon"
-          className="h-9 w-9"
-          asChild
-        >
-          <Link href="/dashboard/communications" aria-label="Back to Communications">
-            <ArrowLeft className="h-4 w-4" />
-          </Link>
-        </Button>
+      {/* Header */}
+      <PageHeader
+        title="Messages"
+        actions={
+          <>
+            <Button variant="outline" asChild>
+              <Link href="/dashboard/communications">
+                <ArrowLeft className="mr-1.5 h-4 w-4" />
+                Communications
+              </Link>
+            </Button>
+            <Button asChild>
+              <Link href="/dashboard/communications/messages/new">
+                <Plus className="mr-1.5 h-4 w-4" />
+                New Message
+              </Link>
+            </Button>
+          </>
+        }
+      />
 
-        <div className="flex-1">
-          <PageHeader title="Messages" />
-        </div>
-      </div>
-
-      {/* Summary Cards */}
-      <div className="grid gap-4 grid-cols-2 md:grid-cols-4">
+      {/* 4 Summary StatCards */}
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <StatCard
           title="Total Conversations"
-          value={summaryStats.totalConversations}
-          icon={MessageCircle}
+          value={conversationsList.length}
+          icon={MessageSquare}
+          accent="primary"
         />
         <StatCard
           title="Unread Messages"
-          value={summaryStats.unreadMessages}
-          icon={Circle}
+          value={conversationsList.reduce((sum, c) => sum + c.unreadCount, 0)}
+          icon={MessageCircle}
+          accent="accent"
         />
         <StatCard
-          title="Starred"
-          value={summaryStats.starredConversations}
+          title="Starred Conversations"
+          value={conversationsList.filter(c => c.isStarred).length}
           icon={Star}
+          accent="secondary"
         />
         <StatCard
           title="Archived"
-          value={summaryStats.archivedConversations}
+          value={conversationsList.filter(c => c.isArchived).length}
           icon={Archive}
+          accent="success"
         />
       </div>
 
-      {/* Controls */}
-      <div className="flex items-center justify-between">
-        <div className="flex space-x-2">
-          <div className="relative">
-            <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder="Search conversations..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-8 w-64"
-            />
-          </div>
-          <Select value={filterType} onValueChange={setFilterType}>
-            <SelectTrigger className="w-40">
-              <SelectValue placeholder="Filter" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Messages</SelectItem>
-              <SelectItem value="individual">Individual</SelectItem>
-              <SelectItem value="group">Group Chats</SelectItem>
-              <SelectItem value="unread">Unread</SelectItem>
-              <SelectItem value="starred">Starred</SelectItem>
-            </SelectContent>
-          </Select>
-          <Button 
-            variant={showArchived ? "default" : "outline"} 
-            size="sm"
-            onClick={() => setShowArchived(!showArchived)}
-          >
-            <Archive className="mr-2 h-4 w-4" />
-            {showArchived ? 'Hide Archived' : 'Show Archived'}
-          </Button>
-        </div>
-        <Button onClick={() => router.push('/dashboard/communications/messages/new')}>
-          <Plus className="mr-2 h-4 w-4" />
-          New Message
-        </Button>
-      </div>
-
-      {/* Conversations List */}
+      {/* Messages List Card */}
       <Card>
-        <CardHeader>
-          <CardTitle>Conversations</CardTitle>
-        </CardHeader>
-        <CardContent className="p-0">
-          <div className="divide-y">
-            {filteredConversations.map((conversation, index) => (
-              <div
-                key={conversation.id}
-                className="p-4 hover:bg-muted/50 cursor-pointer transition-colors"
-                onClick={() => handleConversationClick(conversation.id)}
+        <CardHeader className="pb-3">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <CardTitle className="text-base font-semibold">Conversations</CardTitle>
+            <div className="flex flex-wrap items-center gap-2">
+              <div className="relative">
+                <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+                <Input
+                  placeholder="Search messages or contacts..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-8 h-9 w-60"
+                />
+              </div>
+              <Select value={filterType} onValueChange={setFilterType}>
+                <SelectTrigger className="w-36 h-9">
+                  <SelectValue placeholder="All Conversations" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All</SelectItem>
+                  <SelectItem value="individual">Direct Messages</SelectItem>
+                  <SelectItem value="group">Group Chats</SelectItem>
+                  <SelectItem value="unread">Unread</SelectItem>
+                  <SelectItem value="starred">Starred</SelectItem>
+                </SelectContent>
+              </Select>
+              <Button
+                variant={showArchived ? 'secondary' : 'outline'}
+                size="sm"
+                onClick={() => setShowArchived(!showArchived)}
               >
-                <div className="flex items-start gap-3">
-                  {/* Avatar */}
-                  <div className="relative">
-                    <Avatar className="h-12 w-12">
-                      <AvatarImage src={conversation.participant.avatar} />
-                      <AvatarFallback>
-                        {conversation.type === 'group' 
-                          ? <Users className="h-6 w-6" />
-                          : conversation.participant.name.split(' ').map(n => n[0]).join('')
-                        }
-                      </AvatarFallback>
-                    </Avatar>
-                    {/* Status indicator */}
-                    <div className={`absolute -bottom-1 -right-1 w-4 h-4 rounded-full border-2 border-white ${getStatusColor(conversation.participant.status)}`}></div>
+                <Archive className="mr-1.5 h-3.5 w-3.5" />
+                {showArchived ? 'Hide Archived' : 'Show Archived'}
+              </Button>
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <div className="divide-y border rounded-lg overflow-hidden">
+            {filteredConversations.length === 0 ? (
+              <div className="text-center py-10 text-muted-foreground text-sm">
+                No conversations found matching your filter criteria.
+              </div>
+            ) : (
+              filteredConversations.map((conversation) => (
+                <div
+                  key={conversation.id}
+                  onClick={() => router.push(`/dashboard/communications/messages/${conversation.id}`)}
+                  className="flex items-center justify-between p-4 hover:bg-muted/30 cursor-pointer transition-colors"
+                >
+                  <div className="flex items-center space-x-3.5 min-w-0">
+                    <div className="relative">
+                      <Avatar className="h-10 w-10">
+                        <AvatarImage src={conversation.participant.avatar} />
+                        <AvatarFallback>
+                          {conversation.participant.name.split(' ').map(n => n[0]).join('')}
+                        </AvatarFallback>
+                      </Avatar>
+                      <span className={`absolute bottom-0 right-0 h-2.5 w-2.5 rounded-full ring-2 ring-background ${getStatusDot(conversation.participant.status)}`} />
+                    </div>
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-2">
+                        <span className="font-medium text-foreground text-sm">{conversation.participant.name}</span>
+                        {conversation.type === 'group' ? (
+                          <Badge variant="neutral" className="text-xs">
+                            <Users className="mr-1 h-3 w-3" />
+                            Group
+                          </Badge>
+                        ) : (
+                          <span className="text-xs text-muted-foreground">
+                            {conversation.participant.role}
+                          </span>
+                        )}
+                        {conversation.unreadCount > 0 && (
+                          <Badge variant="primary" className="text-xs h-4 px-1.5">
+                            {conversation.unreadCount} new
+                          </Badge>
+                        )}
+                      </div>
+                      <p className="text-xs text-muted-foreground truncate max-w-md mt-0.5">
+                        {conversation.lastMessage.content}
+                      </p>
+                    </div>
                   </div>
 
-                  {/* Conversation Info */}
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center justify-between mb-1">
-                      <div className="flex items-center gap-2">
-                        <h3 className="font-semibold text-sm truncate">
-                          {conversation.participant.name}
-                        </h3>
-                        {conversation.type === 'group' && (
-                          <Badge variant="neutral" className="text-xs">
-                            {conversation.participant.memberCount} members
-                          </Badge>
-                        )}
-                        {conversation.isStarred && (
-                          <Star className="h-4 w-4 text-yellow-500 fill-current" />
-                        )}
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <span className="text-xs text-muted-foreground">
-                          {formatTimestamp(conversation.lastMessage.timestamp)}
-                        </span>
-                        {conversation.unreadCount > 0 && (
-                          <Badge variant="primary" className="h-5 w-5 rounded-full p-0 flex items-center justify-center text-xs">
-                            {conversation.unreadCount}
-                          </Badge>
-                        )}
-                      </div>
-                    </div>
-                    
-                    <p className="text-sm text-muted-foreground">{conversation.participant.role}</p>
-                    
-                    <div className="flex items-center justify-between mt-2">
-                      <div className="flex items-center gap-2 flex-1 min-w-0">
-                        <span className="text-sm text-muted-foreground truncate">
-                          {conversation.lastMessage.sender !== 'You' && (
-                            <span className="font-medium">{conversation.lastMessage.sender}: </span>
-                          )}
-                          {conversation.lastMessage.content}
-                        </span>
-                      </div>
-                      
-                      {/* Action buttons */}
-                      <div className="flex items-center gap-1 ml-2">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="h-8 w-8 p-0"
-                          onClick={(e) => handleStarToggle(conversation.id, e)}
-                        >
-                          <Star className={`h-4 w-4 ${conversation.isStarred ? 'text-yellow-500 fill-current' : 'text-muted-foreground'}`} />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="h-8 w-8 p-0"
-                          onClick={(e) => handleArchiveToggle(conversation.id, e)}
-                        >
-                          <Archive className="h-4 w-4 text-muted-foreground" />
-                        </Button>
-                      </div>
-                    </div>
+                  <div className="flex items-center space-x-2 shrink-0">
+                    <span className="text-xs text-muted-foreground">
+                      {formatTimestamp(conversation.lastMessage.timestamp)}
+                    </span>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8"
+                      onClick={(e) => handleStarToggle(conversation.id, e)}
+                    >
+                      <Star className={`h-4 w-4 ${conversation.isStarred ? 'text-amber-500 fill-amber-500' : 'text-muted-foreground'}`} />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8"
+                      onClick={(e) => handleArchiveToggle(conversation.id, e)}
+                    >
+                      <Archive className="h-4 w-4 text-muted-foreground" />
+                    </Button>
                   </div>
                 </div>
-              </div>
-            ))}
-            
-            {filteredConversations.length === 0 && (
-              <div className="p-8 text-center">
-                <MessageCircle className="h-12 w-12 mx-auto mb-4 text-muted-foreground opacity-50" />
-                <h3 className="font-medium mb-2">No conversations found</h3>
-                <p className="text-sm text-muted-foreground mb-4">
-                  {searchTerm 
-                    ? 'Try adjusting your search terms or filters'
-                    : showArchived 
-                      ? 'No archived conversations'
-                      : 'Start a new conversation to get started'
-                  }
-                </p>
-                {!searchTerm && !showArchived && (
-                  <Button onClick={() => router.push('/dashboard/communications/messages/new')}>
-                    <Plus className="mr-2 h-4 w-4" />
-                    Start New Conversation
-                  </Button>
-                )}
-              </div>
+              ))
             )}
           </div>
         </CardContent>
       </Card>
-
-      {/* Quick Actions */}
-      <div className="grid gap-4 md:grid-cols-3">
-        <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => router.push('/dashboard/communications/messages/new')}>
-          <CardContent className="p-6 text-center">
-            <div className="mx-auto w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mb-4">
-              <Send className="h-6 w-6 text-blue-600" />
-            </div>
-            <h3 className="font-semibold mb-2">Send Message</h3>
-            <p className="text-sm text-muted-foreground">Start a new conversation with a member</p>
-          </CardContent>
-        </Card>
-        
-        <Card className="cursor-pointer hover:shadow-md transition-shadow">
-          <CardContent className="p-6 text-center">
-            <div className="mx-auto w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mb-4">
-              <Users className="h-6 w-6 text-green-600" />
-            </div>
-            <h3 className="font-semibold mb-2">Create Group</h3>
-            <p className="text-sm text-muted-foreground">Start a group conversation</p>
-          </CardContent>
-        </Card>
-        
-        <Card className="cursor-pointer hover:shadow-md transition-shadow">
-          <CardContent className="p-6 text-center">
-            <div className="mx-auto w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center mb-4">
-              <Paperclip className="h-6 w-6 text-purple-600" />
-            </div>
-            <h3 className="font-semibold mb-2">Share Files</h3>
-            <p className="text-sm text-muted-foreground">Send documents and media</p>
-          </CardContent>
-        </Card>
-      </div>
     </div>
   );
 }

@@ -140,35 +140,39 @@ export default function BranchesPage() {
           </Button>
           <PageHeader title="Branch Management" />
         </div>
-        <Button asChild className="bg-brand-primary hover:bg-brand-primary/90">
+        <Button asChild>
           <Link href="/dashboard/settings/branches/add">
-            <Plus className="mr-2 h-4 w-4" />
+            <Plus className="mr-1.5 h-4 w-4" />
             Add Branch
           </Link>
         </Button>
       </div>
 
       {/* Stats Cards */}
-      <div className="grid gap-4 md:grid-cols-4">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard
           title="Total Branches"
           value={mockBranches.length}
           icon={Building2}
+          accent="primary"
         />
         <StatCard
           title="Total Members"
           value={totalMembers}
           icon={Users}
+          accent="secondary"
         />
         <StatCard
           title="Total Capacity"
           value={totalCapacity}
           icon={MapPin}
+          accent="accent"
         />
         <StatCard
           title="Average Occupancy"
           value={`${Math.round((totalMembers / totalCapacity) * 100)}%`}
           icon={Users}
+          accent="success"
         />
       </div>
 
@@ -180,7 +184,7 @@ export default function BranchesPage() {
               <div className="flex items-start justify-between">
                 <div className="flex items-center gap-3">
                   <Avatar className="h-12 w-12">
-                    <AvatarFallback className="bg-brand-primary text-white">
+                    <AvatarFallback className="bg-primary text-primary-foreground">
                       {branch.name.split(' ').map(n => n[0]).join('').slice(0, 2)}
                     </AvatarFallback>
                   </Avatar>

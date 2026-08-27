@@ -193,10 +193,10 @@ export default function MessageThreadPage() {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'online': return 'bg-green-500';
-      case 'away': return 'bg-yellow-500';
-      case 'offline': return 'bg-gray-400';
-      default: return 'bg-gray-400';
+      case 'online': return 'bg-emerald-500';
+      case 'away': return 'bg-amber-500';
+      case 'offline': return 'bg-muted-foreground';
+      default: return 'bg-muted-foreground';
     }
   };
 
@@ -266,12 +266,12 @@ export default function MessageThreadPage() {
 
   const handleStarToggle = () => {
     setConversation(prev => ({ ...prev, isStarred: !prev.isStarred }));
-    toast.success(conversation.isStarred ? 'Removed from starred' : 'Added to starred');
+    toast.success(conversation.isStarred ? 'Star removed' : 'Message starred');
   };
 
   const handleArchiveToggle = () => {
     setConversation(prev => ({ ...prev, isArchived: !prev.isArchived }));
-    toast.success(conversation.isArchived ? 'Unarchived conversation' : 'Archived conversation');
+    toast.success(conversation.isArchived ? 'Message unarchived' : 'Message archived');
   };
 
   const handleDeleteConversation = () => {
@@ -307,7 +307,7 @@ export default function MessageThreadPage() {
                 }
               </AvatarFallback>
             </Avatar>
-            <div className={`absolute -bottom-1 -right-1 w-3 h-3 rounded-full border-2 border-white ${getStatusColor(conversation.participant.status)}`}></div>
+            <div className={`absolute -bottom-1 -right-1 w-3 h-3 rounded-full border-2 border-background ${getStatusColor(conversation.participant.status)}`}></div>
           </div>
           
           <div className="flex-1">
@@ -321,7 +321,7 @@ export default function MessageThreadPage() {
           </div>
           
           {conversation.isStarred && (
-            <Star className="h-4 w-4 text-yellow-500 fill-current" />
+            <Star className="h-4 w-4 text-amber-500 fill-amber-500" />
           )}
         </div>
 
@@ -352,7 +352,7 @@ export default function MessageThreadPage() {
                 <Archive className="mr-2 h-4 w-4" />
                 {conversation.isArchived ? 'Unarchive' : 'Archive'}
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={handleDeleteConversation} className="text-red-600">
+              <DropdownMenuItem onClick={handleDeleteConversation} className="text-destructive">
                 <Trash2 className="mr-2 h-4 w-4" />
                 Delete Conversation
               </DropdownMenuItem>
@@ -396,7 +396,7 @@ export default function MessageThreadPage() {
                 <div className={`max-w-xs lg:max-w-md ${isMe ? 'order-1' : ''}`}>
                   <div className={`rounded-lg px-4 py-2 ${
                     isMe 
-                      ? 'bg-brand-primary text-white' 
+                      ? 'bg-primary text-primary-foreground' 
                       : 'bg-muted'
                   }`}>
                     <p className="text-sm">{message.content}</p>
@@ -409,7 +409,7 @@ export default function MessageThreadPage() {
                     {isMe && (
                       <div className="flex items-center">
                         {message.isRead ? (
-                          <CheckCircle2 className="h-3 w-3 text-blue-500" />
+                          <CheckCircle2 className="h-3 w-3 text-primary" />
                         ) : (
                           <Circle className="h-3 w-3" />
                         )}

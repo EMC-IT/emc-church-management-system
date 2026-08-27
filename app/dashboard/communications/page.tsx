@@ -2,13 +2,15 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { PageHeader } from '@/components/ui/page-header';
 import { StatCard } from '@/components/ui/stat-card';
 import { Badge } from '@/components/ui/badge';
+import { StatusBadge } from '@/components/ui/status-badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { 
   Select,
@@ -26,47 +28,38 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { 
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { 
   MessageSquare, 
   Mail, 
   Send, 
   Users, 
   Clock, 
-  CheckCircle,
-  XCircle,
+  CheckCircle, 
   Plus,
   Search,
-  Filter,
   Calendar,
   Megaphone,
   FileText,
   Smartphone,
-  Eye,
-  MousePointer,
-  TrendingUp,
-  Settings,
   Edit,
   Trash2,
   Download,
   BarChart3,
-  PieChart,
   Activity,
   Save,
-  AlertCircle
+  ChevronDown,
+  Settings,
 } from 'lucide-react';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
 import { DeleteDialog, useDeleteDialog } from '@/components/ui/delete-dialog';
 import { ScheduleDialog, useScheduleDialog } from '@/components/ui/schedule-dialog';
 import { toast } from 'sonner';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, BarChart, Bar, PieChart as RechartsPieChart, Pie, Cell } from 'recharts';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, PieChart as RechartsPieChart, Pie, Cell } from 'recharts';
 import { ChartContainer, ChartTooltip, ChartTooltipContent, ChartLegend, ChartLegendContent, ChartConfig } from '@/components/ui/chart';
 
 // Mock data for communications
@@ -91,9 +84,9 @@ const monthlyData = [
 ];
 
 const channelData = [
-  { name: 'SMS', value: 45, color: '#2E8DB0' },
-  { name: 'Email', value: 35, color: '#28ACD1' },
-  { name: 'Push', value: 20, color: '#C49831' }
+  { name: 'SMS', value: 45, color: 'hsl(var(--chart-1))' },
+  { name: 'Email', value: 35, color: 'hsl(var(--chart-2))' },
+  { name: 'Push Notifications', value: 20, color: 'hsl(var(--chart-3))' }
 ];
 
 const announcements = [
@@ -101,7 +94,7 @@ const announcements = [
     id: '1',
     title: 'Sunday Service Update',
     content: 'This Sunday\'s service will start at 10:30 AM instead of 10:00 AM.',
-    status: 'Published',
+    status: 'published',
     targetGroup: 'All Members',
     createdAt: '2024-01-20',
     views: 342,
@@ -111,7 +104,7 @@ const announcements = [
     id: '2',
     title: 'Youth Camp Registration',
     content: 'Registration for summer youth camp is now open. Limited spots available.',
-    status: 'Scheduled',
+    status: 'scheduled',
     targetGroup: 'Youth Group',
     createdAt: '2024-01-19',
     views: 0,
@@ -121,7 +114,7 @@ const announcements = [
     id: '3',
     title: 'Prayer Meeting Tonight',
     content: 'Join us for our weekly prayer meeting at 7 PM in the main sanctuary.',
-    status: 'Published',
+    status: 'published',
     targetGroup: 'Prayer Team',
     createdAt: '2024-01-18',
     views: 156,
@@ -134,7 +127,7 @@ const newsletters = [
     id: '1',
     title: 'Weekly Newsletter - January 2024',
     template: 'Weekly Update',
-    status: 'Sent',
+    status: 'sent',
     subscribers: 450,
     openRate: 72.5,
     clickRate: 15.8,
@@ -144,7 +137,7 @@ const newsletters = [
     id: '2',
     title: 'Monthly Ministry Report',
     template: 'Ministry Update',
-    status: 'Draft',
+    status: 'draft',
     subscribers: 380,
     openRate: 0,
     clickRate: 0,
@@ -157,7 +150,7 @@ const campaigns = [
     id: '1',
     name: 'Easter Service Invitation',
     type: 'Email',
-    status: 'Active',
+    status: 'active',
     recipients: 450,
     sent: 450,
     delivered: 445,
@@ -170,7 +163,7 @@ const campaigns = [
     id: '2',
     name: 'Weekly Service Reminder',
     type: 'SMS',
-    status: 'Active',
+    status: 'active',
     recipients: 380,
     sent: 380,
     delivered: 375,
@@ -238,11 +231,6 @@ const channelDistributionConfig = {
   value: { label: 'Messages', color: 'hsl(var(--chart-1))' },
 } satisfies ChartConfig;
 
-const engagementConfig = {
-  sent: { label: 'Sent', color: 'hsl(var(--chart-1))' },
-  opened: { label: 'Opened', color: 'hsl(var(--chart-2))' },
-} satisfies ChartConfig;
-
 export default function CommunicationsPage() {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState('overview');
@@ -270,13 +258,10 @@ export default function CommunicationsPage() {
     
     setIsSendingNewsletter(true);
     try {
-      // Simulate API call to send newsletter
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
+      await new Promise(resolve => setTimeout(resolve, 1500));
       toast.success(`Newsletter "${newsletterSendDialog.newsletter.title}" sent successfully!`);
       setNewsletterSendDialog({ isOpen: false, newsletter: null });
-      
-    } catch (error) {
+    } catch {
       toast.error('Failed to send newsletter. Please try again.');
     } finally {
       setIsSendingNewsletter(false);
@@ -292,7 +277,6 @@ export default function CommunicationsPage() {
   });
   const [isLoading, setIsLoading] = useState(false);
   
-  // Form validation
   const isFormValid = () => {
     if (!messageForm.type || !messageForm.recipients || !messageForm.message.trim()) {
       return false;
@@ -300,13 +284,9 @@ export default function CommunicationsPage() {
     if (messageForm.type === 'email' && !messageForm.subject.trim()) {
       return false;
     }
-    if (messageForm.message.length > 500) {
-      return false;
-    }
-    return true;
+    return messageForm.message.length <= 500;
   };
   
-  // Message handlers
   const handleSendNow = async () => {
     if (!isFormValid()) {
       toast.error('Please fill in all required fields');
@@ -315,19 +295,15 @@ export default function CommunicationsPage() {
     
     setIsLoading(true);
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
+      await new Promise(resolve => setTimeout(resolve, 1500));
       toast.success(`${messageForm.type.toUpperCase()} message sent successfully!`);
-      
-      // Reset form
       setMessageForm({
         type: '',
         recipients: '',
         subject: '',
         message: '',
       });
-    } catch (error) {
+    } catch {
       toast.error('Failed to send message. Please try again.');
     } finally {
       setIsLoading(false);
@@ -342,90 +318,78 @@ export default function CommunicationsPage() {
     
     setIsLoading(true);
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
+      await new Promise(resolve => setTimeout(resolve, 800));
       toast.success('Message saved as draft');
-    } catch (error) {
+    } catch {
       toast.error('Failed to save draft. Please try again.');
     } finally {
       setIsLoading(false);
     }
   };
-  
-  const handleScheduleMessage = async (scheduleData: any) => {
-    if (!isFormValid()) {
-      toast.error('Please fill in all required fields');
-      return;
-    }
-    
-    try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
-      const scheduledTime = new Date(scheduleData.date + 'T' + scheduleData.time);
-      toast.success(`Message scheduled for ${scheduledTime.toLocaleString()}`);
-      
-      // Reset form
-      setMessageForm({
-        type: '',
-        recipients: '',
-        subject: '',
-        message: '',
-      });
-      
-      scheduleDialog.closeDialog();
-    } catch (error) {
-      toast.error('Failed to schedule message. Please try again.');
-    }
-  };
-
-  const getStatusColor = (status: string) => {
-    switch (status.toLowerCase()) {
-      case 'sent':
-      case 'published':
-      case 'active': return 'primary';
-      case 'scheduled': return 'neutral';
-      case 'draft': return 'neutral';
-      case 'failed':
-      case 'paused': return 'danger';
-      default: return 'primary';
-    }
-  };
 
   const getActivityIcon = (type: string) => {
     switch (type) {
-      case 'email': return <Mail className="h-4 w-4 text-blue-600" />;
-      case 'sms': return <Smartphone className="h-4 w-4 text-green-600" />;
-      case 'announcement': return <Megaphone className="h-4 w-4 text-orange-600" />;
-      case 'template': return <FileText className="h-4 w-4 text-purple-600" />;
-      default: return <MessageSquare className="h-4 w-4 text-gray-600" />;
+      case 'email': return <Mail className="h-4 w-4 text-primary" />;
+      case 'sms': return <Smartphone className="h-4 w-4 text-secondary" />;
+      case 'announcement': return <Megaphone className="h-4 w-4 text-accent" />;
+      case 'template': return <FileText className="h-4 w-4 text-muted-foreground" />;
+      default: return <MessageSquare className="h-4 w-4 text-muted-foreground" />;
     }
   };
 
   return (
     <div className="space-y-6">
+      {/* Header */}
       <PageHeader
         title="Communications"
         actions={
           <>
-            <Button variant="outline">
-              <Download className="mr-2 h-4 w-4" />
-              Export Report
-            </Button>
-            <Button
-              className="bg-brand-primary hover:bg-brand-primary/90"
-              onClick={() => router.push('/dashboard/communications/campaigns/add')}
-            >
-              <Plus className="mr-2 h-4 w-4" />
-              New Campaign
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline">
+                  More
+                  <ChevronDown className="ml-1.5 h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-48">
+                <DropdownMenuItem asChild>
+                  <Link href="/dashboard/communications/announcements">
+                    <Megaphone className="mr-2 h-4 w-4" />
+                    Announcements
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link href="/dashboard/communications/newsletters">
+                    <FileText className="mr-2 h-4 w-4" />
+                    Newsletters
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link href="/dashboard/communications/messages">
+                    <MessageSquare className="mr-2 h-4 w-4" />
+                    Member Messages
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={() => toast.success('Communications report exported')}>
+                  <Download className="mr-2 h-4 w-4" />
+                  Export Report
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+
+            <Button asChild>
+              <Link href="/dashboard/communications/campaigns/add">
+                <Plus className="mr-1.5 h-4 w-4" />
+                New Campaign
+              </Link>
             </Button>
           </>
         }
       />
 
-      <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid w-full grid-cols-6">
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+        <TabsList className="grid w-full grid-cols-3 sm:grid-cols-6">
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="announcements">Announcements</TabsTrigger>
           <TabsTrigger value="newsletters">Newsletters</TabsTrigger>
@@ -434,29 +398,15 @@ export default function CommunicationsPage() {
           <TabsTrigger value="analytics">Analytics</TabsTrigger>
         </TabsList>
 
+        {/* OVERVIEW TAB */}
         <TabsContent value="overview" className="space-y-6">
-          {/* Key Metrics Cards */}
-          <div className="grid gap-4 grid-cols-2 md:grid-cols-4">
+          {/* 4 High-Signal Key Metric Cards */}
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
             <StatCard
               title="Messages Sent"
               value={communicationStats.messagesSent.toLocaleString()}
               icon={MessageSquare}
-            />
-            <StatCard
-              title="Open Rate"
-              value={`${communicationStats.openRate}%`}
-              icon={Eye}
               accent="primary"
-            />
-            <StatCard
-              title="Active Campaigns"
-              value={communicationStats.activeCampaigns}
-              icon={Activity}
-            />
-            <StatCard
-              title="Member Reach"
-              value={communicationStats.memberReach}
-              icon={Users}
             />
             <StatCard
               title="Delivery Rate"
@@ -465,66 +415,28 @@ export default function CommunicationsPage() {
               accent="success"
             />
             <StatCard
-              title="Click Rate"
-              value={`${communicationStats.clickRate}%`}
-              icon={MousePointer}
+              title="Active Campaigns"
+              value={communicationStats.activeCampaigns}
+              icon={Activity}
+              accent="accent"
             />
             <StatCard
-              title="Response Rate"
-              value={`${communicationStats.responseRate}%`}
-              icon={TrendingUp}
-            />
-            <StatCard
-              title="Unsubscribe Rate"
-              value={`${communicationStats.unsubscribeRate}%`}
-              icon={XCircle}
+              title="Member Reach"
+              value={communicationStats.memberReach}
+              icon={Users}
+              accent="secondary"
             />
           </div>
 
-          {/* Quick Actions */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Quick Actions</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid gap-4 md:grid-cols-3">
-                <Button 
-                  className="h-20 flex-col space-y-2" 
-                  variant="outline"
-                  onClick={() => router.push('/dashboard/communications/announcements/add')}
-                >
-                  <Megaphone className="h-6 w-6" />
-                  <span>Send Announcement</span>
-                </Button>
-                <Button 
-                  className="h-20 flex-col space-y-2" 
-                  variant="outline"
-                  onClick={() => router.push('/dashboard/communications/newsletters/add')}
-                >
-                  <FileText className="h-6 w-6" />
-                  <span>Create Newsletter</span>
-                </Button>
-                <Button 
-                  className="h-20 flex-col space-y-2" 
-                  variant="outline"
-                  onClick={() => router.push('/dashboard/communications/campaigns/add')}
-                >
-                  <Smartphone className="h-6 w-6" />
-                  <span>New SMS Campaign</span>
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-
           {/* Charts and Recent Activity */}
-          <div className="grid gap-4 md:grid-cols-2">
+          <div className="grid gap-6 md:grid-cols-2">
             <Card>
-              <CardHeader>
-                <CardTitle>Communication Trends</CardTitle>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-base font-semibold">Communication Trends</CardTitle>
               </CardHeader>
               <CardContent>
-                <ChartContainer config={monthlyStatsConfig} className="h-[300px] w-full">
-                  <LineChart data={monthlyData} margin={{ left: 12, right: 12 }}>
+                <ChartContainer config={monthlyStatsConfig} className="h-72 w-full">
+                  <LineChart data={monthlyData} margin={{ left: 12, right: 12, top: 10 }}>
                     <CartesianGrid vertical={false} strokeDasharray="3 3" className="stroke-muted" />
                     <XAxis 
                       dataKey="month" 
@@ -571,16 +483,16 @@ export default function CommunicationsPage() {
             </Card>
 
             <Card>
-              <CardHeader>
-                <CardTitle>Recent Activity</CardTitle>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-base font-semibold">Recent Activity</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
                   {recentActivity.map((activity) => (
-                    <div key={activity.id} className="flex items-center space-x-3">
+                    <div key={activity.id} className="flex items-center space-x-3 p-2.5 border rounded-lg">
                       {getActivityIcon(activity.type)}
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium">{activity.action}</p>
+                        <p className="text-sm font-medium text-foreground">{activity.action}</p>
                         <p className="text-xs text-muted-foreground">{activity.target}</p>
                       </div>
                       <span className="text-xs text-muted-foreground">{activity.time}</span>
@@ -592,156 +504,134 @@ export default function CommunicationsPage() {
           </div>
         </TabsContent>
 
+        {/* ANNOUNCEMENTS TAB */}
         <TabsContent value="announcements" className="space-y-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <h2 className="text-2xl font-bold">Announcements</h2>
-              <p className="text-muted-foreground">Manage church announcements and notices</p>
-            </div>
-            <Button 
-              className="bg-brand-primary hover:bg-brand-primary/90"
-              onClick={() => router.push('/dashboard/communications/announcements/add')}
-            >
-              <Plus className="mr-2 h-4 w-4" />
-              New Announcement
-            </Button>
-          </div>
-
           <Card>
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <div>
-                  <CardTitle>All Announcements</CardTitle>
-                </div>
-                <div className="flex space-x-2">
+            <CardHeader className="pb-3">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <CardTitle className="text-base font-semibold">Announcements</CardTitle>
+                <div className="flex items-center gap-2">
                   <div className="relative">
-                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
                     <Input
                       placeholder="Search announcements..."
                       value={searchTerm}
                       onChange={(e) => setSearchTerm(e.target.value)}
-                      className="pl-10 w-64"
+                      className="pl-8 h-9 w-60"
                     />
                   </div>
-                  <Select value={selectedFilter} onValueChange={setSelectedFilter}>
-                    <SelectTrigger className="w-40">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">All Status</SelectItem>
-                      <SelectItem value="published">Published</SelectItem>
-                      <SelectItem value="scheduled">Scheduled</SelectItem>
-                      <SelectItem value="draft">Draft</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <Button size="sm" asChild>
+                    <Link href="/dashboard/communications/announcements/add">
+                      <Plus className="mr-1.5 h-3.5 w-3.5" />
+                      Add Announcement
+                    </Link>
+                  </Button>
                 </div>
               </div>
             </CardHeader>
             <CardContent>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Title</TableHead>
-                    <TableHead>Target Group</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Created</TableHead>
-                    <TableHead>Views</TableHead>
-                    <TableHead>Engagement</TableHead>
-                    <TableHead>Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {announcements.map((announcement) => (
-                    <TableRow key={announcement.id}>
-                      <TableCell>
-                        <div>
-                          <div className="font-medium">{announcement.title}</div>
-                          <div className="text-sm text-muted-foreground truncate max-w-xs">
-                            {announcement.content}
-                          </div>
-                        </div>
-                      </TableCell>
-                      <TableCell>{announcement.targetGroup}</TableCell>
-                      <TableCell>
-                        <Badge variant={getStatusColor(announcement.status)}>
-                          {announcement.status}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>{announcement.createdAt}</TableCell>
-                      <TableCell>{announcement.views}</TableCell>
-                      <TableCell>{announcement.engagement}%</TableCell>
-                      <TableCell>
-                        <div className="flex space-x-2">
-                          <Button 
-                            variant="outline" 
-                            size="sm"
-                            onClick={() => router.push(`/dashboard/communications/announcements/${announcement.id}/edit`)}
-                          >
-                            <Edit className="h-4 w-4" />
-                          </Button>
-                          <Button 
-                            variant="outline" 
-                            size="sm"
-                            onClick={() => announcementDeleteDialog.openDialog(announcement)}
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      </TableCell>
+              <div className="border rounded-lg overflow-hidden">
+                <Table>
+                  <TableHeader className="bg-muted/40">
+                    <TableRow>
+                      <TableHead>Title</TableHead>
+                      <TableHead>Target Group</TableHead>
+                      <TableHead>Status</TableHead>
+                      <TableHead>Created</TableHead>
+                      <TableHead>Views</TableHead>
+                      <TableHead>Engagement</TableHead>
+                      <TableHead className="text-right">Actions</TableHead>
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+                  </TableHeader>
+                  <TableBody>
+                    {announcements.map((announcement) => (
+                      <TableRow key={announcement.id}>
+                        <TableCell>
+                          <div>
+                            <div className="font-medium text-foreground">{announcement.title}</div>
+                            <div className="text-xs text-muted-foreground truncate max-w-xs">
+                              {announcement.content}
+                            </div>
+                          </div>
+                        </TableCell>
+                        <TableCell className="text-xs font-medium">{announcement.targetGroup}</TableCell>
+                        <TableCell>
+                          <StatusBadge status={announcement.status} />
+                        </TableCell>
+                        <TableCell className="text-xs text-muted-foreground">{announcement.createdAt}</TableCell>
+                        <TableCell className="text-sm">{announcement.views}</TableCell>
+                        <TableCell className="text-sm">{announcement.engagement}%</TableCell>
+                        <TableCell className="text-right">
+                          <div className="flex items-center justify-end space-x-1">
+                            <Button 
+                              variant="ghost" 
+                              size="sm"
+                              asChild
+                            >
+                              <Link href={`/dashboard/communications/announcements/${announcement.id}/edit`}>
+                                <Edit className="h-4 w-4" />
+                              </Link>
+                            </Button>
+                            <Button 
+                              variant="ghost" 
+                              size="sm"
+                              className="text-destructive"
+                              onClick={() => announcementDeleteDialog.openDialog(announcement)}
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
             </CardContent>
           </Card>
         </TabsContent>
 
+        {/* NEWSLETTERS TAB */}
         <TabsContent value="newsletters" className="space-y-4">
           <div className="flex items-center justify-between">
-            <div>
-              <h2 className="text-2xl font-bold">Newsletters</h2>
-              <p className="text-muted-foreground">Create and manage email newsletters</p>
-            </div>
-            <Button 
-              className="bg-brand-primary hover:bg-brand-primary/90"
-              onClick={() => router.push('/dashboard/communications/newsletters/add')}
-            >
-              <Plus className="mr-2 h-4 w-4" />
-              Create Newsletter
+            <h3 className="text-base font-semibold text-foreground">Newsletters</h3>
+            <Button size="sm" asChild>
+              <Link href="/dashboard/communications/newsletters/add">
+                <Plus className="mr-1.5 h-3.5 w-3.5" />
+                Create Newsletter
+              </Link>
             </Button>
           </div>
 
           <div className="grid gap-4 md:grid-cols-2">
             {newsletters.map((newsletter) => (
               <Card key={newsletter.id}>
-                <CardHeader>
+                <CardHeader className="pb-3">
                   <div className="flex items-center justify-between">
-                    <CardTitle className="text-lg">{newsletter.title}</CardTitle>
-                    <Badge variant={getStatusColor(newsletter.status)}>
-                      {newsletter.status}
-                    </Badge>
+                    <CardTitle className="text-base">{newsletter.title}</CardTitle>
+                    <StatusBadge status={newsletter.status} />
                   </div>
-                  <CardDescription>Template: {newsletter.template}</CardDescription>
+                  <p className="text-xs text-muted-foreground">Template: {newsletter.template}</p>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-3">
                     <div className="flex justify-between text-sm">
-                      <span>Subscribers:</span>
-                      <span className="font-medium">{newsletter.subscribers}</span>
+                      <span className="text-muted-foreground">Subscribers:</span>
+                      <span className="font-medium text-foreground">{newsletter.subscribers}</span>
                     </div>
-                    {newsletter.status === 'Sent' && (
+                    {newsletter.status === 'sent' && (
                       <>
                         <div className="flex justify-between text-sm">
-                          <span>Open Rate:</span>
-                          <span className="font-medium text-brand-primary">{newsletter.openRate}%</span>
+                          <span className="text-muted-foreground">Open Rate:</span>
+                          <span className="font-medium text-foreground">{newsletter.openRate}%</span>
                         </div>
                         <div className="flex justify-between text-sm">
-                          <span>Click Rate:</span>
-                          <span className="font-medium">{newsletter.clickRate}%</span>
+                          <span className="text-muted-foreground">Click Rate:</span>
+                          <span className="font-medium text-foreground">{newsletter.clickRate}%</span>
                         </div>
                         <div className="flex justify-between text-sm">
-                          <span>Sent At:</span>
-                          <span className="font-medium">{newsletter.sentAt}</span>
+                          <span className="text-muted-foreground">Sent At:</span>
+                          <span className="font-medium text-foreground">{newsletter.sentAt}</span>
                         </div>
                       </>
                     )}
@@ -749,29 +639,31 @@ export default function CommunicationsPage() {
                       <Button 
                         variant="outline" 
                         size="sm"
-                        onClick={() => router.push(`/dashboard/communications/newsletters/${newsletter.id}/edit`)}
+                        asChild
                       >
-                        <Edit className="mr-2 h-4 w-4" />
-                        Edit
+                        <Link href={`/dashboard/communications/newsletters/${newsletter.id}/edit`}>
+                          <Edit className="mr-1.5 h-3.5 w-3.5" />
+                          Edit
+                        </Link>
                       </Button>
-                      {newsletter.status === 'Draft' && (
+                      {newsletter.status === 'draft' && (
                         <Button 
                           size="sm" 
-                          className="bg-brand-primary hover:bg-brand-primary/90"
                           onClick={() => handleSendNewsletter(newsletter)}
                         >
-                          <Send className="mr-2 h-4 w-4" />
+                          <Send className="mr-1.5 h-3.5 w-3.5" />
                           Send
                         </Button>
                       )}
                       <Button 
-                         variant="outline" 
-                         size="sm"
-                         onClick={() => newsletterDeleteDialog.openDialog(newsletter)}
-                       >
-                         <Trash2 className="mr-2 h-4 w-4" />
-                         Delete
-                       </Button>
+                        variant="outline" 
+                        size="sm"
+                        className="text-destructive"
+                        onClick={() => newsletterDeleteDialog.openDialog(newsletter)}
+                      >
+                        <Trash2 className="mr-1.5 h-3.5 w-3.5" />
+                        Delete
+                      </Button>
                     </div>
                   </div>
                 </CardContent>
@@ -780,110 +672,99 @@ export default function CommunicationsPage() {
           </div>
         </TabsContent>
 
+        {/* CAMPAIGNS TAB */}
         <TabsContent value="campaigns" className="space-y-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <h2 className="text-2xl font-bold">SMS & Email Campaigns</h2>
-              <p className="text-muted-foreground">Manage automated communication campaigns</p>
-            </div>
-            <Button 
-              className="bg-brand-primary hover:bg-brand-primary/90"
-              onClick={() => router.push('/dashboard/communications/campaigns/add')}
-            >
-              <Plus className="mr-2 h-4 w-4" />
-              New Campaign
-            </Button>
-          </div>
-
           <Card>
-            <CardContent className="p-6">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Campaign Name</TableHead>
-                    <TableHead>Type</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Recipients</TableHead>
-                    <TableHead>Delivered</TableHead>
-                    <TableHead>Opened</TableHead>
-                    <TableHead>Clicked</TableHead>
-                    <TableHead>Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {campaigns.map((campaign) => (
-                    <TableRow key={campaign.id}>
-                      <TableCell className="font-medium">{campaign.name}</TableCell>
-                      <TableCell>
-                        <Badge variant="neutral">
-                          {campaign.type === 'Email' ? <Mail className="mr-1 h-3 w-3" /> : <Smartphone className="mr-1 h-3 w-3" />}
-                          {campaign.type}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>
-                        <Badge variant={getStatusColor(campaign.status)}>
-                          {campaign.status}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>{campaign.recipients}</TableCell>
-                      <TableCell>{campaign.delivered} / {campaign.sent}</TableCell>
-                      <TableCell>{campaign.type === 'Email' ? campaign.opened : '-'}</TableCell>
-                      <TableCell>{campaign.type === 'Email' ? campaign.clicked : '-'}</TableCell>
-                      <TableCell>
-                        <div className="flex space-x-2">
-                          <Button 
-                            variant="outline" 
-                            size="sm"
-                            onClick={() => router.push(`/dashboard/communications/campaigns/${campaign.id}/edit`)}
-                          >
-                            <Settings className="h-4 w-4" />
-                          </Button>
-                          <Button 
-                            variant="outline" 
-                            size="sm"
-                            onClick={() => router.push(`/dashboard/communications/campaigns/${campaign.id}`)}
-                          >
-                            <BarChart3 className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      </TableCell>
+            <CardHeader className="pb-3">
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-base font-semibold">Communication Campaigns</CardTitle>
+                <Button size="sm" asChild>
+                  <Link href="/dashboard/communications/campaigns/add">
+                    <Plus className="mr-1.5 h-3.5 w-3.5" />
+                    New Campaign
+                  </Link>
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="border rounded-lg overflow-hidden">
+                <Table>
+                  <TableHeader className="bg-muted/40">
+                    <TableRow>
+                      <TableHead>Campaign Name</TableHead>
+                      <TableHead>Type</TableHead>
+                      <TableHead>Status</TableHead>
+                      <TableHead>Recipients</TableHead>
+                      <TableHead>Delivered</TableHead>
+                      <TableHead>Opened</TableHead>
+                      <TableHead>Clicked</TableHead>
+                      <TableHead className="text-right">Actions</TableHead>
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+                  </TableHeader>
+                  <TableBody>
+                    {campaigns.map((campaign) => (
+                      <TableRow key={campaign.id}>
+                        <TableCell className="font-medium text-foreground">{campaign.name}</TableCell>
+                        <TableCell>
+                          <Badge variant="neutral">
+                            {campaign.type === 'Email' ? <Mail className="mr-1 h-3 w-3" /> : <Smartphone className="mr-1 h-3 w-3" />}
+                            {campaign.type}
+                          </Badge>
+                        </TableCell>
+                        <TableCell>
+                          <StatusBadge status={campaign.status} />
+                        </TableCell>
+                        <TableCell>{campaign.recipients}</TableCell>
+                        <TableCell>{campaign.delivered} / {campaign.sent}</TableCell>
+                        <TableCell>{campaign.type === 'Email' ? campaign.opened : '-'}</TableCell>
+                        <TableCell>{campaign.type === 'Email' ? campaign.clicked : '-'}</TableCell>
+                        <TableCell className="text-right">
+                          <div className="flex items-center justify-end space-x-1">
+                            <Button 
+                              variant="ghost" 
+                              size="sm"
+                              asChild
+                            >
+                              <Link href={`/dashboard/communications/campaigns/${campaign.id}/edit`}>
+                                <Settings className="h-4 w-4" />
+                              </Link>
+                            </Button>
+                            <Button 
+                              variant="ghost" 
+                              size="sm"
+                              asChild
+                            >
+                              <Link href={`/dashboard/communications/campaigns/${campaign.id}`}>
+                                <BarChart3 className="h-4 w-4" />
+                              </Link>
+                            </Button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
             </CardContent>
           </Card>
         </TabsContent>
 
+        {/* MESSAGING TAB */}
         <TabsContent value="messaging" className="space-y-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <h2 className="text-2xl font-bold">Member Messaging</h2>
-              <p className="text-muted-foreground">Direct communication with church members</p>
-            </div>
-            <Button 
-              className="bg-brand-primary hover:bg-brand-primary/90"
-              onClick={() => router.push('/dashboard/communications/messages/new')}
-            >
-              <Plus className="mr-2 h-4 w-4" />
-              New Message
-            </Button>
-          </div>
-
-          <div className="grid gap-4 md:grid-cols-3">
+          <div className="grid gap-6 md:grid-cols-3">
             <Card>
-              <CardHeader>
-                <CardTitle>Message Templates</CardTitle>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-base font-semibold">Message Templates</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
                   {templates.slice(0, 3).map((template) => (
-                    <div key={template.id} className="p-3 border rounded-lg">
-                      <div className="flex items-center justify-between mb-2">
-                        <span className="font-medium text-sm">{template.name}</span>
+                    <div key={template.id} className="p-3 border rounded-lg space-y-2">
+                      <div className="flex items-center justify-between">
+                        <span className="font-medium text-sm text-foreground">{template.name}</span>
                         <Badge variant="neutral" className="text-xs">{template.type}</Badge>
                       </div>
-                      <p className="text-xs text-muted-foreground mb-2">{template.content.substring(0, 50)}...</p>
+                      <p className="text-xs text-muted-foreground">{template.content.substring(0, 60)}...</p>
                       <Button variant="outline" size="sm" className="w-full">
                         Use Template
                       </Button>
@@ -894,15 +775,15 @@ export default function CommunicationsPage() {
             </Card>
 
             <Card className="md:col-span-2">
-              <CardHeader>
-                <CardTitle>Compose Message</CardTitle>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-base font-semibold">Compose Message</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="grid gap-4 md:grid-cols-2">
                   <div>
-                    <label className="text-sm font-medium">Message Type *</label>
+                    <label className="text-sm font-medium text-foreground">Message Type *</label>
                     <Select value={messageForm.type} onValueChange={(value) => setMessageForm(prev => ({ ...prev, type: value }))}>
-                      <SelectTrigger>
+                      <SelectTrigger className="mt-1.5">
                         <SelectValue placeholder="Select type" />
                       </SelectTrigger>
                       <SelectContent>
@@ -914,9 +795,9 @@ export default function CommunicationsPage() {
                   </div>
                   
                   <div>
-                    <label className="text-sm font-medium">Recipients *</label>
+                    <label className="text-sm font-medium text-foreground">Recipients *</label>
                     <Select value={messageForm.recipients} onValueChange={(value) => setMessageForm(prev => ({ ...prev, recipients: value }))}>
-                      <SelectTrigger>
+                      <SelectTrigger className="mt-1.5">
                         <SelectValue placeholder="Select recipients" />
                       </SelectTrigger>
                       <SelectContent>
@@ -932,31 +813,32 @@ export default function CommunicationsPage() {
                 
                 {messageForm.type === 'email' && (
                   <div>
-                    <label className="text-sm font-medium">Subject *</label>
+                    <label className="text-sm font-medium text-foreground">Subject *</label>
                     <Input 
                       placeholder="Enter email subject" 
                       value={messageForm.subject}
                       onChange={(e) => setMessageForm(prev => ({ ...prev, subject: e.target.value }))}
+                      className="mt-1.5"
                     />
                   </div>
                 )}
                 
                 <div>
-                  <label className="text-sm font-medium">Message *</label>
+                  <label className="text-sm font-medium text-foreground">Message *</label>
                   <Textarea 
                     placeholder="Type your message here..."
-                    rows={6}
+                    rows={5}
                     value={messageForm.message}
                     onChange={(e) => setMessageForm(prev => ({ ...prev, message: e.target.value }))}
+                    className="mt-1.5"
                   />
-                  <p className="text-sm text-muted-foreground mt-1">
+                  <p className="text-xs text-muted-foreground mt-1">
                     {messageForm.message.length}/500 characters
                   </p>
                 </div>
                 
-                <div className="flex items-center space-x-4">
+                <div className="flex items-center space-x-3 pt-2">
                   <Button 
-                    className="bg-brand-primary hover:bg-brand-primary/90"
                     onClick={handleSendNow}
                     disabled={isLoading || !isFormValid()}
                   >
@@ -994,46 +876,19 @@ export default function CommunicationsPage() {
           </div>
         </TabsContent>
 
-        <TabsContent value="analytics" className="space-y-4">
-          <div>
-            <h2 className="text-2xl font-bold">Communication Analytics</h2>
-            <p className="text-muted-foreground">Detailed insights into communication performance</p>
-          </div>
-
-          <div className="grid gap-4 md:grid-cols-2">
+        {/* ANALYTICS TAB */}
+        <TabsContent value="analytics" className="space-y-6">
+          <div className="grid gap-6 md:grid-cols-2">
             <Card>
-              <CardHeader>
-                <CardTitle>Communication Channels</CardTitle>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-base font-semibold">Channel Delivery Distribution</CardTitle>
               </CardHeader>
               <CardContent>
-                <ChartContainer config={channelDistributionConfig} className="h-[300px] w-full">
-                  <RechartsPieChart>
-                    <ChartTooltip cursor={false} content={<ChartTooltipContent hideLabel />} />
-                    <Pie
-                      data={channelData}
-                      cx="50%"
-                      cy="50%"
-                      innerRadius={60}
-                      outerRadius={100}
-                      paddingAngle={5}
-                      dataKey="value"
-                      strokeWidth={2}
-                    >
-                      {channelData.map((entry, index) => (
-                        <Cell 
-                          key={`cell-${index}`} 
-                          fill={entry.color} 
-                          stroke="hsl(var(--background))"
-                        />
-                      ))}
-                    </Pie>
-                  </RechartsPieChart>
-                </ChartContainer>
-                <div className="flex justify-center space-x-4 mt-4">
-                  {channelData.map((entry) => (
-                    <div key={entry.name} className="flex items-center space-x-2">
-                      <div className="w-3 h-3 rounded-full" style={{ backgroundColor: entry.color }} />
-                      <span className="text-sm">{entry.name}: {entry.value}%</span>
+                <div className="space-y-4">
+                  {channelData.map((ch, idx) => (
+                    <div key={idx} className="p-3 border rounded-lg flex items-center justify-between">
+                      <div className="font-medium text-sm text-foreground">{ch.name}</div>
+                      <Badge variant="neutral">{ch.value}% share</Badge>
                     </div>
                   ))}
                 </div>
@@ -1041,92 +896,29 @@ export default function CommunicationsPage() {
             </Card>
 
             <Card>
-              <CardHeader>
-                <CardTitle>Monthly Performance</CardTitle>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-base font-semibold">Engagement Summary</CardTitle>
               </CardHeader>
-              <CardContent>
-                <ChartContainer config={engagementConfig} className="h-[300px] w-full">
-                  <BarChart data={monthlyData} margin={{ left: 12, right: 12 }}>
-                    <CartesianGrid vertical={false} strokeDasharray="3 3" className="stroke-muted" />
-                    <XAxis 
-                      dataKey="month" 
-                      tickLine={false} 
-                      axisLine={false} 
-                      tickMargin={8}
-                      className="text-xs"
-                    />
-                    <YAxis 
-                      tickLine={false} 
-                      axisLine={false} 
-                      tickMargin={8}
-                      className="text-xs"
-                    />
-                    <ChartTooltip 
-                      cursor={{ fill: 'hsl(var(--muted)/0.2)' }}
-                      content={<ChartTooltipContent indicator="dot" />} 
-                    />
-                    <ChartLegend content={<ChartLegendContent />} />
-                    <Bar 
-                      dataKey="sent" 
-                      fill="hsl(var(--chart-1))" 
-                      radius={[8, 8, 0, 0]}
-                    />
-                    <Bar 
-                      dataKey="opened" 
-                      fill="hsl(var(--chart-2))" 
-                      radius={[8, 8, 0, 0]}
-                    />
-                  </BarChart>
-                </ChartContainer>
+              <CardContent className="space-y-4">
+                <div className="flex items-center justify-between p-3 border rounded-lg text-sm">
+                  <span className="text-muted-foreground">Average Open Rate</span>
+                  <span className="font-bold text-foreground">68.5%</span>
+                </div>
+                <div className="flex items-center justify-between p-3 border rounded-lg text-sm">
+                  <span className="text-muted-foreground">Average Click Through Rate</span>
+                  <span className="font-bold text-foreground">12.3%</span>
+                </div>
+                <div className="flex items-center justify-between p-3 border rounded-lg text-sm">
+                  <span className="text-muted-foreground">Response Rate</span>
+                  <span className="font-bold text-foreground">15.2%</span>
+                </div>
+                <div className="flex items-center justify-between p-3 border rounded-lg text-sm">
+                  <span className="text-muted-foreground">Unsubscribe Rate</span>
+                  <span className="font-bold text-muted-foreground">0.8%</span>
+                </div>
               </CardContent>
             </Card>
           </div>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>Template Performance</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Template Name</TableHead>
-                    <TableHead>Type</TableHead>
-                    <TableHead>Category</TableHead>
-                    <TableHead>Usage Count</TableHead>
-                    <TableHead>Last Used</TableHead>
-                    <TableHead>Performance</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {templates.map((template) => (
-                    <TableRow key={template.id}>
-                      <TableCell className="font-medium">{template.name}</TableCell>
-                      <TableCell>
-                        <Badge variant="neutral">{template.type}</Badge>
-                      </TableCell>
-                      <TableCell>{template.category}</TableCell>
-                      <TableCell>{template.usage}</TableCell>
-                      <TableCell>{template.lastUsed}</TableCell>
-                      <TableCell>
-                        <div className="flex items-center space-x-2">
-                          <div className="w-16 bg-gray-200 rounded-full h-2">
-                            <div 
-                              className="bg-brand-primary h-2 rounded-full" 
-                              style={{ width: `${Math.min(template.usage / 2, 100)}%` }}
-                            />
-                          </div>
-                          <span className="text-sm text-muted-foreground">
-                            {Math.round(template.usage / 2)}%
-                          </span>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </CardContent>
-          </Card>
         </TabsContent>
       </Tabs>
 
@@ -1134,95 +926,26 @@ export default function CommunicationsPage() {
       <DeleteDialog
         isOpen={announcementDeleteDialog.isOpen}
         onOpenChange={announcementDeleteDialog.closeDialog}
-        onConfirm={() => announcementDeleteDialog.handleConfirm(async (announcement) => {
-          // Add actual delete logic here
-          console.log('Deleting announcement:', announcement.id);
-          await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate API call
-        })}
+        onConfirm={() => {
+          toast.success('Announcement deleted');
+          announcementDeleteDialog.closeDialog();
+        }}
         title="Delete Announcement"
+        description="Are you sure you want to delete this announcement?"
         itemName={announcementDeleteDialog.itemToDelete?.title}
-        loading={announcementDeleteDialog.loading}
       />
 
       <DeleteDialog
         isOpen={newsletterDeleteDialog.isOpen}
         onOpenChange={newsletterDeleteDialog.closeDialog}
-        onConfirm={() => newsletterDeleteDialog.handleConfirm(async (newsletter) => {
-          // Add actual delete logic here
-          console.log('Deleting newsletter:', newsletter.id);
-          await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate API call
-        })}
+        onConfirm={() => {
+          toast.success('Newsletter deleted');
+          newsletterDeleteDialog.closeDialog();
+        }}
         title="Delete Newsletter"
+        description="Are you sure you want to delete this newsletter draft?"
         itemName={newsletterDeleteDialog.itemToDelete?.title}
-        loading={newsletterDeleteDialog.loading}
       />
-
-      <DeleteDialog
-        isOpen={campaignDeleteDialog.isOpen}
-        onOpenChange={campaignDeleteDialog.closeDialog}
-        onConfirm={() => campaignDeleteDialog.handleConfirm(async (campaign) => {
-          // Add actual delete logic here
-          console.log('Deleting campaign:', campaign.id);
-          await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate API call
-        })}
-        title="Delete Campaign"
-        itemName={campaignDeleteDialog.itemToDelete?.name}
-        loading={campaignDeleteDialog.loading}
-      />
-      
-      {/* Schedule Dialog */}
-      <ScheduleDialog
-        isOpen={scheduleDialog.isOpen}
-        onOpenChange={scheduleDialog.closeDialog}
-        onConfirm={handleScheduleMessage}
-        title="Schedule Message"
-        description="Choose when to send your message"
-      />
-      
-      {/* Newsletter Send Confirmation Dialog */}
-      <AlertDialog open={newsletterSendDialog.isOpen} onOpenChange={(open) => !open && setNewsletterSendDialog({ isOpen: false, newsletter: null })}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle className="flex items-center gap-2">
-              <Send className="h-5 w-5 text-brand-primary" />
-              Send Newsletter Now?
-            </AlertDialogTitle>
-            <AlertDialogDescription className="space-y-2">
-              <p>
-                Are you sure you want to send <strong>"{newsletterSendDialog.newsletter?.title}"</strong> now?
-              </p>
-              <p className="text-sm text-muted-foreground">
-                This newsletter will be sent to <strong>{newsletterSendDialog.newsletter?.subscribers}</strong> subscribers immediately.
-              </p>
-              <p className="text-sm text-yellow-600">
-                This action cannot be undone.
-              </p>
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel disabled={isSendingNewsletter}>
-              Cancel
-            </AlertDialogCancel>
-            <AlertDialogAction
-              onClick={confirmSendNewsletter}
-              disabled={isSendingNewsletter}
-              className="bg-brand-primary hover:bg-brand-primary/90"
-            >
-              {isSendingNewsletter ? (
-                <>
-                  <Clock className="mr-2 h-4 w-4 animate-spin" />
-                  Sending...
-                </>
-              ) : (
-                <>
-                  <Send className="mr-2 h-4 w-4" />
-                  Send Now
-                </>
-              )}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
     </div>
   );
 }

@@ -146,21 +146,25 @@ export default function GroupsPage() {
           title="Total Groups"
           value={stats?.totalGroups || 0}
           icon={UsersRound}
+          accent="primary"
         />
         <StatCard
           title="Total Members"
           value={stats?.totalMembers || 0}
           icon={Users}
+          accent="secondary"
         />
         <StatCard
           title="Avg Engagement"
           value={`${stats?.averageEngagement || 0}%`}
           icon={TrendingUp}
+          accent="accent"
         />
         <StatCard
           title="Active Groups"
           value={stats?.activeGroups || 0}
           icon={UsersRound}
+          accent="success"
         />
       </div>
 

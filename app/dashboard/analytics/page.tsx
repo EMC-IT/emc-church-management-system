@@ -171,12 +171,10 @@ export default function AnalyticsPage() {
               </Link>
             </Button>
             <Select defaultValue="6months">
-              <SelectTrigger className="w-48">
-                <SelectValue placeholder="Select period" />
+              <SelectTrigger className="w-[140px] h-9">
+                <SelectValue placeholder="Period" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="today">Today</SelectItem>
-                <SelectItem value="yesterday">Yesterday</SelectItem>
                 <SelectItem value="1week">Last Week</SelectItem>
                 <SelectItem value="1month">Last Month</SelectItem>
                 <SelectItem value="3months">Last 3 Months</SelectItem>
@@ -186,16 +184,36 @@ export default function AnalyticsPage() {
                 <SelectItem value="all_time">All Time</SelectItem>
               </SelectContent>
             </Select>
+
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button>
-                  <Download className="mr-2 h-4 w-4" />
-                  Export
+                <Button variant="outline">
+                  More
+                  <Download className="ml-1.5 h-4 w-4" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuLabel>Export Format</DropdownMenuLabel>
+              <DropdownMenuContent align="end" className="w-52">
+                <DropdownMenuLabel>Saved Views & Tools</DropdownMenuLabel>
+                <DropdownMenuItem asChild>
+                  <Link href="/dashboard/analytics/reports">
+                    <FileBarChart className="mr-2 h-4 w-4" />
+                    Saved Reports
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link href="/dashboard/analytics/filters">
+                    <Filter className="mr-2 h-4 w-4" />
+                    Advanced Filters
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link href="/dashboard/analytics/preferences">
+                    <Settings className="mr-2 h-4 w-4" />
+                    Preferences
+                  </Link>
+                </DropdownMenuItem>
                 <DropdownMenuSeparator />
+                <DropdownMenuLabel>Export Data</DropdownMenuLabel>
                 <DropdownMenuItem onClick={() => handleExport('pdf')}>
                   <FileText className="mr-2 h-4 w-4" />
                   Export as PDF
@@ -208,16 +226,12 @@ export default function AnalyticsPage() {
                   <FileText className="mr-2 h-4 w-4" />
                   Export as CSV
                 </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={() => handleExport('json')}>
-                  <FileText className="mr-2 h-4 w-4" />
-                  Export as JSON
-                </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
-            <Button className="bg-brand-primary hover:bg-brand-primary/90" asChild>
+
+            <Button asChild>
               <Link href="/dashboard/analytics/report-builder">
-                <PlusCircle className="mr-2 h-4 w-4" />
+                <PlusCircle className="mr-1.5 h-4 w-4" />
                 Custom Report
               </Link>
             </Button>
@@ -225,130 +239,36 @@ export default function AnalyticsPage() {
         }
       />
 
-      {/* Quick Actions */}
-      <div className="grid gap-4 md:grid-cols-4">
-        <Link href="/dashboard/analytics/report-builder" className="block">
-          <Card className="group hover:shadow-md transition-shadow cursor-pointer">
-            <CardContent className="p-4">
-              <div className="flex items-center gap-3">
-                <div className="p-2 bg-brand-primary/10 rounded-lg">
-                  <PlusCircle className="h-5 w-5 text-brand-primary" />
-                </div>
-                <div>
-                  <h3 className="font-medium group-hover:text-brand-primary transition-colors">
-                    Report Builder
-                  </h3>
-                  <p className="text-xs text-muted-foreground">Create custom reports</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </Link>
-
-        <Link href="/dashboard/analytics/reports" className="block">
-          <Card className="group hover:shadow-md transition-shadow cursor-pointer">
-            <CardContent className="p-4">
-              <div className="flex items-center gap-3">
-                <div className="p-2 bg-brand-secondary/10 rounded-lg">
-                  <FileBarChart className="h-5 w-5 text-brand-secondary" />
-                </div>
-                <div>
-                  <h3 className="font-medium group-hover:text-brand-primary transition-colors">
-                    Saved Reports
-                  </h3>
-                  <p className="text-xs text-muted-foreground">View all reports (5)</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </Link>
-
-        <Link href="/dashboard/analytics/filters" className="block">
-          <Card className="group hover:shadow-md transition-shadow cursor-pointer">
-            <CardContent className="p-4">
-              <div className="flex items-center gap-3">
-                <div className="p-2 bg-brand-accent/10 rounded-lg">
-                  <Filter className="h-5 w-5 text-brand-accent" />
-                </div>
-                <div>
-                  <h3 className="font-medium group-hover:text-brand-primary transition-colors">
-                    Advanced Filters
-                  </h3>
-                  <p className="text-xs text-muted-foreground">Filter your data</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </Link>
-
-        <Link href="/dashboard/analytics/preferences" className="block">
-          <Card className="group hover:shadow-md transition-shadow cursor-pointer">
-            <CardContent className="p-4">
-              <div className="flex items-center gap-3">
-                <div className="p-2 bg-brand-success/10 rounded-lg">
-                  <Settings className="h-5 w-5 text-brand-success" />
-                </div>
-                <div>
-                  <h3 className="font-medium group-hover:text-brand-primary transition-colors">
-                    Preferences
-                  </h3>
-                  <p className="text-xs text-muted-foreground">Customize analytics</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </Link>
-      </div>
-
-      {/* Key Metrics */}
-      <div className="grid gap-4 md:grid-cols-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Growth Rate</CardTitle>
-            <TrendingUp className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-brand-success">+23.8%</div>
-            <p className="text-xs text-muted-foreground">
-              <span className="text-brand-success">+100 members</span> this year
-            </p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Retention Rate</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">94.2%</div>
-            <p className="text-xs text-muted-foreground">Member retention</p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Avg. Attendance</CardTitle>
-            <Calendar className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">84.6%</div>
-            <p className="text-xs text-muted-foreground">
-              <span className="text-brand-success">+2.3%</span> from last month
-            </p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Giving Growth</CardTitle>
-            <BadgeCent className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-brand-success">+18.5%</div>
-            <p className="text-xs text-muted-foreground">Year over year</p>
-          </CardContent>
-        </Card>
+      {/* 4 Key Metrics StatCards */}
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <StatCard
+          title="Growth Rate"
+          value="+23.8%"
+          icon={TrendingUp}
+          accent="success"
+          trend={{ value: '+100 members this year', direction: 'up' }}
+        />
+        <StatCard
+          title="Retention Rate"
+          value="94.2%"
+          icon={Users}
+          accent="primary"
+          trend={{ value: '94.2% retained', direction: 'up' }}
+        />
+        <StatCard
+          title="Avg. Attendance"
+          value="84.6%"
+          icon={Calendar}
+          accent="secondary"
+          trend={{ value: '+2.3% from last month', direction: 'up' }}
+        />
+        <StatCard
+          title="Giving Growth"
+          value="+18.5%"
+          icon={BadgeCent}
+          accent="accent"
+          trend={{ value: '+18.5% year over year', direction: 'up' }}
+        />
       </div>
 
       {/* Charts Grid */}

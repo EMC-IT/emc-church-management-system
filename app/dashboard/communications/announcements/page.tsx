@@ -8,6 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { PageHeader } from '@/components/ui/page-header';
 import { StatCard } from '@/components/ui/stat-card';
 import { Badge } from '@/components/ui/badge';
+import { StatusBadge } from '@/components/ui/status-badge';
 import { 
   Select,
   SelectContent,
@@ -36,20 +37,18 @@ import {
   Megaphone,
   Plus,
   Search,
-  Filter,
   MoreHorizontal,
   Edit,
   Trash2,
   Eye,
-  Calendar,
-  Users,
-  AlertCircle,
   CheckCircle,
-  Clock
+  Clock,
+  Activity,
 } from 'lucide-react';
+import { toast } from 'sonner';
 
 // Mock data for announcements
-const announcements = [
+const INITIAL_ANNOUNCEMENTS = [
   {
     id: '1',
     title: 'Sunday Service Update',
@@ -104,256 +103,209 @@ const announcements = [
   }
 ];
 
-const summaryStats = {
-  totalAnnouncements: 4,
-  published: 2,
-  scheduled: 1,
-  drafts: 1,
-  totalViews: 480,
-  avgEngagement: 40
-};
-
 export default function AnnouncementsPage() {
   const router = useRouter();
+  const [announcementsList, setAnnouncementsList] = useState(INITIAL_ANNOUNCEMENTS);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [priorityFilter, setPriorityFilter] = useState('all');
   const deleteDialog = useDeleteDialog();
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'published': return 'primary';
-      case 'scheduled': return 'neutral';
-      case 'draft': return 'neutral';
-      default: return 'primary';
-    }
-  };
-
-  const getPriorityColor = (priority: string) => {
-    switch (priority) {
-      case 'high': return 'danger';
-      case 'medium': return 'primary';
-      case 'low': return 'neutral';
-      default: return 'primary';
-    }
-  };
-
-  const getStatusIcon = (status: string) => {
-    switch (status) {
-      case 'published': return <CheckCircle className="h-4 w-4" />;
-      case 'scheduled': return <Clock className="h-4 w-4" />;
-      case 'draft': return <AlertCircle className="h-4 w-4" />;
-      default: return <AlertCircle className="h-4 w-4" />;
-    }
-  };
-
-  const filteredAnnouncements = announcements.filter(announcement => {
+  const filteredAnnouncements = announcementsList.filter(announcement => {
     const matchesSearch = announcement.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         announcement.content.toLowerCase().includes(searchTerm.toLowerCase());
+                         announcement.content.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         announcement.targetAudience.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesStatus = statusFilter === 'all' || announcement.status === statusFilter;
     const matchesPriority = priorityFilter === 'all' || announcement.priority === priorityFilter;
     
     return matchesSearch && matchesStatus && matchesPriority;
   });
 
-  const handleDelete = (announcement: any) => {
-    deleteDialog.openDialog(announcement);
-  };
-
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
+  const handleDeleteAnnouncement = async () => {
+    if (!deleteDialog.itemToDelete) return;
+    setAnnouncementsList(prev => prev.filter(a => a.id !== deleteDialog.itemToDelete.id));
+    toast.success('Announcement deleted successfully');
+    deleteDialog.closeDialog();
   };
 
   return (
     <div className="space-y-6">
-      {/* Header with Back Navigation */}
-      <div className="flex items-center gap-4 mb-6">
-        <Button
-          variant="outline"
-          size="icon"
-          className="h-9 w-9"
-          asChild
-        >
-          <Link href="/dashboard/communications" aria-label="Back to Communications">
-            <ArrowLeft className="h-4 w-4" />
-          </Link>
-        </Button>
-        
-        <div className="flex items-center gap-3">
-          <div className="p-2 bg-brand-primary/10 rounded-lg">
-            <Megaphone className="h-6 w-6 text-brand-primary" />
-          </div>
-          <PageHeader title="Announcements" />
-        </div>
-      </div>
+      {/* Header */}
+      <PageHeader
+        title="Announcements"
+        actions={
+          <>
+            <Button variant="outline" asChild>
+              <Link href="/dashboard/communications">
+                <ArrowLeft className="mr-1.5 h-4 w-4" />
+                Communications
+              </Link>
+            </Button>
+            <Button asChild>
+              <Link href="/dashboard/communications/announcements/add">
+                <Plus className="mr-1.5 h-4 w-4" />
+                Add Announcement
+              </Link>
+            </Button>
+          </>
+        }
+      />
 
-      {/* Summary Cards */}
-      <div className="grid gap-4 grid-cols-2 md:grid-cols-3">
+      {/* 4 Summary StatCards */}
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <StatCard
           title="Total Announcements"
-          value={summaryStats.totalAnnouncements}
+          value={announcementsList.length}
           icon={Megaphone}
+          accent="primary"
         />
         <StatCard
           title="Published"
-          value={summaryStats.published}
+          value={announcementsList.filter(a => a.status === 'published').length}
           icon={CheckCircle}
           accent="success"
         />
         <StatCard
+          title="Scheduled"
+          value={announcementsList.filter(a => a.status === 'scheduled').length}
+          icon={Clock}
+          accent="accent"
+        />
+        <StatCard
           title="Total Views"
-          value={summaryStats.totalViews}
-          icon={Eye}
+          value={announcementsList.reduce((sum, a) => sum + a.views, 0)}
+          icon={Activity}
+          accent="secondary"
         />
       </div>
 
-      {/* Controls */}
-      <div className="flex items-center justify-between">
-        <div className="flex space-x-2">
-          <div className="relative">
-            <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder="Search announcements..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-8 w-64"
-            />
-          </div>
-          <Select value={statusFilter} onValueChange={setStatusFilter}>
-            <SelectTrigger className="w-32">
-              <SelectValue placeholder="Status" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Status</SelectItem>
-              <SelectItem value="published">Published</SelectItem>
-              <SelectItem value="scheduled">Scheduled</SelectItem>
-              <SelectItem value="draft">Draft</SelectItem>
-            </SelectContent>
-          </Select>
-          <Select value={priorityFilter} onValueChange={setPriorityFilter}>
-            <SelectTrigger className="w-32">
-              <SelectValue placeholder="Priority" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Priority</SelectItem>
-              <SelectItem value="high">High</SelectItem>
-              <SelectItem value="medium">Medium</SelectItem>
-              <SelectItem value="low">Low</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-        <Button onClick={() => router.push('/dashboard/communications/announcements/add')}>
-          <Plus className="mr-2 h-4 w-4" />
-          New Announcement
-        </Button>
-      </div>
-
-      {/* Announcements Table */}
+      {/* Announcements Table Card */}
       <Card>
-        <CardHeader>
-          <CardTitle>All Announcements</CardTitle>
+        <CardHeader className="pb-3">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <CardTitle className="text-base font-semibold">All Announcements</CardTitle>
+            <div className="flex flex-wrap items-center gap-2">
+              <div className="relative">
+                <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+                <Input
+                  placeholder="Search announcements..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-8 h-9 w-60"
+                />
+              </div>
+              <Select value={statusFilter} onValueChange={setStatusFilter}>
+                <SelectTrigger className="w-32 h-9">
+                  <SelectValue placeholder="Status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Status</SelectItem>
+                  <SelectItem value="published">Published</SelectItem>
+                  <SelectItem value="scheduled">Scheduled</SelectItem>
+                  <SelectItem value="draft">Draft</SelectItem>
+                </SelectContent>
+              </Select>
+              <Select value={priorityFilter} onValueChange={setPriorityFilter}>
+                <SelectTrigger className="w-32 h-9">
+                  <SelectValue placeholder="Priority" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Priority</SelectItem>
+                  <SelectItem value="high">High</SelectItem>
+                  <SelectItem value="medium">Medium</SelectItem>
+                  <SelectItem value="low">Low</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
         </CardHeader>
         <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Title</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Priority</TableHead>
-                <TableHead>Target Audience</TableHead>
-                <TableHead>Scheduled Date</TableHead>
-                <TableHead>Views</TableHead>
-                <TableHead>Author</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filteredAnnouncements.map((announcement) => (
-                <TableRow key={announcement.id}>
-                  <TableCell className="font-medium">
-                    <div>
-                      <div className="font-semibold">{announcement.title}</div>
-                      <div className="text-sm text-muted-foreground truncate max-w-xs">
-                        {announcement.content}
-                      </div>
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <Badge variant={getStatusColor(announcement.status)} className="flex items-center gap-1 w-fit">
-                      {getStatusIcon(announcement.status)}
-                      {announcement.status.charAt(0).toUpperCase() + announcement.status.slice(1)}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>
-                    <Badge variant={getPriorityColor(announcement.priority)}>
-                      {announcement.priority.charAt(0).toUpperCase() + announcement.priority.slice(1)}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex items-center gap-1">
-                      <Users className="h-4 w-4 text-muted-foreground" />
-                      {announcement.targetAudience}
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex items-center gap-1">
-                      <Calendar className="h-4 w-4 text-muted-foreground" />
-                      {formatDate(announcement.scheduledDate)}
-                    </div>
-                  </TableCell>
-                  <TableCell>{announcement.views}</TableCell>
-                  <TableCell>{announcement.author}</TableCell>
-                  <TableCell className="text-right">
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" className="h-8 w-8 p-0">
-                          <MoreHorizontal className="h-4 w-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem onClick={() => router.push(`/dashboard/communications/announcements/${announcement.id}`)}>
-                          <Eye className="mr-2 h-4 w-4" />
-                          View
-                        </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => router.push(`/dashboard/communications/announcements/${announcement.id}/edit`)}>
-                          <Edit className="mr-2 h-4 w-4" />
-                          Edit
-                        </DropdownMenuItem>
-                        <DropdownMenuItem 
-                          onClick={() => handleDelete(announcement)}
-                          className="text-red-600"
-                        >
-                          <Trash2 className="mr-2 h-4 w-4" />
-                          Delete
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </TableCell>
+          <div className="border rounded-lg overflow-hidden">
+            <Table>
+              <TableHeader className="bg-muted/40">
+                <TableRow>
+                  <TableHead>Title</TableHead>
+                  <TableHead>Target Audience</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Priority</TableHead>
+                  <TableHead>Created</TableHead>
+                  <TableHead>Views</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+              </TableHeader>
+              <TableBody>
+                {filteredAnnouncements.map((announcement) => (
+                  <TableRow key={announcement.id}>
+                    <TableCell>
+                      <div>
+                        <div className="font-medium text-foreground">{announcement.title}</div>
+                        <div className="text-xs text-muted-foreground truncate max-w-sm">
+                          {announcement.content}
+                        </div>
+                      </div>
+                    </TableCell>
+                    <TableCell className="text-xs font-medium">{announcement.targetAudience}</TableCell>
+                    <TableCell>
+                      <StatusBadge status={announcement.status} />
+                    </TableCell>
+                    <TableCell>
+                      <Badge 
+                        variant={announcement.priority === 'high' ? 'danger' : announcement.priority === 'medium' ? 'warning' : 'neutral'}
+                        className="text-xs capitalize"
+                      >
+                        {announcement.priority}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="text-xs text-muted-foreground">
+                      {new Date(announcement.createdAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
+                    </TableCell>
+                    <TableCell className="text-sm font-medium">{announcement.views}</TableCell>
+                    <TableCell className="text-right">
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" className="h-8 w-8 p-0">
+                            <MoreHorizontal className="h-4 w-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuItem asChild>
+                            <Link href={`/dashboard/communications/announcements/${announcement.id}`}>
+                              <Eye className="mr-2 h-4 w-4" />
+                              View
+                            </Link>
+                          </DropdownMenuItem>
+                          <DropdownMenuItem asChild>
+                            <Link href={`/dashboard/communications/announcements/${announcement.id}/edit`}>
+                              <Edit className="mr-2 h-4 w-4" />
+                              Edit
+                            </Link>
+                          </DropdownMenuItem>
+                          <DropdownMenuItem 
+                            className="text-destructive"
+                            onClick={() => deleteDialog.openDialog(announcement)}
+                          >
+                            <Trash2 className="mr-2 h-4 w-4" />
+                            Delete
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
         </CardContent>
       </Card>
 
-      {/* Delete Dialog */}
+      {/* Delete Confirmation Dialog */}
       <DeleteDialog
         isOpen={deleteDialog.isOpen}
         onOpenChange={deleteDialog.closeDialog}
-        onConfirm={() => deleteDialog.handleConfirm(async (announcement) => {
-          // Add actual delete logic here
-          console.log('Deleting announcement:', announcement.id);
-          await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate API call
-        })}
+        onConfirm={handleDeleteAnnouncement}
         title="Delete Announcement"
+        description="Are you sure you want to delete this announcement?"
         itemName={deleteDialog.itemToDelete?.title}
-        loading={deleteDialog.loading}
       />
     </div>
   );

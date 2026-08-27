@@ -297,10 +297,10 @@ export default function PrayerRequestsPage() {
 
       {/* Stats Cards */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <StatCard title="Total Requests" value={totalRequests} icon={Heart} />
-        <StatCard title="New Requests" value={newRequests} icon={AlertCircle} />
-        <StatCard title="In Progress" value={inProgress} icon={Clock} />
-        <StatCard title="Answered" value={answered} icon={CheckCircle} />
+        <StatCard title="Total Requests" value={totalRequests} icon={Heart} accent="primary" />
+        <StatCard title="New Requests" value={newRequests} icon={AlertCircle} accent="accent" />
+        <StatCard title="In Progress" value={inProgress} icon={Clock} accent="secondary" />
+        <StatCard title="Answered" value={answered} icon={CheckCircle} accent="success" />
       </div>
 
       {/* Prayer Requests Table */}

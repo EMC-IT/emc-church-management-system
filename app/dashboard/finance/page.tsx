@@ -238,16 +238,18 @@ export default function FinanceOverviewPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Finance Overview"
+        title="Finance"
         actions={
           <>
-            <Button variant="outline">
-              <Download className="mr-2 h-4 w-4" />
-              Export Report
+            <Button variant="outline" asChild>
+              <Link href="/dashboard/finance/reports">
+                <BarChart3 className="mr-1.5 h-4 w-4" />
+                Reports
+              </Link>
             </Button>
             <Button asChild>
-              <Link href="/dashboard/finance/giving">
-                <Plus className="mr-2 h-4 w-4" />
+              <Link href="/dashboard/finance/giving/add">
+                <Plus className="mr-1.5 h-4 w-4" />
                 Record Giving
               </Link>
             </Button>

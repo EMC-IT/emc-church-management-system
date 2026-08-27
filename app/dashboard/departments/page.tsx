@@ -289,21 +289,25 @@ export default function DepartmentsPage() {
           title="Total Departments"
           value={departments.length}
           icon={Building2}
+          accent="primary"
         />
         <StatCard
           title="Total Members"
           value={totalMembers}
           icon={Users}
+          accent="secondary"
         />
         <StatCard
           title="Average Attendance"
           value={`${averageAttendance}%`}
           icon={TrendingUp}
+          accent="accent"
         />
         <StatCard
           title="Active Rate"
           value={`${departments.length > 0 ? Math.round((activeDepartments / departments.length) * 100) : 0}%`}
           icon={Building2}
+          accent="success"
         />
       </div>
 

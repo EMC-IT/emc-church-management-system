@@ -559,8 +559,8 @@ export default function PermissionsPage() {
           <CardHeader>
             <div className="flex items-center justify-between">
               <CardTitle>Configure Permissions</CardTitle>
-              <Button onClick={handleSave} className="bg-brand-primary hover:bg-brand-primary/90">
-                <Save className="mr-2 h-4 w-4" />
+              <Button onClick={handleSave}>
+                <Save className="mr-1.5 h-4 w-4" />
                 Save Changes
               </Button>
             </div>

@@ -116,21 +116,25 @@ export default function SundaySchoolPage() {
           title="Total Classes"
           value={stats?.totalClasses || 0}
           icon={School}
+          accent="primary"
         />
         <StatCard
           title="Total Students"
           value={stats?.totalStudents || 0}
           icon={Users}
+          accent="secondary"
         />
         <StatCard
           title="Teachers"
           value={stats?.totalTeachers || 0}
           icon={GraduationCap}
+          accent="accent"
         />
         <StatCard
           title="Average Attendance"
           value={`${stats?.averageAttendance || 0}%`}
           icon={UserCheck}
+          accent="success"
         />
       </div>
 

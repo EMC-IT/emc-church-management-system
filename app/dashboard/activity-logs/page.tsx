@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { PageHeader } from '@/components/ui/page-header';
+import { StatCard } from '@/components/ui/stat-card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ActionBadge } from '@/components/ui/category-badges';
@@ -418,22 +419,31 @@ export default function ActivityLogsPage() {
       />
 
       {/* Stats Cards */}
-      <div className="grid gap-4 md:grid-cols-4">
-        {activityStats.map((stat) => (
-          <Card key={stat.label}>
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-muted-foreground">{stat.label}</p>
-                  <p className="text-2xl font-bold mt-2">{stat.value}</p>
-                </div>
-                <div className={`p-3 rounded-lg ${stat.bgColor}`}>
-                  <stat.icon className={`h-6 w-6 ${stat.color}`} />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <StatCard
+          title="Total Activities"
+          value="12,456"
+          icon={Activity}
+          accent="primary"
+        />
+        <StatCard
+          title="Today's Actions"
+          value="234"
+          icon={Clock}
+          accent="success"
+        />
+        <StatCard
+          title="Failed Actions"
+          value="12"
+          icon={AlertCircle}
+          accent="accent"
+        />
+        <StatCard
+          title="Active Users"
+          value="45"
+          icon={Users}
+          accent="secondary"
+        />
       </div>
 
       {/* Filters and Search */}

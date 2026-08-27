@@ -248,7 +248,7 @@ export default function SettingsPage() {
                   </div>
                 </div>
                 
-                <Button asChild className="w-full bg-brand-primary hover:bg-brand-primary/90">
+                <Button asChild className="w-full">
                   <Link href="/dashboard/settings/church-profile">
                     Edit Complete Profile
                   </Link>
@@ -400,9 +400,9 @@ export default function SettingsPage() {
                     User Management
                   </CardTitle>
                 </div>
-                <Button asChild className="bg-brand-primary hover:bg-brand-primary/90">
+                <Button asChild>
                   <Link href="/dashboard/settings/users/add">
-                    <Plus className="mr-2 h-4 w-4" />
+                    <Plus className="mr-1.5 h-4 w-4" />
                     Add User
                   </Link>
                 </Button>
@@ -482,9 +482,9 @@ export default function SettingsPage() {
                       Manage Permissions
                     </Link>
                   </Button>
-                  <Button asChild className="bg-brand-primary hover:bg-brand-primary/90">
+                  <Button asChild>
                     <Link href="/dashboard/settings/roles/add">
-                      <Plus className="mr-2 h-4 w-4" />
+                      <Plus className="mr-1.5 h-4 w-4" />
                       Create Role
                     </Link>
                   </Button>

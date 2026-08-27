@@ -181,54 +181,39 @@ export default function NewsletterDetailPage() {
   };
 
   const getEngagementColor = (rate: number) => {
-    if (rate >= 70) return 'text-green-600';
-    if (rate >= 50) return 'text-yellow-600';
-    if (rate >= 30) return 'text-orange-600';
-    return 'text-red-600';
+    if (rate >= 70) return 'text-brand-success';
+    if (rate >= 50) return 'text-brand-accent';
+    return 'text-destructive';
   };
 
   return (
     <div className="space-y-6">
-      {/* Header with Back Navigation */}
-      <div className="flex items-center gap-4 mb-6">
-        <Button
-          variant="outline"
-          size="icon"
-          className="h-9 w-9"
-          asChild
-        >
-          <Link href="/dashboard/communications/newsletters" aria-label="Back to Newsletters">
-            <ArrowLeft className="h-4 w-4" />
-          </Link>
-        </Button>
-        
-        <div className="flex items-center gap-3 flex-1">
-          <div className="p-2 bg-brand-primary/10 rounded-lg">
-            <FileText className="h-6 w-6 text-brand-primary" />
-          </div>
-          <div className="flex-1">
-            <PageHeader
-              title="Newsletter Details"
-              actions={
-                <>
-                  <Button variant="outline" size="sm" onClick={handleDuplicate}>
-                    <Copy className="h-4 w-4 mr-2" />
-                    Duplicate
-                  </Button>
-                  <Button variant="outline" size="sm" onClick={handleEdit}>
-                    <Edit className="h-4 w-4 mr-2" />
-                    Edit
-                  </Button>
-                  <Button variant="outline" size="sm" onClick={handleDeleteClick} disabled={isLoading}>
-                    <Trash2 className="h-4 w-4 mr-2" />
-                    Delete
-                  </Button>
-                </>
-              }
-            />
-          </div>
-        </div>
-      </div>
+      {/* Header */}
+      <PageHeader
+        title={newsletter.title}
+        actions={
+          <>
+            <Button variant="outline" asChild>
+              <Link href="/dashboard/communications/newsletters">
+                <ArrowLeft className="mr-1.5 h-4 w-4" />
+                Newsletters
+              </Link>
+            </Button>
+            <Button variant="outline" onClick={handleDuplicate}>
+              <Copy className="mr-1.5 h-4 w-4" />
+              Duplicate
+            </Button>
+            <Button variant="outline" onClick={handleEdit}>
+              <Edit className="mr-1.5 h-4 w-4" />
+              Edit
+            </Button>
+            <Button variant="outline" className="text-destructive" onClick={handleDeleteClick} disabled={isLoading}>
+              <Trash2 className="mr-1.5 h-4 w-4" />
+              Delete
+            </Button>
+          </>
+        }
+      />
 
       <Tabs defaultValue="overview" className="space-y-6">
         <TabsList>
