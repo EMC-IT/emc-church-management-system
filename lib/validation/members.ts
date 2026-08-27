@@ -14,7 +14,9 @@ export const memberCreateSchema = z.object({
   address: z.string().optional(),
   dateOfBirth: z.string().optional(),
   gender: z.enum(['Male', 'Female']),
+  maritalStatus: z.enum(['Single', 'Married', 'Divorced', 'Widowed', 'Other']).optional(),
   membershipStatus: z.enum(['Active', 'Inactive', 'Pending', 'Suspended', 'Deceased']).default('Active'),
+  occupation: z.string().optional(),
   joinDate: z.string().optional(),
   branch: z.string().optional(),
   branchId: z.string().optional(),
@@ -31,6 +33,20 @@ export const familyLinkSchema = z.object({
   relationship: z.string().min(2, 'Relationship type is required'),
 });
 
+export const familyMemberAddSchema = memberCreateSchema.extend({
+  relationshipToHead: z.string().min(2, 'Relationship to family head is required'),
+  isFamilyHead: z.boolean().default(false),
+});
+
+export const convertFollowUpSchema = z.object({
+  convertId: z.string().min(1, 'Convert ID is required'),
+  stage: z.enum(['New', 'Contacted', 'Assigned Mentor', 'Foundation School', 'Baptized', 'Integrated']),
+  notes: z.string().optional(),
+  mentorId: z.string().optional(),
+  contactDate: z.string().optional(),
+  nextFollowUpDate: z.string().optional(),
+});
+
 export const memberSearchSchema = z.object({
   page: z.number().int().positive().optional().default(1),
   limit: z.number().int().positive().max(100).optional().default(20),
@@ -45,4 +61,6 @@ export const memberSearchSchema = z.object({
 export type MemberCreateInput = z.infer<typeof memberCreateSchema>;
 export type MemberUpdateInput = z.infer<typeof memberUpdateSchema>;
 export type FamilyLinkInput = z.infer<typeof familyLinkSchema>;
+export type FamilyMemberAddInput = z.infer<typeof familyMemberAddSchema>;
+export type ConvertFollowUpInput = z.infer<typeof convertFollowUpSchema>;
 export type MemberSearchInput = z.infer<typeof memberSearchSchema>;

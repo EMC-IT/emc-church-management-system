@@ -27,6 +27,32 @@ export const announcementCreateSchema = z.object({
   expiresAt: z.string().optional(),
 });
 
+export const announcementUpdateSchema = announcementCreateSchema.partial();
+
+export const campaignCreateSchema = z.object({
+  name: z.string().min(2, 'Campaign name is required'),
+  type: z.enum(['SMS', 'Email', 'Multi-Channel']).default('SMS'),
+  targetAudience: z.string().min(1, 'Target audience is required'),
+  scheduledDate: z.string().min(1, 'Scheduled dispatch date is required'),
+  message: z.string().min(1, 'Message content is required'),
+  status: z.enum(['Draft', 'Scheduled', 'Sent', 'Cancelled']).default('Draft'),
+});
+
+export const campaignUpdateSchema = campaignCreateSchema.partial();
+
+export const newsletterCreateSchema = z.object({
+  title: z.string().min(2, 'Newsletter title is required'),
+  subject: z.string().min(2, 'Email subject line is required'),
+  content: z.string().min(10, 'Newsletter body content is required'),
+  template: z.string().optional(),
+  scheduledDate: z.string().optional(),
+  status: z.enum(['Draft', 'Scheduled', 'Sent']).default('Draft'),
+});
+
+export const newsletterUpdateSchema = newsletterCreateSchema.partial();
+
 export type SMSSendInput = z.infer<typeof smsSendSchema>;
 export type EmailSendInput = z.infer<typeof emailSendSchema>;
 export type AnnouncementCreateInput = z.infer<typeof announcementCreateSchema>;
+export type CampaignCreateInput = z.infer<typeof campaignCreateSchema>;
+export type NewsletterCreateInput = z.infer<typeof newsletterCreateSchema>;

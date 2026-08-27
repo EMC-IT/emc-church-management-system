@@ -8,3 +8,5 @@ export * from './departments';
 export * from './communications';
 export * from './assets';
 export * from './sunday-school';
+export * from './prayer-requests';
+export * from './settings';

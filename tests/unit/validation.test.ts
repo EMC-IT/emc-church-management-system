@@ -5,6 +5,15 @@ import {
   expenseCreateSchema,
   attendanceRecordSchema,
   loginSchema,
+  prayerRequestCreateSchema,
+  branchCreateSchema,
+  churchProfileSchema,
+  userAccountCreateSchema,
+  roleCreateSchema,
+  pledgeCreateSchema,
+  fundraisingCampaignCreateSchema,
+  teacherCreateSchema,
+  assetMaintenanceSchema,
 } from '../../lib/validation';
 
 describe('Centralized Runtime Zod Validation', () => {
@@ -76,5 +85,95 @@ describe('Centralized Runtime Zod Validation', () => {
       status: 'UNKNOWN_STATUS',
     });
     expect(invalidStatus.success).toBe(false);
+  });
+
+  it('prayerRequestCreateSchema should validate length constraints and defaults', () => {
+    const valid = prayerRequestCreateSchema.safeParse({
+      title: 'Prayer for healing',
+      description: 'Requesting prayers for quick recovery from malaria',
+      category: 'healing',
+      priority: 'High',
+    });
+    expect(valid.success).toBe(true);
+
+    const shortDesc = prayerRequestCreateSchema.safeParse({
+      title: 'Prayer for healing',
+      description: 'Too short',
+      category: 'healing',
+    });
+    expect(shortDesc.success).toBe(false);
+  });
+
+  it('branchCreateSchema and churchProfileSchema should validate settings fields', () => {
+    const validBranch = branchCreateSchema.safeParse({
+      name: 'Accra Main Campus',
+      established: '2015',
+      email: 'accra@emc.org',
+      phone: '+233241234567',
+      street: '123 Independence Ave',
+      city: 'Accra',
+      state: 'Greater Accra',
+      postalCode: 'GA-123-4567',
+      country: 'Ghana',
+      pastor: 'Pastor Emmanuel',
+      capacity: '1500',
+    });
+    expect(validBranch.success).toBe(true);
+
+    const validChurchProfile = churchProfileSchema.safeParse({
+      name: 'Emmanuel Methodist Church',
+      vision: 'To be a vibrant Christ-centered church transforming nations.',
+      mission: 'Preaching the gospel of Jesus Christ and discipling believers.',
+      coreValues: 'Faith, Integrity, Compassion, Excellence, and Fellowship.',
+      email: 'info@emc.org',
+      phone: '+233302123456',
+      street: 'Church Street, Adabraka',
+      city: 'Accra',
+      state: 'Greater Accra',
+      postalCode: '00233',
+      country: 'Ghana',
+      seniorPastor: 'Rev. Dr. Mensah',
+    });
+    expect(validChurchProfile.success).toBe(true);
+  });
+
+  it('userAccountCreateSchema should enforce password matching', () => {
+    const valid = userAccountCreateSchema.safeParse({
+      firstName: 'Daniel',
+      lastName: 'Kofi',
+      email: 'daniel@emc.org',
+      username: 'dkofi',
+      password: 'strongPassword123',
+      confirmPassword: 'strongPassword123',
+      role: 'Admin',
+    });
+    expect(valid.success).toBe(true);
+
+    const mismatched = userAccountCreateSchema.safeParse({
+      firstName: 'Daniel',
+      lastName: 'Kofi',
+      email: 'daniel@emc.org',
+      username: 'dkofi',
+      password: 'strongPassword123',
+      confirmPassword: 'differentPassword123',
+      role: 'Admin',
+    });
+    expect(mismatched.success).toBe(false);
+  });
+
+  it('roleCreateSchema should enforce at least one permission', () => {
+    const valid = roleCreateSchema.safeParse({
+      name: 'Finance Auditor',
+      description: 'Audit and review all financial records and ledger entries',
+      permissions: ['finance.view', 'finance.reports.view'],
+    });
+    expect(valid.success).toBe(true);
+
+    const emptyPerms = roleCreateSchema.safeParse({
+      name: 'Finance Auditor',
+      description: 'Audit and review all financial records and ledger entries',
+      permissions: [],
+    });
+    expect(emptyPerms.success).toBe(false);
   });
 });

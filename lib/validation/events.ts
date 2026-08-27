@@ -15,6 +15,8 @@ export const eventCreateSchema = z.object({
   branchId: z.string().optional(),
 });
 
+export const eventUpdateSchema = eventCreateSchema.partial();
+
 export const eventRegistrationSchema = z.object({
   eventId: z.string().min(1, 'Event ID is required'),
   memberId: z.string().min(1, 'Member ID is required'),
@@ -22,5 +24,17 @@ export const eventRegistrationSchema = z.object({
   notes: z.string().optional(),
 });
 
+export const eventCategorySchema = z.object({
+  name: z.string().min(2, 'Category name must be at least 2 characters'),
+  color: z.string().optional(),
+  description: z.string().optional(),
+});
+
+export const eventBulkActionSchema = z.object({
+  eventIds: z.array(z.string()).min(1, 'Select at least one event'),
+  action: z.enum(['publish', 'cancel', 'archive', 'delete']),
+});
+
 export type EventCreateInput = z.infer<typeof eventCreateSchema>;
+export type EventUpdateInput = z.infer<typeof eventUpdateSchema>;
 export type EventRegistrationInput = z.infer<typeof eventRegistrationSchema>;
