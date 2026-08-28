@@ -168,8 +168,7 @@
     font-variant-numeric: tabular-nums;
     text-transform: none;
     letter-spacing: normal;
-    /* Prevent body scroll when using layout containers */
-    overflow: hidden;
+    overflow-x: hidden;
   }
 
   :where(h1, h2, h3, h4, h5, h6),
