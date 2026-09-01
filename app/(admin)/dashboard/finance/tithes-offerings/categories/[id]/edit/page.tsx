@@ -1,0 +1,289 @@
+'use client';
+
+import React, { useState, useEffect } from 'react';
+import { useRouter, useParams } from 'next/navigation';
+import Link from 'next/link';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useForm } from 'react-hook-form';
+import * as z from 'zod';
+import { Loader2, Save, ArrowLeft, Edit } from 'lucide-react';
+
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { PageHeader } from '@/components/ui/page-header';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Switch } from '@/components/ui/switch';
+import { LazySection } from '@/components/ui/lazy-section';
+import { toast } from 'sonner';
+
+// Category form validation schema
+const categoryFormSchema = z.object({
+  name: z.string().min(1, 'Category name is required').max(50, 'Name must be less than 50 characters'),
+  description: z.string().optional(),
+  type: z.enum(['Tithe', 'Offering', 'First Fruits', 'Special Offering']),
+  color: z.string().min(1, 'Color is required'),
+  isActive: z.boolean().default(true),
+});
+
+type CategoryFormData = z.infer<typeof categoryFormSchema>;
+
+// Predefined colors for categories aligned with brand palette
+const colorOptions = [
+  { value: '#2E8DB0', name: 'Brand Primary', class: 'bg-brand-primary' },
+  { value: '#28ACD1', name: 'Brand Secondary', class: 'bg-brand-secondary' },
+  { value: '#C49831', name: 'Brand Gold', class: 'bg-brand-accent' },
+  { value: '#A5CF5D', name: 'Brand Success', class: 'bg-brand-success' },
+  { value: '#1e627c', name: 'Deep Navy', class: 'bg-brand-primary-dark' },
+  { value: '#475569', name: 'Slate', class: 'bg-slate-600' },
+];
+
+// Mock existing category data
+const mockCategory = {
+  id: '1',
+  name: 'Building Fund',
+  description: 'Special offerings for church building projects and renovations',
+  type: 'Special Offering' as const,
+  color: '#C49831',
+  isActive: true
+};
+
+export default function EditCategoryPage() {
+  const router = useRouter();
+  const params = useParams();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [loading, setLoading] = useState(true);
+
+  const form = useForm<CategoryFormData>({
+    resolver: zodResolver(categoryFormSchema),
+    defaultValues: {
+      name: '',
+      description: '',
+      type: 'Offering',
+      color: '#2E8DB0',
+      isActive: true,
+    },
+  });
+
+  const selectedColor = form.watch('color');
+
+  // Load existing category data
+  useEffect(() => {
+    const loadCategory = async () => {
+      try {
+        // Simulate API call
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        
+        // Set form values with existing data
+        form.reset(mockCategory);
+        setLoading(false);
+      } catch (error) {
+        toast.error('Failed to load category');
+        router.push('/dashboard/finance/tithes-offerings/categories');
+      }
+    };
+
+    loadCategory();
+  }, [params.id, form, router]);
+
+  const onSubmit = async (data: CategoryFormData) => {
+    setIsSubmitting(true);
+    try {
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      
+      console.log('Updated category data:', {
+        ...data,
+        id: params.id,
+      });
+      
+      toast.success('Category updated successfully!');
+      router.push(`/dashboard/finance/tithes-offerings/categories/${params.id}`);
+    } catch (error) {
+      console.error('Error updating category:', error);
+      toast.error('Failed to update category. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center gap-4">
+          <div className="h-12 w-12 bg-gray-200 rounded-md animate-pulse" />
+          <div className="space-y-2">
+            <div className="h-6 w-48 bg-gray-200 rounded animate-pulse" />
+            <div className="h-4 w-32 bg-gray-200 rounded animate-pulse" />
+          </div>
+        </div>
+        <div className="h-96 bg-gray-200 rounded-lg animate-pulse" />
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-6 max-w-6xl">
+      {/* Page Header with Back Navigation */}
+      <div className="flex items-center gap-4">
+        <Button variant="outline" size="icon" className="h-9 w-9" asChild>
+          <Link href={`/dashboard/finance/tithes-offerings/categories/${params.id}`} aria-label="Back to Category Details">
+            <ArrowLeft className="h-4 w-4" />
+          </Link>
+        </Button>
+        <div>
+          <h1 className="font-heading text-2xl font-bold tracking-tight">Edit Giving Category</h1>
+        </div>
+      </div>
+
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+          <Card className="rounded-xl border border-border p-6">
+            <div className="space-y-5">
+              <h2 className="text-base font-semibold text-foreground">Category Details</h2>
+
+              <div className="grid grid-cols-12 gap-5">
+                <FormField
+                  control={form.control}
+                  name="name"
+                  render={({ field }) => (
+                    <FormItem className="col-span-12 sm:col-span-8">
+                      <FormLabel>Category Name *</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Building Fund" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="type"
+                  render={({ field }) => (
+                    <FormItem className="col-span-12 sm:col-span-4">
+                      <FormLabel>Type *</FormLabel>
+                      <Select onValueChange={field.onChange} value={field.value}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select category type" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="Tithe">Tithe</SelectItem>
+                          <SelectItem value="Offering">Offering</SelectItem>
+                          <SelectItem value="First Fruits">First Fruits</SelectItem>
+                          <SelectItem value="Special Offering">Special Offering</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="description"
+                  render={({ field }) => (
+                    <FormItem className="col-span-12">
+                      <FormLabel>Description</FormLabel>
+                      <FormControl>
+                        <Textarea 
+                          placeholder="Purpose of this category..."
+                          rows={3}
+                          {...field} 
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                {/* Color Selection */}
+                <FormField
+                  control={form.control}
+                  name="color"
+                  render={({ field }) => (
+                    <FormItem className="col-span-12 sm:col-span-8">
+                      <FormLabel>Category Color Badge *</FormLabel>
+                      <FormControl>
+                        <div className="flex flex-wrap gap-2 pt-1">
+                          {colorOptions.map((color) => (
+                            <button
+                              key={color.value}
+                              type="button"
+                              className={`w-8 h-8 rounded-full border-2 transition-all ${
+                                field.value === color.value 
+                                  ? 'ring-2 ring-primary ring-offset-2 border-foreground' 
+                                  : 'border-transparent'
+                              }`}
+                              style={{ backgroundColor: color.value }}
+                              onClick={() => field.onChange(color.value)}
+                              title={color.name}
+                            />
+                          ))}
+                        </div>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                {/* Status */}
+                <FormField
+                  control={form.control}
+                  name="isActive"
+                  render={({ field }) => (
+                    <FormItem className="col-span-12 sm:col-span-4 flex items-center justify-between rounded-lg border border-border p-3.5">
+                      <div className="space-y-0.5">
+                        <FormLabel className="text-sm font-medium cursor-pointer">
+                          Active Status
+                        </FormLabel>
+                        <p className="text-xs text-muted-foreground">Available for giving records</p>
+                      </div>
+                      <FormControl>
+                        <Switch
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                        />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+              </div>
+            </div>
+          </Card>
+
+          {/* Submit Buttons */}
+          <div className="flex items-center justify-end gap-3 pt-2">
+            <Button
+              type="button"
+              variant="outline"
+              asChild
+              disabled={isSubmitting}
+            >
+              <Link href={`/dashboard/finance/tithes-offerings/categories/${params.id}`}>
+                Cancel
+              </Link>
+            </Button>
+            <Button type="submit" disabled={isSubmitting}>
+              {isSubmitting ? (
+                <>
+                  <Loader2 className="mr-1.5 h-4 w-4 animate-spin" />
+                  Updating...
+                </>
+              ) : (
+                <>
+                  <Save className="mr-1.5 h-4 w-4" />
+                  Update Category
+                </>
+              )}
+            </Button>
+          </div>
+        </form>
+      </Form>
+    </div>
+  );
+}

@@ -91,35 +91,168 @@ export interface TitheOffering {
 }
 
 // Budget Types
-export type BudgetStatus = 'Draft' | 'Active' | 'Completed' | 'Cancelled';
-export type BudgetPeriod = 'Monthly' | 'Quarterly' | 'Yearly' | 'Custom';
+export type BudgetStatus = 
+  | 'Active' 
+  | 'Watch' 
+  | 'Near Limit' 
+  | 'Over Budget' 
+  | 'Completed' 
+  | 'Draft' 
+  | 'Archived'
+  | 'active'
+  | 'completed'
+  | 'exceeded'
+  | 'draft';
 
+export type BudgetPeriod = 'Monthly' | 'Quarterly' | 'Yearly' | 'Custom' | string;
+
+export interface BudgetAllocation {
+  id: string;
+  budgetId?: string;
+  department: string;
+  allocatedAmount: number;
+  spentAmount: number;
+  percentage?: number;
+  notes?: string;
+  updatedAt?: string;
+}
+
+export interface BudgetRecord {
+  id: string;
+  name: string;
+  description?: string;
+  amount: number;
+  spent: number;
+  currency: string;
+  period: string;
+  periodYear: number;
+  startDate: string;
+  endDate: string;
+  categoryId?: string;
+  categoryName?: string;
+  departmentId?: string;
+  departmentName?: string;
+  department: string;
+  owner: string;
+  status: BudgetStatus;
+  priority?: 'High' | 'Medium' | 'Low' | 'high' | 'medium' | 'low';
+  allocations?: BudgetAllocation[];
+  notes?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface BudgetCategory {
+  id: string;
+  name: string;
+  description?: string;
+  color?: string;
+  budgetCount?: number;
+  totalBudget?: number;
+  status: 'Active' | 'Inactive';
+  createdAt: string;
+  lastUsed?: string;
+}
+
+export interface BudgetFormData {
+  name: string;
+  department: string;
+  category: string;
+  amount: number;
+  currency?: string;
+  period: string;
+  periodYear?: number;
+  startDate: string;
+  endDate: string;
+  owner: string;
+  description?: string;
+  priority?: 'high' | 'medium' | 'low' | 'High' | 'Medium' | 'Low';
+  status?: BudgetStatus;
+}
+
+export interface BudgetSearchParams {
+  page?: number;
+  limit?: number;
+  search?: string;
+  status?: string;
+  department?: string;
+  categoryId?: string;
+  periodYear?: number | string;
+  sortBy?: string;
+  sortOrder?: 'asc' | 'desc';
+}
+
+export interface BudgetTrendPoint {
+  month: string;
+  budget: number;
+  spent: number;
+  remaining: number;
+}
+
+export interface DepartmentBudgetStat {
+  department: string;
+  budget: number;
+  spent: number;
+  remaining: number;
+  utilization: number;
+}
+
+export interface BudgetAnalytics {
+  totalBudget: number;
+  totalSpent: number;
+  remaining: number;
+  utilizationRate: number;
+  periodYear: number;
+  totalBudgetsCount: number;
+  statusCounts: Record<string, number>;
+  trends: BudgetTrendPoint[];
+  departmentSpending: DepartmentBudgetStat[];
+  recentBudgets: BudgetRecord[];
+}
+
+export interface BudgetListResponse {
+  data: BudgetRecord[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}
+
+export interface BudgetResponse {
+  data: BudgetRecord;
+  message?: string;
+}
+
+// Legacy / Standard Budget interface for backward compatibility
 export interface Budget {
   id: string;
   name: string;
   description?: string;
-  amount: Amount;
-  currency: Currency;
+  amount: Amount | number;
+  currency: Currency | string;
   period: BudgetPeriod;
   startDate: string;
   endDate: string;
   status: BudgetStatus;
-  category: DonationCategory;
-  branch: string;
-  createdBy: string;
+  category?: DonationCategory | string;
+  department?: string;
+  branch?: string;
+  createdBy?: string;
   approvedBy?: string;
   approvedAt?: string;
   createdAt: string;
   updatedAt: string;
-  expenses: BudgetExpense[];
+  expenses?: BudgetExpense[];
+  spent?: number;
+  owner?: string;
 }
 
 export interface BudgetExpense {
   id: string;
   budgetId: string;
   description: string;
-  amount: Amount;
-  currency: Currency;
+  amount: Amount | number;
+  currency: Currency | string;
   date: string;
   status: 'Pending' | 'Approved' | 'Rejected' | 'Paid';
   approvedBy?: string;
@@ -143,32 +276,136 @@ export interface LegacyBudget {
 }
 
 // Expense Types
-export type ExpenseCategory = 
-  | 'Utilities'
-  | 'Maintenance'
-  | 'Equipment'
-  | 'Supplies'
-  | 'Transportation'
-  | 'Events'
-  | 'Staff'
-  | 'Marketing'
-  | 'Technology'
-  | 'Other';
-
 export type ExpenseStatus = 
+  | 'paid'
+  | 'pending'
+  | 'approved'
+  | 'rejected'
+  | 'cancelled'
+  | 'Paid'
   | 'Pending'
   | 'Approved'
   | 'Rejected'
-  | 'Paid'
   | 'Cancelled';
 
+export interface ExpenseCategory {
+  id: string;
+  name: string;
+  code?: string;
+  description?: string;
+  color?: string;
+  group?: 'People' | 'Facilities & Utilities' | 'Operations' | 'Ministry' | 'Equipment' | 'Other' | string;
+  isActive: boolean;
+  totalExpenses?: number;
+  recordCount?: number;
+  lastExpenseDate?: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface ExpenseAttachment {
+  id: string;
+  filename: string;
+  url: string;
+  type: string;
+  size: number;
+}
+
+export interface ExpenseRecord {
+  id: string;
+  title: string;
+  description?: string;
+  amount: number;
+  currency: string;
+  categoryId: string;
+  categoryName?: string;
+  categoryColor?: string;
+  vendor: string;
+  paymentMethod: string;
+  date: string;
+  status: ExpenseStatus;
+  receiptNumber?: string;
+  approvedBy?: string;
+  approvedAt?: string;
+  notes?: string;
+  attachments?: ExpenseAttachment[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface ExpenseFormData {
+  title: string;
+  amount: number;
+  currency?: string;
+  categoryId: string;
+  vendor: string;
+  paymentMethod: string;
+  date: string;
+  status?: ExpenseStatus;
+  receiptNumber?: string;
+  approvedBy?: string;
+  description?: string;
+  notes?: string;
+}
+
+export interface ExpenseSearchParams {
+  page?: number;
+  limit?: number;
+  search?: string;
+  sortBy?: string;
+  sortOrder?: 'asc' | 'desc';
+  categoryId?: string;
+  vendor?: string;
+  status?: ExpenseStatus | string;
+  paymentMethod?: string;
+  startDate?: string;
+  endDate?: string;
+  minAmount?: number;
+  maxAmount?: number;
+  approvedBy?: string;
+  branch?: string;
+}
+
+export interface ExpenseAnalytics {
+  totalPaid: number;
+  totalPending: number;
+  thisMonthPaid: number;
+  lastMonthPaid?: number;
+  averageAmount: number;
+  growth: number;
+  totalCount: number;
+  byCategory: Record<string, { amount: number; count: number; color?: string }>;
+  byPaymentMethod: Record<string, { amount: number; count: number }>;
+  byVendor: Record<string, { amount: number; count: number }>;
+  recentExpenses: ExpenseRecord[];
+}
+
+export interface ExpenseListResponse {
+  data: ExpenseRecord[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}
+
+export interface ExpenseResponse {
+  data: ExpenseRecord;
+  message?: string;
+}
+
+export interface ExpenseCategoryListResponse {
+  data: ExpenseCategory[];
+  total: number;
+}
+
+// Legacy Expense interface for backward compatibility
 export interface Expense {
   id: string;
   title: string;
   description?: string;
   amount: Amount;
   currency: Currency;
-  category: ExpenseCategory;
+  category: string;
   status: ExpenseStatus;
   date: string;
   dueDate?: string;
@@ -371,4 +608,66 @@ export interface ExportOptions {
   };
   includeReceipts?: boolean;
   groupBy?: 'category' | 'method' | 'branch' | 'month';
+}
+
+// ─── CONSOLIDATED FINANCIAL REPORTING ──────────────────────────────────────────
+
+export interface StatementOfActivitiesItem {
+  id?: string;
+  category: string;
+  type: 'giving' | 'income' | 'expense';
+  amount: number;
+  percentage: number;
+  priorPeriodAmount?: number;
+}
+
+export interface MonthlyFinancialPoint {
+  month: string;
+  giving: number;
+  income: number;
+  totalInflows: number;
+  expenses: number;
+  netSurplus: number;
+}
+
+export interface DepartmentVariancePoint {
+  department: string;
+  budget: number;
+  spent: number;
+  variance: number;
+  utilization: number;
+  status: string;
+}
+
+export interface ConsolidatedFinancialReport {
+  fiscalYear: number;
+  totalGiving: number;
+  totalIncome: number;
+  totalRevenue: number;
+  totalExpenses: number;
+  netSurplus: number;
+  totalBudget: number;
+  budgetUtilizationRate: number;
+  monthlyTrends: MonthlyFinancialPoint[];
+  statementRevenues: StatementOfActivitiesItem[];
+  statementExpenses: StatementOfActivitiesItem[];
+  departmentVariances: DepartmentVariancePoint[];
+  givingCategoryDistribution: { category: string; amount: number; percentage: number; color?: string }[];
+  incomeCategoryDistribution: { category: string; amount: number; percentage: number; color?: string }[];
+  expenseCategoryDistribution: { category: string; amount: number; percentage: number; color?: string }[];
+  paymentMethodDistribution: { method: string; amount: number; percentage: number }[];
+}
+
+export interface FinancialAuditRecord {
+  id: string;
+  date: string;
+  domain: 'Giving' | 'Income' | 'Expense';
+  category: string;
+  description: string;
+  payeeOrDonor: string;
+  paymentMethod: string;
+  amount: number;
+  flow: 'inflow' | 'outflow';
+  status: string;
+  reference?: string;
 }

@@ -341,8 +341,8 @@ export function DataTable<TData, TValue>({
           </div>
         </div>
 
-        <div className="max-w-full overflow-x-auto overscroll-x-contain">
-          <Table className="min-w-full whitespace-nowrap">
+        <div className="w-full overflow-x-auto">
+          <Table className="w-full">
             <TableHeader className="bg-muted/40 text-xs uppercase tracking-wide text-muted-foreground">
               {table.getHeaderGroups().map((headerGroup) => (
                 <TableRow key={headerGroup.id}>
@@ -469,47 +469,7 @@ export function DataTable<TData, TValue>({
   );
 }
 
-// Status Badge Component
-export function StatusBadge({ 
-  status, 
-  variant = "default" 
-}: { 
-  status: string; 
-  variant?: "default" | "secondary" | "destructive" | "outline" 
-}) {
-  const getStatusColor = (status: string) => {
-    switch (status.toLowerCase()) {
-      case 'active':
-      case 'success':
-      case 'completed':
-        return 'border-brand-success/40 bg-brand-success/15 text-foreground dark:text-brand-success';
-      case 'inactive':
-      case 'pending':
-        return 'border-brand-accent/40 bg-brand-accent/15 text-foreground dark:text-brand-accent';
-      case 'error':
-      case 'failed':
-      case 'cancelled':
-        return 'border-destructive/40 bg-destructive/10 text-destructive';
-      case 'processing':
-      case 'in progress':
-        return 'border-primary/40 bg-primary/10 text-primary';
-      default:
-        return 'border-border bg-muted text-muted-foreground';
-    }
-  };
-
-  return (
-    <Badge 
-      variant={variant}
-      className={cn(
-        "rounded-full px-2.5 py-1 font-normal capitalize",
-        variant === "default" && getStatusColor(status)
-      )}
-    >
-      {status}
-    </Badge>
-  );
-}
+// Status badges live in @/components/ui/status-badge — import StatusBadge from there.
 
 // Export the table components for convenience
 export { Table, TableBody, TableCell, TableHead, TableHeader, TableRow };

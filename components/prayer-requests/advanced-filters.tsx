@@ -4,11 +4,10 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { DateRangePicker } from '@/components/ui/date-range-picker';
 import { Badge } from '@/components/ui/badge';
-import { X, CalendarIcon, Filter } from 'lucide-react';
-import { format } from 'date-fns';
+import { X, Filter } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface AdvancedFiltersProps {
@@ -44,17 +43,17 @@ const initialFilters: FilterState = {
 };
 
 const statusOptions = [
-  { value: 'new', label: 'New', color: 'bg-blue-100 text-blue-800' },
-  { value: 'in-progress', label: 'In Progress', color: 'bg-yellow-100 text-yellow-800' },
-  { value: 'answered', label: 'Answered', color: 'bg-green-100 text-green-800' },
-  { value: 'closed', label: 'Closed', color: 'bg-gray-100 text-gray-800' },
+  { value: 'new', label: 'New' },
+  { value: 'in-progress', label: 'In Progress' },
+  { value: 'answered', label: 'Answered' },
+  { value: 'closed', label: 'Closed' },
 ];
 
 const priorityOptions = [
-  { value: 'low', label: 'Low', color: 'bg-gray-100 text-gray-800' },
-  { value: 'medium', label: 'Medium', color: 'bg-blue-100 text-blue-800' },
-  { value: 'high', label: 'High', color: 'bg-orange-100 text-orange-800' },
-  { value: 'urgent', label: 'Urgent', color: 'bg-red-100 text-red-800' },
+  { value: 'low', label: 'Low' },
+  { value: 'medium', label: 'Medium' },
+  { value: 'high', label: 'High' },
+  { value: 'urgent', label: 'Urgent' },
 ];
 
 export function AdvancedFilters({ onFilterChange, categories = [], prayerTeams = [] }: AdvancedFiltersProps) {
@@ -97,8 +96,8 @@ export function AdvancedFilters({ onFilterChange, categories = [], prayerTeams =
           Advanced Filters
           {activeFilterCount > 0 && (
             <Badge 
-              variant="secondary" 
-              className="ml-2 h-5 w-5 rounded-full p-0 flex items-center justify-center bg-brand-primary text-white"
+              variant="primary" 
+              className="ml-2 h-5 min-w-5 rounded-full px-1.5 py-0 text-xs"
             >
               {activeFilterCount}
             </Badge>
@@ -128,11 +127,8 @@ export function AdvancedFilters({ onFilterChange, categories = [], prayerTeams =
               {statusOptions.map(option => (
                 <Badge
                   key={option.value}
-                  variant={filters.status.includes(option.value) ? "default" : "outline"}
-                  className={cn(
-                    "cursor-pointer hover:opacity-80",
-                    filters.status.includes(option.value) && "bg-brand-primary hover:bg-brand-primary/90"
-                  )}
+                  variant={filters.status.includes(option.value) ? "primary" : "neutral"}
+                  className="cursor-pointer transition-opacity hover:opacity-80"
                   onClick={() => toggleArrayFilter('status', option.value)}
                 >
                   {option.label}
@@ -151,11 +147,8 @@ export function AdvancedFilters({ onFilterChange, categories = [], prayerTeams =
               {priorityOptions.map(option => (
                 <Badge
                   key={option.value}
-                  variant={filters.priority.includes(option.value) ? "default" : "outline"}
-                  className={cn(
-                    "cursor-pointer hover:opacity-80",
-                    filters.priority.includes(option.value) && "bg-brand-primary hover:bg-brand-primary/90"
-                  )}
+                  variant={filters.priority.includes(option.value) ? "primary" : "neutral"}
+                  className="cursor-pointer transition-opacity hover:opacity-80"
                   onClick={() => toggleArrayFilter('priority', option.value)}
                 >
                   {option.label}
@@ -175,11 +168,8 @@ export function AdvancedFilters({ onFilterChange, categories = [], prayerTeams =
                 {categories.map(category => (
                   <Badge
                     key={category.id}
-                    variant={filters.category.includes(category.id) ? "default" : "outline"}
-                    className={cn(
-                      "cursor-pointer hover:opacity-80",
-                      filters.category.includes(category.id) && "bg-brand-primary hover:bg-brand-primary/90"
-                    )}
+                    variant={filters.category.includes(category.id) ? "primary" : "neutral"}
+                    className="cursor-pointer transition-opacity hover:opacity-80"
                     onClick={() => toggleArrayFilter('category', category.id)}
                   >
                     {category.name}
@@ -218,74 +208,19 @@ export function AdvancedFilters({ onFilterChange, categories = [], prayerTeams =
           {/* Date Range Filter */}
           <div className="space-y-2">
             <Label className="text-xs font-medium">Date Range</Label>
-            <div className="flex gap-2">
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant="outline"
-                    className={cn(
-                      "flex-1 justify-start text-left font-normal",
-                      !filters.dateRange.from && "text-muted-foreground"
-                    )}
-                  >
-                    <CalendarIcon className="mr-2 h-4 w-4" />
-                    {filters.dateRange.from ? (
-                      format(filters.dateRange.from, "MMM dd, yyyy")
-                    ) : (
-                      <span>From date</span>
-                    )}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="start">
-                  <Calendar
-                    mode="single"
-                    selected={filters.dateRange.from}
-                    onSelect={(date) => updateFilters('dateRange', { ...filters.dateRange, from: date })}
-                    initialFocus
-                  />
-                </PopoverContent>
-              </Popover>
-
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant="outline"
-                    className={cn(
-                      "flex-1 justify-start text-left font-normal",
-                      !filters.dateRange.to && "text-muted-foreground"
-                    )}
-                  >
-                    <CalendarIcon className="mr-2 h-4 w-4" />
-                    {filters.dateRange.to ? (
-                      format(filters.dateRange.to, "MMM dd, yyyy")
-                    ) : (
-                      <span>To date</span>
-                    )}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="start">
-                  <Calendar
-                    mode="single"
-                    selected={filters.dateRange.to}
-                    onSelect={(date) => updateFilters('dateRange', { ...filters.dateRange, to: date })}
-                    disabled={(date) => 
-                      filters.dateRange.from ? date < filters.dateRange.from : false
-                    }
-                    initialFocus
-                  />
-                </PopoverContent>
-              </Popover>
-            </div>
-            {(filters.dateRange.from || filters.dateRange.to) && (
-              <Button 
-                variant="ghost" 
-                size="sm" 
-                onClick={() => updateFilters('dateRange', { from: undefined, to: undefined })}
-                className="h-6 text-xs w-full"
-              >
-                Clear Date Range
-              </Button>
-            )}
+            <DateRangePicker
+              date={filters.dateRange}
+              onDateChange={(range) =>
+                updateFilters('dateRange', {
+                  from: range?.from,
+                  to: range?.to,
+                })
+              }
+              placeholder="Pick a date range"
+              size="sm"
+              clearable
+              showPresets
+            />
           </div>
 
           {/* Confidential Filter */}

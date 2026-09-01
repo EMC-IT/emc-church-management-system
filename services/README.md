@@ -1,506 +1,179 @@
-# Services Layer Documentation
+# EMC Church Management System — Application Services Layer
 
-This directory contains all the API service classes for the church management system. Each service follows a consistent pattern and provides type-safe methods for interacting with the backend API.
+The services layer encapsulates all business logic, remote API communications, and data transformation for the EMC CMS platform. It is structured into **domain packages** located in `services/<domain>/` with a centralized, backwards-compatible master barrel export at `services/index.ts`.
 
-## 📁 Service Structure
+---
+
+## 📁 Domain Services Architecture
 
 ```
 services/
-├── api-client.ts          # Axios wrapper with interceptors
-├── auth-service.ts        # Authentication API calls
-├── members-service.ts     # Members CRUD operations
-├── finance-service.ts     # Financial data operations
-├── events-service.ts      # Events management
-├── communications-service.ts # SMS/Email services
-├── reports-service.ts     # Analytics and reporting
-├── upload-service.ts      # File upload handling
-└── index.ts              # Service exports
+├── members/                   # Membership & CRM Domain
+│   ├── members-service.ts     # Directory, CRUD, photos, statistics, families
+│   ├── documents-service.ts   # Member certificates, baptism records, uploads
+│   └── index.ts               # Domain barrel export
+│
+├── finance/                   # Financial Operations & Stewardship
+│   ├── finance-service.ts     # Master finance controller & summaries
+│   ├── giving-service.ts      # Donations, pledges, fundraising drives
+│   ├── income-service.ts      # Revenue stream tracking & income categories
+│   ├── expense-service.ts     # Expenditures, vouchers, receipts, approvals
+│   ├── budget-service.ts      # Fiscal budget plans, line items, allocations
+│   └── index.ts
+│
+├── attendance/                # Attendance & Check-In Domain
+│   ├── attendance-service.ts  # Headcount roll call, QR kiosk check-in, history
+│   └── index.ts
+│
+├── events/                    # Events & Calendar Domain
+│   ├── events-service.ts      # Scheduling, registrations, RSVPs, calendar
+│   └── index.ts
+│
+├── groups/                    # Small Groups & Cell Fellowships
+│   ├── groups-service.ts      # Small groups, cell rosters, group meetings
+│   └── index.ts
+│
+├── departments/               # Church Departments & Ministries
+│   ├── departments-service.ts # Departments, volunteer rosters, staff meetings
+│   └── index.ts
+│
+├── sunday-school/             # Sunday School & Children's Ministry
+│   ├── sunday-school-service.ts # Classes, teachers, student rosters, materials
+│   └── index.ts
+│
+├── communications/            # Messaging & Outreach Domain
+│   ├── communications-service.ts # Mass SMS, email newsletters, bulletins
+│   └── index.ts
+│
+├── assets/                    # Physical Assets & Inventory
+│   ├── assets-service.ts      # Asset register, maintenance logs, valuations
+│   └── index.ts
+│
+├── reports/                   # Executive Analytics & Reporting
+│   ├── reports-service.ts     # Analytics overviews, trends, export builders
+│   └── index.ts
+│
+├── auth/                      # Identity & Authentication
+│   ├── auth-service.ts        # Login, register, token refresh, password resets
+│   └── index.ts
+│
+├── upload/                    # File Upload & Media Infrastructure
+│   ├── upload-service.ts      # Multi-part file uploads & validation
+│   └── index.ts
+│
+├── api-client.ts              # Base Axios client with JWT bearer interceptors
+└── index.ts                   # Master backward-compatible barrel export
 ```
 
-## 🔧 API Client
+---
 
-The `api-client.ts` provides a configured Axios instance with:
+## 🔧 Base API Client (`api-client.ts`)
 
-- **Base URL**: Configurable via `NEXT_PUBLIC_API_URL` environment variable
-- **Authentication**: Automatic JWT token inclusion in requests
-- **Error Handling**: Automatic 401/403 response handling
-- **Interceptors**: Request and response interceptors for common operations
+Configured Axios instance providing:
+* **Base URL**: Set via `NEXT_PUBLIC_API_URL` (defaults to `http://localhost:8000/api`).
+* **JWT Interception**: Attaches `Authorization: Bearer <token>` from `localStorage` on outgoing requests.
+* **401 Unauthorized**: Clears expired credentials and redirects to `/login`.
+* **403 Forbidden**: Logs access violation and propagates structured `AuthorizationError`.
 
-### Usage
+---
 
+## 🛡️ Cross-Cutting Domain Integration
+
+Each domain service works in tandem with:
+
+1. **Validation Schemas (`lib/validation/<domain>.ts`)**:
+   Inputs to service methods (such as `createMember`, `createExpense`, `recordAttendance`) are validated using domain Zod schemas before API transmission.
+
+2. **Authorization Guards (`lib/authorization/guards.ts`)**:
+   Server-side role and permission assertions ensure the active principal has appropriate authority before executing mutations.
+
+3. **Tenant & Branch Scoping (`lib/authorization/scope.ts`)**:
+   Applies `tenantId` and optional `branchId` to all search queries and creation payloads.
+
+4. **Deterministic Finance Math (`lib/finance/finance-math.ts`)**:
+   Calculations in `finance-service`, `expense-service`, and `budget-service` utilize `roundToTwoDecimals` and `calculateBudgetUtilization` to ensure 100% mathematical precision.
+
+5. **Structured Audit Logging (`lib/audit/audit-logger.ts`)**:
+   Sensitive actions emit immutable audit records.
+
+---
+
+## 🚀 Domain Services Reference
+
+### 1. Members Domain (`services/members/`)
 ```typescript
-import { apiClient } from '@/services';
+import { membersService, documentsService } from '@/services/members';
 
-// Direct API calls
-const response = await apiClient.get('/some-endpoint');
-```
-
-## 🚀 Service Classes
-
-### 1. AuthService (`auth-service.ts`)
-
-Handles all authentication-related operations.
-
-**Key Methods:**
-- `login(credentials)` - User login
-- `register(userData)` - User registration
-- `logout()` - User logout
-- `getCurrentUser()` - Get current user info
-- `refreshToken()` - Refresh JWT token
-- `updateProfile(userData)` - Update user profile
-- `changePassword(passwordData)` - Change password
-- `forgotPassword(email)` - Request password reset
-- `resetPassword(token, newPassword)` - Reset password
-
-**Usage:**
-```typescript
-import { authService } from '@/services';
-
-const loginResult = await authService.login({
-  email: 'user@example.com',
-  password: 'password123'
-});
-
-if (loginResult.success) {
-  // Handle successful login
-  console.log(loginResult.data.user);
-} else {
-  // Handle error
-  console.error(loginResult.message);
-}
-```
-
-### 2. MembersService (`members-service.ts`)
-
-Manages member data and operations.
-
-**Key Methods:**
-- `getMembers(params)` - Get paginated members list
-- `getMember(id)` - Get single member
-- `createMember(memberData)` - Create new member
-- `updateMember(id, memberData)` - Update member
-- `deleteMember(id)` - Delete member
-- `uploadPhoto(id, file)` - Upload member photo
-- `getMemberFamily(id)` - Get member's family
-- `importMembers(file)` - Bulk import members
-- `exportMembers(params)` - Export members data
-- `getMemberStats()` - Get member statistics
-
-**Usage:**
-```typescript
+// Or via master export:
 import { membersService } from '@/services';
 
-// Get members with filters
-const members = await membersService.getMembers({
-  page: 1,
-  limit: 20,
-  search: 'John',
-  status: 'Active'
-});
+// Query paginated members list
+const response = await membersService.getMembers({ page: 1, limit: 20, status: 'Active' });
 
-// Create new member
-const newMember = await membersService.createMember({
-  firstName: 'John',
-  lastName: 'Doe',
-  email: 'john@example.com',
-  phone: '+1234567890',
-  // ... other fields
+// Create a new member
+const newMember = await membersService.createMember(memberData);
+```
+
+### 2. Finance Domain (`services/finance/`)
+```typescript
+import { 
+  financeService, 
+  givingService, 
+  expenseService, 
+  incomeService, 
+  budgetService 
+} from '@/services/finance';
+
+// Record Sunday collection tithe & offering
+await financeService.createTitheOffering(titheData);
+
+// Log an expenditure voucher
+await expenseService.createExpense(expenseData);
+
+// Get budget utilization & variance
+const budget = await budgetService.getBudget(budgetId);
+```
+
+### 3. Attendance Domain (`services/attendance/`)
+```typescript
+import { attendanceService } from '@/services/attendance';
+
+// Record batch roll call for a Sunday service
+await attendanceService.recordBulkAttendance({
+  serviceType: 'Sunday Service',
+  serviceDate: '2026-08-27',
+  records: [
+    { memberId: 'mem_1', status: 'Present' },
+    { memberId: 'mem_2', status: 'Late', checkInTime: '09:15' }
+  ]
 });
 ```
 
-### 3. FinanceService (`finance-service.ts`)
-
-Handles financial operations including donations and budgets.
-
-**Key Methods:**
-- `getDonations(params)` - Get donations with filters
-- `createDonation(donationData)` - Create donation
-- `getBudgets()` - Get all budgets
-- `createBudget(budgetData)` - Create budget
-- `getFinancialReports()` - Get financial reports
-- `getDonationStats()` - Get donation statistics
-- `exportDonations(params)` - Export donations
-
-**Usage:**
+### 4. Communications Domain (`services/communications/`)
 ```typescript
-import { financeService } from '@/services';
+import { communicationsService } from '@/services/communications';
 
-// Create donation
-const donation = await financeService.createDonation({
-  memberId: 'member-id',
-  amount: 100.00,
-  currency: 'GHS',
-  donationType: 'Tithe',
-  method: 'Cash',
-  date: '2024-01-15'
-});
-
-// Get financial reports
-const reports = await financeService.getFinancialReports(
-  '2024-01-01',
-  '2024-12-31'
-);
-```
-
-### 4. EventsService (`events-service.ts`)
-
-Manages events, registrations, and attendance.
-
-**Key Methods:**
-- `getEvents(params)` - Get events with filters
-- `createEvent(eventData)` - Create event
-- `getEventAttendees(eventId)` - Get event attendees
-- `registerForEvent(registration)` - Register for event
-- `markAttendance(attendance)` - Mark attendance
-- `getEventStats()` - Get event statistics
-
-**Usage:**
-```typescript
-import { eventsService } from '@/services';
-
-// Create event
-const event = await eventsService.createEvent({
-  title: 'Sunday Service',
-  description: 'Weekly Sunday service',
-  date: '2024-01-21',
-  time: '09:00',
-  location: 'Main Auditorium',
-  category: 'Service',
-  organizer: 'Pastor John'
-});
-
-// Register for event
-await eventsService.registerForEvent({
-  eventId: 'event-id',
-  memberId: 'member-id',
-  status: 'confirmed'
-});
-```
-
-### 5. CommunicationsService (`communications-service.ts`)
-
-Handles SMS, email, and announcements.
-
-**Key Methods:**
-- `sendSMS(smsData)` - Send SMS message
-- `sendEmail(emailData)` - Send email
-- `getAnnouncements(params)` - Get announcements
-- `createAnnouncement(announcementData)` - Create announcement
-- `getTemplates(type)` - Get communication templates
-- `getContactGroups()` - Get contact groups
-
-**Usage:**
-```typescript
-import { communicationsService } from '@/services';
-
-// Send SMS
+// Send mass SMS broadcast
 await communicationsService.sendSMS({
-  recipientIds: ['member-1', 'member-2'],
-  message: 'Reminder: Sunday service at 9 AM'
-});
-
-// Create announcement
-await communicationsService.createAnnouncement({
-  title: 'Important Announcement',
-  content: 'Church will be closed next Sunday',
-  type: 'urgent',
-  targetAudience: 'all',
+  recipients: ['+233241234567', '+233201234568'],
+  message: 'Reminder: All-night prayer service begins tonight at 10 PM.',
   priority: 'high'
 });
 ```
 
-### 6. ReportsService (`reports-service.ts`)
-
-Provides analytics and reporting functionality.
-
-**Key Methods:**
-- `getAnalyticsOverview()` - Get dashboard overview
-- `getAttendanceReport(params)` - Get attendance reports
-- `getGivingReport(params)` - Get giving reports
-- `getMemberReport(params)` - Get member reports
-- `getEventReport(params)` - Get event reports
-- `exportAttendanceReport(params)` - Export reports
-
-**Usage:**
+### 5. Sunday School Domain (`services/sunday-school/`)
 ```typescript
-import { reportsService } from '@/services';
+import { sundaySchoolService } from '@/services/sunday-school';
 
-// Get analytics overview
-const overview = await reportsService.getAnalyticsOverview();
-
-// Get attendance report
-const attendanceReport = await reportsService.getAttendanceReport({
-  startDate: '2024-01-01',
-  endDate: '2024-12-31',
-  groupBy: 'month'
-});
+// Get classes and enrolled student stats
+const classes = await sundaySchoolService.getClasses();
 ```
 
-### 7. UploadService (`upload-service.ts`)
+---
 
-Handles file uploads with validation and progress tracking.
+## 🔄 Backwards Compatibility Protocol (`OLD -> ADAPTER -> NEW`)
 
-**Key Methods:**
-- `uploadFile(file, category, onProgress)` - Upload single file
-- `uploadFiles(files, category, onProgress)` - Upload multiple files
-- `uploadLargeFile(file, category, onProgress)` - Upload large files in chunks
-- `validateFile(file, config)` - Validate file before upload
-- `getUploadedFiles(category)` - Get uploaded files
-
-**Usage:**
-```typescript
-import { uploadService } from '@/services';
-
-// Upload single file
-const result = await uploadService.uploadFile(
-  file,
-  'members',
-  (progress) => {
-    console.log(`Upload progress: ${progress.percentage}%`);
-  }
-);
-
-// Validate file before upload
-const validation = uploadService.validateFile(file, {
-  maxFileSize: 5 * 1024 * 1024, // 5MB
-  allowedTypes: ['image/*']
-});
-```
-
-## 📊 Response Patterns
-
-All services follow a consistent response pattern:
-
-```typescript
-interface ServiceResponse<T> {
-  success: boolean;
-  data?: T;
-  message?: string;
-  errors?: string[];
-}
-```
-
-**Success Response:**
-```typescript
-{
-  success: true,
-  data: { /* actual data */ },
-  message: 'Operation completed successfully'
-}
-```
-
-**Error Response:**
-```typescript
-{
-  success: false,
-  message: 'Error message',
-  errors: ['Detailed error 1', 'Detailed error 2']
-}
-```
-
-## 🔒 Error Handling
-
-All services include comprehensive error handling:
-
-1. **Network Errors**: Automatic retry logic
-2. **Validation Errors**: Detailed error messages
-3. **Authentication Errors**: Automatic token refresh/redirect
-4. **Server Errors**: Graceful degradation
-
-## 📝 Type Safety
-
-All services are fully typed with TypeScript:
-
-```typescript
-// Import types
-import { 
-  DonationFormData, 
-  EventFormData, 
-  MemberFormData 
-} from '@/services';
-
-// Use in components
-const handleSubmit = async (data: DonationFormData) => {
-  const result = await financeService.createDonation(data);
-  // TypeScript will ensure data matches DonationFormData
-};
-```
-
-## 🚀 Best Practices
-
-### 1. Service Usage in Components
-
-```typescript
-import { useState, useEffect } from 'react';
-import { membersService } from '@/services';
-import { useToast } from '@/hooks/use-toast';
-
-export function MembersList() {
-  const [members, setMembers] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const { toast } = useToast();
-
-  useEffect(() => {
-    loadMembers();
-  }, []);
-
-  const loadMembers = async () => {
-    try {
-      setLoading(true);
-      const result = await membersService.getMembers();
-      
-      if (result.success) {
-        setMembers(result.data.data);
-      } else {
-        toast({
-          title: 'Error',
-          description: result.message,
-          variant: 'destructive'
-        });
-      }
-    } catch (error) {
-      toast({
-        title: 'Error',
-        description: 'Failed to load members',
-        variant: 'destructive'
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // ... rest of component
-}
-```
-
-### 2. Form Handling
-
-```typescript
-import { useForm } from 'react-hook-form';
-import { membersService } from '@/services';
-import { MemberFormData } from '@/services';
-
-export function AddMemberForm() {
-  const form = useForm<MemberFormData>();
-  const { toast } = useToast();
-
-  const onSubmit = async (data: MemberFormData) => {
-    try {
-      const result = await membersService.createMember(data);
-      
-      if (result.success) {
-        toast({
-          title: 'Success',
-          description: 'Member created successfully'
-        });
-        form.reset();
-      } else {
-        toast({
-          title: 'Error',
-          description: result.message,
-          variant: 'destructive'
-        });
-      }
-    } catch (error) {
-      toast({
-        title: 'Error',
-        description: 'Failed to create member',
-        variant: 'destructive'
-      });
-    }
-  };
-
-  // ... form JSX
-}
-```
-
-### 3. File Upload
-
-```typescript
-import { uploadService } from '@/services';
-
-const handleFileUpload = async (file: File) => {
-  // Validate file first
-  const validation = uploadService.validateFile(file, {
-    maxFileSize: 5 * 1024 * 1024, // 5MB
-    allowedTypes: ['image/*']
-  });
-
-  if (!validation.isValid) {
-    toast({
-      title: 'Invalid File',
-      description: validation.errors.join(', '),
-      variant: 'destructive'
-    });
-    return;
-  }
-
-  // Upload with progress
-  const result = await uploadService.uploadFile(
-    file,
-    'members',
-    (progress) => {
-      console.log(`Upload: ${progress.percentage}%`);
-    }
-  );
-
-  if (result.success) {
-    toast({
-      title: 'Success',
-      description: 'File uploaded successfully'
-    });
-  }
-};
-```
-
-## 🔧 Configuration
-
-### Environment Variables
-
-```env
-# API Configuration
-NEXT_PUBLIC_API_URL=http://localhost:8000/api
-
-# Upload Configuration
-NEXT_PUBLIC_MAX_FILE_SIZE=10485760  # 10MB
-NEXT_PUBLIC_ALLOWED_FILE_TYPES=image/*,application/pdf
-```
-
-### Service Configuration
-
-```typescript
-// Custom service configuration
-const customConfig = {
-  maxFileSize: 5 * 1024 * 1024, // 5MB
-  allowedTypes: ['image/*'],
-  retryAttempts: 3
-};
-
-const result = await uploadService.uploadFile(file, 'category', undefined, customConfig);
-```
-
-## 📚 Additional Resources
-
-- [API Documentation](../API_DOCUMENTATION.md)
-- [Frontend Roadmap](../FRONTEND_ROADMAP.md)
-- [Type Definitions](../lib/types.ts)
-- [Component Library](../components/ui/)
-
-## 🤝 Contributing
-
-When adding new services:
-
-1. Follow the existing naming conventions
-2. Include comprehensive TypeScript types
-3. Add proper error handling
-4. Include JSDoc comments
-5. Update this README
-6. Add tests for new functionality
-
-## 📞 Support
-
-For questions about the services layer, refer to:
-- API Documentation
-- Type definitions in `lib/types.ts`
-- Example usage in components
-- Cursor rules for development guidelines 
+To prevent breaking existing pages and components:
+1. **Flat file imports** such as `import { departmentsService } from '@/services/departments-service'` redirect seamlessly through adapter re-exports.
+2. **Master barrel imports** `import { membersService, financeService } from '@/services'` continue to work unchanged.
+3. **Domain package imports** `import { membersService } from '@/services/members'` provide clean domain isolation for all new development.

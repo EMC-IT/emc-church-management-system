@@ -1,0 +1,382 @@
+'use client';
+
+import React, { useState, useEffect } from 'react';
+import Link from 'next/link';
+import { StatCard } from '@/components/ui/stat-card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { DataTable } from '@/components/ui/data-table';
+import { StatusBadge } from '@/components/ui/status-badge';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
+import {
+  Plus,
+  MoreHorizontal,
+  Eye,
+  Trash2,
+  Users,
+  Calendar,
+  TrendingUp,
+  Building2,
+  FolderTree,
+  Edit
+} from 'lucide-react';
+import { Department, DepartmentCategory } from '@/lib/types/departments';
+import { departmentsService } from '@/services/departments-service';
+import { toast } from 'sonner';
+
+export default function DepartmentsPage() {
+  const [departments, setDepartments] = useState<Department[]>([]);
+  const [categories, setCategories] = useState<DepartmentCategory[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState<string>('all');
+  const [selectedStatus, setSelectedStatus] = useState<string>('all');
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [departmentToDelete, setDepartmentToDelete] = useState<Department | null>(null);
+
+  useEffect(() => {
+    loadCategories();
+  }, []);
+
+  useEffect(() => {
+    const searchTimer = window.setTimeout(() => {
+      loadDepartments();
+    }, 250);
+
+    return () => window.clearTimeout(searchTimer);
+  }, [searchTerm, selectedCategory, selectedStatus]);
+
+  const loadDepartments = async () => {
+    try {
+      setLoading(true);
+      const response = await departmentsService.getDepartments({
+        search: searchTerm || undefined,
+        categoryId: selectedCategory !== 'all' ? selectedCategory : undefined,
+        status: selectedStatus !== 'all' ? selectedStatus as 'Active' | 'Inactive' : undefined
+      });
+
+      if (response.success && response.data) {
+        setDepartments(response.data);
+      } else {
+        toast.error(response.message);
+      }
+    } catch {
+      toast.error('Failed to load departments');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const loadCategories = async () => {
+    try {
+      const response = await departmentsService.getCategories();
+      if (response.success && response.data) {
+        setCategories(response.data);
+      }
+    } catch (error) {
+      console.error('Failed to load categories:', error);
+    }
+  };
+
+  const handleDeleteDepartment = async () => {
+    if (!departmentToDelete) return;
+
+    try {
+      const response = await departmentsService.deleteDepartment(departmentToDelete.id);
+      if (response.success) {
+        toast.success('Department deleted successfully');
+        loadDepartments();
+      } else {
+        toast.error(response.message);
+      }
+    } catch {
+      toast.error('Failed to delete department');
+    } finally {
+      setDeleteDialogOpen(false);
+      setDepartmentToDelete(null);
+    }
+  };
+
+  const openDeleteDialog = (department: Department) => {
+    setDepartmentToDelete(department);
+    setDeleteDialogOpen(true);
+  };
+
+  const columns = [
+    {
+      accessorKey: 'name',
+      header: 'Department',
+      cell: ({ row }: { row: any }) => {
+        const department = row.original as Department;
+        return (
+          <div className="flex items-center space-x-3">
+            <div className="h-9 w-9 rounded-full bg-primary/10 flex items-center justify-center font-semibold text-xs text-primary shrink-0">
+              {department.name.substring(0, 2).toUpperCase()}
+            </div>
+            <div>
+              <div className="font-medium text-sm text-foreground">{department.name}</div>
+              <div className="text-xs text-muted-foreground truncate max-w-xs">
+                {department.description}
+              </div>
+            </div>
+          </div>
+        );
+      },
+    },
+    {
+      accessorKey: 'category',
+      header: 'Category',
+      cell: ({ row }: { row: any }) => {
+        const department = row.original as Department;
+        const category = categories.find(cat => cat.id === department.categoryId);
+        return (
+          <Badge variant="neutral" size="sm">
+            {category ? category.name : 'Uncategorized'}
+          </Badge>
+        );
+      },
+    },
+    {
+      accessorKey: 'leader',
+      header: 'Leader',
+      cell: ({ row }: { row: any }) => {
+        const department = row.original as Department;
+        return (
+          <span className="text-sm text-foreground font-medium">{department.leader}</span>
+        );
+      },
+    },
+    {
+      accessorKey: 'stats',
+      header: 'Members',
+      cell: ({ row }: { row: any }) => {
+        const department = row.original as Department;
+        return (
+          <div className="text-sm">
+            <span className="font-medium text-foreground">{department.stats?.totalMembers || 0}</span>
+            <span className="text-xs text-muted-foreground ml-1">({department.stats?.activeMembers || 0} active)</span>
+          </div>
+        );
+      },
+    },
+    {
+      accessorKey: 'meetingSchedule',
+      header: 'Schedule',
+      cell: ({ row }: { row: any }) => {
+        const department = row.original as Department;
+        return department.meetingSchedule ? (
+          <div className="text-xs">
+            <div className="font-medium text-foreground">{department.meetingSchedule.dayOfWeek}s</div>
+            <div className="text-muted-foreground">
+              {department.meetingSchedule.startTime} - {department.meetingSchedule.endTime}
+            </div>
+          </div>
+        ) : (
+          <span className="text-xs text-muted-foreground">Not scheduled</span>
+        );
+      },
+    },
+    {
+      accessorKey: 'status',
+      header: 'Status',
+      cell: ({ row }: { row: any }) => {
+        const department = row.original as Department;
+        return (
+          <StatusBadge status={(department.status || 'active').toLowerCase() as any} size="sm" />
+        );
+      },
+    },
+    {
+      id: 'actions',
+      header: 'Actions',
+      cell: ({ row }: { row: any }) => {
+        const department = row.original as Department;
+        return (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                <MoreHorizontal className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem asChild>
+                <Link href={`/dashboard/departments/${department.id}`}>
+                  <Eye className="mr-2 h-4 w-4" />
+                  View Details
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link href={`/dashboard/departments/${department.id}/members`}>
+                  <Users className="mr-2 h-4 w-4" />
+                  Manage Members
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link href={`/dashboard/departments/${department.id}/meetings`}>
+                  <Calendar className="mr-2 h-4 w-4" />
+                  Meetings
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                className="text-destructive focus:text-destructive"
+                onClick={() => openDeleteDialog(department)}
+              >
+                <Trash2 className="mr-2 h-4 w-4" />
+                Delete
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        );
+      },
+    },
+  ];
+
+  const totalMembers = departments.reduce((sum, dept) => sum + (dept.stats?.totalMembers || 0), 0);
+  const activeDepartments = departments.filter(dept => dept.status === 'Active').length;
+  const averageAttendance = departments.length > 0
+    ? Math.round(departments.reduce((sum, dept) => sum + (dept.stats?.averageAttendance || 0), 0) / departments.length)
+    : 0;
+
+  return (
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <h1 className="font-heading text-2xl font-bold tracking-tight">Departments</h1>
+
+        <div className="flex items-center gap-2 flex-wrap">
+          <Button variant="outline" size="sm" asChild>
+            <Link href="/dashboard/departments/categories">
+              <FolderTree className="mr-1.5 h-4 w-4" />
+              Categories
+            </Link>
+          </Button>
+          <Button size="sm" asChild>
+            <Link href="/dashboard/departments/add">
+              <Plus className="mr-1.5 h-4 w-4" />
+              Add Department
+            </Link>
+          </Button>
+        </div>
+      </div>
+
+      {/* Stats Cards */}
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <StatCard
+          title="Total Departments"
+          value={departments.length}
+          icon={Building2}
+          accent="primary"
+        />
+        <StatCard
+          title="Total Members"
+          value={totalMembers}
+          icon={Users}
+          accent="secondary"
+        />
+        <StatCard
+          title="Average Attendance"
+          value={`${averageAttendance}%`}
+          icon={TrendingUp}
+          accent="accent"
+        />
+        <StatCard
+          title="Active Rate"
+          value={`${departments.length > 0 ? Math.round((activeDepartments / departments.length) * 100) : 0}%`}
+          icon={Building2}
+          accent="success"
+        />
+      </div>
+
+      {/* Departments Directory Table */}
+      <Card>
+        <CardHeader className="pb-3">
+          <CardTitle className="text-base font-semibold">Directory ({departments.length})</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="flex flex-col sm:flex-row gap-3 mb-6">
+            <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+              <SelectTrigger className="w-full sm:w-48">
+                <SelectValue placeholder="All Categories" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Categories</SelectItem>
+                {categories.map((category) => (
+                  <SelectItem key={category.id} value={category.id}>
+                    {category.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+
+            <Select value={selectedStatus} onValueChange={setSelectedStatus}>
+              <SelectTrigger className="w-full sm:w-44">
+                <SelectValue placeholder="All Status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Status</SelectItem>
+                <SelectItem value="Active">Active</SelectItem>
+                <SelectItem value="Inactive">Inactive</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <DataTable
+            columns={columns}
+            data={departments}
+            recordLabel="department"
+            searchValue={searchTerm}
+            onSearchChange={setSearchTerm}
+            searchKey="name"
+            searchPlaceholder="Search departments..."
+            loading={loading}
+          />
+        </CardContent>
+      </Card>
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Department</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete &quot;{departmentToDelete?.name}&quot;? This action cannot be undone and will remove all department data.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDeleteDepartment}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Delete Department
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </div>
+  );
+}

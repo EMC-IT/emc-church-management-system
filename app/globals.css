@@ -1,4 +1,50 @@
-@import url('https://fonts.googleapis.com/css2?family=Cabinet+Grotesk:wght@400;500;700&family=Satoshi:wght@400;500;700&display=swap');
+@font-face {
+  font-family: 'Cabinet Grotesk';
+  src: url('/fonts/cabinet-grotesk-400.woff2') format('woff2');
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Cabinet Grotesk';
+  src: url('/fonts/cabinet-grotesk-500.woff2') format('woff2');
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Cabinet Grotesk';
+  src: url('/fonts/cabinet-grotesk-700.woff2') format('woff2');
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Satoshi';
+  src: url('/fonts/satoshi-400.woff2') format('woff2');
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Satoshi';
+  src: url('/fonts/satoshi-500.woff2') format('woff2');
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Satoshi';
+  src: url('/fonts/satoshi-700.woff2') format('woff2');
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+}
 
 @tailwind base;
 @tailwind components;
@@ -30,6 +76,24 @@
     --border: 0 0% 89.8%;
     --input: 0 0% 89.8%;
     --ring: 196 62% 44%;
+    --badge-neutral-bg: 0 0% 97%;
+    --badge-neutral-border: 0 0% 88%;
+    --badge-neutral-text: 0 0% 28%;
+    --badge-primary-bg: 196 62% 96%;
+    --badge-primary-border: 196 45% 82%;
+    --badge-primary-text: 196 68% 30%;
+    --badge-success-bg: 142 45% 95%;
+    --badge-success-border: 142 32% 80%;
+    --badge-success-text: 142 55% 27%;
+    --badge-warning-bg: 43 75% 95%;
+    --badge-warning-border: 43 58% 78%;
+    --badge-warning-text: 35 72% 28%;
+    --badge-danger-bg: 0 70% 96%;
+    --badge-danger-border: 0 52% 83%;
+    --badge-danger-text: 0 64% 36%;
+    --badge-info-bg: 204 70% 96%;
+    --badge-info-border: 204 48% 82%;
+    --badge-info-text: 204 68% 32%;
     /* Chart Colors */
     --chart-1: 196 62% 44%;        /* #2E8DB0 */
     --chart-2: 199 66% 50%;        /* #28ACD1 */
@@ -67,6 +131,24 @@
     --border: 0 0% 15%;             /* #262626 - Lighter border for card definition */
     --input: 0 0% 12%;              /* Matching muted for inputs */
     --ring: 196 62% 44%;
+    --badge-neutral-bg: 0 0% 12%;
+    --badge-neutral-border: 0 0% 24%;
+    --badge-neutral-text: 0 0% 82%;
+    --badge-primary-bg: 196 45% 14%;
+    --badge-primary-border: 196 42% 28%;
+    --badge-primary-text: 196 58% 72%;
+    --badge-success-bg: 142 34% 13%;
+    --badge-success-border: 142 30% 27%;
+    --badge-success-text: 142 45% 70%;
+    --badge-warning-bg: 43 42% 13%;
+    --badge-warning-border: 43 38% 28%;
+    --badge-warning-text: 43 62% 72%;
+    --badge-danger-bg: 0 38% 14%;
+    --badge-danger-border: 0 36% 30%;
+    --badge-danger-text: 0 58% 75%;
+    --badge-info-bg: 204 40% 14%;
+    --badge-info-border: 204 36% 29%;
+    --badge-info-text: 204 58% 74%;
     /* Chart Colors - Dark Mode */
     --chart-1: 196 62% 44%;        /* #2E8DB0 */
     --chart-2: 199 66% 50%;        /* #28ACD1 */
@@ -86,32 +168,22 @@
     font-variant-numeric: tabular-nums;
     text-transform: none;
     letter-spacing: normal;
-    /* Prevent body scroll when using layout containers */
-    overflow: hidden;
+    overflow-x: hidden;
   }
 
-  :where(h1, h2, h3, h4, h5, h6) {
-    font-family: var(--font-heading) !important;
+  :where(h1, h2, h3, h4, h5, h6),
+  [data-slot="card-title"],
+  .font-heading {
+    font-family: var(--font-heading);
     font-weight: 700;
     letter-spacing: -0.02em;
     text-transform: none;
   }
 
-  .font-heading {
-    font-family: var(--font-heading) !important;
-  }
-
-  p,
-  label,
   button,
   input,
   textarea,
-  select,
-  small,
-  span,
-  li,
-  td,
-  th {
+  select {
     font-family: var(--font-body);
     text-transform: none;
   }
@@ -128,149 +200,6 @@
 @layer components {
   .surface-card {
     @apply rounded-lg border bg-card text-card-foreground shadow-sm;
-  }
-}
-
-@layer utilities {
-  /* Stat cards follow the neutral Classes-page pattern across legacy layouts. */
-  [data-slot='card']:has(
-      > [data-slot='card-header'] [data-stat-title]
-    ) {
-    border-left-width: 1px !important;
-    border-left-color: hsl(var(--border)) !important;
-    box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05) !important;
-  }
-
-  [data-slot='card']:has(
-      > [data-slot='card-header'] [data-stat-title]
-    ):hover {
-    box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05) !important;
-  }
-
-  [data-slot='card']
-    > [data-slot='card-header']:has([data-stat-title]) {
-    padding: 1.5rem 1.5rem 0.5rem !important;
-  }
-
-  [data-slot='card']
-    > [data-slot='card-header']
-    [data-stat-title] {
-    color: hsl(var(--foreground)) !important;
-    font-weight: 600 !important;
-  }
-
-  [data-slot='card']
-    > [data-slot='card-header']:has([data-stat-title])
-    > :last-child:not([data-slot='card-title']) {
-    width: auto !important;
-    height: auto !important;
-    padding: 0 !important;
-    border-radius: 0 !important;
-    background: transparent !important;
-    color: hsl(var(--muted-foreground)) !important;
-  }
-
-  [data-slot='card-header']
-    > [data-stat-title]
-    + svg,
-  [data-slot='card-header']
-    > [data-stat-title]
-    + *
-    svg {
-    width: 0.875rem !important;
-    height: 0.875rem !important;
-    color: hsl(var(--muted-foreground)) !important;
-    stroke-width: 2 !important;
-  }
-
-  [data-slot='card']:has(
-      > [data-slot='card-header'] [data-stat-title]
-    )
-    > [data-slot='card-content']
-    > :is(.text-2xl, .text-3xl) {
-    color: hsl(var(--foreground)) !important;
-    font-weight: 600 !important;
-  }
-
-  [data-slot='card']:has(
-      > [data-slot='card-content']
-        > .flex.items-center.justify-between
-        :is(.text-2xl, .text-3xl)
-    ) {
-    border-left-width: 1px !important;
-    border-left-color: hsl(var(--border)) !important;
-    box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05) !important;
-  }
-
-  [data-slot='card']:has(
-      > [data-slot='card-content']
-        > .flex.items-center.justify-between
-        :is(.text-2xl, .text-3xl)
-    ):hover {
-    box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05) !important;
-  }
-
-  [data-slot='card']:has(
-      > [data-slot='card-content']
-        > .flex.items-center.justify-between
-        :is(.text-2xl, .text-3xl)
-    )
-    > [data-slot='card-content'] {
-    padding: 1.5rem !important;
-  }
-
-  [data-slot='card']
-    > [data-slot='card-content']
-    > .flex.items-center.justify-between:has(:is(.text-2xl, .text-3xl)) {
-    align-items: flex-start !important;
-  }
-
-  [data-slot='card']
-    > [data-slot='card-content']
-    > .flex.items-center.justify-between:has(:is(.text-2xl, .text-3xl))
-    > div
-    > p:first-child:not(.text-2xl):not(.text-3xl) {
-    margin-bottom: 0.5rem !important;
-    color: hsl(var(--foreground)) !important;
-    font-weight: 600 !important;
-  }
-
-  [data-slot='card']
-    > [data-slot='card-content']
-    > .flex.items-center.justify-between:has(:is(.text-2xl, .text-3xl))
-    :is(.text-2xl, .text-3xl) {
-    color: hsl(var(--foreground)) !important;
-    font-weight: 600 !important;
-  }
-
-  [data-slot='card']
-    > [data-slot='card-content']
-    > .flex.items-center.justify-between:has(:is(.text-2xl, .text-3xl))
-    > :last-child:has(svg) {
-    width: auto !important;
-    height: auto !important;
-    padding: 0 !important;
-    border-radius: 0 !important;
-    background: transparent !important;
-  }
-
-  [data-slot='card']
-    > [data-slot='card-content']
-    > .flex.items-center.justify-between:has(:is(.text-2xl, .text-3xl))
-    > svg {
-    width: 0.875rem !important;
-    height: 0.875rem !important;
-    color: hsl(var(--muted-foreground)) !important;
-  }
-
-  [data-slot='card']
-    > [data-slot='card-content']
-    > .flex.items-center.justify-between:has(:is(.text-2xl, .text-3xl))
-    > :last-child
-    svg {
-    width: 0.875rem !important;
-    height: 0.875rem !important;
-    color: hsl(var(--muted-foreground)) !important;
   }
 }
 

@@ -1,0 +1,395 @@
+'use client';
+
+import { useState } from 'react';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { PageHeader } from '@/components/ui/page-header';
+import { StatCard } from '@/components/ui/stat-card';
+import { StatusBadge } from '@/components/ui/status-badge';
+import { 
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { 
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { 
+  ArrowLeft,
+  Receipt,
+  Download,
+  Filter,
+  Calendar,
+  BarChart3,
+  PieChart,
+  TrendingDown,
+  Building,
+  Users,
+  Zap,
+  Heart,
+  Settings
+} from 'lucide-react';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, BarChart, Bar, PieChart as RechartsPieChart, Pie, Cell, Area, AreaChart, Label } from 'recharts';
+import { ChartContainer, ChartTooltip, ChartTooltipContent, ChartLegend, ChartLegendContent, ChartConfig } from '@/components/ui/chart';
+
+// Mock data for expense reports
+const expenseByCategory = [
+  { category: 'Salaries & Benefits', amount: 120000, percentage: 49.0, budget: 125000, variance: -5000, color: '#2E8DB0' },
+  { category: 'Facilities & Utilities', amount: 45000, percentage: 18.4, budget: 42000, variance: 3000, color: '#C49831' },
+  { category: 'Missions & Outreach', amount: 35000, percentage: 14.3, budget: 38000, variance: -3000, color: '#A5CF5D' },
+  { category: 'Ministry Programs', amount: 25000, percentage: 10.2, budget: 28000, variance: -3000, color: '#E74C3C' },
+  { category: 'Administration', amount: 20000, percentage: 8.2, budget: 22000, variance: -2000, color: '#9B59B6' },
+];
+
+const monthlyExpenseData = [
+  { month: 'Jan', salaries: 18000, facilities: 6500, missions: 4200, programs: 3800, admin: 2500, total: 35000 },
+  { month: 'Feb', salaries: 19000, facilities: 7200, missions: 3800, programs: 4200, admin: 2800, total: 37000 },
+  { month: 'Mar', salaries: 20000, facilities: 6800, missions: 4500, programs: 3600, admin: 3100, total: 38000 },
+  { month: 'Apr', salaries: 18500, facilities: 7000, missions: 3200, programs: 4000, admin: 2300, total: 35000 },
+  { month: 'May', salaries: 19500, facilities: 6200, missions: 4800, programs: 3800, admin: 2700, total: 37000 },
+  { month: 'Jun', salaries: 20500, facilities: 8000, missions: 3600, programs: 4200, admin: 2900, total: 39200 },
+  { month: 'Jul', salaries: 21000, facilities: 7500, missions: 5200, programs: 3900, admin: 2400, total: 40000 },
+  { month: 'Aug', salaries: 20800, facilities: 6900, missions: 4400, programs: 4100, admin: 2800, total: 39000 },
+  { month: 'Sep', salaries: 19800, facilities: 7300, missions: 3900, programs: 3700, admin: 2300, total: 37000 },
+  { month: 'Oct', salaries: 21200, facilities: 8200, missions: 4600, programs: 4300, admin: 2700, total: 41000 },
+  { month: 'Nov', salaries: 22000, facilities: 7800, missions: 5000, programs: 4500, admin: 2900, total: 42200 },
+  { month: 'Dec', salaries: 23000, facilities: 8500, missions: 5800, programs: 5200, admin: 3500, total: 46000 },
+];
+
+const expenseByDepartment = [
+  { department: 'Worship Ministry', budget: 15000, spent: 12500, variance: -2500, percentage: 83.3, status: 'On Track' },
+  { department: 'Youth Ministry', budget: 10000, spent: 8200, variance: -1800, percentage: 82.0, status: 'On Track' },
+  { department: 'Missions', budget: 25000, spent: 23800, variance: -1200, percentage: 95.2, status: 'Near Limit' },
+  { department: 'Facilities', budget: 20000, spent: 18500, variance: -1500, percentage: 92.5, status: 'Near Limit' },
+  { department: 'Children Ministry', budget: 8000, spent: 5200, variance: -2800, percentage: 65.0, status: 'Under Budget' },
+  { department: 'Administration', budget: 12000, spent: 11800, variance: -200, percentage: 98.3, status: 'Near Limit' },
+];
+
+const topExpenses = [
+  { description: 'Staff Salaries - December', amount: 23000, category: 'Salaries & Benefits', date: '2024-01-01', department: 'Administration' },
+  { description: 'Electricity Bill - Q4', amount: 8500, category: 'Facilities & Utilities', date: '2024-01-15', department: 'Facilities' },
+  { description: 'Mission Trip - Ghana', amount: 5800, category: 'Missions & Outreach', date: '2024-01-10', department: 'Missions' },
+  { description: 'Youth Camp Equipment', amount: 5200, category: 'Ministry Programs', date: '2024-01-12', department: 'Youth Ministry' },
+  { description: 'Office Supplies & Software', amount: 3500, category: 'Administration', date: '2024-01-08', department: 'Administration' },
+];
+
+const expenseSummary = {
+  totalExpenses: 245000,
+  monthlyAverage: 20417,
+  yearOverYearGrowth: 8.2,
+  budgetUtilization: 87.5,
+  largestCategory: 'Salaries & Benefits',
+  departmentCount: 6,
+};
+
+export default function ExpenseReportsPage() {
+  const router = useRouter();
+  const [selectedPeriod, setSelectedPeriod] = useState('current-year');
+  const [activeTab, setActiveTab] = useState('overview');
+
+  const getVarianceColor = (variance: number) => {
+    return variance >= 0 ? 'text-red-600' : 'text-green-600';
+  };
+
+  const getVarianceIcon = (variance: number) => {
+    return variance >= 0 ? '↗' : '↘';
+  };
+
+  // Chart configurations
+  const categoryChartConfig = {
+    amount: { label: 'Amount' },
+  } satisfies ChartConfig;
+
+  const monthlyChartConfig = {
+    salaries: { label: 'Salaries', color: 'hsl(var(--chart-1))' },
+    facilities: { label: 'Facilities', color: 'hsl(var(--chart-2))' },
+    missions: { label: 'Missions', color: 'hsl(var(--chart-3))' },
+    programs: { label: 'Programs', color: 'hsl(var(--chart-4))' },
+    admin: { label: 'Admin', color: 'hsl(var(--chart-5))' },
+    total: { label: 'Total', color: 'hsl(var(--chart-1))' },
+  } satisfies ChartConfig;
+
+  const departmentChartConfig = {
+    spent: { label: 'Spent', color: 'hsl(var(--chart-1))' },
+    budget: { label: 'Budget', color: 'hsl(var(--chart-2))' },
+  } satisfies ChartConfig;
+
+  return (
+    <div className="space-y-6">
+      {/* Header with Back Navigation */}
+      <div className="flex items-center gap-4">
+        <Button
+          variant="outline"
+          size="icon"
+          className="h-9 w-9"
+          asChild
+        >
+          <Link href="/dashboard/finance/reports" aria-label="Back to Finance Reports">
+            <ArrowLeft className="h-4 w-4" />
+          </Link>
+        </Button>
+        <PageHeader title="Expense Reports" />
+      </div>
+
+      {/* Controls */}
+      <div className="flex items-center justify-between">
+        <div className="flex space-x-2">
+          <Select value={selectedPeriod} onValueChange={setSelectedPeriod}>
+            <SelectTrigger className="w-48">
+              <SelectValue placeholder="Select period" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="current-month">Current Month</SelectItem>
+              <SelectItem value="current-quarter">Current Quarter</SelectItem>
+              <SelectItem value="current-year">Current Year</SelectItem>
+              <SelectItem value="last-quarter">Last Quarter</SelectItem>
+              <SelectItem value="last-year">Last Year</SelectItem>
+            </SelectContent>
+          </Select>
+          <Button variant="outline">
+            <Filter className="mr-2 h-4 w-4" />
+            Filters
+          </Button>
+        </div>
+        <Button>
+          <Download className="mr-2 h-4 w-4" />
+          Export Report
+        </Button>
+      </div>
+
+      {/* Summary Cards */}
+      <div className="grid gap-4 grid-cols-2 md:grid-cols-4">
+        <StatCard
+          title="Total Expenses"
+          value={`₵${expenseSummary.totalExpenses.toLocaleString()}`}
+          icon={Receipt}
+        />
+        <StatCard
+          title="Monthly Average"
+          value={`₵${expenseSummary.monthlyAverage.toLocaleString()}`}
+          icon={Calendar}
+        />
+        <StatCard
+          title="YoY Growth"
+          value={`+${expenseSummary.yearOverYearGrowth}%`}
+          icon={TrendingDown}
+        />
+        <StatCard
+          title="Budget Used"
+          value={`${expenseSummary.budgetUtilization}%`}
+          icon={BarChart3}
+        />
+        <StatCard
+          title="Largest Category"
+          value={expenseSummary.largestCategory}
+          icon={Settings}
+        />
+        <StatCard
+          title="Departments"
+          value={expenseSummary.departmentCount}
+          icon={Building}
+        />
+      </div>
+
+      {/* Tabs */}
+      <Tabs value={activeTab} onValueChange={setActiveTab}>
+        <TabsList>
+          <TabsTrigger value="overview">Overview</TabsTrigger>
+          <TabsTrigger value="categories">By Category</TabsTrigger>
+          <TabsTrigger value="departments">By Department</TabsTrigger>
+          <TabsTrigger value="trends">Trends</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="overview" className="space-y-4">
+          <div className="grid gap-4 md:grid-cols-2">
+            <Card className="hover:shadow-md transition-shadow">
+              <CardHeader>
+                <CardTitle>Monthly Expense Trend</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ChartContainer config={monthlyChartConfig} className="h-[300px] w-full">
+                  <AreaChart data={monthlyExpenseData} margin={{ left: 12, right: 12 }}>
+                    <defs>
+                      <linearGradient id="fillTotal" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="hsl(var(--chart-1))" stopOpacity={0.8}/>
+                        <stop offset="95%" stopColor="hsl(var(--chart-1))" stopOpacity={0.1}/>
+                      </linearGradient>
+                    </defs>
+                    <CartesianGrid vertical={false} strokeDasharray="3 3" className="stroke-muted" />
+                    <XAxis dataKey="month" tickLine={false} axisLine={false} tickMargin={8} className="text-xs" />
+                    <YAxis tickLine={false} axisLine={false} tickMargin={8} className="text-xs" />
+                    <ChartTooltip cursor={{ stroke: 'hsl(var(--muted))', strokeWidth: 1 }} content={<ChartTooltipContent indicator="line" />} />
+                    <Area type="monotone" dataKey="total" stroke="hsl(var(--chart-1))" fill="url(#fillTotal)" strokeWidth={2} />
+                  </AreaChart>
+                </ChartContainer>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>Top Expenses</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {topExpenses.map((expense, index) => (
+                    <div key={index} className="flex items-center justify-between">
+                      <div>
+                        <p className="font-medium">{expense.description}</p>
+                        <p className="text-sm text-muted-foreground">{expense.category} • {expense.department}</p>
+                      </div>
+                      <div className="text-right">
+                        <p className="font-semibold">₵{expense.amount.toLocaleString()}</p>
+                        <p className="text-xs text-muted-foreground">{new Date(expense.date).toLocaleDateString()}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </TabsContent>
+
+        <TabsContent value="categories" className="space-y-4">
+          <div className="grid gap-4 md:grid-cols-2">
+            <Card className="hover:shadow-md transition-shadow">
+              <CardHeader>
+                <CardTitle>Expenses by Category</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ChartContainer config={categoryChartConfig} className="h-[300px] w-full">
+                  <RechartsPieChart>
+                    <ChartTooltip cursor={false} content={<ChartTooltipContent hideLabel />} />
+                    <Pie
+                      data={expenseByCategory}
+                      cx="50%"
+                      cy="50%"
+                      labelLine={false}
+                      label={({ category, percentage }) => `${category} ${percentage}%`}
+                      outerRadius={100}
+                      dataKey="amount"
+                      strokeWidth={2}
+                    >
+                      {expenseByCategory.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={entry.color} stroke="hsl(var(--background))" />
+                      ))}
+                    </Pie>
+                  </RechartsPieChart>
+                </ChartContainer>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>Budget vs Actual</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {expenseByCategory.map((category) => (
+                    <div key={category.category} className="space-y-2">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center space-x-3">
+                          <div 
+                            className="w-3 h-3 rounded-full" 
+                            style={{ backgroundColor: category.color }}
+                          />
+                          <span className="font-medium text-sm">{category.category}</span>
+                        </div>
+                        <div className="text-right">
+                          <p className="font-semibold text-sm">₵{category.amount.toLocaleString()}</p>
+                          <p className={`text-xs ${getVarianceColor(category.variance)}`}>
+                            {getVarianceIcon(category.variance)} ₵{Math.abs(category.variance).toLocaleString()}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="w-full bg-gray-200 rounded-full h-2">
+                        <div 
+                          className="h-2 rounded-full" 
+                          style={{ 
+                            width: `${(category.amount / category.budget) * 100}%`,
+                            backgroundColor: category.color 
+                          }}
+                        />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </TabsContent>
+
+        <TabsContent value="departments" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Department Budget Performance</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Department</TableHead>
+                    <TableHead>Budget</TableHead>
+                    <TableHead>Spent</TableHead>
+                    <TableHead>Remaining</TableHead>
+                    <TableHead>Utilization</TableHead>
+                    <TableHead>Status</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {expenseByDepartment.map((dept) => (
+                    <TableRow key={dept.department}>
+                      <TableCell className="font-medium">{dept.department}</TableCell>
+                      <TableCell>₵{dept.budget.toLocaleString()}</TableCell>
+                      <TableCell>₵{dept.spent.toLocaleString()}</TableCell>
+                      <TableCell className={getVarianceColor(-dept.variance)}>
+                        ₵{Math.abs(dept.variance).toLocaleString()}
+                      </TableCell>
+                      <TableCell>{dept.percentage.toFixed(1)}%</TableCell>
+                      <TableCell>
+                        <StatusBadge status={dept.status} />
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="trends" className="space-y-4">
+          <Card className="hover:shadow-md transition-shadow">
+            <CardHeader>
+              <CardTitle>Expense Trends by Category</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ChartContainer config={monthlyChartConfig} className="h-[400px] w-full">
+                <LineChart data={monthlyExpenseData} margin={{ left: 12, right: 12 }}>
+                  <CartesianGrid vertical={false} strokeDasharray="3 3" className="stroke-muted" />
+                  <XAxis dataKey="month" tickLine={false} axisLine={false} tickMargin={8} className="text-xs" />
+                  <YAxis tickLine={false} axisLine={false} tickMargin={8} className="text-xs" />
+                  <ChartTooltip cursor={{ stroke: 'hsl(var(--muted))', strokeWidth: 1 }} content={<ChartTooltipContent indicator="line" />} />
+                  <ChartLegend content={<ChartLegendContent />} />
+                  <Line type="monotone" dataKey="salaries" stroke="hsl(var(--chart-1))" strokeWidth={2} name="Salaries & Benefits" dot={{ fill: 'hsl(var(--chart-1))' }} />
+                  <Line type="monotone" dataKey="facilities" stroke="hsl(var(--chart-2))" strokeWidth={2} name="Facilities & Utilities" dot={{ fill: 'hsl(var(--chart-2))' }} />
+                  <Line type="monotone" dataKey="missions" stroke="hsl(var(--chart-3))" strokeWidth={2} name="Missions & Outreach" dot={{ fill: 'hsl(var(--chart-3))' }} />
+                  <Line type="monotone" dataKey="programs" stroke="hsl(var(--chart-4))" strokeWidth={2} name="Ministry Programs" dot={{ fill: 'hsl(var(--chart-4))' }} />
+                  <Line type="monotone" dataKey="admin" stroke="hsl(var(--chart-5))" strokeWidth={2} name="Administration" dot={{ fill: 'hsl(var(--chart-5))' }} />
+                </LineChart>
+              </ChartContainer>
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
+    </div>
+  );
+}

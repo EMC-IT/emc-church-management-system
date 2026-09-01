@@ -2,6 +2,7 @@
 
 import { createContext, useContext, useEffect, useState } from 'react';
 import { User, Role } from '@/lib/types';
+import { ROLE_PERMISSIONS, ROLES } from '@/lib/permissions';
 
 interface AuthContextType {
   user: User | null;
@@ -19,44 +20,29 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-  // Check if user is logged in from localStorage
-  const savedUser = localStorage.getItem('user');
-  if (savedUser) {
-    setUser(JSON.parse(savedUser));
-  } else {
-    // Auto-login for development - create a mock user
-    const mockUser: User = {
-      id: '1',
-      email: 'admin@church.com',
-      name: 'Admin User',
-      role: {
-        name: 'SuperAdmin',
-        permissions: [
-          'canViewMembers',
-          'canEditMembers',
-          'canDeleteMembers',
-          'canManageGiving',
-          'canSendSMS',
-          'canUploadSermons',
-          'canManageBudgets',
-          'canViewFinance',
-          'canManageEvents',
-          'canViewReports',
-          'canManageRoles',
-          'canManageUsers',
-          'canViewAuditLogs',
-          'canExportData'
-        ]
-      },
-      avatar: null,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString()
-    };
-    setUser(mockUser);
-    localStorage.setItem('user', JSON.stringify(mockUser));
-  }
-  setLoading(false);
-}, []);
+    // Check if user is logged in from localStorage
+    const savedUser = localStorage.getItem('user');
+    if (savedUser) {
+      setUser(JSON.parse(savedUser));
+    } else {
+      // Auto-login for development - create a mock user
+      const mockUser: User = {
+        id: '1',
+        email: 'admin@church.com',
+        name: 'Admin User',
+        role: {
+          name: 'SuperAdmin',
+          permissions: ROLE_PERMISSIONS[ROLES.SUPER_ADMIN] || [],
+        },
+        avatar: null,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      };
+      setUser(mockUser);
+      localStorage.setItem('user', JSON.stringify(mockUser));
+    }
+    setLoading(false);
+  }, []);
 
   const login = async (email: string, password: string) => {
     setLoading(true);
@@ -71,22 +57,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         name: 'Admin User',
         role: {
           name: 'SuperAdmin',
-          permissions: [
-            'canViewMembers',
-            'canEditMembers',
-            'canDeleteMembers',
-            'canManageGiving',
-            'canSendSMS',
-            'canUploadSermons',
-            'canManageBudgets',
-            'canViewFinance',
-            'canManageEvents',
-            'canViewReports',
-            'canManageRoles',
-            'canManageUsers',
-            'canViewAuditLogs',
-            'canExportData'
-          ]
+          permissions: ROLE_PERMISSIONS[ROLES.SUPER_ADMIN] || [],
         },
         avatar: null,
         createdAt: new Date().toISOString(),
@@ -108,6 +79,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const hasPermission = (permission: string): boolean => {
+    if (user?.role?.name === 'SuperAdmin' || user?.role?.name === 'super_admin') {
+      return true;
+    }
     return user?.role?.permissions?.includes(permission) || false;
   };
 

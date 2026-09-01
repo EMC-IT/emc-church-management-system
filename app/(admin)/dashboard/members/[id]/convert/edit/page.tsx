@@ -1,0 +1,311 @@
+"use client";
+import { useState, useEffect } from 'react';
+import { useParams, useRouter } from 'next/navigation';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { DatePicker } from '@/components/ui/date-picker';
+import { PageHeader } from '@/components/ui/page-header';
+import { useToast } from '@/hooks/use-toast';
+import { FormPageSkeleton } from '@/components/ui/skeleton-loaders';
+import Link from 'next/link';
+import { ArrowLeft, Save, User } from 'lucide-react';
+
+const convertFormSchema = z.object({
+  fullName: z.string().min(2, 'Full name must be at least 2 characters'),
+  contact1: z.string().min(10, 'Contact 1 must be at least 10 digits'),
+  gender: z.enum(['Male', 'Female']),
+  dateOfBirth: z.string().optional().or(z.literal('')),
+  branch: z.enum(['Adenta (HQ)', 'Adusa', 'Liberia', 'Somanya', 'Mampong']),
+  serviceType: z.enum(['Empowered Kids', 'Empowerment', 'Jesus Generation', 'Precious Pearls']),
+  status: z.enum(['Member', 'Attender', 'Special Guest', 'Stop Coming']),
+  location: z.string().min(2, 'Location is required'),
+});
+
+type ConvertFormData = z.infer<typeof convertFormSchema>;
+
+export default function EditConvertPage() {
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const params = useParams();
+  const router = useRouter();
+  const { toast } = useToast();
+  const convertId = params.id as string;
+
+  // Mock convert data (replace with real API call)
+  const mockConvert: ConvertFormData = {
+    fullName: 'Emmanuel Owusu',
+    contact1: '+233 24 999 8888',
+    gender: 'Male',
+    dateOfBirth: '2002-06-15',
+    branch: 'Adenta (HQ)',
+    serviceType: 'Empowerment',
+    status: 'Member',
+    location: 'Accra',
+  };
+
+  const form = useForm<ConvertFormData>({
+    resolver: zodResolver(convertFormSchema),
+    defaultValues: mockConvert,
+  });
+
+  useEffect(() => {
+    // Simulate loading
+    setTimeout(() => setLoading(false), 400);
+  }, []);
+
+  const onSubmit = async (data: ConvertFormData) => {
+    try {
+      setSaving(true);
+      // Replace with real API call
+      toast({
+        title: 'Success',
+        description: 'Convert updated successfully',
+      });
+      router.push(`/dashboard/members/${convertId}/convert`);
+    } catch (error: any) {
+      toast({
+        title: 'Error',
+        description: error.message || 'Failed to update convert',
+        variant: 'destructive',
+      });
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  if (loading) {
+    return <FormPageSkeleton cardCount={2} fieldsPerCard={4} />;
+  }
+  if (error) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[400px] space-y-4">
+        <div className="text-destructive text-lg font-semibold">
+          {error}
+        </div>
+        <Button asChild>
+          <Link href="/dashboard/members">
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            Back to Members
+          </Link>
+        </Button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-6 max-w-6xl">
+      {/* Header */}
+      <div className="flex items-center gap-4">
+        <Button variant="outline" size="icon" className="h-9 w-9" asChild>
+          <Link href={`/dashboard/members/${convertId}/convert`} aria-label="Back to Convert Profile">
+            <ArrowLeft className="h-4 w-4" />
+          </Link>
+        </Button>
+        <div>
+          <h1 className="font-heading text-2xl font-bold tracking-tight">Edit Convert Profile</h1>
+        </div>
+      </div>
+
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+          <Card className="rounded-xl border border-border p-6">
+            <div className="space-y-5">
+              <h2 className="text-base font-semibold text-foreground">Convert Information</h2>
+
+              <div className="grid grid-cols-12 gap-5">
+                <FormField
+                  control={form.control}
+                  name="fullName"
+                  render={({ field }) => (
+                    <FormItem className="col-span-12 sm:col-span-6">
+                      <FormLabel>Full Name *</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Emmanuel Owusu" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="contact1"
+                  render={({ field }) => (
+                    <FormItem className="col-span-12 sm:col-span-6">
+                      <FormLabel>Phone Number *</FormLabel>
+                      <FormControl>
+                        <Input placeholder="+233 24 999 8888" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="gender"
+                  render={({ field }) => (
+                    <FormItem className="col-span-12 sm:col-span-4">
+                      <FormLabel>Gender *</FormLabel>
+                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select gender" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="Male">Male</SelectItem>
+                          <SelectItem value="Female">Female</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="dateOfBirth"
+                  render={({ field }) => (
+                    <FormItem className="col-span-12 sm:col-span-4">
+                      <FormLabel>Date of Birth</FormLabel>
+                      <FormControl>
+                        <DatePicker
+                          value={field.value}
+                          onChange={(_, dateStr) => field.onChange(dateStr)}
+                          placeholder="DD/MM/YYYY"
+                          isDateOfBirth
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="location"
+                  render={({ field }) => (
+                    <FormItem className="col-span-12 sm:col-span-4">
+                      <FormLabel>Location / Residence *</FormLabel>
+                      <FormControl>
+                        <Input placeholder="East Legon, Accra" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="branch"
+                  render={({ field }) => (
+                    <FormItem className="col-span-12 sm:col-span-4">
+                      <FormLabel>Branch *</FormLabel>
+                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select branch" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="Adenta (HQ)">Adenta (HQ)</SelectItem>
+                          <SelectItem value="Adusa">Adusa</SelectItem>
+                          <SelectItem value="Liberia">Liberia</SelectItem>
+                          <SelectItem value="Somanya">Somanya</SelectItem>
+                          <SelectItem value="Mampong">Mampong</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="serviceType"
+                  render={({ field }) => (
+                    <FormItem className="col-span-12 sm:col-span-4">
+                      <FormLabel>Service Type *</FormLabel>
+                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select service type" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="Empowered Kids">Empowered Kids</SelectItem>
+                          <SelectItem value="Empowerment">Empowerment</SelectItem>
+                          <SelectItem value="Jesus Generation">Jesus Generation</SelectItem>
+                          <SelectItem value="Precious Pearls">Precious Pearls</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="status"
+                  render={({ field }) => (
+                    <FormItem className="col-span-12 sm:col-span-4">
+                      <FormLabel>Status *</FormLabel>
+                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select status" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="Member">Member</SelectItem>
+                          <SelectItem value="Attender">Attender</SelectItem>
+                          <SelectItem value="Special Guest">Special Guest</SelectItem>
+                          <SelectItem value="Stop Coming">Stop Coming</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+            </div>
+          </Card>
+
+          {/* Form Actions */}
+          <div className="flex items-center justify-end gap-3 pt-2">
+            <Button 
+              variant="outline" 
+              asChild
+              disabled={saving}
+            >
+              <Link href={`/dashboard/members/${convertId}/convert`}>
+                Cancel
+              </Link>
+            </Button>
+            <Button type="submit" disabled={saving}>
+              {saving ? (
+                <>
+                  <div className="mr-1.5 h-4 w-4 animate-spin rounded-full border-2 border-background border-t-transparent" />
+                  <span>Saving...</span>
+                </>
+              ) : (
+                <>
+                  <Save className="mr-1.5 h-4 w-4" />
+                  <span>Save Changes</span>
+                </>
+              )}
+            </Button>
+          </div>
+        </form>
+      </Form>
+    </div>
+  );
+} 

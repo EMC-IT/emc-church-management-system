@@ -1,0 +1,485 @@
+'use client';
+
+import { useState, useEffect } from 'react';
+import { useParams, useRouter } from 'next/navigation';
+import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { StatusBadge } from '@/components/ui/status-badge';
+import { DataTable } from '@/components/ui/data-table';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { Switch } from '@/components/ui/switch';
+import { PageHeader } from '@/components/ui/page-header';
+import { StatCard } from '@/components/ui/stat-card';
+import { 
+  ArrowLeft, 
+  Edit, 
+  Save, 
+  X,
+  BadgeCent,
+  TrendingUp,
+  TrendingDown,
+  Calendar,
+  Users,
+  Target
+} from 'lucide-react';
+import Link from 'next/link';
+import { useToast } from '@/hooks/use-toast';
+import { givingService } from '@/services';
+import { Giving, GivingType, GivingCategory, GivingStatus } from '@/lib/types';
+import { ColumnDef } from '@tanstack/react-table';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+
+// Extended category interface
+interface CategoryData {
+  id: string;
+  name: string;
+  description: string;
+  category: GivingCategory;
+  totalAmount: number;
+  transactionCount: number;
+  isActive: boolean;
+  targetAmount?: number;
+  notes?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+// Mock category data
+const mockCategory: CategoryData = {
+  id: '1',
+  name: 'Building Fund',
+  description: 'Church building construction and maintenance projects',
+  category: GivingCategory.BUILDING_FUND,
+  totalAmount: 45000.00,
+  transactionCount: 150,
+  isActive: true,
+  targetAmount: 100000.00,
+  notes: 'Funds allocated for the new sanctuary construction project',
+  createdAt: '2023-01-01T00:00:00Z',
+  updatedAt: '2024-01-20T10:30:00Z'
+};
+
+// Mock transactions for this category
+const mockTransactions: Giving[] = [
+  {
+    id: '1',
+    memberId: 'member1',
+    type: GivingType.DONATION,
+    amount: 5000.00,
+    currency: 'GHS',
+    category: GivingCategory.BUILDING_FUND,
+    method: 'Transfer',
+    date: '2024-01-20',
+    description: 'Building fund donation',
+    isAnonymous: false,
+    receiptNumber: 'RCP-001',
+    status: GivingStatus.COMPLETED,
+    createdAt: '2024-01-20T10:30:00Z',
+    updatedAt: '2024-01-20T10:30:00Z'
+  },
+  {
+    id: '2',
+    memberId: 'member2',
+    type: GivingType.PLEDGE,
+    amount: 2000.00,
+    currency: 'GHS',
+    category: GivingCategory.BUILDING_FUND,
+    method: 'Cash',
+    date: '2024-01-19',
+    description: 'Monthly building pledge',
+    isAnonymous: false,
+    receiptNumber: 'RCP-002',
+    status: GivingStatus.COMPLETED,
+    createdAt: '2024-01-19T14:20:00Z',
+    updatedAt: '2024-01-19T14:20:00Z'
+  },
+  {
+    id: '3',
+    memberId: 'member3',
+    type: GivingType.OFFERING,
+    amount: 500.00,
+    currency: 'GHS',
+    category: GivingCategory.BUILDING_FUND,
+    method: 'Online',
+    date: '2024-01-18',
+    description: 'Special building offering',
+    isAnonymous: true,
+    receiptNumber: 'RCP-003',
+    status: GivingStatus.COMPLETED,
+    createdAt: '2024-01-18T09:15:00Z',
+    updatedAt: '2024-01-18T09:15:00Z'
+  }
+];
+
+export default function CategoryDetailsPage() {
+  const [category, setCategory] = useState<CategoryData | null>(null);
+  const [transactions, setTransactions] = useState<Giving[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [editing, setEditing] = useState(false);
+  const [editData, setEditData] = useState<Partial<CategoryData>>({});
+  const params = useParams();
+  const router = useRouter();
+  const { toast } = useToast();
+  const categoryId = params.id as string;
+
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        setLoading(true);
+        // For now, use mock data. Replace with actual API calls:
+        // const [categoryResponse, transactionsResponse] = await Promise.all([
+        //   givingService.getCategory(categoryId),
+        //   givingService.getCategoryTransactions(categoryId)
+        // ]);
+        // setCategory(categoryResponse);
+        // setTransactions(transactionsResponse.data);
+        setCategory(mockCategory);
+        setTransactions(mockTransactions);
+        setEditData(mockCategory);
+      } catch (err: any) {
+        toast({
+          title: 'Error',
+          description: 'Failed to load category details',
+          variant: 'destructive',
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadData();
+  }, [categoryId, toast]);
+
+  const handleSave = async () => {
+    try {
+      // await givingService.updateCategory(categoryId, editData);
+      setCategory({ ...category!, ...editData });
+      setEditing(false);
+      toast({
+        title: 'Success',
+        description: 'Category updated successfully',
+      });
+    } catch (err: any) {
+      toast({
+        title: 'Error',
+        description: 'Failed to update category',
+        variant: 'destructive',
+      });
+    }
+  };
+
+  const handleCancel = () => {
+    setEditData(category!);
+    setEditing(false);
+  };
+
+  const formatCurrency = (amount: number) => {
+    return new Intl.NumberFormat('en-GH', {
+      style: 'currency',
+      currency: 'GHS',
+      minimumFractionDigits: 2,
+    }).format(amount);
+  };
+
+  const getTypeIcon = (type: GivingType) => {
+    switch (type) {
+      case GivingType.TITHE:
+        return <BadgeCent className="h-4 w-4 text-brand-primary" />;
+      case GivingType.OFFERING:
+        return <BadgeCent className="h-4 w-4 text-brand-success" />;
+      case GivingType.DONATION:
+        return <BadgeCent className="h-4 w-4 text-brand-gold" />;
+      case GivingType.PLEDGE:
+        return <Target className="h-4 w-4 text-brand-secondary" />;
+      default:
+        return <BadgeCent className="h-4 w-4 text-muted-foreground" />;
+    }
+  };
+
+  const getStatusBadge = (status: GivingStatus) => <StatusBadge status={status} />;
+
+  const columns: ColumnDef<Giving>[] = [
+    {
+      id: 'select',
+      header: ({ table }) => (
+        <Checkbox
+          checked={
+            table.getIsAllPageRowsSelected() ||
+            (table.getIsSomePageRowsSelected() && 'indeterminate')
+          }
+          onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+          aria-label="Select all"
+        />
+      ),
+      cell: ({ row }) => (
+        <Checkbox
+          checked={row.getIsSelected()}
+          onCheckedChange={(value) => row.toggleSelected(!!value)}
+          aria-label="Select row"
+        />
+      ),
+      enableSorting: false,
+      enableHiding: false,
+    },
+    {
+      accessorKey: 'type',
+      header: 'Type',
+      cell: ({ row }) => {
+        const giving = row.original;
+        return (
+          <span className="font-medium capitalize">{giving.type.replace('_', ' ')}</span>
+        );
+      },
+    },
+    {
+      accessorKey: 'amount',
+      header: 'Amount',
+      cell: ({ row }) => {
+        const amount = parseFloat(row.getValue('amount'));
+        return <div className="font-medium">{formatCurrency(amount)}</div>;
+      },
+    },
+    {
+      accessorKey: 'method',
+      header: 'Method',
+      cell: ({ row }) => {
+        const method = row.getValue('method') as string;
+        return (
+          <Badge variant="neutral" className="capitalize">
+            {method.replace('_', ' ')}
+          </Badge>
+        );
+      },
+    },
+    {
+      accessorKey: 'date',
+      header: 'Date',
+      cell: ({ row }) => {
+        const date = new Date(row.getValue('date'));
+        return <div>{date.toLocaleDateString()}</div>;
+      },
+    },
+    {
+      accessorKey: 'status',
+      header: 'Status',
+      cell: ({ row }) => {
+        const status = row.getValue('status') as GivingStatus;
+        return getStatusBadge(status);
+      },
+    },
+  ];
+
+  if (loading || !category) {
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center space-x-4">
+          <div className="h-8 w-8 bg-gray-200 rounded animate-pulse" />
+          <div>
+            <div className="h-8 w-48 bg-gray-200 rounded animate-pulse mb-2" />
+            <div className="h-4 w-32 bg-gray-200 rounded animate-pulse" />
+          </div>
+        </div>
+        <div className="grid gap-4 md:grid-cols-4">
+          {[...Array(4)].map((_, i) => (
+            <div key={i} className="h-24 bg-gray-200 rounded animate-pulse" />
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  const progress = category.targetAmount ? (category.totalAmount / category.targetAmount) * 100 : 0;
+
+  return (
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex items-center gap-4">
+        <Button variant="outline" size="icon" className="h-9 w-9" asChild>
+          <Link href="/dashboard/finance/giving/categories" aria-label="Back to Giving Categories">
+            <ArrowLeft className="h-4 w-4" />
+          </Link>
+        </Button>
+        <div className="flex-1">
+          <PageHeader
+            title={category.name}
+            description={category.description}
+            actions={
+              editing ? (
+                <>
+                  <Button variant="outline" onClick={handleCancel}>
+                    <X className="mr-2 h-4 w-4" />
+                    Cancel
+                  </Button>
+                  <Button onClick={handleSave}>
+                    <Save className="mr-2 h-4 w-4" />
+                    Save Changes
+                  </Button>
+                </>
+              ) : (
+                <Button onClick={() => setEditing(true)}>
+                  <Edit className="mr-2 h-4 w-4" />
+                  Edit Category
+                </Button>
+              )
+            }
+          />
+        </div>
+      </div>
+
+      {/* Statistics Cards */}
+      <div className="grid gap-4 md:grid-cols-4">
+        <StatCard
+          title="Total Amount"
+          value={formatCurrency(category.totalAmount)}
+          icon={BadgeCent}
+          accent="success"
+        />
+
+        <StatCard
+          title="Transactions"
+          value={category.transactionCount}
+          icon={TrendingUp}
+          accent="primary"
+        />
+
+        <StatCard
+          title="Average Amount"
+          value={formatCurrency(category.totalAmount / category.transactionCount)}
+          icon={Users}
+          accent="secondary"
+        />
+
+        <StatCard
+          title="Progress"
+          value={`${progress.toFixed(1)}%`}
+          icon={Target}
+          accent="accent"
+        />
+      </div>
+
+      <Tabs defaultValue="details" className="space-y-4">
+        <TabsList>
+          <TabsTrigger value="details">Details</TabsTrigger>
+          <TabsTrigger value="transactions">Transactions</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="details" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Category Information</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid gap-4 md:grid-cols-2">
+                <div className="space-y-2">
+                  <Label htmlFor="name">Category Name</Label>
+                  {editing ? (
+                    <Input
+                      id="name"
+                      value={editData.name || ''}
+                      onChange={(e) => setEditData({ ...editData, name: e.target.value })}
+                    />
+                  ) : (
+                    <div className="p-2 bg-muted rounded">{category.name}</div>
+                  )}
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="status">Status</Label>
+                  {editing ? (
+                    <div className="flex items-center space-x-2">
+                      <Switch
+                        checked={editData.isActive}
+                        onCheckedChange={(checked) => setEditData({ ...editData, isActive: checked })}
+                      />
+                      <span>{editData.isActive ? 'Active' : 'Inactive'}</span>
+                    </div>
+                  ) : (
+                    <div className="p-2">
+                      <StatusBadge status={category.isActive ? 'active' : 'inactive'} />
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="description">Description</Label>
+                {editing ? (
+                  <Textarea
+                    id="description"
+                    value={editData.description || ''}
+                    onChange={(e) => setEditData({ ...editData, description: e.target.value })}
+                    className="min-h-[100px]"
+                  />
+                ) : (
+                  <div className="p-2 bg-muted rounded min-h-[100px]">{category.description}</div>
+                )}
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="target">Target Amount</Label>
+                {editing ? (
+                  <Input
+                    id="target"
+                    type="number"
+                    step="0.01"
+                    value={editData.targetAmount || ''}
+                    onChange={(e) => setEditData({ ...editData, targetAmount: e.target.value ? parseFloat(e.target.value) : undefined })}
+                  />
+                ) : (
+                  <div className="p-2 bg-muted rounded">
+                    {category.targetAmount ? formatCurrency(category.targetAmount) : 'No target set'}
+                  </div>
+                )}
+              </div>
+
+              {category.notes && (
+                <div className="space-y-2">
+                  <Label htmlFor="notes">Notes</Label>
+                  {editing ? (
+                    <Textarea
+                      id="notes"
+                      value={editData.notes || ''}
+                      onChange={(e) => setEditData({ ...editData, notes: e.target.value })}
+                    />
+                  ) : (
+                    <div className="p-2 bg-muted rounded">{category.notes}</div>
+                  )}
+                </div>
+              )}
+
+              <div className="grid gap-4 md:grid-cols-2 text-sm text-muted-foreground">
+                <div>
+                  <span className="font-medium">Created:</span> {new Date(category.createdAt).toLocaleDateString()}
+                </div>
+                <div>
+                  <span className="font-medium">Last Updated:</span> {new Date(category.updatedAt).toLocaleDateString()}
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="transactions" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Category Transactions</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <DataTable
+                columns={columns}
+                data={transactions}
+                recordLabel="transaction"
+                searchKey="description"
+                searchPlaceholder="Search transactions..."
+              />
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
+    </div>
+  );
+}
