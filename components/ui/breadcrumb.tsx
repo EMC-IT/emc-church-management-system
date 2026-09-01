@@ -88,6 +88,11 @@ const ROUTE_CONFIG: Record<string, string> = {
   meetings: 'Meetings',
   registrations: 'Registrations',
   new: 'New',
+  portal: 'Portal',
+  'pastoral-care': 'Pastoral Care',
+  prayer: 'Prayer Requests',
+  journey: 'My Journey',
+  resources: 'Resources',
 };
 
 // Helper function to check if a segment is a numeric ID
