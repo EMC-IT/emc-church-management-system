@@ -11,7 +11,7 @@ Dependencies MUST strictly flow downwards:
 ```
 ┌────────────────────────────────────────────────────────┐
 │                   PRESENTATION LAYER                   │
-│   Next.js App Router (app/dashboard/*)                 │
+│   Next.js App Router (app/(admin)/dashboard/*)         │
 └───────────────────────────┬────────────────────────────┘
                             │ imports
                             ▼
@@ -47,7 +47,7 @@ Dependencies MUST strictly flow downwards:
 ## 2. Permitted vs Prohibited Dependency Directions
 
 ### ✅ Permitted Dependencies:
-1. `app/dashboard/**` → `components/**`, `services/**`, `lib/**`, `hooks/**`
+1. `app/(admin)/dashboard/**` → `components/**`, `services/**`, `lib/**`, `hooks/**`
 2. `components/<domain>/**` → `components/ui/**`, `services/<domain>/**`, `lib/validation/<domain>/**`, `lib/types/**`
 3. `components/ui/**` → Generic utilities only (`lib/utils.ts`, `lib/date-utils.ts`). **Zero domain imports.**
 4. `services/<domain>/**` → `services/api-client.ts`, `lib/validation/**`, `lib/types/**`, `lib/errors/**`
@@ -55,7 +55,7 @@ Dependencies MUST strictly flow downwards:
 ### ❌ Prohibited Dependencies (Violations):
 1. **Inverted Dependency**: `services/**` or `lib/**` importing from `components/**` or `app/**`.
 2. **Polluted Primitives**: `components/ui/**` importing domain models, domain services, or domain components.
-3. **Bypassing Services**: `app/dashboard/**` or `components/**` directly executing raw HTTP mutations without going through the designated domain service.
+3. **Bypassing Services**: `app/(admin)/dashboard/**` or `components/**` directly executing raw HTTP mutations without going through the designated domain service.
 4. **Circular Domain Dependencies**: `services/members/**` ↔ `services/finance/**` direct mutual recursion.
 
 ---

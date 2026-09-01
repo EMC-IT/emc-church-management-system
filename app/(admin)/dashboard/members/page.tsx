@@ -474,7 +474,12 @@ export default function MembersPage() {
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
                 <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                <DropdownMenuItem onClick={() => router.push(`/dashboard/members/${member.id}`)}>
+                <DropdownMenuItem
+                  onClick={e => {
+                    e.stopPropagation();
+                    router.push(`/dashboard/members/${member.id}`);
+                  }}
+                >
                   <Eye className="mr-2 h-4 w-4" />
                   View Profile
                 </DropdownMenuItem>
@@ -486,6 +491,15 @@ export default function MembersPage() {
                 >
                   <Edit className="mr-2 h-4 w-4" />
                   Edit Member
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={e => {
+                    e.stopPropagation();
+                    router.push(`/dashboard/members/${member.id}/family`);
+                  }}
+                >
+                  <Users className="mr-2 h-4 w-4" />
+                  Manage Family
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem

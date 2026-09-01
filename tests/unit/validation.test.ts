@@ -1,6 +1,8 @@
 import { describe, it, expect } from 'vitest';
 import {
   memberCreateSchema,
+  memberFullFormSchema,
+  newConvertSchema,
   titheOfferingCreateSchema,
   expenseCreateSchema,
   attendanceRecordSchema,
@@ -43,6 +45,49 @@ describe('Centralized Runtime Zod Validation', () => {
       gender: 'Male',
     });
     expect(missingName.success).toBe(false);
+  });
+
+  it('memberFullFormSchema should enforce all required fields and valid enums', () => {
+    const valid = memberFullFormSchema.safeParse({
+      title: 'Mr.',
+      fullName: 'Kwame Mensah',
+      branch: 'Adenta (HQ)',
+      serviceType: 'Empowerment',
+      status: 'Member',
+      contact1: '+233241234567',
+      gender: 'Male',
+      ageGroup: 'Adult',
+      location: 'East Legon, Accra',
+      waterBaptism: 'Yes',
+      holyGhostBaptism: 'No',
+    });
+    expect(valid.success).toBe(true);
+
+    const missingRequired = memberFullFormSchema.safeParse({
+      fullName: '',
+      contact1: '',
+      gender: 'Male',
+    });
+    expect(missingRequired.success).toBe(false);
+  });
+
+  it('newConvertSchema should enforce required convert fields', () => {
+    const valid = newConvertSchema.safeParse({
+      fullName: 'Grace Mensah',
+      contact1: '+233241234567',
+      gender: 'Female',
+      branch: 'Adenta (HQ)',
+      serviceType: 'Empowerment',
+      status: 'Member',
+      location: 'Accra',
+    });
+    expect(valid.success).toBe(true);
+
+    const invalid = newConvertSchema.safeParse({
+      fullName: 'G',
+      contact1: '123',
+    });
+    expect(invalid.success).toBe(false);
   });
 
   it('expenseCreateSchema should enforce positive monetary amounts and required categories', () => {

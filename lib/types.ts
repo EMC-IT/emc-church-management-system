@@ -52,7 +52,7 @@ export interface Member {
 export interface MemberFormData {
   firstName: string;
   lastName: string;
-  email: string;
+  email?: string;
   phone: string;
   address: string;
   dateOfBirth: string;

@@ -332,10 +332,10 @@ ComponentName.displayName = 'ComponentName';
 ```
 emc-church-system/
 ├── app/                    # Next.js App Router
-│   ├── dashboard/         # Protected routes
+│   ├── (admin)/           # Protected admin routes (dashboard, login, onboarding)
+│   ├── (landing)/         # Public landing & information routes
 │   ├── globals.css        # Global styles
-│   ├── layout.tsx         # Root layout
-│   └── page.tsx           # Landing page
+│   └── layout.tsx         # Root layout
 ├── components/            # Reusable components
 │   ├── ui/               # Base UI components
 │   ├── forms/            # Form components
@@ -1362,12 +1362,12 @@ export function MemberForm({ member, onSubmit, loading }: MemberFormProps) {
 
 ### 1. Frontend Preservation Contract (Invisible Restructuring)
 - **Zero Frontend Redesign**: Existing page designs, cards, layouts, sidebars, headers, colors, typography, tables, and modal components must be preserved.
-- **Route Stability**: All URL paths under `app/dashboard/**` must remain stable.
+- **Route Stability**: All URL paths under `app/(admin)/dashboard/**` must remain stable.
 - **Underlying Refactoring**: Architectural refactoring happens underneath existing UI components.
 
 ### 2. Architectural Layers & Boundaries
 ```
-Presentation (app/dashboard/*)
+Presentation (app/(admin)/dashboard/*)
       ↓
 Domain Components (components/<domain>/*)
       ↓
@@ -1378,7 +1378,7 @@ Validation (lib/validation/*) & Authorization (lib/authorization/*)
 Infrastructure & API Client (services/api-client.ts)
 ```
 
-1. **Presentation Layer (`app/dashboard/*`)**:
+1. **Presentation Layer (`app/(admin)/dashboard/*`)**:
    - Manages routing, page layout, suspense fallbacks (`loading.tsx`), and data fetching triggers.
    - Must NOT contain business logic, multi-step math calculations, or raw database queries.
 2. **Domain Component Layer (`components/<domain>/*`)**:

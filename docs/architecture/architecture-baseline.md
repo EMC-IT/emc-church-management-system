@@ -52,7 +52,7 @@ The EMC Church Management System (CMS) is a multi-tenant, multi-branch church op
 
 | Layer | Path | Status & Composition |
 | :--- | :--- | :--- |
-| **Routing** | `app/dashboard/*` | 14 domain submodules, 90+ route pages with loading & error skeletons |
+| **Routing** | `app/(admin)/dashboard/*` | 14 domain submodules, 90+ route pages with loading & error skeletons |
 | **Components** | `components/ui/*` | 40+ shadcn/ui primitives, custom pickers, brand components |
 | **Forms** | `components/forms/*` | Centralized forms + inlined page forms (needs domain segregation) |
 | **Layouts** | `components/layout/*` | Dashboard shell, header, sidebar, global command palette |

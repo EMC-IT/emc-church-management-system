@@ -28,20 +28,20 @@ import {
 
 // Form validation schema
 const memberFormSchema = z.object({
-  firstName: z.string().min(2, "First name must be at least 2 characters"),
-  lastName: z.string().min(2, "Last name must be at least 2 characters"),
-  email: z.string().email("Please enter a valid email address"),
-  phone: z.string().min(10, "Phone number must be at least 10 characters"),
-  address: z.string().min(5, "Address must be at least 5 characters"),
+  firstName: z.string().trim().min(1, "First name is required").min(2, "First name must be at least 2 characters"),
+  lastName: z.string().trim().min(1, "Last name is required").min(2, "Last name must be at least 2 characters"),
+  email: z.string().trim().email("Please enter a valid email address").optional().or(z.literal("")),
+  phone: z.string().trim().min(1, "Phone number is required").min(10, "Phone number must be at least 10 digits"),
+  address: z.string().trim().min(1, "Address is required").min(5, "Address must be at least 5 characters"),
   dateOfBirth: z.string().min(1, "Date of birth is required"),
-  gender: z.enum(["Male", "Female"]),
-  membershipStatus: z.enum(["New", "Active", "Inactive", "Transferred", "Archived"]),
-  joinDate: z.string().optional(),
-  familyId: z.string().optional(),
+  gender: z.enum(["Male", "Female"], { required_error: "Gender is required" }),
+  membershipStatus: z.enum(["New", "Active", "Inactive", "Transferred", "Archived"], { required_error: "Status is required" }),
+  joinDate: z.string().optional().or(z.literal("")),
+  familyId: z.string().optional().or(z.literal("")),
   emergencyContact: z.object({
-    name: z.string().min(2, "Emergency contact name must be at least 2 characters"),
-    phone: z.string().min(10, "Emergency contact phone must be at least 10 characters"),
-    relationship: z.string().min(2, "Relationship must be at least 2 characters"),
+    name: z.string().optional().or(z.literal("")),
+    phone: z.string().optional().or(z.literal("")),
+    relationship: z.string().optional().or(z.literal("")),
   }).optional(),
   customFields: z.record(z.any()).optional(),
 });
@@ -107,6 +107,14 @@ export function MemberForm({
     try {
       const memberData: MemberFormData = {
         ...data,
+        email: data.email || undefined,
+        emergencyContact: data.emergencyContact?.name
+          ? {
+              name: data.emergencyContact.name,
+              phone: data.emergencyContact.phone || '',
+              relationship: data.emergencyContact.relationship || '',
+            }
+          : undefined,
         joinDate: data.joinDate || new Date().toISOString().split('T')[0],
       };
 

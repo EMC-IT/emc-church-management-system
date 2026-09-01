@@ -22,7 +22,7 @@ export function hasAllPermissions(userPermissions: string[] = [], requiredPermis
 }
 
 export function canAccessFinancials(roleName?: string, userPermissions: string[] = []): boolean {
-  if (roleName === ROLES.SUPER_ADMIN || roleName === ROLES.ACCOUNTANT) {
+  if (roleName === ROLES.SUPER_ADMIN || roleName === 'super_admin' || roleName === ROLES.ACCOUNTANT) {
     return true;
   }
   return hasAnyPermission(userPermissions, [
@@ -36,13 +36,15 @@ export function canAccessFinancials(roleName?: string, userPermissions: string[]
 }
 
 export function canManageMembers(roleName?: string, userPermissions: string[] = []): boolean {
-  if (roleName === ROLES.SUPER_ADMIN || roleName === ROLES.ADMIN || roleName === ROLES.SECRETARY) {
+  if (roleName === ROLES.SUPER_ADMIN || roleName === 'super_admin' || roleName === ROLES.ADMIN || roleName === ROLES.SECRETARY) {
     return true;
   }
   return hasAnyPermission(userPermissions, [
     'members.create',
+    'members.edit',
+    'members.delete',
+    'members.import',
     'canEditMembers',
     'canDeleteMembers',
-    'members.import',
   ]);
 }

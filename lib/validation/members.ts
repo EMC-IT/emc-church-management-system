@@ -64,3 +64,41 @@ export type FamilyLinkInput = z.infer<typeof familyLinkSchema>;
 export type FamilyMemberAddInput = z.infer<typeof familyMemberAddSchema>;
 export type ConvertFollowUpInput = z.infer<typeof convertFollowUpSchema>;
 export type MemberSearchInput = z.infer<typeof memberSearchSchema>;
+
+export const newConvertSchema = z.object({
+  fullName: z.string().trim().min(1, 'Full name is required').min(2, 'Full name must be at least 2 characters'),
+  contact1: z.string().trim().min(1, 'Primary contact is required').min(9, 'Primary contact must be at least 9 digits'),
+  gender: z.enum(['Male', 'Female'], { required_error: 'Gender is required', invalid_type_error: 'Gender is required' }),
+  dateOfBirth: z.string().optional().or(z.literal('')),
+  branch: z.enum(['Adenta (HQ)', 'Adusa', 'Liberia', 'Somanya', 'Mampong'], { required_error: 'Branch is required', invalid_type_error: 'Branch is required' }),
+  serviceType: z.enum(['Empowered Kids', 'Empowerment', 'Jesus Generation', 'Precious Pearls'], { required_error: 'Service type is required', invalid_type_error: 'Service type is required' }),
+  status: z.enum(['Member', 'Attender', 'Special Guest', 'Stop Coming'], { required_error: 'Status is required', invalid_type_error: 'Status is required' }),
+  location: z.string().trim().min(1, 'Location / Residence is required').min(2, 'Location must be at least 2 characters'),
+});
+
+export const memberFullFormSchema = z.object({
+  title: z.enum(['Rev.', 'Ps.', 'Mr.', 'Mrs.', 'Ms.', 'Miss.', 'Mgt.'], { required_error: 'Title is required', invalid_type_error: 'Title is required' }),
+  fullName: z.string().trim().min(1, 'Full name is required').min(2, 'Full name must be at least 2 characters'),
+  branch: z.enum(['Adenta (HQ)', 'Adusa', 'Liberia', 'Somanya', 'Mampong'], { required_error: 'Branch is required', invalid_type_error: 'Branch is required' }),
+  serviceType: z.enum(['Empowered Kids', 'Empowerment', 'Jesus Generation', 'Precious Pearls'], { required_error: 'Service type is required', invalid_type_error: 'Service type is required' }),
+  status: z.enum(['Member', 'Attender', 'Special Guest', 'Stop Coming'], { required_error: 'Status is required', invalid_type_error: 'Status is required' }),
+  contact1: z.string().trim().min(1, 'Primary contact is required').min(9, 'Primary contact must be at least 9 digits'),
+  contact2: z.string().trim().optional().or(z.literal('')),
+  email: z.string().trim().email('Please enter a valid email address').optional().or(z.literal('')),
+  gender: z.enum(['Male', 'Female'], { required_error: 'Gender is required', invalid_type_error: 'Gender is required' }),
+  dateOfBirth: z.string().optional().or(z.literal('')),
+  ageGroup: z.enum(['Youth', 'Adult', 'Children', 'Baby'], { required_error: 'Age group is required', invalid_type_error: 'Age group is required' }),
+  lifeDevelopment: z.enum(['Membership', 'Maturity', 'Ministry', 'Accountability', 'None']).optional().default('Membership'),
+  departments: z.array(z.string()).optional().default([]),
+  groups: z.array(z.string()).optional().default([]),
+  waterBaptism: z.enum(['Yes', 'No'], { required_error: 'Water baptism status is required', invalid_type_error: 'Water baptism status is required' }),
+  holyGhostBaptism: z.enum(['Yes', 'No'], { required_error: 'Holy Ghost baptism status is required', invalid_type_error: 'Holy Ghost baptism status is required' }),
+  leadershipRole: z.string().trim().optional().or(z.literal('')),
+  specialGuestInvitedBy: z.string().optional().or(z.literal('')),
+  specialGuestInvitedByCustom: z.string().trim().optional().or(z.literal('')),
+  avatar: z.any().optional(),
+  location: z.string().trim().min(1, 'Location / Residence is required').min(2, 'Location must be at least 2 characters'),
+});
+
+export type NewConvertInput = z.infer<typeof newConvertSchema>;
+export type MemberFullFormInput = z.infer<typeof memberFullFormSchema>;

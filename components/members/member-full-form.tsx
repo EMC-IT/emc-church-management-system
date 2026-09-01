@@ -1,11 +1,10 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -13,9 +12,9 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { FileUpload } from "@/components/ui/file-upload";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Checkbox } from "@/components/ui/checkbox";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { DatePicker } from "@/components/ui/date-picker";
-import { Save, Upload, Users, User } from "lucide-react";
+import { Save, Upload } from "lucide-react";
+import { memberFullFormSchema, type MemberFullFormInput } from "@/lib/validation/members";
 
 // Mock data for departments, groups, and members (should be replaced with real data in production)
 const MOCK_DEPARTMENTS = [
@@ -40,31 +39,8 @@ const MOCK_MEMBERS = [
   { id: "m5", name: "Kojo Appiah" },
 ];
 
-export const memberFormSchema = z.object({
-  title: z.enum(["Rev.", "Ps.", "Mr.", "Mrs.", "Ms.", "Miss.", "Mgt."]),
-  fullName: z.string().min(2, "Full name must be at least 2 characters"),
-  branch: z.enum(["Adenta (HQ)", "Adusa", "Liberia", "Somanya", "Mampong"]),
-  serviceType: z.enum(["Empowered Kids", "Empowerment", "Jesus Generation", "Precious Pearls"]),
-  status: z.enum(["Member", "Attender", "Special Guest", "Stop Coming"]),
-  contact1: z.string().min(10, "Contact 1 must be at least 10 digits"),
-  contact2: z.string().optional(),
-  email: z.string().email("Enter a valid email address").optional().or(z.literal("")),
-  gender: z.enum(["Male", "Female"]),
-  dateOfBirth: z.string().optional().or(z.literal("")),
-  ageGroup: z.enum(["Youth", "Adult", "Children", "Baby"]),
-  lifeDevelopment: z.enum(["Membership", "Maturity", "Ministry", "Accountability", "None"]),
-  departments: z.array(z.string()).optional(),
-  groups: z.array(z.string()).optional(),
-  waterBaptism: z.enum(["Yes", "No"]),
-  holyGhostBaptism: z.enum(["Yes", "No"]),
-  leadershipRole: z.string().optional().or(z.literal("")),
-  specialGuestInvitedBy: z.string(),
-  specialGuestInvitedByCustom: z.string().optional(),
-  avatar: z.any().optional(),
-  location: z.string().min(2, 'Location is required'),
-});
-
-export type MemberFullFormValues = z.infer<typeof memberFormSchema>;
+export const memberFormSchema = memberFullFormSchema;
+export type MemberFullFormValues = MemberFullFormInput;
 
 interface MemberFullFormProps {
   initialValues?: Partial<MemberFullFormValues>;
@@ -78,7 +54,7 @@ export function MemberFullForm({ initialValues, onSubmit, loading = false, mode 
   const [avatarPreview, setAvatarPreview] = useState<string>(initialValues?.avatar || "");
 
   const form = useForm<MemberFullFormValues>({
-    resolver: zodResolver(memberFormSchema),
+    resolver: zodResolver(memberFullFormSchema),
     defaultValues: {
       title: initialValues?.title || "Mr.",
       fullName: initialValues?.fullName || "",
@@ -100,8 +76,9 @@ export function MemberFullForm({ initialValues, onSubmit, loading = false, mode 
       specialGuestInvitedBy: initialValues?.specialGuestInvitedBy || "",
       specialGuestInvitedByCustom: initialValues?.specialGuestInvitedByCustom || "",
       avatar: initialValues?.avatar || undefined,
-      location: initialValues?.location || '',
+      location: initialValues?.location || "",
     },
+    mode: "onTouched",
   });
 
   const handleAvatarUpload = (file: File) => {
@@ -148,7 +125,7 @@ export function MemberFullForm({ initialValues, onSubmit, loading = false, mode 
                   render={({ field }) => (
                     <FormItem className="col-span-12 sm:col-span-4 lg:col-span-3">
                       <FormLabel>Title *</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <Select onValueChange={field.onChange} value={field.value || ""}>
                         <FormControl>
                           <SelectTrigger>
                             <SelectValue placeholder="Select title" />
@@ -251,7 +228,7 @@ export function MemberFullForm({ initialValues, onSubmit, loading = false, mode 
                 render={({ field }) => (
                   <FormItem className="col-span-12 sm:col-span-3">
                     <FormLabel>Age Group *</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <Select onValueChange={field.onChange} value={field.value || ""}>
                       <FormControl>
                         <SelectTrigger>
                           <SelectValue placeholder="Select age group" />
@@ -275,7 +252,7 @@ export function MemberFullForm({ initialValues, onSubmit, loading = false, mode 
                 render={({ field }) => (
                   <FormItem className="col-span-12 sm:col-span-4">
                     <FormLabel>Gender *</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <Select onValueChange={field.onChange} value={field.value || ""}>
                       <FormControl>
                         <SelectTrigger>
                           <SelectValue placeholder="Select gender" />
@@ -297,7 +274,7 @@ export function MemberFullForm({ initialValues, onSubmit, loading = false, mode 
                 render={({ field }) => (
                   <FormItem className="col-span-12 sm:col-span-4">
                     <FormLabel>Branch *</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <Select onValueChange={field.onChange} value={field.value || ""}>
                       <FormControl>
                         <SelectTrigger>
                           <SelectValue placeholder="Select branch" />
@@ -322,7 +299,7 @@ export function MemberFullForm({ initialValues, onSubmit, loading = false, mode 
                 render={({ field }) => (
                   <FormItem className="col-span-12 sm:col-span-4">
                     <FormLabel>Service Type *</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <Select onValueChange={field.onChange} value={field.value || ""}>
                       <FormControl>
                         <SelectTrigger>
                           <SelectValue placeholder="Select service type" />
@@ -346,7 +323,7 @@ export function MemberFullForm({ initialValues, onSubmit, loading = false, mode 
                 render={({ field }) => (
                   <FormItem className="col-span-12 sm:col-span-6">
                     <FormLabel>Status *</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <Select onValueChange={field.onChange} value={field.value || ""}>
                       <FormControl>
                         <SelectTrigger>
                           <SelectValue placeholder="Select status" />
@@ -387,79 +364,91 @@ export function MemberFullForm({ initialValues, onSubmit, loading = false, mode 
             <h2 className="text-base font-semibold text-foreground">Church Details & Ministry</h2>
 
             <div className="grid grid-cols-12 gap-5">
-              <FormItem className="col-span-12 sm:col-span-6">
-                <FormLabel>Departments</FormLabel>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button variant="outline" className="w-full justify-start font-normal">
-                      {(form.watch("departments") ?? []).length > 0
-                        ? (form.watch("departments") ?? []).map((deptId: string) =>
-                            MOCK_DEPARTMENTS.find((d) => d.id === deptId)?.name || deptId
-                          ).join(", ")
-                        : "Select departments"}
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-64 p-2">
-                    <div className="flex flex-col gap-2">
-                      {MOCK_DEPARTMENTS.map((dept) => (
-                        <label key={dept.id} className="flex items-center gap-2 cursor-pointer rounded-md p-2 hover:bg-muted">
-                          <Checkbox
-                            checked={(form.watch("departments") ?? []).includes(dept.id)}
-                            onCheckedChange={(checked) => {
-                              const current = form.getValues("departments") || [];
-                              if (checked) {
-                                form.setValue("departments", [...current, dept.id]);
-                              } else {
-                                form.setValue("departments", current.filter((id: string) => id !== dept.id));
-                              }
-                            }}
-                            id={`dept-${dept.id}`}
-                          />
-                          <span className="text-sm">{dept.name}</span>
-                        </label>
-                      ))}
-                    </div>
-                  </PopoverContent>
-                </Popover>
-                <FormMessage />
-              </FormItem>
+              <FormField
+                control={form.control}
+                name="departments"
+                render={({ field }) => (
+                  <FormItem className="col-span-12 sm:col-span-6">
+                    <FormLabel>Departments</FormLabel>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button variant="outline" className="w-full justify-start font-normal">
+                          {field.value && field.value.length > 0
+                            ? field.value.map((deptId: string) =>
+                                MOCK_DEPARTMENTS.find((d) => d.id === deptId)?.name || deptId
+                              ).join(", ")
+                            : "Select departments"}
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-64 p-2">
+                        <div className="flex flex-col gap-2">
+                          {MOCK_DEPARTMENTS.map((dept) => (
+                            <label key={dept.id} className="flex items-center gap-2 cursor-pointer rounded-md p-2 hover:bg-muted">
+                              <Checkbox
+                                checked={field.value?.includes(dept.id)}
+                                onCheckedChange={(checked) => {
+                                  const current = field.value || [];
+                                  if (checked) {
+                                    field.onChange([...current, dept.id]);
+                                  } else {
+                                    field.onChange(current.filter((id: string) => id !== dept.id));
+                                  }
+                                }}
+                                id={`dept-${dept.id}`}
+                              />
+                              <span className="text-sm">{dept.name}</span>
+                            </label>
+                          ))}
+                        </div>
+                      </PopoverContent>
+                    </Popover>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-              <FormItem className="col-span-12 sm:col-span-6">
-                <FormLabel>Groups</FormLabel>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button variant="outline" className="w-full justify-start font-normal">
-                      {(form.watch("groups") ?? []).length > 0
-                        ? (form.watch("groups") ?? []).map((groupId: string) =>
-                            MOCK_GROUPS.find((g) => g.id === groupId)?.name || groupId
-                          ).join(", ")
-                        : "Select groups"}
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-64 p-2">
-                    <div className="flex flex-col gap-2">
-                      {MOCK_GROUPS.map((group) => (
-                        <label key={group.id} className="flex items-center gap-2 cursor-pointer rounded-md p-2 hover:bg-muted">
-                          <Checkbox
-                            checked={(form.watch("groups") ?? []).includes(group.id)}
-                            onCheckedChange={(checked) => {
-                              const current = form.getValues("groups") || [];
-                              if (checked) {
-                                form.setValue("groups", [...current, group.id]);
-                              } else {
-                                form.setValue("groups", current.filter((id: string) => id !== group.id));
-                              }
-                            }}
-                            id={`group-${group.id}`}
-                          />
-                          <span className="text-sm">{group.name}</span>
-                        </label>
-                      ))}
-                    </div>
-                  </PopoverContent>
-                </Popover>
-                <FormMessage />
-              </FormItem>
+              <FormField
+                control={form.control}
+                name="groups"
+                render={({ field }) => (
+                  <FormItem className="col-span-12 sm:col-span-6">
+                    <FormLabel>Groups</FormLabel>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button variant="outline" className="w-full justify-start font-normal">
+                          {field.value && field.value.length > 0
+                            ? field.value.map((groupId: string) =>
+                                MOCK_GROUPS.find((g) => g.id === groupId)?.name || groupId
+                              ).join(", ")
+                            : "Select groups"}
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-64 p-2">
+                        <div className="flex flex-col gap-2">
+                          {MOCK_GROUPS.map((group) => (
+                            <label key={group.id} className="flex items-center gap-2 cursor-pointer rounded-md p-2 hover:bg-muted">
+                              <Checkbox
+                                checked={field.value?.includes(group.id)}
+                                onCheckedChange={(checked) => {
+                                  const current = field.value || [];
+                                  if (checked) {
+                                    field.onChange([...current, group.id]);
+                                  } else {
+                                    field.onChange(current.filter((id: string) => id !== group.id));
+                                  }
+                                }}
+                                id={`group-${group.id}`}
+                              />
+                              <span className="text-sm">{group.name}</span>
+                            </label>
+                          ))}
+                        </div>
+                      </PopoverContent>
+                    </Popover>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
               <FormField
                 control={form.control}
@@ -467,7 +456,7 @@ export function MemberFullForm({ initialValues, onSubmit, loading = false, mode 
                 render={({ field }) => (
                   <FormItem className="col-span-12 sm:col-span-4">
                     <FormLabel>Life Development</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <Select onValueChange={field.onChange} value={field.value || "Membership"}>
                       <FormControl>
                         <SelectTrigger>
                           <SelectValue placeholder="Select stage" />
@@ -492,7 +481,7 @@ export function MemberFullForm({ initialValues, onSubmit, loading = false, mode 
                 render={({ field }) => (
                   <FormItem className="col-span-12 sm:col-span-4">
                     <FormLabel>Water Baptism *</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <Select onValueChange={field.onChange} value={field.value || ""}>
                       <FormControl>
                         <SelectTrigger>
                           <SelectValue placeholder="Select status" />
@@ -514,7 +503,7 @@ export function MemberFullForm({ initialValues, onSubmit, loading = false, mode 
                 render={({ field }) => (
                   <FormItem className="col-span-12 sm:col-span-4">
                     <FormLabel>Holy Ghost Baptism *</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <Select onValueChange={field.onChange} value={field.value || ""}>
                       <FormControl>
                         <SelectTrigger>
                           <SelectValue placeholder="Select status" />
@@ -559,7 +548,7 @@ export function MemberFullForm({ initialValues, onSubmit, loading = false, mode 
                 render={({ field }) => (
                   <FormItem className="col-span-12 sm:col-span-6">
                     <FormLabel>Invited By</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <Select onValueChange={field.onChange} value={field.value || ""}>
                       <FormControl>
                         <SelectTrigger>
                           <SelectValue placeholder="Select member or custom" />
@@ -576,10 +565,10 @@ export function MemberFullForm({ initialValues, onSubmit, loading = false, mode 
                       <FormField
                         control={form.control}
                         name="specialGuestInvitedByCustom"
-                        render={({ field }) => (
+                        render={({ field: customField }) => (
                           <FormItem className="mt-2">
                             <FormControl>
-                              <Input placeholder="Inviter full name" {...field} />
+                              <Input placeholder="Inviter full name" {...customField} />
                             </FormControl>
                             <FormMessage />
                           </FormItem>
@@ -613,4 +602,4 @@ export function MemberFullForm({ initialValues, onSubmit, loading = false, mode 
       </form>
     </Form>
   );
-} 
+}
