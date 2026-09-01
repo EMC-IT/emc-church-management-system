@@ -496,6 +496,100 @@ const initialCases: PastoralCase[] = [
   },
 ];
 
+// Pre-populated existing church membership roster for quick lookup
+const SYSTEM_MEMBERS = [
+  {
+    id: 'm_101',
+    fullName: 'Elder Kofi Boateng',
+    phone: '+233 24 456 7890',
+    email: 'kofi.boateng@church.org',
+    membershipStatus: 'Full Member (Ordained Elder)',
+    department: 'Eldership Council',
+    group: 'Men of Honor Fellowship',
+    address: 'Airport Residential Area, Accra',
+  },
+  {
+    id: 'm_102',
+    fullName: 'Samuel Kwaku Osei',
+    phone: '+233 24 555 0192',
+    email: 'samuel.osei@gmail.com',
+    membershipStatus: 'New Convert',
+    department: 'Evangelism Follow-up',
+    group: 'New Believers Discipleship Class',
+    address: 'East Legon, Accra',
+  },
+  {
+    id: 'm_103',
+    fullName: 'John Mensah',
+    phone: '+233 20 888 1234',
+    email: 'john.mensah@outlook.com',
+    membershipStatus: 'Full Member (Inactive Risk)',
+    department: 'Men Fellowship',
+    group: 'Living Stones Cell Group',
+    address: 'Spintex Road, Accra',
+  },
+  {
+    id: 'm_104',
+    fullName: 'Ama Owusu',
+    phone: '+233 27 123 9988',
+    email: 'ama.owusu@yahoo.com',
+    membershipStatus: 'First-Time Guest',
+    department: 'Guest Integration',
+    group: 'Choir Interest',
+    address: 'Madina, Accra',
+  },
+  {
+    id: 'm_105',
+    fullName: 'Mary Annan',
+    phone: '+233 55 987 6543',
+    email: 'mary.annan@church.org',
+    membershipStatus: 'Full Member',
+    department: 'Women Ministry & Protocol',
+    group: 'Deborah Women Circle',
+    address: 'Osu RE, Accra',
+  },
+  {
+    id: 'm_106',
+    fullName: 'David Ofori',
+    phone: '+233 24 111 2233',
+    email: 'david.ofori@church.org',
+    membershipStatus: 'Full Member',
+    department: 'Media & Tech Ministry',
+    group: 'Kingdom Builders Group',
+    address: 'Achimota, Accra',
+  },
+  {
+    id: 'm_107',
+    fullName: 'Grace Boateng',
+    phone: '+233 24 999 1122',
+    email: 'grace.boateng@church.org',
+    membershipStatus: 'Full Member',
+    department: 'Women Ministry',
+    group: 'Deborah Women Circle',
+    address: 'Airport Residential Area, Accra',
+  },
+  {
+    id: 'm_108',
+    fullName: 'Daniel Appiah',
+    phone: '+233 20 333 4455',
+    email: 'daniel.appiah@church.org',
+    membershipStatus: 'Full Member',
+    department: 'Youth Ministry',
+    group: 'Youth Fellowship',
+    address: 'Cantonments, Accra',
+  },
+  {
+    id: 'm_109',
+    fullName: 'Abena Mensah',
+    phone: '+233 27 555 7788',
+    email: 'abena.mensah@church.org',
+    membershipStatus: 'Full Member',
+    department: 'Choir & Music',
+    group: 'Worship Team',
+    address: 'Tema Community 6',
+  },
+];
+
 export default function PastoralCarePage() {
   const [cases, setCases] = useState<PastoralCase[]>(initialCases);
   const [selectedCase, setSelectedCase] = useState<PastoralCase | null>(null);
@@ -507,8 +601,12 @@ export default function PastoralCarePage() {
   const [priorityFilter, setPriorityFilter] = useState<string>('all');
   const [pastorFilter, setPastorFilter] = useState<string>('all');
 
-  // Dialog state
+  // Dialog, search and form validation state
   const [newCaseOpen, setNewCaseOpen] = useState(false);
+  const [memberSearchQuery, setMemberSearchQuery] = useState('');
+  const [selectedMember, setSelectedMember] = useState<typeof SYSTEM_MEMBERS[0] | null>(null);
+  const [isManualEntry, setIsManualEntry] = useState(false);
+  const [formErrors, setFormErrors] = useState<Record<string, string>>({});
   const [newCaseData, setNewCaseData] = useState({
     memberName: '',
     memberPhone: '',
@@ -522,21 +620,96 @@ export default function PastoralCarePage() {
   });
 
   const [newNoteContent, setNewNoteContent] = useState('');
+  const [noteError, setNoteError] = useState('');
+
+  // Filtered members for modal search picker
+  const searchedMembers = SYSTEM_MEMBERS.filter((m) => {
+    if (!memberSearchQuery.trim()) return true;
+    const q = memberSearchQuery.toLowerCase();
+    return (
+      m.fullName.toLowerCase().includes(q) ||
+      m.phone.includes(q) ||
+      m.department.toLowerCase().includes(q)
+    );
+  });
+
+  const handleSelectMember = (member: typeof SYSTEM_MEMBERS[0]) => {
+    setSelectedMember(member);
+    setNewCaseData((prev) => ({
+      ...prev,
+      memberName: member.fullName,
+      memberPhone: member.phone,
+    }));
+    setFormErrors((prev) => ({
+      ...prev,
+      memberName: '',
+      memberPhone: '',
+    }));
+    setMemberSearchQuery('');
+  };
+
+  const handleClearSelectedMember = () => {
+    setSelectedMember(null);
+    setNewCaseData((prev) => ({
+      ...prev,
+      memberName: '',
+      memberPhone: '',
+    }));
+  };
+
+  const validateForm = () => {
+    const errors: Record<string, string> = {};
+
+    // Validate member name
+    const trimmedName = newCaseData.memberName.trim();
+    if (!trimmedName) {
+      errors.memberName = 'Please select an existing member or enter a member name';
+    } else if (trimmedName.length < 2) {
+      errors.memberName = 'Name must be at least 2 characters';
+    }
+
+    // Validate phone number if provided
+    const trimmedPhone = newCaseData.memberPhone.trim();
+    if (trimmedPhone) {
+      const phoneRegex = /^[+]?[(]?[0-9]{1,4}[)]?[-\s./0-9]{6,14}$/;
+      if (!phoneRegex.test(trimmedPhone)) {
+        errors.memberPhone = 'Please enter a valid phone number (e.g. +233 24 000 0000)';
+      }
+    }
+
+    // Validate case title
+    const trimmedTitle = newCaseData.title.trim();
+    if (!trimmedTitle) {
+      errors.title = 'Case title is required';
+    } else if (trimmedTitle.length < 4) {
+      errors.title = 'Title must be at least 4 characters';
+    }
+
+    // Validate description length if provided
+    if (newCaseData.description && newCaseData.description.length > 500) {
+      errors.description = 'Description cannot exceed 500 characters';
+    }
+
+    setFormErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
 
   const handleCreateCase = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newCaseData.memberName.trim() || !newCaseData.title.trim()) {
-      toast.error('Please enter the member name and case title.');
+    
+    if (!validateForm()) {
+      toast.error('Please resolve the errors highlighted below.');
       return;
     }
 
     const created: PastoralCase = {
       id: `pc_${Date.now()}`,
-      memberId: `m_${Date.now()}`,
+      memberId: selectedMember ? selectedMember.id : `m_${Date.now()}`,
       memberName: newCaseData.memberName.trim(),
       memberPhone: newCaseData.memberPhone.trim() || '+233 24 000 0000',
-      memberEmail: `${newCaseData.memberName.toLowerCase().replace(/\s+/g, '.')}@church.org`,
-      membershipStatus: 'Full Member',
+      memberEmail: selectedMember ? selectedMember.email : `${newCaseData.memberName.toLowerCase().replace(/\s+/g, '.')}@church.org`,
+      membershipStatus: selectedMember ? (selectedMember.membershipStatus.includes('New Convert') ? 'New Convert' : selectedMember.membershipStatus.includes('Guest') ? 'Visitor' : 'Full Member') : 'Full Member',
+      department: selectedMember ? selectedMember.department : 'General Congregation',
       title: newCaseData.title.trim(),
       description: newCaseData.description.trim() || 'No additional details provided.',
       category: newCaseData.category,
@@ -545,7 +718,7 @@ export default function PastoralCarePage() {
       assignedTo: newCaseData.assignedTo,
       submittedBy: 'Current User',
       createdAt: 'Just now',
-      dueDate: newCaseData.dueDate || 'Pending',
+      dueDate: newCaseData.dueDate.trim() || 'Pending',
       isConfidential: newCaseData.isConfidential,
       activities: [
         {
@@ -557,15 +730,15 @@ export default function PastoralCarePage() {
       ],
       pastoralNotes: [],
       profile: {
-        id: `m_${Date.now()}`,
+        id: selectedMember ? selectedMember.id : `m_${Date.now()}`,
         fullName: newCaseData.memberName.trim(),
         phone: newCaseData.memberPhone.trim() || '+233 24 000 0000',
-        email: `${newCaseData.memberName.toLowerCase().replace(/\s+/g, '.')}@church.org`,
-        address: 'Accra, Ghana',
-        membershipStatus: 'Full Member',
+        email: selectedMember ? selectedMember.email : `${newCaseData.memberName.toLowerCase().replace(/\s+/g, '.')}@church.org`,
+        address: selectedMember ? selectedMember.address : 'Accra, Ghana',
+        membershipStatus: selectedMember ? selectedMember.membershipStatus : 'Full Member',
         dateJoined: '2026',
-        department: 'General Congregation',
-        group: 'Cell Fellowship',
+        department: selectedMember ? selectedMember.department : 'General Congregation',
+        group: selectedMember ? selectedMember.group : 'Cell Fellowship',
         attendance: {
           rate: '90%',
           lastAttended: 'Recent Sunday',
@@ -585,6 +758,10 @@ export default function PastoralCarePage() {
 
     setCases([created, ...cases]);
     setNewCaseOpen(false);
+    setSelectedMember(null);
+    setIsManualEntry(false);
+    setMemberSearchQuery('');
+    setFormErrors({});
     setNewCaseData({
       memberName: '',
       memberPhone: '',
@@ -600,7 +777,13 @@ export default function PastoralCarePage() {
   };
 
   const handleAddNote = () => {
-    if (!selectedCase || !newNoteContent.trim()) return;
+    if (!selectedCase) return;
+
+    if (!newNoteContent.trim()) {
+      setNoteError('Please write a note before submitting.');
+      return;
+    }
+    setNoteError('');
 
     const note = {
       id: `note_${Date.now()}`,
@@ -728,50 +911,199 @@ export default function PastoralCarePage() {
             </Link>
           </Button>
 
-          <Dialog open={newCaseOpen} onOpenChange={setNewCaseOpen}>
+          <Dialog
+            open={newCaseOpen}
+            onOpenChange={(open) => {
+              setNewCaseOpen(open);
+              if (!open) {
+                setFormErrors({});
+                setSelectedMember(null);
+                setIsManualEntry(false);
+                setMemberSearchQuery('');
+              }
+            }}
+          >
             <DialogTrigger asChild>
               <Button className="gap-1.5">
                 <Plus className="h-4 w-4" />
                 <span>New Case</span>
               </Button>
             </DialogTrigger>
-            <DialogContent className="sm:max-w-[500px]">
+            <DialogContent className="sm:max-w-[540px]">
               <DialogHeader>
                 <DialogTitle>New Pastoral Care Case</DialogTitle>
               </DialogHeader>
 
-              <form onSubmit={handleCreateCase} className="space-y-4 pt-2">
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="space-y-1.5">
-                    <Label htmlFor="memberName">Member Name *</Label>
-                    <Input
-                      id="memberName"
-                      placeholder="e.g. Samuel K. Osei"
-                      value={newCaseData.memberName}
-                      onChange={(e) => setNewCaseData({ ...newCaseData, memberName: e.target.value })}
-                      required
-                    />
+              <form onSubmit={handleCreateCase} noValidate className="space-y-4 pt-1">
+                {/* Member Selection Section */}
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <Label className="text-xs uppercase font-semibold text-muted-foreground">
+                      Member <span className="text-destructive">*</span>
+                    </Label>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setIsManualEntry(!isManualEntry);
+                        handleClearSelectedMember();
+                      }}
+                      className="text-xs text-primary hover:underline"
+                    >
+                      {isManualEntry ? '← Search from church database' : '+ Enter manual / non-member'}
+                    </button>
                   </div>
-                  <div className="space-y-1.5">
-                    <Label htmlFor="memberPhone">Phone Number</Label>
-                    <Input
-                      id="memberPhone"
-                      placeholder="+233 24 000 0000"
-                      value={newCaseData.memberPhone}
-                      onChange={(e) => setNewCaseData({ ...newCaseData, memberPhone: e.target.value })}
-                    />
-                  </div>
+
+                  {!isManualEntry ? (
+                    selectedMember ? (
+                      /* Selected Member Card Chip */
+                      <div className="flex items-center justify-between p-2.5 rounded-lg border border-primary/20 bg-primary/5">
+                        <div className="flex items-center gap-2.5">
+                          <Avatar className="h-8 w-8">
+                            <AvatarFallback className="bg-primary/10 text-primary text-xs font-bold">
+                              {selectedMember.fullName.split(' ').map((n) => n[0]).join('')}
+                            </AvatarFallback>
+                          </Avatar>
+                          <div>
+                            <p className="text-xs font-bold text-foreground">{selectedMember.fullName}</p>
+                            <p className="text-[11px] text-muted-foreground">
+                              {selectedMember.phone} • {selectedMember.department}
+                            </p>
+                          </div>
+                        </div>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          className="h-7 text-xs text-muted-foreground hover:text-foreground"
+                          onClick={handleClearSelectedMember}
+                        >
+                          Change
+                        </Button>
+                      </div>
+                    ) : (
+                      /* Member Search Picker */
+                      <div className="space-y-1.5">
+                        <div className="relative">
+                          <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                          <Input
+                            placeholder="Search existing member by name or phone..."
+                            value={memberSearchQuery}
+                            aria-invalid={!!formErrors.memberName}
+                            className={`pl-8 h-9 text-xs ${formErrors.memberName ? 'border-destructive focus-visible:ring-destructive' : ''}`}
+                            onChange={(e) => {
+                              setMemberSearchQuery(e.target.value);
+                              if (formErrors.memberName) setFormErrors({ ...formErrors, memberName: '' });
+                            }}
+                          />
+                        </div>
+
+                        {formErrors.memberName && (
+                          <p className="text-xs text-destructive font-medium">{formErrors.memberName}</p>
+                        )}
+
+                        {/* Search Results Dropdown List */}
+                        <div className="max-h-36 overflow-y-auto rounded-md border border-border bg-card divide-y divide-border">
+                          {searchedMembers.length === 0 ? (
+                            <div className="p-3 text-center text-xs text-muted-foreground">
+                              <span>No members found. </span>
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setIsManualEntry(true);
+                                  setNewCaseData((prev) => ({ ...prev, memberName: memberSearchQuery }));
+                                }}
+                                className="text-primary hover:underline font-medium ml-1"
+                              >
+                                Add &quot;{memberSearchQuery}&quot; manually
+                              </button>
+                            </div>
+                          ) : (
+                            searchedMembers.slice(0, 5).map((m) => (
+                              <div
+                                key={m.id}
+                                onClick={() => handleSelectMember(m)}
+                                className="flex items-center justify-between p-2 hover:bg-accent cursor-pointer transition text-xs"
+                              >
+                                <div className="flex items-center gap-2">
+                                  <Avatar className="h-6 w-6">
+                                    <AvatarFallback className="bg-primary/10 text-primary text-[10px] font-bold">
+                                      {m.fullName.split(' ').map((n) => n[0]).join('')}
+                                    </AvatarFallback>
+                                  </Avatar>
+                                  <div>
+                                    <span className="font-semibold text-foreground">{m.fullName}</span>
+                                    <span className="text-muted-foreground ml-1.5 text-[11px]">({m.phone})</span>
+                                  </div>
+                                </div>
+                                <span className="text-[11px] text-muted-foreground">{m.department}</span>
+                              </div>
+                            ))
+                          )}
+                        </div>
+                      </div>
+                    )
+                  ) : (
+                    /* Manual Entry Fields */
+                    <div className="grid grid-cols-2 gap-3 p-3 rounded-lg border border-border bg-muted/20">
+                      <div className="space-y-1">
+                        <Label htmlFor="memberName" className="text-xs">
+                          Full Name <span className="text-destructive">*</span>
+                        </Label>
+                        <Input
+                          id="memberName"
+                          placeholder="e.g. Samuel K. Osei"
+                          value={newCaseData.memberName}
+                          aria-invalid={!!formErrors.memberName}
+                          className={`h-8 text-xs ${formErrors.memberName ? 'border-destructive' : ''}`}
+                          onChange={(e) => {
+                            setNewCaseData({ ...newCaseData, memberName: e.target.value });
+                            if (formErrors.memberName) setFormErrors({ ...formErrors, memberName: '' });
+                          }}
+                        />
+                        {formErrors.memberName && (
+                          <p className="text-xs text-destructive font-medium">{formErrors.memberName}</p>
+                        )}
+                      </div>
+
+                      <div className="space-y-1">
+                        <Label htmlFor="memberPhone" className="text-xs">Phone Number</Label>
+                        <Input
+                          id="memberPhone"
+                          placeholder="+233 24 000 0000"
+                          value={newCaseData.memberPhone}
+                          aria-invalid={!!formErrors.memberPhone}
+                          className={`h-8 text-xs ${formErrors.memberPhone ? 'border-destructive' : ''}`}
+                          onChange={(e) => {
+                            setNewCaseData({ ...newCaseData, memberPhone: e.target.value });
+                            if (formErrors.memberPhone) setFormErrors({ ...formErrors, memberPhone: '' });
+                          }}
+                        />
+                        {formErrors.memberPhone && (
+                          <p className="text-xs text-destructive font-medium">{formErrors.memberPhone}</p>
+                        )}
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 <div className="space-y-1.5">
-                  <Label htmlFor="caseTitle">Case Title *</Label>
+                  <Label htmlFor="caseTitle">
+                    Case Title <span className="text-destructive">*</span>
+                  </Label>
                   <Input
                     id="caseTitle"
                     placeholder="e.g. Hospital visitation requested"
                     value={newCaseData.title}
-                    onChange={(e) => setNewCaseData({ ...newCaseData, title: e.target.value })}
-                    required
+                    aria-invalid={!!formErrors.title}
+                    className={formErrors.title ? 'border-destructive focus-visible:ring-destructive' : ''}
+                    onChange={(e) => {
+                      setNewCaseData({ ...newCaseData, title: e.target.value });
+                      if (formErrors.title) setFormErrors({ ...formErrors, title: '' });
+                    }}
                   />
+                  {formErrors.title && (
+                    <p className="text-xs text-destructive font-medium">{formErrors.title}</p>
+                  )}
                 </div>
 
                 <div className="grid grid-cols-2 gap-3">
@@ -846,18 +1178,41 @@ export default function PastoralCarePage() {
                 </div>
 
                 <div className="space-y-1.5">
-                  <Label htmlFor="description">Situation Details</Label>
+                  <div className="flex items-center justify-between">
+                    <Label htmlFor="description">Situation Details</Label>
+                    <span className="text-[11px] text-muted-foreground">
+                      {newCaseData.description.length}/500
+                    </span>
+                  </div>
                   <Textarea
                     id="description"
                     rows={3}
                     placeholder="Provide details or notes regarding this case..."
                     value={newCaseData.description}
-                    onChange={(e) => setNewCaseData({ ...newCaseData, description: e.target.value })}
+                    maxLength={500}
+                    className={formErrors.description ? 'border-destructive focus-visible:ring-destructive' : ''}
+                    onChange={(e) => {
+                      setNewCaseData({ ...newCaseData, description: e.target.value });
+                      if (formErrors.description) setFormErrors({ ...formErrors, description: '' });
+                    }}
                   />
+                  {formErrors.description && (
+                    <p className="text-xs text-destructive font-medium">{formErrors.description}</p>
+                  )}
                 </div>
 
                 <DialogFooter className="pt-2">
-                  <Button variant="outline" type="button" onClick={() => setNewCaseOpen(false)}>
+                  <Button
+                    variant="outline"
+                    type="button"
+                    onClick={() => {
+                      setNewCaseOpen(false);
+                      setSelectedMember(null);
+                      setIsManualEntry(false);
+                      setMemberSearchQuery('');
+                      setFormErrors({});
+                    }}
+                  >
                     Cancel
                   </Button>
                   <Button type="submit">Create Case</Button>
@@ -1258,9 +1613,15 @@ export default function PastoralCarePage() {
                         rows={2}
                         placeholder="Add pastoral note or observation..."
                         value={newNoteContent}
-                        onChange={(e) => setNewNoteContent(e.target.value)}
-                        className="text-xs"
+                        onChange={(e) => {
+                          setNewNoteContent(e.target.value);
+                          if (noteError) setNoteError('');
+                        }}
+                        className={`text-xs ${noteError ? 'border-destructive focus-visible:ring-destructive' : ''}`}
                       />
+                      {noteError && (
+                        <p className="text-xs text-destructive font-medium">{noteError}</p>
+                      )}
                       <div className="flex justify-end">
                         <Button size="sm" className="h-7 text-xs" onClick={handleAddNote}>
                           Add Note
