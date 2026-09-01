@@ -41,22 +41,17 @@ const familyMemberFormSchema = z.object({
   lastName: z.string().min(2, 'Last name must be at least 2 characters'),
   email: z.string().email('Enter a valid email address').optional().or(z.literal('')),
   phone: z.string().min(10, 'Phone number must be at least 10 digits'),
-  address: z.string().min(10, 'Address must be at least 10 characters'),
-  dateOfBirth: z.string().refine((date) => {
-    const birthDate = new Date(date);
-    const today = new Date();
-    const age = today.getFullYear() - birthDate.getFullYear();
-    return age >= 0 && age <= 120;
-  }, 'Enter a valid date of birth'),
+  address: z.string().min(3, 'Address must be at least 3 characters'),
+  dateOfBirth: z.string().min(1, 'Date of birth is required'),
   gender: z.enum(['Male', 'Female']),
   membershipStatus: z.enum(['Active', 'New', 'Inactive', 'Transferred', 'Archived']),
   joinDate: z.string(),
   relationship: z.enum(['Spouse', 'Child', 'Parent', 'Sibling', 'Grandparent', 'Other']),
   emergencyContact: z.object({
-    name: z.string().min(2, 'Emergency contact name must be at least 2 characters'),
-    phone: z.string().min(10, 'Emergency contact phone must be at least 10 digits'),
-    relationship: z.string().min(2, 'Relationship must be at least 2 characters'),
-  }),
+    name: z.string().optional(),
+    phone: z.string().optional(),
+    relationship: z.string().optional(),
+  }).optional(),
   avatar: z.any().optional(),
 });
 

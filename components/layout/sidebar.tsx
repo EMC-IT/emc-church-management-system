@@ -24,6 +24,7 @@ import {
   ChevronRight,
   Church,
   Heart,
+  HeartHandshake,
   Wallet,
   FileText,
   GraduationCap,
@@ -92,16 +93,22 @@ const navSections: NavSection[] = [
     title: "MINISTRY",
     items: [
       {
-        name: "Sunday School",
-        href: "/dashboard/sunday-school",
-        icon: GraduationCap,
-        permission: PERMISSIONS.VIEW_SUNDAY_SCHOOL,
+        name: "Pastoral Care",
+        href: "/dashboard/pastoral-care",
+        icon: HeartHandshake,
+        permission: PERMISSIONS.VIEW_PRAYER_REQUESTS,
       },
       {
         name: "Prayer Requests",
         href: "/dashboard/prayer-requests",
         icon: Heart,
         permission: PERMISSIONS.VIEW_PRAYER_REQUESTS,
+      },
+      {
+        name: "Sunday School",
+        href: "/dashboard/sunday-school",
+        icon: GraduationCap,
+        permission: PERMISSIONS.VIEW_SUNDAY_SCHOOL,
       },
       {
         name: "Events",

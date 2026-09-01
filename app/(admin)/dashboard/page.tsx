@@ -8,12 +8,7 @@ import { StatusBadge } from '@/components/ui/status-badge';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { CurrencyDisplay } from '@/components/ui/currency-display';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
+
 import {
   ChartContainer,
   ChartTooltip,
@@ -32,8 +27,23 @@ import {
   UserPlus,
   Receipt,
   CalendarPlus,
-  CheckSquare
+  CheckSquare,
+  Send,
+  Building2,
+  GraduationCap,
+  Heart,
+  FileText,
+  BadgeCent,
+  Wallet,
+  Package,
 } from 'lucide-react';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, BarChart, Bar } from 'recharts';
 
 // Attendance trend data
@@ -99,34 +109,130 @@ export default function DashboardPage() {
         <div className="flex items-center gap-2">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button size="sm">
-                <Plus className="mr-1.5 h-4 w-4" />
-                Quick Add
+              <Button className="gap-1.5 shadow-sm font-medium">
+                <Plus className="h-4 w-4" />
+                <span>Quick Add</span>
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-48">
+            <DropdownMenuContent align="end" className="w-64 p-1.5">
+              {/* 1. Frequent Everyday Actions */}
+              <div className="px-2 py-1 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+                Frequent Actions
+              </div>
               <DropdownMenuItem asChild>
-                <Link href="/dashboard/members/add" className="cursor-pointer">
-                  <UserPlus className="mr-2 h-4 w-4" />
-                  <span>Add Member</span>
+                <Link href="/dashboard/members/add" className="cursor-pointer py-2 px-2.5 rounded-md flex items-center">
+                  <UserPlus className="mr-2.5 h-4 w-4 text-muted-foreground" />
+                  <span className="font-medium text-foreground">Add Member</span>
                 </Link>
               </DropdownMenuItem>
+
               <DropdownMenuItem asChild>
-                <Link href="/dashboard/finance/giving/add" className="cursor-pointer">
-                  <Receipt className="mr-2 h-4 w-4" />
-                  <span>Record Giving</span>
+                <Link href="/dashboard/finance/giving/donations/add" className="cursor-pointer py-2 px-2.5 rounded-md flex items-center">
+                  <Receipt className="mr-2.5 h-4 w-4 text-muted-foreground" />
+                  <span className="font-medium text-foreground">Record Giving</span>
                 </Link>
               </DropdownMenuItem>
+
               <DropdownMenuItem asChild>
-                <Link href="/dashboard/events/add" className="cursor-pointer">
-                  <CalendarPlus className="mr-2 h-4 w-4" />
-                  <span>Create Event</span>
+                <Link href="/dashboard/finance/tithes-offerings/add" className="cursor-pointer py-2 px-2.5 rounded-md flex items-center">
+                  <HandCoins className="mr-2.5 h-4 w-4 text-muted-foreground" />
+                  <span className="font-medium text-foreground">Record Tithe & Offering</span>
                 </Link>
               </DropdownMenuItem>
+
               <DropdownMenuItem asChild>
-                <Link href="/dashboard/attendance/take" className="cursor-pointer">
-                  <CheckSquare className="mr-2 h-4 w-4" />
-                  <span>Take Attendance</span>
+                <Link href="/dashboard/events/add" className="cursor-pointer py-2 px-2.5 rounded-md flex items-center">
+                  <CalendarPlus className="mr-2.5 h-4 w-4 text-muted-foreground" />
+                  <span className="font-medium text-foreground">Create Event</span>
+                </Link>
+              </DropdownMenuItem>
+
+              <DropdownMenuItem asChild>
+                <Link href="/dashboard/attendance/take" className="cursor-pointer py-2 px-2.5 rounded-md flex items-center">
+                  <CheckSquare className="mr-2.5 h-4 w-4 text-muted-foreground" />
+                  <span className="font-medium text-foreground">Take Attendance</span>
+                </Link>
+              </DropdownMenuItem>
+
+              <DropdownMenuItem asChild>
+                <Link href="/dashboard/communications/messages/new" className="cursor-pointer py-2 px-2.5 rounded-md flex items-center">
+                  <Send className="mr-2.5 h-4 w-4 text-muted-foreground" />
+                  <span className="font-medium text-foreground">Send Message</span>
+                </Link>
+              </DropdownMenuItem>
+
+              <DropdownMenuSeparator className="my-1.5" />
+
+              {/* 2. People & Ministry */}
+              <div className="px-2 py-1 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+                People & Ministry
+              </div>
+              <DropdownMenuItem asChild>
+                <Link href="/dashboard/departments/add" className="cursor-pointer py-1.5 px-2.5 rounded-md text-sm flex items-center">
+                  <Building2 className="mr-2.5 h-4 w-4 text-muted-foreground" />
+                  <span>Add Department</span>
+                </Link>
+              </DropdownMenuItem>
+
+              <DropdownMenuItem asChild>
+                <Link href="/dashboard/groups/add" className="cursor-pointer py-1.5 px-2.5 rounded-md text-sm flex items-center">
+                  <Users className="mr-2.5 h-4 w-4 text-muted-foreground" />
+                  <span>Add Group</span>
+                </Link>
+              </DropdownMenuItem>
+
+              <DropdownMenuItem asChild>
+                <Link href="/dashboard/sunday-school/classes/add" className="cursor-pointer py-1.5 px-2.5 rounded-md text-sm flex items-center">
+                  <GraduationCap className="mr-2.5 h-4 w-4 text-muted-foreground" />
+                  <span>Add Sunday School Class</span>
+                </Link>
+              </DropdownMenuItem>
+
+              <DropdownMenuItem asChild>
+                <Link href="/dashboard/prayer-requests/add" className="cursor-pointer py-1.5 px-2.5 rounded-md text-sm flex items-center">
+                  <Heart className="mr-2.5 h-4 w-4 text-muted-foreground" />
+                  <span>Add Prayer Request</span>
+                </Link>
+              </DropdownMenuItem>
+
+              <DropdownMenuSeparator className="my-1.5" />
+
+              {/* 3. Finance & Operations */}
+              <div className="px-2 py-1 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+                Finance & Operations
+              </div>
+              <DropdownMenuItem asChild>
+                <Link href="/dashboard/finance/expenses/add" className="cursor-pointer py-1.5 px-2.5 rounded-md text-sm flex items-center">
+                  <FileText className="mr-2.5 h-4 w-4 text-muted-foreground" />
+                  <span>Record Expense</span>
+                </Link>
+              </DropdownMenuItem>
+
+              <DropdownMenuItem asChild>
+                <Link href="/dashboard/finance/income/add" className="cursor-pointer py-1.5 px-2.5 rounded-md text-sm flex items-center">
+                  <BadgeCent className="mr-2.5 h-4 w-4 text-muted-foreground" />
+                  <span>Add Income</span>
+                </Link>
+              </DropdownMenuItem>
+
+              <DropdownMenuItem asChild>
+                <Link href="/dashboard/finance/budgets/add" className="cursor-pointer py-1.5 px-2.5 rounded-md text-sm flex items-center">
+                  <Wallet className="mr-2.5 h-4 w-4 text-muted-foreground" />
+                  <span>Create Budget</span>
+                </Link>
+              </DropdownMenuItem>
+
+              <DropdownMenuItem asChild>
+                <Link href="/dashboard/assets/add" className="cursor-pointer py-1.5 px-2.5 rounded-md text-sm flex items-center">
+                  <Package className="mr-2.5 h-4 w-4 text-muted-foreground" />
+                  <span>Add Asset</span>
+                </Link>
+              </DropdownMenuItem>
+
+              <DropdownMenuItem asChild>
+                <Link href="/dashboard/settings/branches/add" className="cursor-pointer py-1.5 px-2.5 rounded-md text-sm flex items-center">
+                  <MapPin className="mr-2.5 h-4 w-4 text-muted-foreground" />
+                  <span>Add Branch</span>
                 </Link>
               </DropdownMenuItem>
             </DropdownMenuContent>
@@ -134,7 +240,7 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {/* Key Metrics / Stat Cards */}
+      {/* Key Metrics / Top 4 Core KPI Cards */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard
           title="Total Members"
@@ -143,22 +249,157 @@ export default function DashboardPage() {
           trend={{ value: "+12% from last month", direction: "up" }}
         />
         <StatCard
-          title="Today's Attendance"
+          title="Sunday Attendance"
           value="365"
           icon={UserCheck}
           trend={{ value: "+8% from last week", direction: "up" }}
         />
         <StatCard
-          title="This Month's Giving"
+          title="Month's Giving"
           value={<CurrencyDisplay amount={24500} />}
           icon={HandCoins}
           trend={{ value: "+15% from last month", direction: "up" }}
         />
         <StatCard
-          title="Upcoming Events"
-          value="8"
-          icon={Calendar}
+          title="Open Pastoral Requests"
+          value="7"
+          icon={Heart}
+          description={<span className="text-xs text-amber-600 dark:text-amber-400 font-medium">3 marked urgent</span>}
+          trend={{ value: "Action needed", direction: "neutral" }}
         />
+      </div>
+
+      {/* Contextual Action Widgets: Pastoral Action Required & Financial Stewardship Snapshot */}
+      <div className="grid gap-6 md:grid-cols-2">
+        {/* Widget 1: Pastoral Action Required */}
+        <Card className="flex flex-col justify-between">
+          <CardHeader className="flex flex-row items-center justify-between pb-3">
+            <div>
+              <CardTitle className="text-base font-semibold">Action Required: Pastoral Care</CardTitle>
+              <p className="text-xs text-muted-foreground mt-0.5">7 items require attention (2 Urgent • 3 High Priority • 2 Follow-ups)</p>
+            </div>
+            <Button variant="ghost" size="sm" asChild className="text-xs text-primary font-medium hover:bg-primary/10">
+              <Link href="/dashboard/pastoral-care" className="inline-flex items-center gap-1">
+                <span>View all pastoral needs</span>
+                <ArrowRight className="h-3 w-3" />
+              </Link>
+            </Button>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            {/* Convert Follow-up items */}
+            <div className="p-3 rounded-lg border border-border bg-card/60 space-y-2">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <div className="h-2 w-2 rounded-full bg-primary" />
+                  <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">New Convert Follow-up</span>
+                </div>
+                <span className="text-xs text-muted-foreground">Sunday Service</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-foreground">Samuel Kwaku Osei</p>
+                  <p className="text-xs text-muted-foreground">+233 24 555 0192 • Needs baptism orientation</p>
+                </div>
+                <Button size="sm" variant="outline" className="h-7 text-xs" asChild>
+                  <Link href="/dashboard/pastoral-care">Follow up</Link>
+                </Button>
+              </div>
+            </div>
+
+            <div className="p-3 rounded-lg border border-border bg-card/60 space-y-2">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <div className="h-2 w-2 rounded-full bg-primary" />
+                  <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Urgent Visitation Request</span>
+                </div>
+                <span className="text-xs text-primary font-medium">Urgent</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-foreground">Hospital Visitation: Elder Boateng</p>
+                  <p className="text-xs text-muted-foreground">Submitted by Grace Boateng • 2 hours ago</p>
+                </div>
+                <Button size="sm" variant="outline" className="h-7 text-xs" asChild>
+                  <Link href="/dashboard/pastoral-care">View & Call</Link>
+                </Button>
+              </div>
+            </div>
+
+            <div className="flex items-center justify-between pt-1">
+              <Button variant="ghost" size="sm" asChild className="text-xs text-muted-foreground hover:text-foreground p-0 h-auto">
+                <Link href="/dashboard/pastoral-care" className="inline-flex items-center gap-1">
+                  <span>Open Pastoral Care Hub</span>
+                  <ArrowRight className="h-3 w-3" />
+                </Link>
+              </Button>
+              <Button variant="ghost" size="sm" asChild className="text-xs text-muted-foreground hover:text-foreground p-0 h-auto">
+                <Link href="/dashboard/prayer-requests" className="inline-flex items-center gap-1">
+                  <span>View Prayer Requests</span>
+                  <ArrowRight className="h-3 w-3" />
+                </Link>
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Widget 2: Financial Income vs Expense Snapshot */}
+        <Card className="flex flex-col justify-between">
+          <CardHeader className="flex flex-row items-center justify-between pb-3">
+            <div>
+              <CardTitle className="text-base font-semibold">Financial Stewardship Snapshot</CardTitle>
+
+            </div>
+            <Button variant="ghost" size="sm" asChild className="text-xs text-muted-foreground hover:text-foreground">
+              <Link href="/dashboard/finance/reports">
+                Statement
+                <ArrowRight className="ml-1 h-3 w-3" />
+              </Link>
+            </Button>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid grid-cols-3 gap-3 p-3 rounded-lg border border-border bg-card/60 text-center">
+              <div>
+                <p className="text-[11px] uppercase tracking-wider text-muted-foreground font-medium">Total Income</p>
+                <p className="text-base font-bold text-foreground mt-0.5">GH₵ 32,800</p>
+              </div>
+              <div className="border-x border-border/80 px-2">
+                <p className="text-[11px] uppercase tracking-wider text-muted-foreground font-medium">Expenses</p>
+                <p className="text-base font-bold text-foreground mt-0.5">GH₵ 14,200</p>
+              </div>
+              <div>
+                <p className="text-[11px] uppercase tracking-wider text-muted-foreground font-medium">Net Surplus</p>
+                <p className="text-base font-bold text-primary mt-0.5">+GH₵ 18,600</p>
+              </div>
+            </div>
+
+            {/* Income Allocation Progress Bar */}
+            <div className="space-y-1.5">
+              <div className="flex justify-between text-xs text-muted-foreground">
+                <span>Budget Consumed (43.2%)</span>
+                <span>Operating Reserve (56.8%)</span>
+              </div>
+              <div className="h-2.5 w-full rounded-full bg-muted overflow-hidden flex">
+                <div className="bg-primary/30 h-full" style={{ width: '43.2%' }} title="Expenses: 43.2%" />
+                <div className="bg-primary h-full" style={{ width: '56.8%' }} title="Surplus: 56.8%" />
+              </div>
+            </div>
+
+            <div className="flex items-center justify-between pt-1">
+              <Button size="sm" variant="outline" className="h-7 text-xs gap-1.5" asChild>
+                <Link href="/dashboard/finance/expenses/add">
+                  <FileText className="h-3 w-3" />
+                  <span>Record Expense</span>
+                </Link>
+              </Button>
+              <Button size="sm" variant="outline" className="h-7 text-xs gap-1.5" asChild>
+                <Link href="/dashboard/finance/giving/donations/add">
+                  <HandCoins className="h-3 w-3" />
+                  <span>Record Giving</span>
+                </Link>
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
       </div>
 
       {/* Primary Analytics Charts */}
@@ -186,9 +427,9 @@ export default function DashboardPage() {
                   tickMargin={8}
                   className="text-xs text-muted-foreground"
                 />
-                <ChartTooltip 
+                <ChartTooltip
                   cursor={{ stroke: 'hsl(var(--border))', strokeWidth: 1 }}
-                  content={<ChartTooltipContent indicator="line" />} 
+                  content={<ChartTooltipContent indicator="line" />}
                 />
                 <Line
                   dataKey="attendance"
@@ -214,7 +455,7 @@ export default function DashboardPage() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-base font-semibold">Giving Trend</CardTitle>
-            <Badge variant="success" size="sm">+15.3%</Badge>
+            <Badge variant="primary" size="sm">+15.3%</Badge>
           </CardHeader>
           <CardContent>
             <ChartContainer config={givingChartConfig} className="h-[280px] w-full">

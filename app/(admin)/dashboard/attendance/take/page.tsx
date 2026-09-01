@@ -137,6 +137,12 @@ export default function TakeAttendancePage() {
   });
 
   const handleCreateSession = async () => {
+    const isValid = await form.trigger();
+    if (!isValid) {
+      toast.error('Please fill in all required session fields');
+      return;
+    }
+
     setIsLoading(true);
     try {
       setCurrentStep(2);

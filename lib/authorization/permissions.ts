@@ -91,7 +91,7 @@ export const PERMISSIONS = {
   TAKE_CLASS_ATTENDANCE: 'sunday-school.attendance',
   VIEW_SUNDAY_SCHOOL_REPORTS: 'sunday-school.reports',
 
-  // Prayer Requests
+  // Prayer Requests & Pastoral Care
   VIEW_PRAYER_REQUESTS: 'prayer-requests.view',
   VIEW_CONFIDENTIAL_PRAYER: 'prayer-requests.view-confidential',
   CREATE_PRAYER_REQUESTS: 'prayer-requests.create',
@@ -101,6 +101,8 @@ export const PERMISSIONS = {
   ASSIGN_PRAYER_REQUESTS: 'prayer-requests.assign',
   MANAGE_PRAYER_CATEGORIES: 'prayer-requests.categories',
   UPDATE_PRAYER_STATUS: 'prayer-requests.status',
+  VIEW_PASTORAL_CARE: 'pastoral-care.view',
+  MANAGE_PASTORAL_CARE: 'pastoral-care.manage',
 
   // Events Management
   VIEW_EVENTS: 'events.view',

@@ -65,8 +65,8 @@ const searchGroups: SearchGroup[] = [
       { label: 'Attendance', description: 'Services and attendance', href: '/dashboard/attendance', icon: UserCheck },
       { label: 'Groups', description: 'Small groups and ministries', href: '/dashboard/groups', icon: UsersRound },
       { label: 'Departments', description: 'Teams and departments', href: '/dashboard/departments', icon: Building2 },
-      { label: 'Sunday school', description: 'Classes, teachers and students', href: '/dashboard/sunday-school', icon: GraduationCap, keywords: ['classes'] },
-      { label: 'Prayer requests', description: 'Prayer care and follow-up', href: '/dashboard/prayer-requests', icon: Heart, keywords: ['pastoral care'] },
+      { label: 'Pastoral Care', description: 'Member concerns and situation tracking', href: '/dashboard/pastoral-care', icon: Heart, keywords: ['pastoral', 'follow up', 'visitation', 'counseling', 'cases'] },
+      { label: 'Prayer requests', description: 'Prayer care and follow-up', href: '/dashboard/prayer-requests', icon: Heart, keywords: ['prayer'] },
     ],
   },
   {

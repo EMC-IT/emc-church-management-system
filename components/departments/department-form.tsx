@@ -22,7 +22,7 @@ const MOCK_MEMBERS: Member[] = [
 
 const departmentFormSchema = z.object({
   name: z.string().min(2, "Department name must be at least 2 characters"),
-  description: z.string().min(5, "Description must be at least 5 characters"),
+  description: z.string().optional(),
   leader: z.string().min(2, "Leader name must be at least 2 characters"),
   departmentType: z.string().optional(),
   status: z.enum(["Active", "Inactive"]).default("Active"),
@@ -77,7 +77,7 @@ export function DepartmentForm({
         </CardHeader>
         <CardContent className="space-y-4">
           <div>
-            <label className="block text-sm font-medium mb-1">Name</label>
+            <label className="block text-sm font-medium mb-1">Name *</label>
             <Input {...form.register("name")}
               placeholder="Department name"
               disabled={loading}
@@ -97,9 +97,9 @@ export function DepartmentForm({
             )}
           </div>
           <div>
-            <label className="block text-sm font-medium mb-1">Leader</label>
+            <label className="block text-sm font-medium mb-1">Leader *</label>
             <Input {...form.register("leader")}
-              placeholder="Department leader"
+              placeholder="Leader name"
               disabled={loading}
             />
             {form.formState.errors.leader && (

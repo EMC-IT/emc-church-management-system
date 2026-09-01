@@ -368,7 +368,12 @@ export default function PermissionsPage() {
             </div>
 
             {/* Permissions Accordion */}
-            <Accordion type="multiple" value={Array.from(expandedCategories)} className="space-y-4">
+            <Accordion 
+              type="multiple" 
+              value={Array.from(expandedCategories)} 
+              onValueChange={(values) => setExpandedCategories(new Set(values))}
+              className="space-y-4"
+            >
               {filteredCategories.map((category) => {
                 const CategoryIcon = categoryIcons[category.id] || Folder;
                 const isFullySelected = isCategoryFullySelected(category.id);
@@ -379,37 +384,29 @@ export default function PermissionsPage() {
 
                 return (
                   <AccordionItem key={category.id} value={category.id} className="border rounded-lg">
-                    <AccordionTrigger 
-                      className="px-4 hover:no-underline hover:bg-muted/50"
-                      onClick={() => {
-                        const newExpanded = new Set(expandedCategories);
-                        if (newExpanded.has(category.id)) {
-                          newExpanded.delete(category.id);
-                        } else {
-                          newExpanded.add(category.id);
-                        }
-                        setExpandedCategories(newExpanded);
-                      }}
-                    >
-                      <div className="flex items-center gap-3 flex-1">
-                        <Checkbox
-                          checked={isFullySelected}
-                          onCheckedChange={(checked) => {
-                            handleCategoryToggle(category.id, checked as boolean);
-                          }}
-                          onClick={(e) => e.stopPropagation()}
-                          className={isPartiallySelected ? 'data-[state=checked]:bg-primary/60' : ''}
-                        />
-                        <CategoryIcon className="h-5 w-5 text-primary" />
-                        <div className="flex-1 text-left">
-                          <div className="font-semibold text-sm text-foreground">{category.name}</div>
-                          <div className="text-xs text-muted-foreground">{category.description}</div>
+                    <div className="flex items-center px-4 hover:bg-muted/50 transition-colors">
+                      <Checkbox
+                        id={`category-${category.id}`}
+                        checked={isFullySelected}
+                        onCheckedChange={(checked) => {
+                          handleCategoryToggle(category.id, checked as boolean);
+                        }}
+                        className={isPartiallySelected ? 'data-[state=checked]:bg-primary/60 mr-3' : 'mr-3'}
+                        aria-label={`Select all ${category.name} permissions`}
+                      />
+                      <AccordionTrigger className="hover:no-underline py-4">
+                        <div className="flex items-center gap-3 flex-1">
+                          <CategoryIcon className="h-5 w-5 text-primary shrink-0" />
+                          <div className="flex-1 text-left">
+                            <div className="font-semibold text-sm text-foreground">{category.name}</div>
+                            <div className="text-xs text-muted-foreground">{category.description}</div>
+                          </div>
+                          <Badge variant="neutral" className="mr-2">
+                            {selectedInCategory}/{category.permissions.length}
+                          </Badge>
                         </div>
-                        <Badge variant="neutral">
-                          {selectedInCategory}/{category.permissions.length}
-                        </Badge>
-                      </div>
-                    </AccordionTrigger>
+                      </AccordionTrigger>
+                    </div>
                     <AccordionContent className="px-4 pb-4">
                       <div className="space-y-3 mt-3 pl-11">
                         {category.permissions.map((permission) => (
