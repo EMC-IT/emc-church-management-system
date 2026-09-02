@@ -4,6 +4,7 @@ export * from './member-family';
 export * from './member-attendance';
 export * from './member-giving';
 export * from './member-group';
+export * from './member-ministry';
 export * from './member-event';
 export * from './member-journey';
 export * from './member-prayer';

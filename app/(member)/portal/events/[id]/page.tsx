@@ -1,38 +1,53 @@
-import Link from 'next/link';
-import { MemberPageHeader, MemberEmptyState } from '@/components/member/shared';
-import { Button } from '@/components/ui/button';
-import { Calendar, ArrowLeft } from 'lucide-react';
+import { notFound } from 'next/navigation';
+import { Metadata } from 'next';
+import { MemberPageHeader } from '@/components/member/shared';
+import { EventDetails } from '@/components/member/events';
+import { memberEventsService } from '@/services/member';
 
-export default async function MemberEventDetailsPage({
-  params,
-}: {
+interface EventPageProps {
   params: Promise<{ id: string }>;
-}) {
+}
+
+export async function generateMetadata({ params }: EventPageProps): Promise<Metadata> {
   const { id } = await params;
+  const event = await memberEventsService.getEventById(id);
+
+  if (!event) {
+    return {
+      title: 'Event Not Found | EMC Member Portal',
+    };
+  }
+
+  return {
+    title: `${event.title} | EMC Member Portal`,
+    description: event.description,
+  };
+}
+
+export default async function MemberEventDetailPage({ params }: EventPageProps) {
+  const { id } = await params;
+  const [event, registration] = await Promise.all([
+    memberEventsService.getEventById(id),
+    memberEventsService.getMyRegistrationForEvent(id),
+  ]);
+
+  if (!event) {
+    notFound();
+  }
 
   return (
     <div className="space-y-6">
       <MemberPageHeader
-        title="Event Details"
-        description={`Viewing details for event: ${id}`}
+        title={event.title}
         breadcrumbs={[
           { label: 'Events', href: '/portal/events' },
-          { label: id },
+          { label: event.title },
         ]}
-        actions={
-          <Button asChild variant="outline" size="sm">
-            <Link href="/portal/events" className="gap-1.5">
-              <ArrowLeft className="h-4 w-4" />
-              <span>Back to Events</span>
-            </Link>
-          </Button>
-        }
       />
 
-      <MemberEmptyState
-        icon={Calendar}
-        title="Event Information"
-        description="This event details section is being prepared for upcoming phases. Detailed schedules, speaker profiles, and registration info will be available soon."
+      <EventDetails
+        event={event}
+        registration={registration}
       />
     </div>
   );

@@ -32,7 +32,7 @@ export const mockCurrentMember: MemberProfile = {
     country: 'Ghana',
     postalCode: 'GA-182-4912',
   },
-  campus: 'Main Campus (Grace Sanctuary)',
+  branch: 'Main Branch (Grace Sanctuary)',
   primaryDepartment: 'Worship & Creative Arts',
   cellGroup: 'Grace Fellowship (East Legon)',
   membershipStatus: 'Active',
@@ -115,16 +115,16 @@ export const mockMemberFamily: MemberFamilyUnit = {
 };
 
 export const mockMemberAttendance: MemberAttendanceSummary = {
-  totalServicesAttendedThisYear: 38,
-  totalEligibleServicesThisYear: 42,
-  currentStreakWeeks: 8,
+  totalServicesAttendedThisYear: 32,
+  totalEligibleServicesThisYear: 36,
+  attendanceRatePercentage: 89,
+  currentStreakWeeks: 6,
   longestStreakWeeks: 14,
-  attendanceRatePercentage: 92,
   lastAttended: {
     serviceName: 'Sunday Morning Worship — 2nd Service',
     serviceType: 'Sunday Service',
     date: '2026-08-30',
-    campus: 'Main Campus',
+    branch: 'Main Branch',
   },
   recentRecords: [
     {
@@ -133,7 +133,7 @@ export const mockMemberAttendance: MemberAttendanceSummary = {
       serviceType: 'Sunday Service',
       date: '2026-08-30',
       checkInTime: '09:42 AM',
-      campus: 'Main Campus',
+      branch: 'Main Branch',
       status: 'present',
       checkInMethod: 'QR Code',
     },
@@ -143,7 +143,7 @@ export const mockMemberAttendance: MemberAttendanceSummary = {
       serviceType: 'Midweek Service',
       date: '2026-08-26',
       checkInTime: '06:28 PM',
-      campus: 'Main Campus',
+      branch: 'Main Branch',
       status: 'present',
       checkInMethod: 'Self Check-in',
     },
@@ -153,7 +153,7 @@ export const mockMemberAttendance: MemberAttendanceSummary = {
       serviceType: 'Sunday Service',
       date: '2026-08-23',
       checkInTime: '09:35 AM',
-      campus: 'Main Campus',
+      branch: 'Main Branch',
       status: 'present',
       checkInMethod: 'QR Code',
     },
@@ -163,7 +163,7 @@ export const mockMemberAttendance: MemberAttendanceSummary = {
       serviceType: 'Prayer Meeting',
       date: '2026-08-21',
       checkInTime: '10:15 PM',
-      campus: 'Main Campus',
+      branch: 'Main Branch',
       status: 'present',
       checkInMethod: 'Manual',
     },
@@ -171,12 +171,26 @@ export const mockMemberAttendance: MemberAttendanceSummary = {
 };
 
 export const mockMemberGiving: MemberGivingSummary = {
+  totalGivenYearToDate: 4850,
   yearToDateTotal: 4850,
   previousYearTotal: 5200,
   titheYearToDate: 3600,
   offeringYearToDate: 850,
   specialGivingYearToDate: 400,
+  totalGiftsCountThisYear: 18,
+  givingThisYearTotal: 4850,
+  lastGift: {
+    amount: 450,
+    category: 'Tithe',
+    date: '2026-08-30',
+    paymentMethod: 'Mobile Money',
+  },
   currency: 'GHS',
+  categoryBreakdown: [
+    { category: 'Tithe', amount: 3600, percentage: 74 },
+    { category: 'Offering', amount: 850, percentage: 18 },
+    { category: 'Special Seed', amount: 400, percentage: 8 },
+  ],
   recentTransactions: [
     {
       id: 'giv-201',
@@ -213,58 +227,7 @@ export const mockMemberGiving: MemberGivingSummary = {
   ],
 };
 
-export const mockMemberGroups: MemberGroup[] = [
-  {
-    id: 'grp-001',
-    name: 'Grace Fellowship (East Legon)',
-    type: 'Cell Group',
-    description: 'Weekly neighborhood fellowship for prayer, discipleship, and community support.',
-    leaderName: 'Elder Samuel Mensah',
-    leaderPhone: '+233 24 444 3322',
-    meetingSchedule: 'Wednesdays @ 7:00 PM',
-    meetingLocation: 'East Legon Community Center',
-    role: 'Assistant Leader',
-    joinedDate: '2021-04-10',
-    membersCount: 16,
-  },
-  {
-    id: 'grp-002',
-    name: "Men of Faith Fellowship",
-    type: 'Fellowship',
-    description: 'Empowering men to walk in spiritual integrity and community leadership.',
-    leaderName: 'Deacon Paul Asare',
-    meetingSchedule: '1st & 3rd Saturdays @ 7:00 AM',
-    meetingLocation: 'Church Multi-purpose Hall',
-    role: 'Member',
-    joinedDate: '2021-06-01',
-    membersCount: 45,
-  },
-];
 
-export const mockMemberMinistries: MemberMinistry[] = [
-  {
-    id: 'min-001',
-    name: 'Worship & Creative Arts (Choir & Music)',
-    category: 'Music & Liturgy',
-    description: 'Leading congregational praise, worship, and vocal ministry.',
-    leadPastorOrLeader: 'Pastor David Osei',
-    myRole: 'Volunteer',
-    meetingTime: 'Thursdays @ 6:30 PM (Rehearsals)',
-    joinedDate: '2022-01-15',
-    status: 'Active',
-  },
-  {
-    id: 'min-002',
-    name: 'Media & Production Team',
-    category: 'Technical & Media',
-    description: 'Audio, visual broadcasting, and live streaming services.',
-    leadPastorOrLeader: 'Bro. Emmanuel Kwarteng',
-    myRole: 'Member',
-    meetingTime: 'Sundays @ 7:00 AM',
-    joinedDate: '2023-05-10',
-    status: 'Active',
-  },
-];
 
 export const mockMemberEvents: MemberEvent[] = [
   {
@@ -274,6 +237,8 @@ export const mockMemberEvents: MemberEvent[] = [
     category: 'Conference',
     startDate: '2026-09-18T18:00:00Z',
     endDate: '2026-09-21T21:00:00Z',
+    branch: 'Main Branch',
+    venue: 'Grace Sanctuary Auditorium',
     location: 'Grace Sanctuary Auditorium',
     isOnline: false,
     requiresRegistration: true,
@@ -290,6 +255,8 @@ export const mockMemberEvents: MemberEvent[] = [
     category: 'Retreat',
     startDate: '2026-10-03T17:30:00Z',
     endDate: '2026-10-03T21:30:00Z',
+    branch: 'Main Branch',
+    venue: 'Alisa Hotel Grand Ballroom',
     location: 'Alisa Hotel Grand Ballroom',
     isOnline: false,
     requiresRegistration: true,
@@ -305,15 +272,19 @@ export const mockMemberEvents: MemberEvent[] = [
     category: 'Worship Night',
     startDate: '2026-10-16T19:00:00Z',
     endDate: '2026-10-16T22:00:00Z',
+    branch: 'Main Branch',
+    venue: 'Main Auditorium',
     location: 'Main Auditorium & Live Stream',
     isOnline: true,
     onlineLink: 'https://live.emcchurch.org',
     requiresRegistration: false,
+    registrationStatus: 'open',
     registeredCount: 310,
     organizer: 'Worship & Creative Arts',
     coverImageUrl: null,
   },
 ];
+
 
 export const mockMemberJourney: MemberSpiritualJourney = {
   memberId: 'member-001',
@@ -325,6 +296,7 @@ export const mockMemberJourney: MemberSpiritualJourney = {
       stepNumber: 1,
       title: 'New Believer & Decision of Faith',
       description: 'Accepting Christ and taking the first step of faith in your spiritual walk.',
+      type: 'Salvation',
       status: 'Completed',
       completedDate: '2018-06-10',
     },
@@ -333,6 +305,7 @@ export const mockMemberJourney: MemberSpiritualJourney = {
       stepNumber: 2,
       title: 'Water Baptism',
       description: 'Public identification with Christ through biblical baptism by immersion.',
+      type: 'Baptism',
       status: 'Completed',
       completedDate: '2018-09-20',
     },
@@ -341,6 +314,7 @@ export const mockMemberJourney: MemberSpiritualJourney = {
       stepNumber: 3,
       title: 'Foundation & Membership Class (EMC 101)',
       description: 'Understanding church core beliefs, doctrinal foundations, and spiritual identity.',
+      type: 'Foundation Class',
       status: 'Completed',
       completedDate: '2021-04-05',
     },
@@ -349,6 +323,7 @@ export const mockMemberJourney: MemberSpiritualJourney = {
       stepNumber: 4,
       title: 'Spiritual Gifts & Ministry Discovery (EMC 201)',
       description: 'Discovering your personal God-given spiritual gifts and calling within the Body.',
+      type: 'Ministry',
       status: 'Completed',
       completedDate: '2022-02-18',
     },
@@ -357,6 +332,7 @@ export const mockMemberJourney: MemberSpiritualJourney = {
       stepNumber: 5,
       title: 'Leadership & Cell Group Servant Training (EMC 301)',
       description: 'Equipping members to lead fellowships, mentor converts, and serve in pastoral care.',
+      type: 'Leadership',
       status: 'In Progress',
       targetDate: '2026-11-30',
       nextSteps: 'Complete Module 4: Pastoral Visitation & Crisis Care',

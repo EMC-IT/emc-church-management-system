@@ -21,7 +21,7 @@ export function AttendanceStats({ summary, className }: AttendanceStatsProps) {
   };
 
   const lastAttendedText = summary.lastAttended
-    ? `${formatDate(summary.lastAttended.date)} • ${summary.lastAttended.campus}`
+    ? `${formatDate(summary.lastAttended.date)} • ${summary.lastAttended.branch || summary.lastAttended.campus}`
     : 'No recent records';
 
   return (

@@ -1,5 +1,27 @@
-export type PrayerPrivacyLevel = 'Public' | 'Pastoral Team Only' | 'Anonymous';
-export type PrayerRequestStatus = 'Submitted' | 'Praying' | 'Answered' | 'Archived';
+export type PrayerPrivacyLevel =
+  | 'Pastoral Team Only'
+  | 'Church Prayer Team'
+  | 'Public'
+  | 'Anonymous';
+
+export type PrayerRequestStatus =
+  | 'Submitted'
+  | 'Praying'
+  | 'Answered'
+  | 'Closed'
+  | 'Archived';
+
+export type PrayerCategory =
+  | 'General'
+  | 'Family'
+  | 'Health & Healing'
+  | 'Work & Career'
+  | 'Finances'
+  | 'Relationships'
+  | 'Spiritual Growth'
+  | 'Thanksgiving'
+  | 'Guidance'
+  | 'Other';
 
 export interface MemberPrayerRequest {
   id: string;
@@ -22,4 +44,10 @@ export interface CreatePrayerRequestInput {
   description: string;
   privacy: PrayerPrivacyLevel;
   isUrgent: boolean;
+}
+
+export interface PrayerFilterOptions {
+  status?: PrayerRequestStatus | 'all';
+  category?: string;
+  search?: string;
 }

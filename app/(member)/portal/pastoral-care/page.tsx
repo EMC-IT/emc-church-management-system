@@ -1,30 +1,40 @@
+import { Suspense } from 'react';
+import { Metadata } from 'next';
 import Link from 'next/link';
-import { Plus, HeartHandshake } from 'lucide-react';
-import { MemberPageHeader, MemberEmptyState } from '@/components/member/shared';
+import { Plus } from 'lucide-react';
+import { MemberPageHeader } from '@/components/member/shared';
 import { Button } from '@/components/ui/button';
+import { PastoralCareView, PastoralCareSkeleton } from '@/components/member/pastoral-care';
+import { memberPastoralCareService } from '@/services/member';
 
-export default function MemberPastoralCarePage() {
+export const metadata: Metadata = {
+  title: 'Pastoral Care | EMC Member Portal',
+  description:
+    'Request confidential pastoral support, counseling, spiritual guidance, or visitation from the pastoral team.',
+};
+
+export default async function MemberPastoralCarePage() {
+  const requests = await memberPastoralCareService.getMyPastoralCareRequests();
+
   return (
     <div className="space-y-6">
       <MemberPageHeader
-        title="Pastoral Care & Counseling"
-        description="Schedule confidential counseling, spiritual guidance, hospital visitations, or home prayer sessions."
+        title="Pastoral Care"
+        description="If you're going through something and would like pastoral support, you can request confidential care from the church."
         breadcrumbs={[{ label: 'Pastoral Care' }]}
         actions={
-          <Button asChild size="sm">
-            <Link href="/portal/pastoral-care/request" className="gap-1.5">
+          <Link href="/portal/pastoral-care/request">
+            <Button size="sm" className="gap-1.5 font-medium">
               <Plus className="h-4 w-4" />
-              <span>Request Care Session</span>
-            </Link>
-          </Button>
+              <span>Request Care</span>
+            </Button>
+          </Link>
         }
       />
 
-      <MemberEmptyState
-        icon={HeartHandshake}
-        title="Pastoral Care Services"
-        description="This section is being prepared for upcoming phases. Appointment booking, session history, and pastoral follow-ups will be available soon."
-      />
+      <Suspense fallback={<PastoralCareSkeleton />}>
+        <PastoralCareView initialRequests={requests} />
+      </Suspense>
     </div>
   );
 }

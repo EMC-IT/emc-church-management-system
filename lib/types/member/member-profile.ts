@@ -17,7 +17,8 @@ export interface MemberProfile {
     country?: string;
     postalCode?: string;
   };
-  campus: string;
+  branch: string;
+  campus?: string;
   primaryDepartment?: string;
   cellGroup?: string;
   membershipStatus: 'Active' | 'New' | 'Associate' | 'Pending';

@@ -60,7 +60,7 @@ export function MemberUserMenu({ member }: MemberUserMenuProps) {
             </p>
             <div className="flex items-center gap-1 pt-1 text-[11px] text-primary font-medium">
               <ShieldCheck className="h-3 w-3" />
-              <span>{member.campus}</span>
+              <span>{member.branch || member.campus}</span>
             </div>
           </div>
         </DropdownMenuLabel>

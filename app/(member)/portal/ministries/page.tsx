@@ -1,20 +1,34 @@
-import { MemberPageHeader, MemberEmptyState } from '@/components/member/shared';
-import { Building2 } from 'lucide-react';
+import { Suspense } from 'react';
+import { Metadata } from 'next';
+import { MemberPageHeader } from '@/components/member/shared';
+import { MinistriesView, MinistriesSkeleton } from '@/components/member/ministries';
+import { memberMinistriesService } from '@/services/member';
 
-export default function MemberMinistriesPage() {
+export const metadata: Metadata = {
+  title: 'My Ministries | EMC Member Portal',
+  description: 'View your ministry teams, assigned service roles, volunteer rosters, and service schedules.',
+};
+
+export default async function MemberMinistriesPage() {
+  const [myMinistries, availableMinistries] = await Promise.all([
+    memberMinistriesService.getMyMinistries(),
+    memberMinistriesService.getAvailableMinistries(),
+  ]);
+
   return (
     <div className="space-y-6">
       <MemberPageHeader
-        title="Ministries & Volunteer Teams"
-        description="Explore departmental teams, view active assignments, and join ministry service opportunities."
-        breadcrumbs={[{ label: 'Ministries' }]}
+        title="My Ministries"
+        description="View your active ministry roles, service schedules, and explore new volunteer opportunities."
+        breadcrumbs={[{ label: 'My Ministries' }]}
       />
 
-      <MemberEmptyState
-        icon={Building2}
-        title="Church Ministries"
-        description="This section is being prepared for upcoming phases. Ministry schedules, volunteer assignments, and team directories will be available soon."
-      />
+      <Suspense fallback={<MinistriesSkeleton />}>
+        <MinistriesView
+          initialMyMinistries={myMinistries}
+          initialAvailableMinistries={availableMinistries}
+        />
+      </Suspense>
     </div>
   );
 }

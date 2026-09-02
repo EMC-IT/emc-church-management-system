@@ -42,7 +42,7 @@ export const MOCK_ATTENDANCE_RECORDS: AttendanceRecord[] = [
     status: AttendanceStatus.PRESENT,
     checkInTime: '08:45',
     recordedBy: 'admin_001',
-    branch: 'Main Campus',
+    branch: 'Main Branch',
     createdAt: '2024-01-21T08:45:00Z'
   },
   {
@@ -62,7 +62,7 @@ export const MOCK_ATTENDANCE_RECORDS: AttendanceRecord[] = [
     checkInTime: '09:15',
     notes: 'Traffic delay',
     recordedBy: 'admin_001',
-    branch: 'Main Campus',
+    branch: 'Main Branch',
     createdAt: '2024-01-21T09:15:00Z'
   },
   {
@@ -81,7 +81,7 @@ export const MOCK_ATTENDANCE_RECORDS: AttendanceRecord[] = [
     status: AttendanceStatus.PRESENT,
     checkInTime: '18:30',
     recordedBy: 'admin_002',
-    branch: 'Main Campus',
+    branch: 'Main Branch',
     createdAt: '2024-01-17T18:30:00Z'
   },
   {
@@ -100,7 +100,7 @@ export const MOCK_ATTENDANCE_RECORDS: AttendanceRecord[] = [
     status: AttendanceStatus.EXCUSED,
     notes: 'Sick leave',
     recordedBy: 'admin_001',
-    branch: 'Main Campus',
+    branch: 'Main Branch',
     createdAt: '2024-01-21T09:00:00Z'
   },
   {
@@ -119,7 +119,7 @@ export const MOCK_ATTENDANCE_RECORDS: AttendanceRecord[] = [
     status: AttendanceStatus.PRESENT,
     checkInTime: '06:00',
     recordedBy: 'admin_003',
-    branch: 'Main Campus',
+    branch: 'Main Branch',
     createdAt: '2024-01-19T06:00:00Z'
   }
 ];
@@ -139,7 +139,7 @@ export const MOCK_ATTENDANCE_SESSIONS: AttendanceSession[] = [
     attendanceRate: 86,
     status: 'completed',
     createdBy: 'admin_001',
-    branch: 'Main Campus',
+    branch: 'Main Branch',
     createdAt: '2024-01-21T09:00:00Z',
     updatedAt: '2024-01-21T11:30:00Z'
   },
@@ -156,7 +156,7 @@ export const MOCK_ATTENDANCE_SESSIONS: AttendanceSession[] = [
     attendanceRate: 82,
     status: 'completed',
     createdBy: 'admin_002',
-    branch: 'Main Campus',
+    branch: 'Main Branch',
     createdAt: '2024-01-17T18:30:00Z',
     updatedAt: '2024-01-17T20:00:00Z'
   },
@@ -173,7 +173,7 @@ export const MOCK_ATTENDANCE_SESSIONS: AttendanceSession[] = [
     attendanceRate: 84,
     status: 'completed',
     createdBy: 'admin_003',
-    branch: 'Main Campus',
+    branch: 'Main Branch',
     createdAt: '2024-01-19T06:00:00Z',
     updatedAt: '2024-01-19T07:00:00Z'
   },
@@ -190,7 +190,7 @@ export const MOCK_ATTENDANCE_SESSIONS: AttendanceSession[] = [
     attendanceRate: 85,
     status: 'completed',
     createdBy: 'admin_004',
-    branch: 'Main Campus',
+    branch: 'Main Branch',
     groupId: 'group_youth',
     createdAt: '2024-01-20T16:00:00Z',
     updatedAt: '2024-01-20T18:00:00Z'
@@ -311,7 +311,7 @@ export class AttendanceService {
         attendanceRate: 0,
         status: 'scheduled',
         createdBy: 'current_user',
-        branch: 'Main Campus',
+        branch: 'Main Branch',
         departmentId: sessionData.departmentId,
         groupId: sessionData.groupId,
         createdAt: new Date().toISOString(),
@@ -410,7 +410,7 @@ export class AttendanceService {
         checkOutTime: attendance.checkOutTime,
         notes: attendance.notes,
         recordedBy: attendance.recordedBy || 'current_user',
-        branch: attendance.branch || 'Main Campus',
+        branch: attendance.branch || 'Main Branch',
         createdAt: new Date().toISOString()
       };
       
@@ -446,7 +446,7 @@ export class AttendanceService {
         checkInTime: attendance.checkInTime,
         notes: attendance.notes,
         recordedBy: 'current_user',
-        branch: 'Main Campus',
+        branch: 'Main Branch',
         createdAt: new Date().toISOString()
       }));
       

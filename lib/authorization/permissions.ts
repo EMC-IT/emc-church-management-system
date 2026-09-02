@@ -436,9 +436,9 @@ export const PERMISSION_CATEGORIES: PermissionCategory[] = [
     permissions: [
       { id: 'settings.view', name: 'View General Settings', description: 'Access settings overview and general configurations' },
       { id: 'settings.church-profile', name: 'Manage Church Profile', description: 'Update church branding, logo, address, and contact details' },
-      { id: 'settings.branches.view', name: 'View Branch Directory', description: 'Browse church campuses and satellite branches' },
-      { id: 'settings.branches.create', name: 'Create New Branch', description: 'Add new campus or satellite branch location' },
-      { id: 'settings.branches.edit', name: 'Edit Branch Details', description: 'Modify campus address, pastor in charge, and details' },
+      { id: 'settings.branches.view', name: 'View Branch Directory', description: 'Browse church branches and satellite locations' },
+      { id: 'settings.branches.create', name: 'Create New Branch', description: 'Add new church branch or satellite location' },
+      { id: 'settings.branches.edit', name: 'Edit Branch Details', description: 'Modify branch address, pastor in charge, and details' },
       { id: 'settings.branches.delete', name: 'Delete Branch Locations', description: 'Remove branch locations from the system' },
       { id: 'settings.users.view', name: 'View System Users', description: 'Browse registered system users, staff, and operators' },
       { id: 'settings.users.create', name: 'Create System User', description: 'Add new staff and operator user logins' },

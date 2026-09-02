@@ -49,7 +49,7 @@ export class MockMemberAttendanceService implements MemberAttendanceService {
       filtered = filtered.filter(
         (r) =>
           r.eventName.toLowerCase().includes(q) ||
-          r.campus.toLowerCase().includes(q) ||
+          (r.branch || r.campus || '').toLowerCase().includes(q) ||
           r.serviceType.toLowerCase().includes(q)
       );
     }

@@ -44,7 +44,7 @@ export function MyMinistry({ ministry, className }: MyMinistryProps) {
               <h3 className="text-sm font-bold text-foreground truncate">
                 {ministry.name}
               </h3>
-              <MemberStatus status={ministry.myRole} />
+              <MemberStatus status={ministry.myRole || ministry.myRoles?.[0] || 'Member'} />
             </div>
 
             <div className="space-y-1.5 text-xs text-muted-foreground pt-1">
@@ -55,13 +55,13 @@ export function MyMinistry({ ministry, className }: MyMinistryProps) {
 
               <div className="flex items-center gap-2">
                 <User className="h-3.5 w-3.5 text-primary shrink-0" aria-hidden="true" />
-                <span className="truncate">Ministry Lead: <strong className="text-foreground font-medium">{ministry.leadPastorOrLeader}</strong></span>
+                <span className="truncate">Ministry Lead: <strong className="text-foreground font-medium">{ministry.leader?.name || ministry.leadPastorOrLeader}</strong></span>
               </div>
 
-              {ministry.meetingTime && (
+              {(ministry.schedule?.serviceTime || ministry.meetingTime) && (
                 <div className="flex items-center gap-2">
                   <Clock className="h-3.5 w-3.5 text-primary shrink-0" aria-hidden="true" />
-                  <span className="truncate">Schedule: <strong className="text-foreground font-medium">{ministry.meetingTime}</strong></span>
+                  <span className="truncate">Schedule: <strong className="text-foreground font-medium">{ministry.schedule?.serviceTime || ministry.meetingTime}</strong></span>
                 </div>
               )}
             </div>

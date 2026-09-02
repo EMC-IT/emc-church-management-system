@@ -1,20 +1,29 @@
-import { MemberPageHeader, MemberEmptyState } from '@/components/member/shared';
-import { HandCoins } from 'lucide-react';
+import { Suspense } from 'react';
+import { Metadata } from 'next';
+import { GivingPageContainer, GivingSkeleton } from '@/components/member/giving';
+import { memberGivingService } from '@/services/member';
 
-export default function MemberGivingPage() {
+export const metadata: Metadata = {
+  title: 'My Giving | EMC Member Portal',
+  description: 'View your personal giving history, contribution statements, monthly trends, and give online.',
+};
+
+export default async function MemberGivingPage() {
+  const [summary, trend, statements, transactions] = await Promise.all([
+    memberGivingService.getGivingSummary(),
+    memberGivingService.getGivingTrend(),
+    memberGivingService.getTaxStatements(),
+    memberGivingService.getTransactions(),
+  ]);
+
   return (
-    <div className="space-y-6">
-      <MemberPageHeader
-        title="My Giving"
-        description="View tithes, offerings, special building pledges, and download annual giving tax statements."
-        breadcrumbs={[{ label: 'My Giving' }]}
+    <Suspense fallback={<GivingSkeleton />}>
+      <GivingPageContainer
+        summary={summary}
+        trend={trend}
+        statements={statements}
+        transactions={transactions}
       />
-
-      <MemberEmptyState
-        icon={HandCoins}
-        title="Giving & Stewardship"
-        description="This section is being prepared for upcoming phases. Contribution history, giving statements, and receipts will be available soon."
-      />
-    </div>
+    </Suspense>
   );
 }

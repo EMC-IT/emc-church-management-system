@@ -137,7 +137,7 @@ export function AttendanceHistory({
           <div className="relative">
             <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground pointer-events-none" />
             <Input
-              placeholder="Search service or campus..."
+              placeholder="Search service or branch..."
               value={filter.search || ''}
               onChange={(e) =>
                 onFilterChange({ ...filter, search: e.target.value })
@@ -224,7 +224,7 @@ export function AttendanceHistory({
                 <TableHead className="w-[180px]">Date</TableHead>
                 <TableHead className="min-w-[200px]">Event / Service</TableHead>
                 <TableHead>Type</TableHead>
-                <TableHead className="min-w-[180px]">Campus</TableHead>
+                <TableHead className="min-w-[180px]">Branch</TableHead>
                 <TableHead>Check-in</TableHead>
                 <TableHead className="text-right">Status</TableHead>
               </TableRow>
@@ -244,7 +244,7 @@ export function AttendanceHistory({
                     {rec.serviceType}
                   </TableCell>
                   <TableCell className="text-xs text-muted-foreground">
-                    {rec.campus}
+                    {rec.branch || rec.campus}
                   </TableCell>
                   <TableCell className="text-xs text-muted-foreground whitespace-nowrap">
                     {rec.checkInTime ? (
@@ -285,7 +285,7 @@ export function AttendanceHistory({
               </div>
 
               <div className="flex items-center justify-between text-xs text-muted-foreground pt-1 border-t border-border/30">
-                <span className="truncate">{rec.campus}</span>
+                <span className="truncate">{rec.branch || rec.campus}</span>
                 <span>{rec.checkInTime || 'No check-in time'}</span>
               </div>
             </div>

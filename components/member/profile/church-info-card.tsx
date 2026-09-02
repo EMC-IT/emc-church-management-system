@@ -33,7 +33,7 @@ export function ChurchInfoCard({ member, className }: ChurchInfoCardProps) {
         <div className="space-y-2.5">
           <div className="flex">
             <span className="w-32 text-muted-foreground shrink-0">Branch:</span>
-            <span className="font-medium text-foreground">{member.campus || '—'}</span>
+            <span className="font-medium text-foreground">{member.branch || member.campus || '—'}</span>
           </div>
           <div className="flex">
             <span className="w-32 text-muted-foreground shrink-0">Cell Group:</span>

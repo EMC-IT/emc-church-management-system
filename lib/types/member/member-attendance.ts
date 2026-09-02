@@ -15,7 +15,8 @@ export interface MemberAttendanceRecord {
   serviceType: AttendanceServiceType;
   date: string;
   checkInTime?: string;
-  campus: string;
+  branch: string;
+  campus?: string;
   status: MemberAttendanceStatus;
   checkInMethod?: AttendanceCheckInMethod;
 }
@@ -30,7 +31,8 @@ export interface MemberAttendanceSummary {
     serviceName: string;
     serviceType: AttendanceServiceType;
     date: string;
-    campus: string;
+    branch: string;
+    campus?: string;
   } | null;
   recentRecords: MemberAttendanceRecord[];
 }

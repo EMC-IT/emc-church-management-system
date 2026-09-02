@@ -44,23 +44,23 @@ export function MyGroup({ group, className }: MyGroupProps) {
               <h3 className="text-sm font-bold text-foreground truncate">
                 {group.name}
               </h3>
-              <MemberStatus status={group.role} />
+              <MemberStatus status={group.role || group.myRole || 'Member'} />
             </div>
 
             <div className="space-y-1.5 text-xs text-muted-foreground pt-1">
               <div className="flex items-center gap-2">
                 <User className="h-3.5 w-3.5 text-primary shrink-0" aria-hidden="true" />
-                <span className="truncate">Leader: <strong className="text-foreground font-medium">{group.leaderName}</strong></span>
+                <span className="truncate">Leader: <strong className="text-foreground font-medium">{group.leader?.name || group.leaderName}</strong></span>
               </div>
 
               <div className="flex items-center gap-2">
                 <Clock className="h-3.5 w-3.5 text-primary shrink-0" aria-hidden="true" />
-                <span className="truncate">Schedule: <strong className="text-foreground font-medium">{group.meetingSchedule}</strong></span>
+                <span className="truncate">Schedule: <strong className="text-foreground font-medium">{group.schedule?.dayOfWeek ? `${group.schedule.dayOfWeek} • ${group.schedule.time}` : group.meetingSchedule}</strong></span>
               </div>
 
               <div className="flex items-center gap-2">
                 <MapPin className="h-3.5 w-3.5 text-primary shrink-0" aria-hidden="true" />
-                <span className="truncate">Venue: <strong className="text-foreground font-medium">{group.meetingLocation}</strong></span>
+                <span className="truncate">Venue: <strong className="text-foreground font-medium">{group.schedule?.venue || group.meetingLocation}</strong></span>
               </div>
             </div>
           </div>

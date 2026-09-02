@@ -1,5 +1,20 @@
-export type PastoralCareCategory = 'Counseling' | 'Hospital Visit' | 'Bereavement' | 'Home Visit' | 'Spiritual Guidance' | 'Dedication / Blessing' | 'Other';
-export type PastoralCareStatus = 'Requested' | 'Scheduled' | 'Completed' | 'Follow-up Needed' | 'Cancelled';
+export type PastoralCareCategory =
+  | 'Counseling'
+  | 'Hospital Visit'
+  | 'Bereavement'
+  | 'Home Visit'
+  | 'Spiritual Guidance'
+  | 'Dedication / Blessing'
+  | 'Other';
+
+export type PastoralCareStatus =
+  | 'Requested'
+  | 'Scheduled'
+  | 'In Progress'
+  | 'Completed'
+  | 'Follow-up Needed'
+  | 'Cancelled';
+
 export type PastoralCareMode = 'In-Person' | 'Phone Call' | 'Video Call';
 
 export interface MemberPastoralCareRequest {
@@ -11,6 +26,7 @@ export interface MemberPastoralCareRequest {
   assignedPastor?: string;
   status: PastoralCareStatus;
   urgency: 'Standard' | 'Urgent';
+  reason?: string;
   summaryNotes?: string;
   scheduledDateTime?: string;
   locationOrLink?: string;
@@ -25,4 +41,10 @@ export interface CreatePastoralCareInput {
   preferredTimeSlot?: string;
   reason: string;
   isUrgent?: boolean;
+}
+
+export interface PastoralCareFilterOptions {
+  status?: PastoralCareStatus | 'all';
+  category?: string;
+  search?: string;
 }

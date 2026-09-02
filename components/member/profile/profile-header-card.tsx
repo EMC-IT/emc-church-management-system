@@ -123,10 +123,10 @@ export function ProfileHeaderCard({ member, onEditClick, className }: ProfileHea
             </div>
           )}
 
-          {member.campus && (
+          {(member.branch || member.campus) && (
             <div className="flex items-center gap-3">
               <MapPin className="h-4 w-4 text-primary shrink-0" aria-hidden="true" />
-              <span>{member.campus}</span>
+              <span>{member.branch || member.campus}</span>
             </div>
           )}
 

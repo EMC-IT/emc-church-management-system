@@ -33,7 +33,7 @@ export function ProfileHeader({ member, onEditClick, className }: ProfileHeaderP
             </div>
 
             <p className="text-xs text-muted-foreground font-medium">
-              {member.campus}
+              {member.branch || member.campus}
             </p>
           </div>
         </div>

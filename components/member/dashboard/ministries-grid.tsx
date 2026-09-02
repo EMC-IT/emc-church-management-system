@@ -10,12 +10,56 @@ export interface MinistriesGridProps {
   className?: string;
 }
 
+const fallbackMinistries: MemberMinistry[] = [
+  {
+    id: 'm1',
+    name: 'Worship Team',
+    category: 'Worship & Creative Arts',
+    branch: 'Main Branch',
+    campus: 'Main Branch',
+    description: 'Praise and worship team',
+    myRoles: ['Vocalist'],
+    myRole: 'Vocalist',
+    leader: { id: 'l1', name: 'Pastor David', title: 'Director' },
+    leadPastorOrLeader: 'Pastor David',
+    schedule: { serviceName: 'Sunday', dayOfWeek: 'Sunday', serviceTime: '7:00 AM', venue: 'Sanctuary', frequency: 'Weekly' },
+    status: 'Active',
+    joinedDate: '2023-01-01',
+  },
+  {
+    id: 'm2',
+    name: 'Usher Ministry',
+    category: 'Ushering & Protocol',
+    branch: 'Main Branch',
+    campus: 'Main Branch',
+    description: 'Sanctuary ushering',
+    myRoles: ['Member'],
+    myRole: 'Member',
+    leader: { id: 'l2', name: 'Elder James', title: 'Head of Protocol' },
+    leadPastorOrLeader: 'Elder James',
+    schedule: { serviceName: 'Sunday', dayOfWeek: 'Sunday', serviceTime: '7:00 AM', venue: 'Sanctuary', frequency: 'Weekly' },
+    status: 'Active',
+    joinedDate: '2023-01-01',
+  },
+  {
+    id: 'm3',
+    name: 'Media Team',
+    category: 'Media & Tech',
+    branch: 'Main Branch',
+    campus: 'Main Branch',
+    description: 'Audio and broadcasting',
+    myRoles: ['Audio Engineer'],
+    myRole: 'Audio Engineer',
+    leader: { id: 'l3', name: 'Pastor Isaac', title: 'Director' },
+    leadPastorOrLeader: 'Pastor Isaac',
+    schedule: { serviceName: 'Sunday', dayOfWeek: 'Sunday', serviceTime: '7:00 AM', venue: 'Sanctuary', frequency: 'Weekly' },
+    status: 'Active',
+    joinedDate: '2023-01-01',
+  },
+];
+
 export function MinistriesGrid({ ministries = [], className }: MinistriesGridProps) {
-  const displayMinistries = ministries.length > 0 ? ministries.slice(0, 3) : [
-    { id: 'm1', name: 'Worship Team', category: 'Music & Creative', myRole: 'Vocalist', leadPastorOrLeader: 'Pastor David' },
-    { id: 'm2', name: 'Usher Ministry', category: 'Hospitality', myRole: 'Member', leadPastorOrLeader: 'Elder James' },
-    { id: 'm3', name: 'Media Team', category: 'Tech & Broadcast', myRole: 'Audio Engineer', leadPastorOrLeader: 'Pastor Isaac' },
-  ];
+  const displayMinistries = ministries.length > 0 ? ministries.slice(0, 3) : fallbackMinistries;
 
   return (
     <section aria-label="Ministries I'm Part Of" className={cn('space-y-3', className)}>
@@ -43,7 +87,10 @@ export function MinistriesGrid({ ministries = [], className }: MinistriesGridPro
                     <Badge variant="neutral" size="sm">
                       {ministry.category}
                     </Badge>
-                    <StatusBadge status={ministry.myRole} size="sm" />
+                    <StatusBadge
+                      status={ministry.myRole || ministry.myRoles[0] || 'Member'}
+                      size="sm"
+                    />
                   </div>
                   <h4 className="text-sm font-semibold text-foreground truncate group-hover:text-primary transition-colors">
                     {ministry.name}
@@ -51,7 +98,7 @@ export function MinistriesGrid({ ministries = [], className }: MinistriesGridPro
                 </div>
 
                 <p className="text-xs text-muted-foreground truncate pt-1">
-                  Lead: {ministry.leadPastorOrLeader}
+                  Lead: {ministry.leader?.name || ministry.leadPastorOrLeader || 'Ministry Pastor'}
                 </p>
               </CardContent>
             </Card>

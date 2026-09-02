@@ -11,7 +11,7 @@ describe('Member Portal — Phase 3: My Profile', () => {
     expect(profile.firstName).toBe('Bismark');
     expect(profile.lastName).toBe('Asiedu');
     expect(profile.membershipStatus).toBe('Active');
-    expect(profile.campus).toContain('Main Campus');
+    expect(profile.branch || profile.campus).toContain('Main Branch');
   });
 
   it('updates member profile and persists changes in mock state', async () => {

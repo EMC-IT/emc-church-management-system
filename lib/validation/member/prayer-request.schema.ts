@@ -4,7 +4,7 @@ export const prayerRequestSchema = z.object({
   title: z.string().min(5, 'Title must be at least 5 characters').max(120),
   category: z.string().min(1, 'Please select a prayer category'),
   description: z.string().min(10, 'Please provide details for your prayer request').max(1000),
-  privacy: z.enum(['Public', 'Pastoral Team Only', 'Anonymous']),
+  privacy: z.enum(['Pastoral Team Only', 'Church Prayer Team', 'Public', 'Anonymous']),
   isUrgent: z.boolean().default(false),
 });
 

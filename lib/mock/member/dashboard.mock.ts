@@ -10,12 +10,12 @@ import {
   mockCurrentMember,
   mockMemberAttendance,
   mockMemberGiving,
-  mockMemberGroups,
-  mockMemberMinistries,
   mockMemberEvents,
   mockMemberJourney,
   mockMemberNotifications,
 } from './member.mock';
+import { mockMemberGroups } from './groups.mock';
+import { mockMemberMinistries } from './ministries.mock';
 
 export const mockDashboardAttentionItems: DashboardAttentionItem[] = [
   {
@@ -102,7 +102,7 @@ export const mockMemberRecentActivity: MemberActivityItem[] = [
     category: 'attendance',
     timestamp: '2026-08-30T09:42:00Z',
     relativeTime: '2 days ago',
-    details: '2nd Service • Main Campus (Grace Sanctuary)',
+    details: '2nd Service • Main Branch (Grace Sanctuary)',
     actionHref: '/portal/attendance',
   },
   {
