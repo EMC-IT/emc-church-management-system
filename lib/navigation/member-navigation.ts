@@ -41,7 +41,7 @@ export const memberNavigation: MemberNavGroup[] = [
     ],
   },
   {
-    title: 'ACCOUNT',
+    title: 'MY PROFILE',
     items: [
       {
         label: 'My Profile',
@@ -86,7 +86,7 @@ export const memberNavigation: MemberNavGroup[] = [
     ],
   },
   {
-    title: 'DISCIPLESHIP',
+    title: 'MY JOURNEY',
     items: [
       {
         label: 'My Journey',
@@ -96,7 +96,7 @@ export const memberNavigation: MemberNavGroup[] = [
     ],
   },
   {
-    title: 'PRAYER & CARE',
+    title: 'CARE',
     items: [
       {
         label: 'Prayer Requests',
@@ -111,18 +111,28 @@ export const memberNavigation: MemberNavGroup[] = [
     ],
   },
   {
-    title: 'COMMUNITY & INFO',
+    title: 'RESOURCES',
     items: [
       {
         label: 'Resources',
         href: '/portal/resources',
         icon: BookOpen,
       },
+    ],
+  },
+  {
+    title: 'COMMUNICATION',
+    items: [
       {
         label: 'Notifications',
         href: '/portal/notifications',
         icon: Bell,
       },
+    ],
+  },
+  {
+    title: 'SETTINGS',
+    items: [
       {
         label: 'Settings',
         href: '/portal/settings',
@@ -162,3 +172,15 @@ export const mobileBottomNavItems: MobileBottomNavItem[] = [
     icon: User,
   },
 ];
+
+/**
+ * Robust active state checker supporting exact root and nested routes.
+ */
+export function isRouteActive(pathname: string | null | undefined, href: string, exact = false): boolean {
+  if (!pathname) return false;
+  if (exact || href === '/portal') {
+    return pathname === href;
+  }
+  return pathname === href || pathname.startsWith(`${href}/`);
+}
+

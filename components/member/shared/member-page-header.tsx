@@ -1,10 +1,8 @@
 import type { ReactNode } from 'react';
+import { MemberBreadcrumbs, MemberBreadcrumbItem } from '@/components/member/layout/member-breadcrumbs';
 import { cn } from '@/lib/utils';
 
-export interface BreadcrumbCrumb {
-  label: string;
-  href?: string;
-}
+export type BreadcrumbCrumb = MemberBreadcrumbItem;
 
 export interface MemberPageHeaderProps {
   title: ReactNode;
@@ -17,18 +15,24 @@ export interface MemberPageHeaderProps {
 export function MemberPageHeader({
   title,
   description,
+  breadcrumbs,
   actions,
   className,
 }: MemberPageHeaderProps) {
   return (
     <header className={cn('flex flex-col gap-2 pb-4 sm:pb-5 border-b border-border/40', className)}>
+      {breadcrumbs && breadcrumbs.length > 0 && (
+        <div className="mb-1">
+          <MemberBreadcrumbs items={breadcrumbs} />
+        </div>
+      )}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="min-w-0">
           <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground font-heading">
             {title}
           </h1>
           {description ? (
-            <p className="text-sm text-muted-foreground mt-1">
+            <p className="text-sm text-muted-foreground mt-1 leading-relaxed">
               {description}
             </p>
           ) : null}
@@ -42,3 +46,4 @@ export function MemberPageHeader({
     </header>
   );
 }
+

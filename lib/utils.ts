@@ -17,7 +17,7 @@ export const CURRENCIES = {
   USD: {
     code: 'USD',
     name: 'US Dollar',
-    symbol: '₵',
+    symbol: '$',
     position: 'before' as const,
     decimalPlaces: 2,
   },

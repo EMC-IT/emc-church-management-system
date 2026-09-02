@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { LucideIcon } from 'lucide-react';
+import { memberNavigation, isRouteActive } from '@/lib/navigation/member-navigation';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 
@@ -26,10 +27,8 @@ export function MemberNavItem({
   onClick,
 }: MemberNavItemProps) {
   const pathname = usePathname();
+  const isActive = isRouteActive(pathname, href, exact);
 
-  const isActive = exact
-    ? pathname === href
-    : pathname === href || pathname.startsWith(`${href}/`);
 
   return (
     <Link

@@ -5,3 +5,5 @@ export * from './member-mobile-nav';
 export * from './member-user-menu';
 export * from './member-nav-item';
 export * from './member-notification-button';
+export * from './member-breadcrumbs';
+

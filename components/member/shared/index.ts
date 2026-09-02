@@ -7,3 +7,6 @@ export * from './member-avatar';
 export * from './member-status';
 export * from './member-data-row';
 export * from './member-timeline';
+export * from './member-confirmation-dialog';
+export { MemberBreadcrumbs, type MemberBreadcrumbsProps, type MemberBreadcrumbItem } from '@/components/member/layout/member-breadcrumbs';
+

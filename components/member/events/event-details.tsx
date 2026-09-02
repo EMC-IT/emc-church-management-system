@@ -145,9 +145,10 @@ export function EventDetails({
                 ) : null}
               </div>
 
-              <h1 className="font-heading font-bold text-xl sm:text-2xl text-foreground leading-tight">
+              <h2 className="font-heading font-bold text-lg sm:text-xl text-foreground leading-tight">
                 {event.title}
-              </h1>
+              </h2>
+
 
               {/* Date & Location Summary */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2 text-xs text-muted-foreground border-t border-border/40">

@@ -17,6 +17,7 @@ import { MemberNavItem } from './member-nav-item';
 import {
   memberNavigation,
   mobileBottomNavItems,
+  isRouteActive,
 } from '@/lib/navigation/member-navigation';
 import { MemberProfile } from '@/lib/types/member';
 import { cn } from '@/lib/utils';
@@ -95,9 +96,7 @@ export function MemberMobileNav({
       >
         {mobileBottomNavItems.map((item) => {
           const Icon = item.icon;
-          const isActive = item.exact
-            ? pathname === item.href
-            : pathname === item.href || pathname.startsWith(`${item.href}/`);
+          const isActive = isRouteActive(pathname, item.href, item.exact);
 
           return (
             <Link

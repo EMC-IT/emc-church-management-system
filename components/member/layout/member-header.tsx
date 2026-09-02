@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { Menu, Church, Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import Breadcrumb from '@/components/ui/breadcrumb';
+import { MemberBreadcrumbs } from './member-breadcrumbs';
 import { ThemeToggle } from '@/components/theme/theme-toggle';
 import { MemberUserMenu } from './member-user-menu';
 import { MemberNotificationButton } from './member-notification-button';
@@ -57,9 +57,10 @@ export function MemberHeader({
 
         {/* Desktop Header Breadcrumbs */}
         <div className="hidden md:flex min-w-0 items-center">
-          <Breadcrumb />
+          <MemberBreadcrumbs />
         </div>
       </div>
+
 
       {/* Right controls: Search input (moved right) + Theme Switcher + Notifications + User Menu */}
       <div className="flex items-center gap-2 sm:gap-3">
