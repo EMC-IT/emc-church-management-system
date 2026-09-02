@@ -11,6 +11,8 @@ export * from './pastoral-care.mock';
 export * from './resources.mock';
 export * from './notifications.mock';
 export * from './announcements.mock';
+export * from './settings.mock';
+
 
 
 

@@ -1,20 +1,20 @@
-import { MemberPageHeader, MemberEmptyState } from '@/components/member/shared';
-import { Settings } from 'lucide-react';
+import { Suspense } from 'react';
+import { Metadata } from 'next';
+import { SettingsView, SettingsSkeleton } from '@/components/member/settings';
+import { memberSettingsService } from '@/services/member';
 
-export default function MemberSettingsPage() {
+export const metadata: Metadata = {
+  title: 'Settings & Preferences | EMC Member Portal',
+  description:
+    'Manage your communication channels, notification categories, privacy preferences, and portal theme.',
+};
+
+export default async function MemberSettingsPage() {
+  const settings = await memberSettingsService.getSettings();
+
   return (
-    <div className="space-y-6">
-      <MemberPageHeader
-        title="Account Settings"
-        description="Manage notification preferences, email & SMS alerts, password security, and directory privacy."
-        breadcrumbs={[{ label: 'Settings' }]}
-      />
-
-      <MemberEmptyState
-        icon={Settings}
-        title="Settings & Preferences"
-        description="This section is being prepared for upcoming phases. Account password updates, notification toggles, and privacy controls will be available soon."
-      />
-    </div>
+    <Suspense fallback={<SettingsSkeleton />}>
+      <SettingsView initialSettings={settings} />
+    </Suspense>
   );
 }

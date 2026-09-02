@@ -20,7 +20,7 @@ export default async function MemberPortalPage() {
   const data = await memberDashboardService.getDashboardData();
 
   return (
-    <div className="space-y-6 sm:space-y-7">
+    <div className="space-y-6">
       {/* 1. Welcome Greeting Header */}
       <WelcomeHeader profile={data.profile} />
 

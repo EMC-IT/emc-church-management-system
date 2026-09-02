@@ -14,6 +14,8 @@ export * from './prayer';
 export * from './pastoral-care';
 export * from './resources';
 export * from './notifications';
+export * from './settings';
+
 
 
 

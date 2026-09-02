@@ -12,5 +12,7 @@ export * from './member-pastoral-care';
 export * from './member-notification';
 export * from './member-resource';
 export * from './member-announcement';
+export * from './member-settings';
+
 
 
