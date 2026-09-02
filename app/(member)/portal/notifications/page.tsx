@@ -1,20 +1,32 @@
-import { MemberPageHeader, MemberEmptyState } from '@/components/member/shared';
-import { Bell } from 'lucide-react';
+import { Suspense } from 'react';
+import { Metadata } from 'next';
+import {
+  NotificationsView,
+  NotificationSkeleton,
+} from '@/components/member/notifications';
+import {
+  memberNotificationsService,
+  memberAnnouncementsService,
+} from '@/services/member';
 
-export default function MemberNotificationsPage() {
+export const metadata: Metadata = {
+  title: 'Notifications & Communications | EMC Member Portal',
+  description:
+    'Stay up to date with personal notifications, event confirmations, giving receipts, care appointments, and church announcements.',
+};
+
+export default async function MemberNotificationsPage() {
+  const [notifications, announcements] = await Promise.all([
+    memberNotificationsService.getNotifications(),
+    memberAnnouncementsService.getAnnouncements(),
+  ]);
+
   return (
-    <div className="space-y-6">
-      <MemberPageHeader
-        title="Notifications & Updates"
-        description="Stay updated with personal announcements, event registrations, giving receipts, and care updates."
-        breadcrumbs={[{ label: 'Notifications' }]}
+    <Suspense fallback={<NotificationSkeleton />}>
+      <NotificationsView
+        initialNotifications={notifications}
+        initialAnnouncements={announcements}
       />
-
-      <MemberEmptyState
-        icon={Bell}
-        title="Notification Center"
-        description="This section is being prepared for upcoming phases. Complete notification history and filter options will be available soon."
-      />
-    </div>
+    </Suspense>
   );
 }

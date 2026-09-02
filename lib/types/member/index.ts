@@ -10,3 +10,7 @@ export * from './member-journey';
 export * from './member-prayer';
 export * from './member-pastoral-care';
 export * from './member-notification';
+export * from './member-resource';
+export * from './member-announcement';
+
+

@@ -1,20 +1,26 @@
-import { MemberPageHeader, MemberEmptyState } from '@/components/member/shared';
-import { BookOpen } from 'lucide-react';
+import { Suspense } from 'react';
+import { Metadata } from 'next';
+import { ResourcesView, ResourceSkeleton } from '@/components/member/resources';
+import { memberResourcesService } from '@/services/member';
 
-export default function MemberResourcesPage() {
+export const metadata: Metadata = {
+  title: 'Resources & Library | EMC Member Portal',
+  description:
+    'Explore sermon notes, spiritual growth study guides, devotionals, teaching materials, and official church forms.',
+};
+
+export default async function MemberResourcesPage() {
+  const [initialData, featuredResources] = await Promise.all([
+    memberResourcesService.getResources({ page: 1, pageSize: 6 }),
+    memberResourcesService.getFeaturedResources(),
+  ]);
+
   return (
-    <div className="space-y-6">
-      <MemberPageHeader
-        title="Member Resources & Library"
-        description="Access sermon notes, spiritual growth study guides, weekly bulletins, devotionals, and church forms."
-        breadcrumbs={[{ label: 'Resources' }]}
+    <Suspense fallback={<ResourceSkeleton />}>
+      <ResourcesView
+        initialData={initialData}
+        featuredResources={featuredResources}
       />
-
-      <MemberEmptyState
-        icon={BookOpen}
-        title="Resource Library"
-        description="This section is being prepared for upcoming phases. Document downloads, weekly bulletins, and discipleship materials will be available soon."
-      />
-    </div>
+    </Suspense>
   );
 }

@@ -10,5 +10,7 @@ export * from './prayer.service';
 export * from './pastoral-care.service';
 export * from './resources.service';
 export * from './notifications.service';
+export * from './announcements.service';
 export * from './dashboard.service';
+
 

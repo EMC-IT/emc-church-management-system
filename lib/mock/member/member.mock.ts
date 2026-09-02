@@ -389,6 +389,7 @@ export const mockMemberPastoralCare: MemberPastoralCareRequest[] = [
 export const mockMemberNotifications: MemberNotification[] = [
   {
     id: 'notif-001',
+    type: 'event',
     title: 'Convention Registration Confirmed',
     message: 'Your ticket for Annual Believers Convention 2026 is confirmed. Reference: ABC-2026-88391.',
     category: 'event',
@@ -398,6 +399,7 @@ export const mockMemberNotifications: MemberNotification[] = [
   },
   {
     id: 'notif-002',
+    type: 'care',
     title: 'Pastoral Care Session Scheduled',
     message: 'Pastor Isaac Mensah confirmed your appointment for Thursday, Sep 10 at 2:00 PM.',
     category: 'care',
@@ -407,6 +409,7 @@ export const mockMemberNotifications: MemberNotification[] = [
   },
   {
     id: 'notif-003',
+    type: 'giving',
     title: 'Giving Receipt — August Tithe',
     message: 'Your tithe payment of ₵450.00 has been received. Thank you for your faithful stewardship.',
     category: 'giving',

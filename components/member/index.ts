@@ -12,5 +12,9 @@ export * from './events';
 export * from './journey';
 export * from './prayer';
 export * from './pastoral-care';
+export * from './resources';
+export * from './notifications';
+
+
 
 
