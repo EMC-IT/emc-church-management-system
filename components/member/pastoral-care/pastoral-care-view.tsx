@@ -1,8 +1,9 @@
 'use client';
 
 import { useState } from 'react';
-import { Search } from 'lucide-react';
+import { Search, Plus } from 'lucide-react';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
+import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
   Select,
@@ -11,10 +12,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { MemberPageHeader } from '@/components/member/shared';
 import { MemberPastoralCareRequest } from '@/lib/types/member';
 import { PastoralCareOverview } from './pastoral-care-overview';
 import { PastoralCareRequestCard } from './pastoral-care-request-card';
 import { PastoralCareDetailsDialog } from './pastoral-care-details-dialog';
+import { PastoralCareRequestDialog } from './pastoral-care-request-dialog';
 import { PastoralCareEmptyState } from './pastoral-care-empty-state';
 import { memberPastoralCareService } from '@/services/member';
 import { useToast } from '@/hooks/use-toast';
@@ -37,6 +40,7 @@ export function PastoralCareView({
   const [selectedRequest, setSelectedRequest] =
     useState<MemberPastoralCareRequest | null>(null);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
+  const [isCreateOpen, setIsCreateOpen] = useState(false);
   const { toast } = useToast();
 
   const handleRefresh = async () => {
@@ -47,6 +51,14 @@ export function PastoralCareView({
   const handleViewDetails = (req: MemberPastoralCareRequest) => {
     setSelectedRequest(req);
     setIsDetailOpen(true);
+  };
+
+  const handleCreated = async () => {
+    toast({
+      title: 'Care Request Received',
+      description: 'Your request has been confidentially submitted to the pastoral team.',
+    });
+    await handleRefresh();
   };
 
   const handleCancel = async (req: MemberPastoralCareRequest) => {
@@ -91,13 +103,30 @@ export function PastoralCareView({
 
   return (
     <div className={cn('space-y-6', className)}>
+      {/* Top Header with Action Button */}
+      <MemberPageHeader
+        title="Pastoral Care"
+        breadcrumbs={[{ label: 'Pastoral Care' }]}
+        actions={
+          <Button
+            type="button"
+            size="sm"
+            onClick={() => setIsCreateOpen(true)}
+            className="gap-1.5 font-medium"
+          >
+            <Plus className="h-4 w-4" />
+            <span>Request Pastoral Care</span>
+          </Button>
+        }
+      />
+
       {/* Overview Context & Scheduled Appointment Banner */}
       <PastoralCareOverview requests={requests} />
 
       {/* Main Filter & Tabs Section */}
       <div className="space-y-4">
         <Tabs value={currentTab} onValueChange={setCurrentTab} className="w-full">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-border/40 pb-3">
+          <div className="flex items-center justify-between border-b border-border/40 pb-3">
             <TabsList className="bg-muted/50 p-1">
               <TabsTrigger value="all" className="text-xs font-medium">
                 All Care Requests ({requests.length})
@@ -106,7 +135,7 @@ export function PastoralCareView({
                 Active & Scheduled ({requests.filter((r) => r.status === 'Requested' || r.status === 'Scheduled' || r.status === 'In Progress').length})
               </TabsTrigger>
               <TabsTrigger value="completed" className="text-xs font-medium">
-                Completed Sessions ({requests.filter((r) => r.status === 'Completed').length})
+                Completed ({requests.filter((r) => r.status === 'Completed').length})
               </TabsTrigger>
             </TabsList>
           </div>
@@ -154,11 +183,18 @@ export function PastoralCareView({
                 ))}
               </div>
             ) : (
-              <PastoralCareEmptyState />
+              <PastoralCareEmptyState onRequestCare={() => setIsCreateOpen(true)} />
             )}
           </div>
         </Tabs>
       </div>
+
+      {/* Request Pastoral Care Dialog */}
+      <PastoralCareRequestDialog
+        open={isCreateOpen}
+        onOpenChange={setIsCreateOpen}
+        onSuccess={handleCreated}
+      />
 
       {/* Details Dialog */}
       <PastoralCareDetailsDialog

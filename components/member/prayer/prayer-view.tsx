@@ -1,9 +1,9 @@
 'use client';
 
 import { useState } from 'react';
-import { Search } from 'lucide-react';
+import { Search, Plus } from 'lucide-react';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
-import { Card, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
   Select,
@@ -12,10 +12,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { MemberPrayerRequest, PrayerRequestStatus } from '@/lib/types/member';
+import { MemberPageHeader } from '@/components/member/shared';
+import { MemberPrayerRequest } from '@/lib/types/member';
 import { PrayerOverview } from './prayer-overview';
 import { PrayerRequestCard } from './prayer-request-card';
 import { PrayerDetailsDialog } from './prayer-details-dialog';
+import { PrayerRequestDialog } from './prayer-request-dialog';
 import { PrayerEmptyState } from './prayer-empty-state';
 import { memberPrayerService } from '@/services/member';
 import { useToast } from '@/hooks/use-toast';
@@ -33,6 +35,7 @@ export function PrayerView({ initialRequests, className }: PrayerViewProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedRequest, setSelectedRequest] = useState<MemberPrayerRequest | null>(null);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
+  const [isCreateOpen, setIsCreateOpen] = useState(false);
   const { toast } = useToast();
 
   const handleRefresh = async () => {
@@ -43,6 +46,14 @@ export function PrayerView({ initialRequests, className }: PrayerViewProps) {
   const handleViewDetails = (req: MemberPrayerRequest) => {
     setSelectedRequest(req);
     setIsDetailOpen(true);
+  };
+
+  const handleCreated = async () => {
+    toast({
+      title: 'Prayer Request Submitted',
+      description: 'Your prayer request has been submitted to the prayer team.',
+    });
+    await handleRefresh();
   };
 
   const handleMarkAnswered = async (req: MemberPrayerRequest, testimony?: string) => {
@@ -102,22 +113,39 @@ export function PrayerView({ initialRequests, className }: PrayerViewProps) {
 
   return (
     <div className={cn('space-y-6', className)}>
+      {/* Top Header with Action Button */}
+      <MemberPageHeader
+        title="Prayer"
+        breadcrumbs={[{ label: 'Prayer' }]}
+        actions={
+          <Button
+            type="button"
+            size="sm"
+            onClick={() => setIsCreateOpen(true)}
+            className="gap-1.5 font-medium"
+          >
+            <Plus className="h-4 w-4" />
+            <span>Submit Prayer Request</span>
+          </Button>
+        }
+      />
+
       {/* Overview Context Cards */}
       <PrayerOverview requests={requests} />
 
       {/* Main Filter & Tabs Section */}
       <div className="space-y-4">
         <Tabs value={currentTab} onValueChange={setCurrentTab} className="w-full">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-border/40 pb-3">
+          <div className="flex items-center justify-between border-b border-border/40 pb-3">
             <TabsList className="bg-muted/50 p-1">
               <TabsTrigger value="all" className="text-xs font-medium">
                 All Requests ({requests.length})
               </TabsTrigger>
               <TabsTrigger value="praying" className="text-xs font-medium">
-                Active Intercession ({requests.filter((r) => r.status === 'Praying' || r.status === 'Submitted').length})
+                Active ({requests.filter((r) => r.status === 'Praying' || r.status === 'Submitted').length})
               </TabsTrigger>
               <TabsTrigger value="answered" className="text-xs font-medium">
-                Answered Praises ({requests.filter((r) => r.status === 'Answered').length})
+                Answered ({requests.filter((r) => r.status === 'Answered').length})
               </TabsTrigger>
             </TabsList>
           </div>
@@ -167,11 +195,18 @@ export function PrayerView({ initialRequests, className }: PrayerViewProps) {
                 ))}
               </div>
             ) : (
-              <PrayerEmptyState />
+              <PrayerEmptyState onSubmitRequest={() => setIsCreateOpen(true)} />
             )}
           </div>
         </Tabs>
       </div>
+
+      {/* Submit Prayer Request Dialog */}
+      <PrayerRequestDialog
+        open={isCreateOpen}
+        onOpenChange={setIsCreateOpen}
+        onSuccess={handleCreated}
+      />
 
       {/* Details / Mark Answered Dialog */}
       <PrayerDetailsDialog

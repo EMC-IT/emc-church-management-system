@@ -1,13 +1,19 @@
+'use client';
+
 import Link from 'next/link';
 import { Heart, Plus } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 
 export interface PrayerEmptyStateProps {
+  onSubmitRequest?: () => void;
   className?: string;
 }
 
-export function PrayerEmptyState({ className }: PrayerEmptyStateProps) {
+export function PrayerEmptyState({
+  onSubmitRequest,
+  className,
+}: PrayerEmptyStateProps) {
   return (
     <Card className={className}>
       <CardContent className="flex flex-col items-center justify-center p-8 sm:p-12 text-center">
@@ -20,12 +26,20 @@ export function PrayerEmptyState({ className }: PrayerEmptyStateProps) {
         <p className="text-sm text-muted-foreground max-w-md mb-6 leading-relaxed">
           Do not be anxious about anything, but in every situation, by prayer and petition, present your requests to God. We are here to pray with you.
         </p>
-        <Link href="/portal/prayer/new">
-          <Button size="sm" className="gap-2 font-medium">
+
+        {onSubmitRequest ? (
+          <Button size="sm" onClick={onSubmitRequest} className="gap-2 font-medium">
             <Plus className="h-4 w-4" />
             <span>Submit a Prayer Request</span>
           </Button>
-        </Link>
+        ) : (
+          <Link href="/portal/prayer/new">
+            <Button size="sm" className="gap-2 font-medium">
+              <Plus className="h-4 w-4" />
+              <span>Submit a Prayer Request</span>
+            </Button>
+          </Link>
+        )}
       </CardContent>
     </Card>
   );

@@ -1,13 +1,19 @@
+'use client';
+
 import Link from 'next/link';
 import { HeartHandshake, Plus } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 
 export interface PastoralCareEmptyStateProps {
+  onRequestCare?: () => void;
   className?: string;
 }
 
-export function PastoralCareEmptyState({ className }: PastoralCareEmptyStateProps) {
+export function PastoralCareEmptyState({
+  onRequestCare,
+  className,
+}: PastoralCareEmptyStateProps) {
   return (
     <Card className={className}>
       <CardContent className="flex flex-col items-center justify-center p-8 sm:p-12 text-center">
@@ -20,12 +26,20 @@ export function PastoralCareEmptyState({ className }: PastoralCareEmptyStateProp
         <p className="text-sm text-muted-foreground max-w-md mb-6 leading-relaxed">
           If you are facing a difficult season, navigating major life decisions, or in need of pastoral visitation or spiritual guidance, you can request confidential support from the pastors.
         </p>
-        <Link href="/portal/pastoral-care/request">
-          <Button size="sm" className="gap-2 font-medium">
+
+        {onRequestCare ? (
+          <Button size="sm" onClick={onRequestCare} className="gap-2 font-medium">
             <Plus className="h-4 w-4" />
             <span>Request Pastoral Care</span>
           </Button>
-        </Link>
+        ) : (
+          <Link href="/portal/pastoral-care/request">
+            <Button size="sm" className="gap-2 font-medium">
+              <Plus className="h-4 w-4" />
+              <span>Request Pastoral Care</span>
+            </Button>
+          </Link>
+        )}
       </CardContent>
     </Card>
   );
