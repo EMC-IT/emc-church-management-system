@@ -288,10 +288,10 @@ These stop specific phases. Everything else is tracked in the companion document
 | ~~Phase 1~~ | ~~OQ-API-01~~ | **Closed.** `/api/v1` adopted; `NEXT_PUBLIC_API_URL`, `API_DOCUMENTATION.md` and `api-documentations/*` updated to match. |
 | Phase 1 | OQ-API-02/03 | Response envelope: which pagination shape, and is `success` present on every endpoint? Three shapes are currently in use. |
 | Phase 1 | OQ-SEC-12 | Does `SuperAdmin` cross tenant boundaries? Determines whether the base repository can ever skip the tenant predicate. |
-| Phase 2 | OQ-01 | Are members and users the same principal, or is there a `members.user_id` FK? Determines the identity schema. |
-| Phase 2 | OQ-API-04 | Is `POST /auth/register` public self-registration, and if so which tenant does a self-registered user land in? |
-| Phase 2 | OQ-SEC-06 | Which role list is authoritative? Recommendation: `lib/authorization/roles.ts` (six roles), because the passing test suite asserts it. |
-| Phase 2 | OQ-DB-03 | Argon2id (mandated) vs the pinned `passlib[bcrypt]`; and Python 3.13+ (mandated) vs `requires-python = ">=3.11"`. |
+| ~~Phase 2~~ | ~~OQ-01~~ | **Resolved — [ADR-001](./adr/001-member-user-separation.md).** `Member` and `User` are separate entities; `members.user_id → users.id`, nullable, optional one-to-one. |
+| ~~Phase 2~~ | ~~OQ-API-04~~ | **Resolved — [ADR-002](./adr/002-controlled-self-registration.md).** Self-registration is tenant-bound via a server-resolved registration token/link, never a client-supplied `church_id`. Unrestricted global registration is out of scope for Phase 2. |
+| ~~Phase 2~~ | ~~OQ-SEC-06~~ | **Resolved — [ADR-003](./adr/003-authoritative-rbac-model.md).** `lib/authorization/roles.ts` (six roles) and its `ROLE_PERMISSIONS`/dot-notation permissions are authoritative; `architecture-baseline.md`'s five-role list and the finance docs' colon-notation admin scheme are discarded. |
+| ~~Phase 2~~ | ~~OQ-DB-03~~ | **Resolved — [ADR-004](./adr/004-password-hashing-and-python-version.md).** Argon2id via `pwdlib[argon2]`. Python 3.13 floor and removal of `passlib`/`python-jose` were already correct in `pyproject.toml`; only `pwdlib` still needs to be added. |
 | Phase 4 | OQ-04 | Canonical `membershipStatus` value set — four variants exist. |
 | Phase 4 | OQ-API-06 | Is `DELETE /members/{id}` a soft archive or a hard delete? Financial and attendance history reference `member_id`. |
 | Phase 6 | OQ-05 | Canonical `AttendanceStatus` value set — three variants. |

@@ -18,10 +18,12 @@ from app.core.database.session import (
     session_factory,
 )
 from app.core.database.transaction import transaction_scope
+from app.core.database.types import Money
 
 __all__ = [
     "NAMING_CONVENTION",
     "Base",
+    "Money",
     "SoftDeleteMixin",
     "TenantScopedMixin",
     "TimestampMixin",

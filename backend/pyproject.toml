@@ -20,6 +20,7 @@ dependencies = [
     "celery>=5.4.0",
     "python-multipart>=0.0.19",
     "httpx>=0.28.0",
+    "pwdlib[argon2]>=0.3.1",
 ]
 
 [build-system]
@@ -36,6 +37,7 @@ dev = [
     "ruff>=0.8.0",
     "mypy>=1.13.0",
     "celery-types>=0.22.0",
+    "fastapi[standard]>=0.141.1",
 ]
 
 [tool.pytest.ini_options]
@@ -86,6 +88,7 @@ classmethod-decorators = ["directive"]
 "tests/*" = [
     "S101",  # assert is the point of a test
     "S608",  # test SQL interpolates fixture-owned literal table names, not input
+    "S105",  # password-hashing test fixtures use literal passwords, not credentials
 ]
 
 [tool.ruff.lint.flake8-tidy-imports]
@@ -93,6 +96,17 @@ ban-relative-imports = "all"
 
 [tool.ruff.lint.isort]
 known-first-party = ["app", "tests"]
+
+# Editor-only. MyPy remains the type gate in CI; this exists so that Pylance /
+# Pyright resolve imports against the project venv instead of a system
+# interpreter, which otherwise reports every third-party import as missing.
+[tool.pyright]
+venvPath = "."
+venv = ".venv"
+include = ["app", "tests", "migrations"]
+exclude = [".venv", "**/__pycache__"]
+pythonVersion = "3.13"
+typeCheckingMode = "standard"
 
 [tool.mypy]
 python_version = "3.13"

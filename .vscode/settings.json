@@ -1,0 +1,21 @@
+{
+  // The Python project lives in backend/, not at the workspace root. Without
+  // this, Pylance selects a system interpreter and reports every third-party
+  // import (fastapi, sqlalchemy, celery, starlette, redis) as unresolved.
+  "python.defaultInterpreterPath": "${workspaceFolder}/backend/.venv/bin/python",
+
+  // Lets Pylance resolve first-party imports such as `from app.config import settings`,
+  // since `app/` sits under backend/ rather than at the workspace root.
+  "python.analysis.extraPaths": ["${workspaceFolder}/backend"],
+  "python.analysis.typeCheckingMode": "standard",
+
+  "python.testing.pytestEnabled": true,
+  "python.testing.cwd": "${workspaceFolder}/backend",
+  "python.testing.pytestArgs": ["tests"],
+
+  "[python]": {
+    "editor.defaultFormatter": "charliermarsh.ruff",
+    "editor.formatOnSave": true,
+    "editor.codeActionsOnSave": { "source.organizeImports.ruff": "explicit" }
+  }
+}

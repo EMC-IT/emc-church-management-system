@@ -111,7 +111,7 @@ class TestMigrationsRunFromClean:
         finally:
             await engine.dispose()
 
-        assert revision == "0001"
+        assert revision == "0003"
 
     async def test_creates_the_required_extensions(self, clean_database: str) -> None:
         _alembic("upgrade", "head", database_url=clean_database)
@@ -154,7 +154,7 @@ class TestMigrationTooling:
         _alembic("upgrade", "head", database_url=clean_database)
         result = _alembic("current", database_url=clean_database)
         assert result.returncode == 0
-        assert "0001" in result.stdout
+        assert "0003" in result.stdout
 
     async def test_offline_mode_emits_sql(self, clean_database: str) -> None:
         """`alembic upgrade head --sql` works for review and for DBA hand-off."""

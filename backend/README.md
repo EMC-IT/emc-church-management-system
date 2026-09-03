@@ -34,12 +34,19 @@ docker compose up                              # api, worker, beat
 Needs a local PostgreSQL 14+ and Redis.
 
 ```bash
-uv sync --extra dev
+uv sync
 cp .env.example .env                           # then edit DATABASE_URL / REDIS_URL
 createdb emc_church_db
 uv run alembic upgrade head
-uv run uvicorn app.main:app --reload
+uv run fastapi dev app/main.py                 # or: uv run uvicorn app.main:app --reload
 ```
+
+`fastapi dev` and `uvicorn --reload` run the same server; the former prints a
+nicer banner. Note that its banner advertises `/docs`, which **404s here** — the
+docs live under the version prefix at `/api/v1/docs`, as does everything else.
+
+The Docker image runs `uvicorn` explicitly rather than `fastapi run`, so that
+the production entrypoint names its app rather than discovering it.
 
 ## Endpoints
 
@@ -68,6 +75,30 @@ Redis index and will not touch development data:
 `tests/integration/test_migrations.py` creates and drops a throwaway database
 per test, so migrations are proven against a genuinely clean schema rather than
 whatever an earlier suite left behind.
+
+## Dependencies
+
+`pyproject.toml` is the single source of truth; `uv.lock` is committed and must
+stay in sync with it. There is no `requirements.txt` and none should be written
+by hand — if a deployment target ever needs one, generate it with
+`uv export --no-dev --format requirements-txt`.
+
+```bash
+uv add <package>          # runtime dependency
+uv add --dev <package>    # tooling: test, lint, type-check, dev server CLI
+uv sync                   # install runtime + dev (the default)
+uv sync --no-dev          # runtime only, as the Docker image does
+uv lock --check           # CI gate: lock file matches pyproject.toml
+```
+
+Dev tooling lives in `[dependency-groups]` (PEP 735) rather than an optional
+extra, so `uv add --dev` writes to the list that is already there instead of
+starting a second one, and `--no-dev` genuinely excludes it from the image.
+
+Before adding anything, check the standard library and the existing dependency
+set first. The footprint is deliberately small: every addition is a maintenance
+and supply-chain liability, and the platform layer needs very little that
+Python 3.13 does not already provide.
 
 ## Migrations
 

@@ -15,15 +15,15 @@ Per `backend/AGENTS.md` §17, no table is proposed here without a traced source.
 | Migrations | Alembic, one per schema change, reviewed for data loss / indexes / FKs / nullability / uniqueness / tenant isolation / performance | `backend/AGENTS.md` §13 |
 | PK | `UUID` (`uuid4`), `id` | `backend/app/core/database/base.py` uses `UUID(as_uuid=True)` |
 | Timestamps | `created_at`, `updated_at` — `TIMESTAMPTZ NOT NULL` | `TimestampMixin` (already implemented) |
-| Tenant column | `tenant_id UUID NOT NULL` indexed | `TenantScopedMixin` (already implemented) |
-| Branch column | `branch_id UUID NULL` indexed | `TenantScopedMixin` |
+| Tenant column | `tenant_id UUID NOT NULL REFERENCES churches(id) ON DELETE RESTRICT`, indexed | `TenantScopedMixin` (already implemented; FK added Phase 2B-1.5, [ADR-005 addendum](./adr/005-church-branch-tenant-root.md)) |
+| Branch column | `branch_id UUID NULL` indexed, **no FK yet** | `TenantScopedMixin` — constraining it needs a same-tenant check a plain FK can't express; deferred to the first branch-scoped domain, see ADR-005 addendum |
 | Money | `NUMERIC(14,2)`; never `float`/`double` | `backend/AGENTS.md` §10, `api-documentations/Introduction.md` §3 |
 | Currency | `CHAR(3)`, default `'GHS'` | `currencySchema` = `GHS\|USD\|EUR\|GBP\|NGN` |
 | Enums | PostgreSQL native `ENUM` **only** where the value set is settled; `VARCHAR` + CHECK where OQ-flagged | see §9 |
 | Soft delete | `deleted_at TIMESTAMPTZ NULL` on member, financial, and file tables | implied by `Archived`/`Transferred` statuses and audit immutability |
 | Naming | `snake_case`, plural table names | `backend architecture.md` §23 |
 
-> **Column-name mapping.** The frontend `SecurityContext` uses `tenantId`; `backend architecture.md` §9 uses `church_id`; the already-written `TenantScopedMixin` uses `tenant_id`. **Recommendation:** keep `tenant_id` in the database (matches the shipped mixin, avoids a rewrite) and treat "church" as the *entity* name (`churches.id` is the tenant id). Confirm — **OQ-DB-01**.
+> **Column-name mapping.** **Resolved — [ADR-005](./adr/005-church-branch-tenant-root.md).** `tenant_id` is canonical (matches the shipped `TenantScopedMixin` and the frontend's `SecurityContext` vocabulary); `church_id` (`backend architecture.md` §9) is discarded. "Church" is the *entity* name; `churches.id` is the tenant id used everywhere else — there is no separate `Tenant` table.
 
 ---
 
@@ -461,9 +461,9 @@ Every revision must be verified with a from-clean-database run and a `downgrade(
 
 | ID | Question |
 | :-- | :-- |
-| **OQ-DB-01** | Column name for the tenant key: `tenant_id` (shipped mixin, frontend vocabulary) or `church_id` (`backend architecture.md` §9)? Changing later is a full-schema migration. |
-| **OQ-DB-02** | Does a tenant need a URL-safe `slug` / subdomain for tenant resolution, or is tenancy purely token-derived? |
-| **OQ-DB-03** | Password hashing: `backend architecture.md` §12 mandates **Argon2id**, but `backend/pyproject.toml` pins `passlib[bcrypt]`. Confirm Argon2id and swap the dependency to `argon2-cffi`. Also: `pyproject.toml` sets `requires-python = ">=3.11"` while `backend/AGENTS.md` §2 mandates Python 3.13+. |
+| ~~OQ-DB-01~~ | **Resolved — [ADR-005](./adr/005-church-branch-tenant-root.md).** `tenant_id` is canonical; `churches` is the tenant root with no separate `Tenant` table. |
+| **OQ-DB-02** | Does a tenant need a URL-safe `slug` / subdomain for tenant resolution, or is tenancy purely token-derived? *(Still open — no `slug` field exists in `churchProfileSchema`; not added to the Phase 2B-1 `churches` table pending this decision.)* |
+| ~~OQ-DB-03~~ | **Resolved — [ADR-004](./adr/004-password-hashing-and-python-version.md).** Argon2id via `pwdlib[argon2]`; Python 3.13 floor was already correct in `pyproject.toml`. |
 | **OQ-DB-04** | Can a pledge be overpaid? The proposed `CHECK paid_amount <= pledged_amount` would reject it. |
 | **OQ-DB-05** | Is expense self-approval ever permitted (small church, one finance officer)? Determines whether the segregation-of-duties CHECK ships. |
 | **OQ-DB-06** | `BudgetRecord.spent` and `BudgetAllocation.spentAmount` are frontend fields. Computed live, or maintained by trigger? Live computation is correct but costs a join on every budget list; a trigger is faster but can drift. |

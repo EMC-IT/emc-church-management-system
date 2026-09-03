@@ -72,7 +72,7 @@ def _probe_app(settings: Settings) -> FastAPI:
 
     @router.get("/boom/unhandled")
     async def _unhandled() -> None:
-        secret = "postgresql://admin:hunter2@db.internal/prod"  # noqa: S105
+        secret = "postgresql://admin:hunter2@db.internal/prod"
         raise RuntimeError(f"connection to {secret} failed")
 
     @router.post("/echo")

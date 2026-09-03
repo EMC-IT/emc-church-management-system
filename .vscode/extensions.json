@@ -1,0 +1,22 @@
+{
+  // Extensions this repository's committed settings depend on. VS Code offers
+  // these on first open; nothing here is installed automatically.
+  "recommendations": [
+    // Python — required for the interpreter and analysis settings to take effect.
+    "ms-python.python",
+    "ms-python.vscode-pylance",
+    // Ruff is the formatter and import-sorter named in settings.json; without it
+    // format-on-save for Python silently does nothing.
+    "charliermarsh.ruff",
+
+    // Frontend — matches the toolchain in package.json.
+    "dbaeumer.vscode-eslint",
+    "bradlc.vscode-tailwindcss",
+    "vitest.explorer"
+  ],
+  "unwantedRecommendations": [
+    // Conflicts with Ruff over Python formatting; pick one.
+    "ms-python.black-formatter",
+    "ms-python.isort"
+  ]
+}

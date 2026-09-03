@@ -445,7 +445,7 @@ After every meaningful implementation:
 
 * Run tests.
 * Run lint.
-* Run type checks.
+* Run type checks.q
 * Inspect migration.
 * Verify API behavior.
 

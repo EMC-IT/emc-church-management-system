@@ -87,7 +87,7 @@ class TestReadinessWhenADependencyIsDown:
         self, client: AsyncClient, api_prefix: str, monkeypatch: pytest.MonkeyPatch
     ) -> None:
         """The error field carries a type name, never a DSN or credentials."""
-        secret_dsn = "postgresql://admin:hunter2@db.internal:5432/prod"  # noqa: S105
+        secret_dsn = "postgresql://admin:hunter2@db.internal:5432/prod"
 
         async def failing_check(*_args: object, **_kwargs: object) -> None:
             raise ConnectionRefusedError(f"could not connect to {secret_dsn}")
