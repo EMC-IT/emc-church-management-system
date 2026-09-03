@@ -2,7 +2,7 @@
 
 These endpoints manage physical church assets, audio/visual gear, instruments, furniture, vehicles, and maintenance logs. Consumed by `app/(admin)/dashboard/assets/*` and `services/assets/*`.
 
-Base URL: `http://localhost:8000/api/assets`
+Base URL: `http://localhost:8000/api/v1/assets`
 
 ---
 

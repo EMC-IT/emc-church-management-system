@@ -30,7 +30,7 @@ This document outlines the API endpoints that the frontend expects from the back
 
 ### Base URL
 ```
-http://localhost:8000/api
+http://localhost:8000/api/v1
 ```
 
 ### Authentication Flow

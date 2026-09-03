@@ -12,7 +12,7 @@ The backend service is designed to serve a multi-tenant, multi-branch church ope
 
 ### Base URL
 ```
-http://localhost:8000/api
+http://localhost:8000/api/v1
 ```
 *(Configurable on the frontend via `NEXT_PUBLIC_API_URL`)*
 

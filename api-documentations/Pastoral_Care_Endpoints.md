@@ -2,7 +2,7 @@
 
 These endpoints manage pastoral counseling appointments, visitation cases, and pastoral session records. Consumed by `app/(admin)/dashboard/pastoral-care/*` and `services/member/pastoral-care.service.ts`.
 
-Base URL: `http://localhost:8000/api/pastoral-care`
+Base URL: `http://localhost:8000/api/v1/pastoral-care`
 
 ---
 

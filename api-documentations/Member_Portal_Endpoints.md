@@ -2,7 +2,7 @@
 
 These endpoints support the authenticated Member Self-Service Portal (`/portal/*`) and are consumed by `services/member/*`. All endpoints require an active member session (`Authorization: Bearer <member_jwt_token>`).
 
-Base URL: `http://localhost:8000/api/member`
+Base URL: `http://localhost:8000/api/v1/member`
 
 ---
 

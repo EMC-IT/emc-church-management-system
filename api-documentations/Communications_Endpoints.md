@@ -2,7 +2,7 @@
 
 These endpoints power multi-channel mass communications including bulk SMS broadcasts, email campaigns, scheduled newsletters, and in-app bulletin announcements. Consumed by `app/(admin)/dashboard/communications/*` and `services/communications/*`.
 
-Base URL: `http://localhost:8000/api/communications`
+Base URL: `http://localhost:8000/api/v1/communications`
 
 ---
 

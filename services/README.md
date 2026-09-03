@@ -88,7 +88,7 @@ services/
 ## 🔧 Base API Client (`api-client.ts`)
 
 Configured Axios instance providing:
-* **Base URL**: Set via `NEXT_PUBLIC_API_URL` (defaults to `http://localhost:8000/api`).
+* **Base URL**: Set via `NEXT_PUBLIC_API_URL` (defaults to `http://localhost:8000/api/v1`).
 * **JWT Interception**: Attaches `Authorization: Bearer <token>` from `localStorage` on outgoing requests.
 * **401 Unauthorized**: Clears expired credentials and redirects to `/login`.
 * **403 Forbidden**: Logs access violation and propagates structured `AuthorizationError`.

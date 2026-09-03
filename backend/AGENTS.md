@@ -460,3 +460,390 @@ Report:
 7. Remaining issues.
 
 Never claim something was tested if it was not actually tested.
+
+
+## Code Comments & Documentation Contract
+
+### Core Principle
+
+Write self-explanatory code first.
+
+Comments are not a substitute for clear naming, clean architecture, or well-structured code.
+
+The default should be:
+
+> **No comment unless the comment adds information that cannot be reasonably understood from the code itself.**
+
+Prefer improving the code over explaining confusing code with comments.
+
+---
+
+### 1. Do Not Comment Obvious Code
+
+Never add comments that simply describe what the next line does.
+
+Bad:
+
+```python
+# Get the member
+member = await member_repository.get_by_id(member_id)
+```
+
+Bad:
+
+```python
+# Check if user exists
+if user:
+```
+
+Bad:
+
+```python
+# Return the response
+return response
+```
+
+The code already communicates this information.
+
+---
+
+### 2. Comments Should Explain WHY, Not WHAT
+
+Prefer comments that explain:
+
+* Why a decision was made.
+* Why a seemingly unusual implementation is necessary.
+* Why a business rule exists.
+* Why a security restriction exists.
+* Why an external API is handled in a particular way.
+* Why a performance optimization exists.
+* Why a workaround is necessary.
+* Why a seemingly redundant operation must remain.
+
+Good:
+
+```python
+# Branch scope must come from the authenticated user's context.
+# Never trust branch_id supplied by the client.
+branch_id = current_user.branch_id
+```
+
+The code shows WHAT happens.
+
+The comment explains WHY.
+
+---
+
+### 3. Do Not Narrate Control Flow
+
+Do not write comments such as:
+
+```python
+# Loop through members
+for member in members:
+```
+
+```python
+# Check if transaction is valid
+if transaction.is_valid:
+```
+
+```python
+# Return if not found
+if not member:
+    return None
+```
+
+The control flow is already visible.
+
+---
+
+### 4. Avoid Comment Spam
+
+Do not place comments throughout a function simply to make the code appear documented.
+
+Bad:
+
+```python
+# Get member
+member = await get_member(member_id)
+
+# Check member
+if not member:
+    raise MemberNotFoundError()
+
+# Update member
+member.name = data.name
+
+# Save member
+await repository.save(member)
+```
+
+Prefer:
+
+```python
+member = await get_member(member_id)
+
+if not member:
+    raise MemberNotFoundError()
+
+member.name = data.name
+await repository.save(member)
+```
+
+If the logic needs explanation, add one meaningful comment at the relevant decision point.
+
+---
+
+### 5. Never Use Decorative Comment Sections
+
+Do not use large decorative separators such as:
+
+```python
+# ============================================================
+# MEMBER MANAGEMENT
+# ============================================================
+```
+
+Do not use:
+
+```python
+# -------------------------------
+# Helper Functions
+# -------------------------------
+```
+
+Do not use comments as visual decoration.
+
+Use proper module structure, classes, functions, and file organization instead.
+
+---
+
+### 6. Do Not Add AI-Generated Commentary
+
+Do not generate comments merely because comments are expected.
+
+Do not add generic statements such as:
+
+```python
+# This function handles the process of...
+```
+
+```python
+# This method is responsible for...
+```
+
+```python
+# Here we...
+```
+
+```python
+# First, we...
+```
+
+```python
+# Finally, we...
+```
+
+Avoid verbose AI-style explanations inside production code.
+
+Production comments must be concise and intentional.
+
+---
+
+### 7. Prefer Better Naming Over Comments
+
+If a comment is needed to explain what a poorly named variable or function means, first improve the name.
+
+Bad:
+
+```python
+# Check whether the member is allowed to access this branch
+if check_permission(member, branch):
+```
+
+Prefer:
+
+```python
+if can_access_branch(member, branch):
+```
+
+Do not use comments to compensate for unclear naming.
+
+---
+
+### 8. Use Docstrings for Public APIs
+
+Use docstrings where they provide genuine value, particularly for:
+
+* Public service interfaces
+* Complex business functions
+* Reusable utilities
+* External integration interfaces
+* Public classes
+* Important domain operations
+
+Example:
+
+```python
+def calculate_budget_variance(
+    budget: Decimal,
+    actual: Decimal,
+) -> Decimal:
+    """
+    Calculate the remaining budget after actual expenditure.
+
+    Positive values indicate remaining budget.
+    Negative values indicate overspending.
+    """
+    return budget - actual
+```
+
+Do not create verbose docstrings for trivial private functions.
+
+---
+
+### 9. Document Business Rules
+
+Important business rules should be documented when they are not self-evident.
+
+Example:
+
+```python
+# Reconciled transactions are immutable.
+# Corrections must be represented as reversal transactions.
+if transaction.is_reconciled:
+    raise TransactionAlreadyReconciledError()
+```
+
+Business rules should primarily be enforced by code and tests. Comments should explain the reasoning behind the rule when useful.
+
+---
+
+### 10. Document Security Decisions
+
+Security-related decisions deserve concise comments when the reasoning is not obvious.
+
+Example:
+
+```python
+# Tenant identity is derived from the authenticated session,
+# not from request input, to prevent cross-tenant access.
+church_id = current_user.church_id
+```
+
+Never include secrets, credentials, tokens, passwords, personal data, or sensitive production information in comments.
+
+---
+
+### 11. Document Non-Obvious External Integrations
+
+When an external service has behavior that affects implementation, document it briefly.
+
+Example:
+
+```python
+# Payment authorization is asynchronous.
+# Final status is confirmed through the provider webhook.
+```
+
+Do not document obvious HTTP calls.
+
+---
+
+### 12. Comments Must Remain Accurate
+
+Never add a comment unless it can be maintained alongside the code.
+
+If implementation changes, update or remove the related comment.
+
+An outdated comment is worse than no comment.
+
+During refactoring, actively remove comments that are no longer true.
+
+---
+
+### 13. TODO Comments
+
+Use TODO comments sparingly.
+
+Every TODO must describe a real, actionable piece of work.
+
+Good:
+
+```python
+# TODO: Replace temporary provider fallback once the production
+# payment gateway webhook is enabled.
+```
+
+Bad:
+
+```python
+# TODO: Improve this
+```
+
+Bad:
+
+```python
+# TODO: Fix later
+```
+
+Do not create TODO comments for speculative future improvements.
+
+---
+
+### 14. Do Not Comment Around Poor Code
+
+If code is difficult to understand, first consider:
+
+1. Better naming.
+2. Smaller functions.
+3. Clearer abstractions.
+4. Better domain separation.
+5. Removing unnecessary complexity.
+
+Only then add a concise comment if the underlying reason still cannot be expressed through the code.
+
+---
+
+### 15. Comment Density Rule
+
+As a default:
+
+* Simple CRUD code → little or no comments.
+* Business logic → comments only for non-obvious rules.
+* Security logic → concise rationale where useful.
+* Financial logic → document important calculation assumptions and rules.
+* Complex algorithms → explain the approach and important constraints.
+* Public interfaces → useful docstrings.
+* Infrastructure workarounds → explain why the workaround exists.
+
+Do not target a percentage of commented lines.
+
+There is no requirement that every function, class, or file contain comments.
+
+---
+
+### 16. Final Comment Review
+
+Before completing a task, review every new comment and ask:
+
+> "If I delete this comment, does the code become harder to correctly understand?"
+
+If the answer is NO, delete the comment.
+
+Also ask:
+
+> "Does this comment explain WHY rather than WHAT?"
+
+If it only explains WHAT, delete it.
+
+> "Would better naming or structure eliminate the need for this comment?"
+
+If yes, improve the code instead.
+
+The goal is not heavily commented code.
+
+The goal is:
+
+> **Clear code + meaningful documentation + minimal noise.**

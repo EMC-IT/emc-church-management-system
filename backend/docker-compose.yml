@@ -1,0 +1,160 @@
+# Local development stack for the EMC CMS backend.
+#
+#   docker compose up -d postgres redis minio   # infrastructure only
+#   docker compose up                            # everything
+#   docker compose run --rm api alembic upgrade head
+#
+# Credentials here are development-only and are not used anywhere else.
+
+name: emc-cms
+
+x-app-environment: &app-environment
+  ENVIRONMENT: development
+  DEBUG: "true"
+  LOG_FORMAT: console
+  SECRET_KEY: development-only-compose-secret-key-not-for-any-real-deployment
+  DATABASE_URL: postgresql+asyncpg://postgres:postgres@postgres:5432/emc_church_db
+  REDIS_URL: redis://redis:6379/0
+  CELERY_BROKER_URL: redis://redis:6379/1
+  CELERY_RESULT_BACKEND: redis://redis:6379/2
+  STORAGE_BACKEND: s3
+  S3_ENDPOINT_URL: http://minio:9000
+  S3_ACCESS_KEY_ID: minioadmin
+  S3_SECRET_ACCESS_KEY: minioadmin
+  S3_BUCKET_NAME: emc-church-vault
+  BACKEND_CORS_ORIGINS: http://localhost:3000,http://127.0.0.1:3000
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: emc_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: emc_church_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d emc_church_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    container_name: emc_redis
+    restart: unless-stopped
+    command: ["redis-server", "--appendonly", "yes"]
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  # S3-compatible object storage for the file vault (documents, certificates,
+  # receipts, media). Console at http://localhost:9001.
+  minio:
+    image: minio/minio:latest
+    container_name: emc_minio
+    restart: unless-stopped
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - minio_data:/data
+    healthcheck:
+      test: ["CMD", "mc", "ready", "local"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  # One-shot: creates the application bucket, then exits.
+  minio-init:
+    image: minio/mc:latest
+    container_name: emc_minio_init
+    depends_on:
+      minio:
+        condition: service_healthy
+    entrypoint: >
+      /bin/sh -c "
+      mc alias set local http://minio:9000 minioadmin minioadmin &&
+      mc mb --ignore-existing local/emc-church-vault &&
+      mc anonymous set none local/emc-church-vault &&
+      echo 'bucket ready'
+      "
+    restart: "no"
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: runner
+    container_name: emc_api
+    restart: unless-stopped
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+    volumes:
+      - .:/app
+    ports:
+      - "8000:8000"
+    environment: *app-environment
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://localhost:8000/api/v1/health', timeout=3).status == 200 else 1)"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+
+  worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: runner
+    container_name: emc_celery_worker
+    restart: unless-stopped
+    command: celery -A app.jobs.worker.celery_app worker --loglevel=info
+    volumes:
+      - .:/app
+    environment: *app-environment
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  beat:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: runner
+    container_name: emc_celery_beat
+    restart: unless-stopped
+    command: celery -A app.jobs.worker.celery_app beat --loglevel=info
+    volumes:
+      - .:/app
+    environment: *app-environment
+    depends_on:
+      redis:
+        condition: service_healthy
+
+volumes:
+  postgres_data:
+  redis_data:
+  minio_data:

@@ -684,7 +684,7 @@ The system adheres strictly to the UI/UX contracts specified in [`AGENTS.md`](fi
    ```
    Edit `.env.local` with your configuration:
    ```env
-   NEXT_PUBLIC_API_URL=http://localhost:8000/api
+   NEXT_PUBLIC_API_URL=http://localhost:8000/api/v1
    NEXT_PUBLIC_APP_NAME="EMC Church Management System"
    ```
 
@@ -700,7 +700,7 @@ The system adheres strictly to the UI/UX contracts specified in [`AGENTS.md`](fi
 
 | Variable | Description | Default / Example |
 | :--- | :--- | :--- |
-| `NEXT_PUBLIC_API_URL` | Base URL of the backend REST API | `http://localhost:8000/api` |
+| `NEXT_PUBLIC_API_URL` | Base URL of the backend REST API | `http://localhost:8000/api/v1` |
 | `NEXT_PUBLIC_APP_NAME` | Display name of the church application | `EMC Church Management System` |
 
 ---
