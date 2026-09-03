@@ -1,6 +1,6 @@
 # EMC Church Management System — Application Services Layer
 
-The services layer encapsulates all business logic, remote API communications, and data transformation for the EMC CMS platform. It is structured into **domain packages** located in `services/<domain>/` with a centralized, backwards-compatible master barrel export at `services/index.ts`.
+The services layer encapsulates all business logic, remote API communications, and data transformation for the EMC CMS platform. It is structured into modular **domain packages** located in `services/<domain>/` alongside dedicated **member portal services** in `services/member/`, with a centralized master barrel export at `services/index.ts`.
 
 ---
 
@@ -8,6 +8,24 @@ The services layer encapsulates all business logic, remote API communications, a
 
 ```
 services/
+├── member/                    # Dedicated Member Self-Service Portal Services (16 modules)
+│   ├── dashboard.service.ts   # Personal metrics, spiritual verse & overview data
+│   ├── attendance.service.ts  # Personal attendance history & touchless QR pass
+│   ├── events.service.ts      # Member event catalog, RSVPs & digital tickets
+│   ├── family.service.ts      # Household graph & family linking requests
+│   ├── giving.service.ts      # Contribution history, pledge tracking & tax PDF generation
+│   ├── groups.service.ts      # Enrolled small groups, cell meetings & join requests
+│   ├── journey.service.ts     # Discipleship milestones & certificate records
+│   ├── ministries.service.ts  # Serving teams, ministry rosters & sign-ups
+│   ├── notifications.service.ts # Alert notifications, mark-as-read & category filters
+│   ├── pastoral-care.service.ts # Pastoral counseling appointments & visitation requests
+│   ├── prayer.service.ts      # Prayer petition submission & answered prayer testimonies
+│   ├── profile.service.ts     # Member profile details, photo updates & contact info
+│   ├── resources.service.ts   # Digital sermon guides, study notes & PDF downloads
+│   ├── settings.service.ts    # Notification delivery preferences & password updates
+│   ├── announcements.service.ts # Church bulletins & general member notices
+│   └── index.ts               # Barrel export for member services
+│
 ├── members/                   # Membership & CRM Domain
 │   ├── members-service.ts     # Directory, CRUD, photos, statistics, families
 │   ├── documents-service.ts   # Member certificates, baptism records, uploads
@@ -82,9 +100,9 @@ Configured Axios instance providing:
 Each domain service works in tandem with:
 
 1. **Validation Schemas (`lib/validation/<domain>.ts`)**:
-   Inputs to service methods (such as `createMember`, `createExpense`, `recordAttendance`) are validated using domain Zod schemas before API transmission.
+   Inputs to service methods (such as `createMember`, `createExpense`, `recordAttendance`, `submitPrayerRequest`) are validated using domain Zod schemas before API transmission.
 
-2. **Authorization Guards (`lib/authorization/guards.ts`)**:
+2. **Authorization Guards (`lib/authorization/guards.ts` & `member-guards.ts`)**:
    Server-side role and permission assertions ensure the active principal has appropriate authority before executing mutations.
 
 3. **Tenant & Branch Scoping (`lib/authorization/scope.ts`)**:
@@ -95,85 +113,3 @@ Each domain service works in tandem with:
 
 5. **Structured Audit Logging (`lib/audit/audit-logger.ts`)**:
    Sensitive actions emit immutable audit records.
-
----
-
-## 🚀 Domain Services Reference
-
-### 1. Members Domain (`services/members/`)
-```typescript
-import { membersService, documentsService } from '@/services/members';
-
-// Or via master export:
-import { membersService } from '@/services';
-
-// Query paginated members list
-const response = await membersService.getMembers({ page: 1, limit: 20, status: 'Active' });
-
-// Create a new member
-const newMember = await membersService.createMember(memberData);
-```
-
-### 2. Finance Domain (`services/finance/`)
-```typescript
-import { 
-  financeService, 
-  givingService, 
-  expenseService, 
-  incomeService, 
-  budgetService 
-} from '@/services/finance';
-
-// Record Sunday collection tithe & offering
-await financeService.createTitheOffering(titheData);
-
-// Log an expenditure voucher
-await expenseService.createExpense(expenseData);
-
-// Get budget utilization & variance
-const budget = await budgetService.getBudget(budgetId);
-```
-
-### 3. Attendance Domain (`services/attendance/`)
-```typescript
-import { attendanceService } from '@/services/attendance';
-
-// Record batch roll call for a Sunday service
-await attendanceService.recordBulkAttendance({
-  serviceType: 'Sunday Service',
-  serviceDate: '2026-08-27',
-  records: [
-    { memberId: 'mem_1', status: 'Present' },
-    { memberId: 'mem_2', status: 'Late', checkInTime: '09:15' }
-  ]
-});
-```
-
-### 4. Communications Domain (`services/communications/`)
-```typescript
-import { communicationsService } from '@/services/communications';
-
-// Send mass SMS broadcast
-await communicationsService.sendSMS({
-  recipients: ['+233241234567', '+233201234568'],
-  message: 'Reminder: All-night prayer service begins tonight at 10 PM.',
-  priority: 'high'
-});
-```
-
-### 5. Sunday School Domain (`services/sunday-school/`)
-```typescript
-import { sundaySchoolService } from '@/services/sunday-school';
-
-// Get classes and enrolled student stats
-const classes = await sundaySchoolService.getClasses();
-```
-
----
-
-## 🔄 Backwards Compatibility Protocol (`OLD -> ADAPTER -> NEW`)
-
-To prevent breaking existing pages and components:
-1. **Flat file imports** such as `import { departmentsService } from '@/services/departments-service'` redirect seamlessly through adapter re-exports.
-2. **Master barrel imports** `import { membersService, financeService } from '@/services'` continue to work unchanged.
-3. **Domain package imports** `import { membersService } from '@/services/members'` provide clean domain isolation for all new development.

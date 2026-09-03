@@ -1,22 +1,24 @@
-# EMC Church Management System — Architecture Baseline (Phase 0)
+# EMC Church Management System — Architecture Baseline
 
-**Date**: August 2026  
-**Status**: Baseline Established  
+**Date**: Updated September 2026  
+**Status**: Production Baseline Established & Realigned  
 **Repository**: EMC-IT/emc-church-management-system  
 
 ---
 
 ## 1. System Overview
 
-The EMC Church Management System (CMS) is a multi-tenant, multi-branch church operations and administrative enterprise web application built on Next.js App Router and TypeScript.
+The EMC Church Management System (CMS) is a multi-tenant, multi-branch church operations, discipleship, and administrative enterprise web application built on Next.js App Router and TypeScript.
 
 ### Technology Stack Baseline
-* **Framework**: Next.js 16.2.10 (App Router, Client Components & RSC foundations)
+* **Framework**: Next.js 16.2.10 (App Router, React Server Components & Client Boundaries)
 * **Language & Runtime**: TypeScript 5.7.0, Node.js v20+
-* **UI & Styling**: Tailwind CSS 3.3.3, shadcn/ui, Radix UI primitives, Lucide icons, Framer Motion
-* **Data Presentation**: TanStack Table v8, Recharts 2.15.4
+* **React**: React 19.2.7 & React DOM 19.2.7
+* **UI & Styling**: Tailwind CSS 3.3.3, shadcn/ui, Radix UI primitives, Lucide icons, Framer Motion 12.23.5
+* **Data Presentation**: TanStack Table v8.21.3, Recharts 2.15.4
 * **Form & Validation**: React Hook Form 7.60.0, Zod 3.25.76, Hookform Resolvers 3.10.0
-* **HTTP Client**: Axios 1.10.0
+* **HTTP Client**: Axios 1.10.0 with JWT authentication interceptors
+* **Testing**: Vitest test runner (`npm test`)
 * **Typography**: Montserrat / Cabinet Grotesk & Satoshi font tokens
 
 ---
@@ -24,89 +26,84 @@ The EMC Church Management System (CMS) is a multi-tenant, multi-branch church op
 ## 2. Baseline Architecture Inventory
 
 ```
-                               ┌────────────────────────────────┐
-                               │   Next.js App Router (app/)    │
-                               │  14 Dashboard Domain Routes    │
-                               └───────────────┬────────────────┘
-                                               │
-                                               ▼
-                               ┌────────────────────────────────┐
-                               │  UI & Layout Components        │
-                               │ (components/ui, forms, layout) │
-                               └───────────────┬────────────────┘
-                                               │
-                                               ▼
-                               ┌────────────────────────────────┐
-                               │   Flat Services Layer          │
-                               │  (services/*.ts via Axios)     │
-                               └───────────────┬────────────────┘
-                                               │
-                                               ▼
-                               ┌────────────────────────────────┐
-                               │       External REST API        │
-                               │ (process.env.NEXT_PUBLIC_API)  │
-                               └────────────────────────────────┘
+                                ┌────────────────────────────────────────────────────────┐
+                                │             Next.js App Router (app/)                  │
+                                │  204 Routes Across 3 Primary Operational Facets        │
+                                ├─────────────────────────┬──────────────────────────────┤
+                                │ (landing) (11 Pages)    │ (member)/portal (18 Pages)   │
+                                │ (admin)/dashboard (173) │ (admin) login/onboarding (2) │
+                                └────────────┬────────────┴──────────────┬───────────────┘
+                                             │                           │
+                                             ▼                           ▼
+                                ┌─────────────────────────┐ ┌────────────────────────────┐
+                                │ UI & Layout Components  │ │ Domain Component Packages  │
+                                │ (components/ui, layout) │ │ (member, landing, forms)   │
+                                └────────────┬────────────┘ └────────────┬───────────────┘
+                                             │                           │
+                                             └─────────────┬─────────────┘
+                                                           │
+                                                           ▼
+                                ┌────────────────────────────────────────────────────────┐
+                                │               Modular Services Layer                   │
+                                │  (services/<domain>/*, services/member/*, Axios)       │
+                                └──────────────────────────┬─────────────────────────────┘
+                                                           │
+                                                           ▼
+                                ┌────────────────────────────────────────────────────────┐
+                                │                   External REST API                    │
+                                │             (process.env.NEXT_PUBLIC_API)              │
+                                └────────────────────────────────────────────────────────┘
 ```
 
 ### Key Component Inventories
 
 | Layer | Path | Status & Composition |
 | :--- | :--- | :--- |
-| **Routing** | `app/(admin)/dashboard/*` | 14 domain submodules, 90+ route pages with loading & error skeletons |
-| **Components** | `components/ui/*` | 40+ shadcn/ui primitives, custom pickers, brand components |
-| **Forms** | `components/forms/*` | Centralized forms + inlined page forms (needs domain segregation) |
-| **Layouts** | `components/layout/*` | Dashboard shell, header, sidebar, global command palette |
-| **Services** | `services/*.ts` | 18 flat service classes/modules utilizing Axios `apiClient` |
-| **Types** | `lib/types/*` | 11 domain TypeScript definition files |
-| **State / Context** | `lib/contexts/*` | `AuthContext` (auth state), `CurrencyContext` (multi-currency) |
-| **Permissions** | `lib/permissions.ts` | Role-permission mappings, permission dictionaries |
-| **Date / Time** | `lib/date-utils.ts` | Centralized formatting and parsing utilities |
+| **Routing — Admin Dashboard** | `app/(admin)/dashboard/*` | 17 domain submodules, 173 route pages with loading skeletons and error boundaries |
+| **Routing — Member Portal** | `app/(member)/portal/*` | 18 authenticated self-service pages with `MemberShell`, responsive drawer, and breadcrumbs |
+| **Routing — Public Portal** | `app/(landing)/*` | 11 public outreach, sermon archive, and online giving pages |
+| **Routing — Auth & Setup** | `app/(admin)/login`, `onboarding` | 2 administrative entry and onboarding routes |
+| **Generic UI Primitives** | `components/ui/*` | 40+ shadcn/ui primitives, status badges, currency display, data tables |
+| **Member Portal Components**| `components/member/*` | 18+ submodules (attendance, events, family, giving, groups, journey, prayer, pastoral care, etc.) |
+| **Public Landing Components**| `components/landing/*` | 15+ public presentation components (Hero, Sermons, Testimonials, Service Times, Live Stream) |
+| **Domain Forms** | `components/<domain>/*` | Domain-specific forms (`members/`, `departments/`, `prayer-requests/`) |
+| **Services Layer** | `services/*` | Domain packages (`members`, `finance`, `attendance`, `events`, `groups`, `departments`, `sunday-school`, `communications`, `assets`, `reports`, `auth`, `upload`) plus dedicated `services/member/*` (16 services) |
+| **Validation Schemas** | `lib/validation/*` | Centralized Zod runtime schemas covering all API input mutations and forms |
+| **Security & Authorization** | `lib/authorization/*` | RBAC permission matrix (`permissions.ts`), member permissions (`member-permissions.ts`), and policy guards |
+| **State / Context** | `lib/contexts/*` | `AuthContext` (auth & session state), `CurrencyContext` (multi-currency handling) |
+| **Testing** | `tests/unit/*` | Vitest unit test suites for member notifications, services, and validation |
 
 ---
 
-## 3. Current Cross-Cutting Concerns Analysis
+## 3. Cross-Cutting Concerns Analysis
 
 ### 3.1 Authentication Flow
-* **Mechanism**: JWT tokens stored in `localStorage` (`token`, `user`).
+* **Mechanism**: JWT access & refresh tokens stored in `localStorage` (`token`, `user`).
 * **Session Lifecycle**: `apiClient` request interceptor attaches `Authorization: Bearer <token>`. Response interceptor redirects to `/login` on HTTP 401.
-* **Current Gap**: Server-side session verification and cookie-based secure session propagation are not yet enforced on edge/middleware.
+* **Separation of Contexts**: Administrative users utilize standard admin auth tokens, while church members authenticate into the member portal with scoped member credentials.
 
 ### 3.2 Authorization Flow
-* **Mechanism**: Role-Based Access Control (RBAC) with `SuperAdmin`, `Admin`, `Pastor`, `FinanceOfficer`, `DepartmentLeader`, `Member`.
-* **Current Gap**: Permission constants have mixed naming conventions (e.g. `canViewMembers` vs `members.create`). Authorization checks are client-side UI visibility guards rather than layered policy guards.
+* **Administrative Core**: Role-Based Access Control (RBAC) with `SuperAdmin`, `Admin`, `Pastor`, `FinanceOfficer`, `DepartmentLeader`. Permissions use dot-notation format (e.g. `members.view`, `finance.expenses.create`).
+* **Member Self-Service**: Defined by `MEMBER_PERMISSIONS` in `lib/authorization/member-permissions.ts` enforcing user-isolation policies (`*:read:self`, `*:update:self`).
 
 ### 3.3 Multi-Tenant & Multi-Branch Isolation
-* **Current Mechanism**: Tenant and branch IDs are partially embedded in member models, branch selector state, or query params.
-* **Current Gap**: Scope injection is not systematically derived from trusted server context on every service request.
+* **Mechanism**: Tenant and branch scoping injected via `lib/authorization/scope.ts`.
+* **Standard**: Requests must resolve `tenantId` and `branchId` from authenticated server session context rather than arbitrary client request bodies.
 
 ### 3.4 Data Validation
-* **Current Mechanism**: Zod and React Hook Form are used in select form components.
-* **Current Gap**: Service layer inputs and API boundaries lack runtime schema enforcement, relying primarily on compile-time TypeScript types.
+* **Mechanism**: Zod runtime schema validation in `lib/validation/*` bound to React Hook Form via `@hookform/resolvers/zod`.
+* **Coverage**: All critical form inputs across admin, member portal, and public pages enforce validation rules before API transmission.
 
-### 3.5 Error Handling & Observability
-* **Current Mechanism**: Basic `try/catch` blocks throwing native `new Error(error.response?.data?.message)`.
-* **Current Gap**: No structured domain error hierarchy (`AppError`, `AuthorizationError`, `ValidationError`, `NotFoundError`). No telemetry or sanitized error logging.
+### 3.5 Financial Calculations
+* **Mechanism**: Specialized precision arithmetic in `lib/finance/finance-math.ts` prevents floating-point rounding errors across tithes, offerings, donations, expenses, and budgets.
 
-### 3.6 Audit Logging
-* **Current Mechanism**: Presentation layer has an activity log table (`app/dashboard/activity-logs/`).
-* **Current Gap**: No formal audit event schema (`actor`, `action`, `resource`, `resourceId`, `tenantId`, `branchId`, `before`, `after`, `metadata`) produced across sensitive operations.
-
-### 3.7 Financial Calculations
-* **Current Mechanism**: Spread across `finance-service.ts`, `expense-service.ts`, `giving-service.ts`, `income-service.ts`, and `budget-service.ts`.
-* **Current Gap**: Need unified domain models, explicit rounding rules, deterministic totals, and immutable audit trail.
-
-### 3.8 Automated Testing
-* **Current Baseline**: 0 unit/integration/e2e tests in codebase.
+### 3.6 Automated Testing
+* **Mechanism**: Vitest configured with `npm test`. Unit test suites in `tests/unit/` validate notification logic, services, and domain contracts.
 
 ---
 
 ## 4. Verification & Baseline Status
 
 * **TypeScript Typecheck (`npx tsc --noEmit`)**: **PASSING (0 errors)**
-* **Project Build**: **PASSING**
-* **Known Violations to Address**:
-  1. Flat `services/` directory with overlapping cross-domain responsibilities.
-  2. Inlined forms inside page files vs generic `components/forms/`.
-  3. Mixed permission string formats (`canView...` vs `domain.action`).
-  4. Absence of runtime Zod validation at service/application boundaries.
-  5. Absence of unit and domain test suites.
+* **Automated Tests (`npm test`)**: **PASSING**
+* **Total Pages Documented & Verified**: **204 pages**

@@ -1,45 +1,45 @@
-# EMC Church Management System — Dependency Map (Phase 0)
+# EMC Church Management System — Dependency Map
 
-This document diagrams the dependency relationships across UI, Domain Components, Application Services, Validation, Authorization, and Data layers.
+This document diagrams the dependency relationships across UI, Domain Components, Application Services, Validation, Authorization, and Data layers across all 204 routes in the system.
 
 ---
 
 ## 1. Architectural Layer Hierarchy
 
-Dependencies MUST strictly flow downwards:
+Dependencies MUST strictly flow downwards across three primary application tiers:
 
 ```
-┌────────────────────────────────────────────────────────┐
-│                   PRESENTATION LAYER                   │
-│   Next.js App Router (app/(admin)/dashboard/*)         │
-└───────────────────────────┬────────────────────────────┘
-                            │ imports
-                            ▼
-┌────────────────────────────────────────────────────────┐
-│               DOMAIN COMPONENT LAYER                   │
-│   (components/members, components/finance, etc.)       │
-└───────────────────────────┬────────────────────────────┘
-                            │ imports
-                            ▼
-┌────────────────────────────────────────────────────────┐
-│             APPLICATION & SERVICE LAYER                │
-│   (services/<domain>/*, lib/authorization/*)           │
-└─────────────┬───────────────────────────┬──────────────┘
-              │                           │
-      imports │                   imports │
-              ▼                           ▼
-┌───────────────────────────┐   ┌────────────────────────┐
-│   DOMAIN VALIDATION LAYER │   │  DOMAIN TYPES & MODELS │
-│   (lib/validation/*)      │   │  (lib/types/*)         │
-└─────────────┬─────────────┘   └─────────┬──────────────┘
-              │                           │
-              └─────────────┬─────────────┘
-                            │ imports
-                            ▼
-┌────────────────────────────────────────────────────────┐
-│               INFRASTRUCTURE & UTILITIES               │
-│   (services/api-client.ts, lib/date-utils.ts, etc.)    │
-└────────────────────────────────────────────────────────┘
+┌────────────────────────────────────────────────────────────────────────────────────────┐
+│                                   PRESENTATION LAYER                                   │
+│  app/(landing)/*              │ app/(member)/portal/*         │ app/(admin)/dashboard/*│
+└──────────────┬────────────────┴──────────────┬────────────────┴──────────────┬─────────┘
+               │ imports                       │ imports                       │ imports
+               ▼                               ▼                               ▼
+┌──────────────────────────────┐┌──────────────────────────────┐┌─────────────────────────┐
+│ PUBLIC PRESENTATION LAYER    ││ MEMBER DOMAIN COMPONENTS     ││ ADMIN DOMAIN COMPONENTS │
+│ (components/landing/*, ui/*) ││ (components/member/*, ui/*)  ││ (components/<domain>/*) │
+└──────────────┬───────────────┘└──────────────┬───────────────┘└──────────────┬──────────┘
+               │ imports                       │ imports                       │ imports
+               ▼                               ▼                               ▼
+┌──────────────────────────────┐┌──────────────────────────────┐┌─────────────────────────┐
+│ PUBLIC SERVICES / API        ││ MEMBER APPLICATION SERVICES  ││ ADMIN APPLICATION SVCS  │
+│ (events, giving, contact)    ││ (services/member/*)          ││ (services/<domain>/*)   │
+└──────────────┬───────────────┘└──────────────┬───────────────┘└──────────────┬──────────┘
+               │                               │                               │
+               └───────────────────────────────┼───────────────────────────────┘
+                                               │ imports
+                                               ▼
+┌────────────────────────────────────────────────────────────────────────────────────────┐
+│                              DOMAIN VALIDATION & SECURITY                              │
+│       Runtime Zod Schemas (lib/validation/*)  │ RBAC & Member Guards (lib/authorization)│
+└──────────────────────────────────────────────┬─────────────────────────────────────────┘
+                                               │ imports
+                                               ▼
+┌────────────────────────────────────────────────────────────────────────────────────────┐
+│                               INFRASTRUCTURE & UTILITIES                               │
+│       Axios HTTP Client (services/api-client.ts) │ Date Utilities (lib/date-utils.ts)   │
+│       Math Precision (lib/finance/finance-math.ts) │ Design Utilities (lib/utils.ts)     │
+└────────────────────────────────────────────────────────────────────────────────────────┘
 ```
 
 ---
@@ -47,31 +47,32 @@ Dependencies MUST strictly flow downwards:
 ## 2. Permitted vs Prohibited Dependency Directions
 
 ### ✅ Permitted Dependencies:
-1. `app/(admin)/dashboard/**` → `components/**`, `services/**`, `lib/**`, `hooks/**`
-2. `components/<domain>/**` → `components/ui/**`, `services/<domain>/**`, `lib/validation/<domain>/**`, `lib/types/**`
-3. `components/ui/**` → Generic utilities only (`lib/utils.ts`, `lib/date-utils.ts`). **Zero domain imports.**
-4. `services/<domain>/**` → `services/api-client.ts`, `lib/validation/**`, `lib/types/**`, `lib/errors/**`
+1. **Admin Pages**: `app/(admin)/dashboard/**` → `components/**`, `services/<domain>/**`, `lib/**`, `hooks/**`.
+2. **Member Portal Pages**: `app/(member)/portal/**` → `components/member/**`, `services/member/**`, `components/ui/**`, `lib/**`, `hooks/**`.
+3. **Public Landing Pages**: `app/(landing)/**` → `components/landing/**`, `components/ui/**`, public services.
+4. **Member Components**: `components/member/**` → `components/ui/**`, `services/member/**`, `lib/validation/**`, `lib/types/**`.
+5. **Generic UI Primitives**: `components/ui/**` → Generic styling helpers (`lib/utils.ts`, `lib/date-utils.ts`) only. **Zero domain imports.**
+6. **Services Layer**: `services/<domain>/**` and `services/member/**` → `services/api-client.ts`, `lib/validation/**`, `lib/types/**`, `lib/errors/**`.
 
 ### ❌ Prohibited Dependencies (Violations):
 1. **Inverted Dependency**: `services/**` or `lib/**` importing from `components/**` or `app/**`.
 2. **Polluted Primitives**: `components/ui/**` importing domain models, domain services, or domain components.
-3. **Bypassing Services**: `app/(admin)/dashboard/**` or `components/**` directly executing raw HTTP mutations without going through the designated domain service.
-4. **Circular Domain Dependencies**: `services/members/**` ↔ `services/finance/**` direct mutual recursion.
+3. **Cross-Tier Leakage**: `components/member/**` importing admin domain forms or admin mutation services directly.
+4. **Bypassing Services**: Any page under `app/**` directly issuing raw un-typed `fetch` or `axios` calls without routing through designated services.
+5. **Circular Domain Dependencies**: `services/members/**` ↔ `services/finance/**` direct mutual recursion.
 
 ---
 
-## 3. Current Codebase Dependency Inventory
+## 3. Codebase Dependency Inventory
 
 ### Core Libraries & Utilities (`lib/`)
 * **`lib/utils.ts`**: Pure UI styling helpers (`clsx`, `tailwind-merge`). No upstream dependencies.
-* **`lib/date-utils.ts`**: Date-fns based parsing and standard formatting. Independent utility.
-* **`lib/permissions.ts`**: Exports RBAC dictionaries (`PERMISSIONS`, `ROLES`, `ROLE_PERMISSIONS`).
-* **`lib/contexts/auth-context.tsx`**: Consumes `lib/permissions.ts` and `lib/types`.
-* **`lib/contexts/currency-context.tsx`**: Manages active currency and formatting symbols.
+* **`lib/date-utils.ts`**: Centralized date formatting and parsing (`date-fns`). Independent utility.
+* **`lib/finance/finance-math.ts`**: High-precision arithmetic preventing floating point rounding errors in financial transactions.
+* **`lib/authorization/`**: Centralized security, role permissions (`PERMISSIONS`), member permissions (`MEMBER_PERMISSIONS`), tenant scope, and policy guards.
+* **`lib/contexts/`**: `AuthContext` (session authentication state) and `CurrencyContext` (active currency symbols and exchange rates).
 
 ### Services Layer (`services/`)
-* **`services/api-client.ts`**: Axios instance configuring bearer token auth and 401 interception.
-* **Domain Services (`*-service.ts`)**: Flat modules calling `apiClient` with typed responses.
-
-### Target Migration Path
-* Shift from flat `services/*.ts` to domain-oriented packages (`services/members/`, `services/finance/`, `services/attendance/`, etc.) with barrel index exports to ensure seamless backwards compatibility (`OLD -> ADAPTER -> NEW`).
+* **`services/api-client.ts`**: Axios instance configuring JWT bearer token authentication and HTTP 401 interception.
+* **Domain Services (`services/<domain>/*`)**: Modular domain service packages (`members`, `finance`, `attendance`, `events`, `groups`, `departments`, `sunday-school`, `communications`, `assets`, `reports`, `auth`, `upload`).
+* **Member Services (`services/member/*`)**: 16 dedicated services for member portal operations (`dashboard`, `profile`, `family`, `giving`, `events`, `groups`, `ministries`, `attendance`, `journey`, `prayer`, `pastoral-care`, `resources`, `notifications`, `settings`, `announcements`).

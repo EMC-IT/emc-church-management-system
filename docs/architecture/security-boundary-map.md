@@ -1,40 +1,50 @@
-# EMC Church Management System — Security Boundary Map (Phase 0)
+# EMC Church Management System — Security Boundary Map
 
-This document establishes the security boundaries, tenant/branch isolation model, and authorization checkpoints for the EMC CMS platform.
+This document establishes the security boundaries, tenant/branch isolation models, and authorization checkpoints across all 204 routes in the EMC Church Management System.
 
 ---
 
-## 1. Multi-Tenant & Multi-Branch Trust Model
+## 1. Multi-Tier Security Boundary Model
+
+The system enforces three distinct security and trust boundaries:
 
 ```
-               [ UNTRUSTED CLIENT BOUNDARY ]
-                            │
-               HTTPS Request + Bearer JWT
-                            ▼
-              ┌───────────────────────────┐
-              │   Authentication Guard    │  <- Validates JWT Signature & Expiry
-              └─────────────┬─────────────┘
-                            │
-               Resolved Principal Context
-               (userId, tenantId, branchId, roles)
-                            ▼
-              ┌───────────────────────────┐
-              │   Authorization Engine    │  <- Policy & Role Guard Checks
-              │ (lib/authorization/...)   │
-              └─────────────┬─────────────┘
-                            │
-               Authorized & Tenant-Scoped Query
-                            ▼
-              ┌───────────────────────────┐
-              │  Domain Application Layer │  <- Input Validation (Zod)
-              │    (services/<domain>/)   │
-              └─────────────┬─────────────┘
-                            │
-               Audit Event Emitted (for mutations)
-                            ▼
-              ┌───────────────────────────┐
-              │     Data Access Layer     │  <- Injects tenantId & branchId
-              └───────────────────────────┘
+┌────────────────────────────────────────────────────────────────────────────────────────┐
+│                                 UNTRUSTED CLIENT CLIENT                                │
+└───────────────────────────────────────────┬────────────────────────────────────────────┘
+                                            │
+               ┌────────────────────────────┼────────────────────────────┐
+               │ HTTPS Request              │ HTTPS Request + Bearer JWT │ HTTPS Request + Bearer JWT
+               │ Anonymous                  │ Member Session             │ Admin / Staff Session
+               ▼                            ▼                            ▼
+┌──────────────────────────────┐┌──────────────────────────────┐┌─────────────────────────┐
+│ TIER 1: PUBLIC OUTREACH      ││ TIER 2: MEMBER SELF-SERVICE  ││ TIER 3: ADMIN BACK-OFFICE│
+│ Boundary: /(landing)/*       ││ Boundary: /(member)/portal/* ││ Boundary: /(admin)/*    │
+│ Rate Limiting & Input San.   ││ User Isolation (Self-Scope)  ││ Multi-Tenant / Branch RBAC│
+└──────────────┬───────────────┘└──────────────┬───────────────┘└────────────┬────────────┘
+               │                               │                             │
+               ▼                               ▼                             ▼
+┌──────────────────────────────┐┌──────────────────────────────┐┌─────────────────────────┐
+│ Public Form Validations      ││ Member Authorization Engine  ││ Administrative Policy   │
+│ - Contact Inquiries          ││ - lib/authorization/         ││ - lib/authorization/    │
+│ - Anonymous Prayer Requests  ││   member-guards.ts           ││   guards.ts             │
+│ - Public Event RSVP          ││ - MEMBER_PERMISSIONS         ││ - PERMISSIONS Matrix    │
+└──────────────┬───────────────┘└──────────────┬───────────────┘└────────────┬────────────┘
+               │                               │                             │
+               └───────────────────────────────┼─────────────────────────────┘
+                                               │
+                                               ▼
+┌────────────────────────────────────────────────────────────────────────────────────────┐
+│                              DOMAIN APPLICATION SERVICES                               │
+│                         Zod Runtime Validation (lib/validation/*)                      │
+│                         Audit Event Generation (lib/audit/audit-logger.ts)             │
+└──────────────────────────────────────────────┬─────────────────────────────────────────┘
+                                               │
+                                               ▼
+┌────────────────────────────────────────────────────────────────────────────────────────┐
+│                              SECURE DATA ACCESS LAYER                                  │
+│                         Enforces tenant_id & branch_id isolation                       │
+└────────────────────────────────────────────────────────────────────────────────────────┘
 ```
 
 ---
@@ -46,23 +56,17 @@ This document establishes the security boundaries, tenant/branch isolation model
 * The active `tenantId` is always resolved from the authenticated server token/session.
 * When switching branches within the authorized tenant, the active `branchId` must be verified against the user's permitted branch assignments.
 
-### Rule 2: UI Hiding Is Not Security
+### Rule 2: Member Isolation (Principle of Least Privilege)
+* Authenticated members accessing `/portal/*` are strictly confined to self-scoped records (`userId === principal.userId` or verified household members).
+* A member cannot inspect or mutate another member's giving statements, attendance records, personal prayers, or pastoral care sessions.
+
+### Rule 3: UI Hiding Is Not Security
 * Hiding a button or table column in the UI via `hasPermission(...)` is a UX affordance, not a security boundary.
 * Every service invocation and API endpoint must perform server-side authorization checks.
 
-### Rule 3: Strict RBAC Permission Standard
-Permissions follow the canonical dot-notation format:
-`<domain>.<resource>.<action>`
-
-Examples:
-* `members.directory.read`
-* `members.record.create`
-* `members.record.update`
-* `members.record.delete`
-* `finance.expenses.approve`
-* `finance.giving.create`
-* `attendance.session.take`
-* `communications.sms.send`
+### Rule 4: Standardized Permission Format
+* **Admin Operations**: Dot-notation `<domain>.<resource>.<action>` (e.g. `finance.expenses.create`, `members.view`, `attendance.take`).
+* **Member Operations**: Colon-notation `<domain>:<action>:self` (e.g. `profile:read:self`, `giving:read:self`, `prayer:create`).
 
 ---
 
@@ -70,23 +74,29 @@ Examples:
 
 The following domains and operations require mandatory authorization checks, runtime input validation, and audit event generation:
 
-| Domain | Action / Mutation | Required Scope | Audit Event Required |
-| :--- | :--- | :--- | :--- |
-| **IAM** | User Role Assignment / Change | Tenant / SuperAdmin | `iam.role.assigned` |
-| **IAM** | Branch Creation / Modification | Tenant Admin | `iam.branch.updated` |
-| **Finance** | Expense Approval / Disbursement | Tenant + Branch Finance Officer | `finance.expense.approved` |
-| **Finance** | Tithe / Giving Record Entry | Tenant + Branch Finance Officer | `finance.giving.recorded` |
-| **Finance** | Budget Modification / Allocation | Tenant Admin / Finance Officer | `finance.budget.modified` |
-| **Members** | Member Record Creation / Deletion | Tenant + Branch Member Admin | `members.record.mutated` |
-| **Members** | Bulk Member Import | Tenant + Branch Admin | `members.bulk.imported` |
-| **Communications** | Bulk SMS / Email Campaign Send | Tenant + Branch Communications | `communications.campaign.sent` |
-| **Attendance** | Service Attendance Submission | Tenant + Branch Leader | `attendance.session.recorded` |
+| Operational Tier | Domain | Action / Mutation | Required Permission / Scope | Audit Event Required |
+| :--- | :--- | :--- | :--- | :--- |
+| **Admin Core** | **IAM** | User Role Assignment / Change | `settings.roles.edit` (SuperAdmin) | `iam.role.assigned` |
+| **Admin Core** | **IAM** | Branch Creation / Modification | `settings.branches.create` (Tenant Admin)| `iam.branch.updated` |
+| **Admin Core** | **Finance** | Expense Approval / Disbursement | `finance.expenses.approve` | `finance.expense.approved`|
+| **Admin Core** | **Finance** | Tithe / Giving Record Entry | `finance.tithes.create` | `finance.giving.recorded` |
+| **Admin Core** | **Finance** | Budget Modification / Allocation| `finance.budgets.create` | `finance.budget.modified` |
+| **Admin Core** | **Members** | Member Record Creation / Delete | `members.create` / `members.delete` | `members.record.mutated` |
+| **Admin Core** | **Members** | Bulk Member CSV Import | `members.import` | `members.bulk.imported` |
+| **Admin Core** | **Communications** | Mass SMS / Email Broadcast | `communications.send` | `communications.campaign.sent`|
+| **Admin Core** | **Attendance** | Service Roll Call Submission | `attendance.take` | `attendance.session.recorded`|
+| **Admin Core** | **Pastoral Care** | Log Counseling / Hospital Case | `pastoral-care.edit` | `pastoral.case.recorded` |
+| **Member Portal** | **Profile** | Update Personal Contact Info | `profile:update:self` | `member.profile.updated` |
+| **Member Portal** | **Prayer** | Submit Confidential Prayer | `prayer:create` | `member.prayer.submitted` |
+| **Member Portal** | **Pastoral Care** | Request Pastoral Counseling | `pastoral-care:create` | `member.pastoral.requested` |
+| **Member Portal** | **Events** | RSVP Registration & Ticket | `events:register` | `member.event.registered` |
+| **Public** | **Giving** | Public Online Donation | Anonymous (Payment Gateway Webhook) | `donation.public.received` |
 
 ---
 
 ## 4. Audit Event Architecture Contract
 
-All sensitive mutations must produce an immutable audit log payload adhering to the standard schema:
+All sensitive mutations produce an immutable audit log payload adhering to the standard schema:
 
 ```typescript
 export interface AuditEvent {
@@ -98,14 +108,18 @@ export interface AuditEvent {
     name: string;
     role: string;
   };
-  action: string;             // e.g. 'finance.expense.approve'
-  resource: string;           // e.g. 'expense'
-  resourceId: string;         // e.g. 'exp_12345'
-  tenantId: string;
-  branchId?: string;
-  status: 'SUCCESS' | 'FAILURE';
-  before?: Record<string, any>;
-  after?: Record<string, any>;
-  metadata?: Record<string, any>;
+  action: string;
+  resource: {
+    type: string;
+    id: string;
+    name?: string;
+  };
+  scope: {
+    tenantId: string;
+    branchId?: string;
+  };
+  details?: Record<string, unknown>;
+  ipAddress?: string;
+  userAgent?: string;
 }
 ```

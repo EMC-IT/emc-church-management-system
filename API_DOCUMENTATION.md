@@ -1,6 +1,30 @@
 # Church Management System - API Documentation
 
-This document outlines the API endpoints that the frontend expects from the backend implementation. The backend team should implement these endpoints using Python (FastAPI, Django, or Flask).
+This document outlines the API endpoints that the frontend expects from the backend implementation across all **204 user interface pages** (Public Ministry Portal, Member Self-Service Portal, and Admin Back-Office). The backend team should implement these endpoints using Python (FastAPI, Django, or Flask).
+
+## 📑 Table of Contents
+
+1. [Authentication Endpoints](#-authentication-endpoints)
+2. [Members Endpoints](#-members-endpoints)
+3. [Convert Management Endpoints](#-convert-management-endpoints)
+4. [Finance Endpoints](#-finance-endpoints)
+5. [Events Endpoints](#-events-endpoints)
+6. [Analytics Endpoints](#-analytics-endpoints)
+7. [Settings Endpoints](#-settings-endpoints)
+8. [Departments Endpoints](#-departments-endpoints)
+9. [Groups Endpoints](#-groups-endpoints)
+10. [Attendance Endpoints](#-attendance-endpoints)
+11. [Sunday School Endpoints](#-sunday-school-endpoints)
+12. [Member Self-Service Portal Endpoints](#-member-self-service-portal-endpoints)
+13. [Pastoral Care & Counseling Endpoints](#-pastoral-care--counseling-endpoints)
+14. [Assets & Inventory Endpoints](#-assets--inventory-endpoints)
+15. [Communications & Broadcast Endpoints](#-communications--broadcast-endpoints)
+16. [Central File Vault & Media Endpoints](#️-central-file-vault--media-endpoints)
+17. [Error Responses](#-error-responses)
+18. [WebSocket Events (Future)](#-websocket-events-future)
+19. [Implementation Notes](#-implementation-notes)
+
+---
 
 ## 🔐 Authentication Endpoints
 
@@ -4563,6 +4587,359 @@ startDate=2024-01-01&endDate=2024-01-31&classId=class_001&reportType=attendance
   }
 }
 ```
+
+---
+
+## 📱 Member Self-Service Portal Endpoints
+
+These endpoints power the authenticated Member Self-Service Portal (`/portal/*`) and are consumed by `services/member/*`. All endpoints expect an active member JWT session token.
+
+Base path: `/api/member`
+
+### 1. Dashboard & Home
+#### GET /member/dashboard
+**Description**: Retrieve congregant dashboard summary, daily scripture verse, attendance streak, upcoming registered events, active group notices, and unread notification counts.
+
+**Headers**:
+```
+Authorization: Bearer <token>
+```
+
+**Response**:
+```json
+{
+  "success": true,
+  "data": {
+    "welcomeMessage": "Welcome back, Brother Emmanuel",
+    "verseOfTheDay": {
+      "text": "The Lord is my shepherd; I shall not want.",
+      "reference": "Psalm 23:1"
+    },
+    "attendanceStreak": 4,
+    "totalContributionsThisYear": 1850.00,
+    "currency": "GHS",
+    "upcomingEvents": [
+      {
+        "id": "evt-001",
+        "title": "Annual Leadership & Vision Summit",
+        "date": "2026-09-15T09:00:00Z",
+        "venue": "Main Sanctuary",
+        "isRegistered": true
+      }
+    ],
+    "activeGroupsCount": 2,
+    "unreadNotificationsCount": 3
+  }
+}
+```
+
+---
+
+### 2. Member Profile & Household
+#### GET /member/profile
+**Description**: Retrieve authenticated member's personal profile information.
+
+#### PUT /member/profile
+**Description**: Update member's contact details, phone, residential address, or occupation.
+
+**Request Body**:
+```json
+{
+  "firstName": "Emmanuel",
+  "lastName": "Quaye",
+  "phone": "+233 24 123 4567",
+  "address": "14 Independence Avenue, Accra",
+  "occupation": "Senior Software Architect"
+}
+```
+
+#### GET /member/family
+**Description**: Get list of linked household members.
+
+#### POST /member/family/link
+**Description**: Request linking an existing church member as a household dependent or relative.
+
+**Request Body**:
+```json
+{
+  "targetMemberId": "mem-004",
+  "relationship": "Parent"
+}
+```
+
+---
+
+### 3. Attendance & Touchless Check-in
+#### GET /member/attendance
+**Description**: Retrieve personal and household attendance history.
+
+#### GET /member/attendance/qr
+**Description**: Fetch dynamic personal QR code token for touchless kiosk check-in.
+
+---
+
+### 4. Giving & Contribution Statements
+#### GET /member/giving
+**Description**: Retrieve personal contribution ledger, active pledges, and giving breakdown.
+
+#### GET /member/giving/statement
+**Description**: Generate and download annual donor tax contribution statement PDF.
+
+**Query Parameters**:
+* `year` (number, required): e.g. `2025`
+
+**Response**: Binary PDF file (`Content-Type: application/pdf`).
+
+---
+
+### 5. Events & Registrations
+#### GET /member/events
+**Description**: List church events with member's RSVP / registration status.
+
+#### POST /member/events/{id}/register
+**Description**: RSVP / register for a specific church event.
+
+**Request Body**:
+```json
+{
+  "attendeeCount": 2,
+  "notes": "Bringing spouse"
+}
+```
+
+#### DELETE /member/events/{id}/register
+**Description**: Cancel attendance registration for an event.
+
+---
+
+### 6. Groups & Ministries
+#### GET /member/groups
+**Description**: List small groups and fellowships the member belongs to.
+
+#### POST /member/groups/{id}/join
+**Description**: Submit request to join a fellowship group.
+
+#### GET /member/ministries
+**Description**: List ministries the member serves in and open volunteer opportunities.
+
+---
+
+### 7. Spiritual Journey & Discipleship
+#### GET /member/journey
+**Description**: Get spiritual progression milestones and academy certifications.
+
+---
+
+### 8. Prayer Petitions & Pastoral Care
+#### GET /member/prayer
+**Description**: Retrieve member's submitted prayer requests.
+
+#### POST /member/prayer
+**Description**: Submit new prayer petition.
+
+**Request Body**:
+```json
+{
+  "title": "Healing for my mother",
+  "description": "Please pray for complete recovery from surgery.",
+  "category": "Health",
+  "isConfidential": true
+}
+```
+
+#### GET /member/pastoral-care
+**Description**: Get member's pastoral appointments and counseling session history.
+
+#### POST /member/pastoral-care/request
+**Description**: Request pastoral counseling or home/hospital visitation.
+
+**Request Body**:
+```json
+{
+  "requestType": "Counseling",
+  "preferredDate": "2026-09-10",
+  "preferredTime": "14:00",
+  "notes": "Pre-marital guidance session"
+}
+```
+
+---
+
+### 9. Resources, Notifications & Settings
+#### GET /member/resources
+**Description**: Retrieve downloadable sermon outlines, study guides, and devotional PDFs.
+
+#### GET /member/notifications
+**Description**: Retrieve personal notification messages and alerts.
+
+#### PUT /member/notifications/{id}/read
+**Description**: Mark a notification message as read.
+
+#### PUT /member/settings
+**Description**: Update notification preferences and communication channels.
+
+---
+
+## 🩺 Pastoral Care & Counseling Endpoints
+
+These endpoints manage pastoral counseling appointments, visitation cases, and pastoral session records. Consumed by `app/(admin)/dashboard/pastoral-care/*` and `services/member/pastoral-care.service.ts`.
+
+Base path: `/api/pastoral-care`
+
+### GET /pastoral-care/cases
+**Description**: Retrieve filterable list of pastoral care cases (Counseling, Hospital, Bereavement, Home Visit).
+
+**Query Parameters**:
+* `status` (string, optional): `New`, `In_Progress`, `Follow_Up`, `Closed`
+* `category` (string, optional): `Marriage`, `Bereavement`, `Health`, `Spiritual`, `Financial`
+* `assignedPastorId` (string, optional)
+
+### POST /pastoral-care/cases
+**Description**: Log a new pastoral care or counseling case.
+
+**Request Body**:
+```json
+{
+  "memberId": "mem-042",
+  "category": "Marriage",
+  "priority": "High",
+  "assignedPastorId": "usr-005",
+  "notes": "Couple requesting marriage enrichment sessions.",
+  "scheduledDate": "2026-09-10T10:00:00Z"
+}
+```
+
+### GET /pastoral-care/cases/{id}
+**Description**: Retrieve complete case history, pastoral session timeline, and confidential notes.
+
+### POST /pastoral-care/cases/{id}/sessions
+**Description**: Record a completed counseling session or visitation log.
+
+### PUT /pastoral-care/cases/{id}/status
+**Description**: Update case status or close case upon successful resolution.
+
+---
+
+## 📦 Assets & Inventory Endpoints
+
+These endpoints manage physical church assets, audio/visual gear, instruments, furniture, vehicles, and maintenance logs. Consumed by `app/(admin)/dashboard/assets/*` and `services/assets/*`.
+
+Base path: `/api/assets`
+
+### GET /assets
+**Description**: Retrieve inventory listing with search, category filtering, and valuation totals.
+
+### POST /assets
+**Description**: Register a new physical asset or equipment piece.
+
+**Request Body**:
+```json
+{
+  "name": "Sony FX3 Cinema Camera",
+  "serialNumber": "SNY-FX3-10293",
+  "category": "Audio_Visual",
+  "purchaseDate": "2026-02-10",
+  "purchasePrice": 42000.00,
+  "currency": "GHS",
+  "location": "Media Production Studio",
+  "departmentId": "dept-03"
+}
+```
+
+### GET /assets/{id}
+**Description**: Retrieve complete asset dossier, warranty information, assignment history, and maintenance log.
+
+### PUT /assets/{id}
+**Description**: Update asset parameters, valuation, or custodial assignment.
+
+### POST /assets/{id}/maintenance
+**Description**: Log scheduled or emergency maintenance/repair event.
+
+### GET /assets/categories
+**Description**: List asset classification categories.
+
+### POST /assets/categories
+**Description**: Create a new asset classification category.
+
+---
+
+## 📢 Communications & Broadcast Endpoints
+
+These endpoints power multi-channel mass communications including bulk SMS broadcasts, email campaigns, scheduled newsletters, and in-app bulletin announcements. Consumed by `app/(admin)/dashboard/communications/*` and `services/communications/*`.
+
+Base path: `/api/communications`
+
+### GET /communications/overview
+**Description**: Get communications metrics, SMS balance, delivery rate, and recent campaign performance.
+
+### POST /communications/messages
+**Description**: Dispatch a direct or targeted SMS / Email message.
+
+**Request Body**:
+```json
+{
+  "channel": "SMS",
+  "recipients": {
+    "type": "Group",
+    "targetIds": ["grp-001", "grp-004"]
+  },
+  "message": "Reminder: Special Prayer & Fasting Service tomorrow at 6:30 PM. Come with expectancy!",
+  "senderId": "EMC CHURCH",
+  "scheduledAt": null
+}
+```
+
+### GET /communications/campaigns
+**Description**: List multi-channel broadcast campaigns with status and delivery telemetry.
+
+### POST /communications/campaigns
+**Description**: Create and schedule a bulk broadcast campaign.
+
+### GET /communications/announcements
+**Description**: Retrieve published announcements and digital church bulletins.
+
+### POST /communications/announcements
+**Description**: Publish a new bulletin announcement.
+
+### GET /communications/newsletters
+**Description**: List drafted and dispatched HTML email newsletters.
+
+### POST /communications/newsletters
+**Description**: Create or schedule an email newsletter with rich content templates.
+
+---
+
+## 🗄️ Central File Vault & Media Endpoints
+
+These endpoints support file uploads, document attachments, and church media management. Consumed by `services/upload/*` and `app/(admin)/dashboard/files/*`.
+
+Base path: `/api/files`
+
+### POST /files/upload
+**Description**: Multi-part form upload for images, documents, and media assets.
+
+**Request Body**: `multipart/form-data` with `file`, `category`, and optional `entityId`.
+
+**Response**:
+```json
+{
+  "success": true,
+  "data": {
+    "id": "file-1029",
+    "fileName": "Baptism_Certificate_Emmanuel_Quaye.pdf",
+    "fileUrl": "https://storage.emc.church/documents/file-1029.pdf",
+    "fileSize": 1450200,
+    "mimeType": "application/pdf",
+    "uploadedAt": "2026-09-03T10:00:00Z"
+  }
+}
+```
+
+### GET /files
+**Description**: List uploaded files with filtering by folder, category, and search query.
+
+### DELETE /files/{id}
+**Description**: Delete an uploaded file from storage and remove database reference.
 
 ---
 

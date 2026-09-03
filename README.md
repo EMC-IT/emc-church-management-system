@@ -11,23 +11,25 @@ The platform delivers a complete end-to-end solution for modern churches—unify
 - [Overview & Key Highlights](#-overview--key-highlights)
 - [System Architecture](#-system-architecture)
 - [Complete Feature Catalog](#-complete-feature-catalog)
-  - [1. Public Ministry & Community Web Portal](#1-public-ministry--community-web-portal)
-  - [2. Authentication, Onboarding & User Profiles](#2-authentication-onboarding--user-profiles)
-  - [3. Executive Command Center & Dashboard](#3-executive-command-center--dashboard)
-  - [4. Membership Management & CRM](#4-membership-management--crm)
-  - [5. Pastoral Care, Counseling & Visitation](#5-pastoral-care-counseling--visitation)
-  - [6. Financial Management & Multi-Currency Accounting](#6-financial-management--multi-currency-accounting)
-  - [7. Attendance Tracking & Smart Kiosk](#7-attendance-tracking--smart-kiosk)
-  - [8. Communications & Broadcast Outreach](#8-communications--broadcast-outreach)
-  - [9. Departments, Ministries & Volunteer Management](#9-departments-ministries--volunteer-management)
-  - [10. Events & Master Church Calendar](#10-events--master-church-calendar)
-  - [11. Sunday School & Children's Ministry](#11-sunday-school--childrens-ministry)
-  - [12. Assets & Equipment Inventory](#12-assets--equipment-inventory)
-  - [13. Small Groups, Cells & Fellowships](#13-small-groups-cells--fellowships)
-  - [14. Prayer Requests & Intercession Ministry](#14-prayer-requests--intercession-ministry)
-  - [15. File Vault & Central Document Repository](#15-file-vault--central-document-repository)
-  - [16. Executive Analytics & Custom Report Builder](#16-executive-analytics--custom-report-builder)
-  - [17. Security, Multi-Branch & System Administration](#17-security-multi-branch--system-administration)
+  - [Part I: Public Ministry & Community Web Portal](#part-i-public-ministry--community-web-portal)
+  - [Part II: Member Self-Service Portal](#part-ii-member-self-service-portal)
+  - [Part III: Administrative Core & Back-Office](#part-iii-administrative-core--back-office)
+    - [1. Authentication, Onboarding & User Profiles](#1-authentication-onboarding--user-profiles)
+    - [2. Executive Command Center & Dashboard](#2-executive-command-center--dashboard)
+    - [3. Membership Management & CRM](#3-membership-management--crm)
+    - [4. Pastoral Care, Counseling & Visitation](#4-pastoral-care-counseling--visitation)
+    - [5. Financial Management & Multi-Currency Accounting](#5-financial-management--multi-currency-accounting)
+    - [6. Attendance Tracking & Smart Kiosk](#6-attendance-tracking--smart-kiosk)
+    - [7. Communications & Broadcast Outreach](#7-communications--broadcast-outreach)
+    - [8. Departments, Ministries & Volunteer Management](#8-departments-ministries--volunteer-management)
+    - [9. Events & Master Church Calendar](#9-events--master-church-calendar)
+    - [10. Sunday School & Children's Ministry](#10-sunday-school--childrens-ministry)
+    - [11. Assets & Equipment Inventory](#11-assets--equipment-inventory)
+    - [12. Small Groups, Cells & Fellowships](#12-small-groups-cells--fellowships)
+    - [13. Prayer Requests & Intercession Ministry](#13-prayer-requests--intercession-ministry)
+    - [14. File Vault & Central Document Repository](#14-file-vault--central-document-repository)
+    - [15. Executive Analytics & Custom Report Builder](#15-executive-analytics--custom-report-builder)
+    - [16. Security, Multi-Branch & System Administration](#16-security-multi-branch--system-administration)
 - [Technology Stack](#-technology-stack)
 - [Directory Structure](#-directory-structure)
 - [Design System & UI/UX Standards](#-design-system--uiux-standards)
@@ -44,11 +46,12 @@ The platform delivers a complete end-to-end solution for modern churches—unify
 
 ## 🌟 Overview & Key Highlights
 
-* **All-in-One Church Operating System**: Combines public outreach, media streaming, discipleship pipelines, operations, and financial auditing into one unified platform.
+* **All-in-One Church Operating System**: Combines public outreach, media streaming, discipleship pipelines, member self-service, administrative operations, and financial auditing into one unified platform across **204 distinct routes**.
+* **Three Operational Pillars**: Seamless separation between the Public Ministry Website (`app/(landing)/*`), the Authenticated Member Self-Service Portal (`app/(member)/portal/*`), and the Administrative Core (`app/(admin)/*`).
 * **Domain-Driven Architecture**: Structured separation between UI components, domain services, validation schemas, and security authorization.
 * **Strict Multi-Branch & Multi-Tenant Support**: Enforce data isolation across multiple church campuses, satellite locations, and ministries.
 * **Deterministic Financial Precision**: Multi-currency engine with specialized precision arithmetic (`lib/finance/finance-math.ts`) preventing floating-point rounding errors.
-* **Granular Role-Based Access Control (RBAC)**: Comprehensive permission matrix with pre-built and custom access roles.
+* **Granular Role-Based Access Control (RBAC)**: Comprehensive permission matrix with pre-built and custom access roles alongside member self-service policies.
 * **Zero-Bloat, Purpose-Driven UI/UX**: Designed strictly according to human interface guidelines with no decorative clutter, clear typography, and mobile-first responsiveness.
 * **Type-Safe & Validated**: 100% TypeScript strict type safety with runtime Zod schema validation across all inputs and mutations.
 
@@ -59,43 +62,43 @@ The platform delivers a complete end-to-end solution for modern churches—unify
 The application is structured into clean, decoupled layers following a unidirectional data flow:
 
 ```
-┌───────────────────────────────────────────────────────────────────────────┐
-│                          Next.js App Router                               │
-│     /(landing) (Public Portal)      │     /(admin)/dashboard (Admin Core) │
-└─────────────────────────────────────┬─────────────────────────────────────┘
-                                      │
-                                      ▼
-┌───────────────────────────────────────────────────────────────────────────┐
-│                       Domain Presentation Layer                           │
-│       Presentation Components (components/<domain>/*, components/ui/*)    │
-└─────────────────────────────────────┬─────────────────────────────────────┘
-                                      │
-                                      ▼
-┌───────────────────────────────────────────────────────────────────────────┐
-│                      Application Domain Services                          │
-│               (services/<domain>/*, services/api-client.ts)               │
-└──────────────────┬─────────────────────────────────────┬──────────────────┘
+┌────────────────────────────────────────────────────────────────────────────────────────┐
+│                                   Next.js App Router                                   │
+│  /(landing) (Public Portal)  │  /(member)/portal (Member Self-Service)  │  /(admin)    │
+└───────────────────────────────────────────┬────────────────────────────────────────────┘
+                                            │
+                                            ▼
+┌────────────────────────────────────────────────────────────────────────────────────────┐
+│                               Domain Presentation Layer                                │
+│    Presentation Components (components/landing/*, components/member/*, components/ui)  │
+└───────────────────────────────────────────┬────────────────────────────────────────────┘
+                                            │
+                                            ▼
+┌────────────────────────────────────────────────────────────────────────────────────────┐
+│                               Application Domain Services                              │
+│       (services/<domain>/*, services/member/*, services/api-client.ts)                 │
+└──────────────────┬─────────────────────────────────────┬───────────────────────────────┘
                    │                                     │
                    ▼                                     ▼
-┌─────────────────────────────────────┐   ┌─────────────────────────────────┐
-│       Runtime Zod Validation        │   │    RBAC Authorization Engine    │
-│         (lib/validation/*)          │   │      (lib/authorization/*)      │
-└─────────────────────────────────────┘   └─────────────────────────────────┘
+┌─────────────────────────────────────┐   ┌──────────────────────────────────────────────┐
+│       Runtime Zod Validation        │   │    RBAC & Member Policy Authorization Engine │
+│         (lib/validation/*)          │   │        (lib/authorization/*, member-guards)  │
+└─────────────────────────────────────┘   └──────────────────────────────────────────────┘
                    │                                     │
                    └──────────────────┬──────────────────┘
                                       │
                                       ▼
-┌───────────────────────────────────────────────────────────────────────────┐
-│                       Backend REST API & Database                         │
-└───────────────────────────────────────────────────────────────────────────┘
+┌────────────────────────────────────────────────────────────────────────────────────────┐
+│                              Backend REST API & Database                               │
+└────────────────────────────────────────────────────────────────────────────────────────┘
 ```
 
 ---
 
 ## 📦 Complete Feature Catalog
 
-### 1. Public Ministry & Community Web Portal
-*Located at `app/(landing)/*`*
+### Part I: Public Ministry & Community Web Portal
+*Located at `app/(landing)/*` (11 Pages)*
 
 * **Homepage & Welcome Experience (`/`)**:
   * **Dynamic Hero Section**: Church mission, spiritual focus, and quick call-to-actions.
@@ -128,7 +131,62 @@ The application is structured into clean, decoupled layers following a unidirect
 
 ---
 
-### 2. Authentication, Onboarding & User Profiles
+### Part II: Member Self-Service Portal
+*Located at `app/(member)/portal/*` (18 Pages)*
+
+The Member Portal delivers a modern, mobile-first congregant experience wrapped in `MemberShell` with persistent sidebar, mobile bottom bar, and breadcrumb navigation:
+
+* **Member Dashboard Overview (`/portal`)**:
+  * Personalized congregant greeting, spiritual verse of the day, attendance summary, recent giving badges, upcoming events, and church announcements.
+* **Personal Attendance & Touchless QR (`/portal/attendance`)**:
+  * Historical log of personal and household attendance across Sunday services, midweek programs, and special conventions.
+  * Dynamic personal QR check-in code for touchless arrival verification at church kiosks.
+* **Events & RSVP Tickets (`/portal/events`, `/portal/events/[id]`)**:
+  * Browse upcoming church events, conferences, seminars, and ministry retreats.
+  * Self-service RSVP registration, digital event tickets with QR passes, and cancellation management.
+* **Household & Family Linking (`/portal/family`)**:
+  * View linked household members (spouse, children, parents, dependents).
+  * Request family linkages with pastoral verification.
+* **Giving Ledger & Tax Statements (`/portal/giving`)**:
+  * Complete personal contribution history (Tithes, Offerings, Pledges, Donations).
+  * Real-time pledge fulfillment progress bars and payment method summaries.
+  * One-click download of official annual tax-deductible contribution statements in PDF format.
+  * Direct portal giving shortcut for online donations.
+* **Small Groups & Cell Fellowships (`/portal/groups`)**:
+  * Enrolled small groups, cell meeting times, host locations, and leader contact cards.
+  * Directory of open fellowship groups with instant join requests.
+* **Spiritual Journey & Discipleship (`/portal/journey`)**:
+  * Visual spiritual progression milestones: Salvation $\rightarrow$ Water Baptism $\rightarrow$ Holy Spirit Baptism $\rightarrow$ Foundation Class $\rightarrow$ Discipleship Academy $\rightarrow$ Ministry Leadership.
+  * Milestone dates, certificate downloads, and recommended next growth steps.
+* **Serving Teams & Ministries (`/portal/ministries`)**:
+  * Active volunteer ministry rosters and serving schedule calendars.
+  * Browse volunteer serving opportunities and submit expressions of interest.
+* **Personal Notification Center (`/portal/notifications`)**:
+  * Real-time alert inbox for pastoral follow-ups, event reminders, group notices, and broadcast updates.
+  * Mark as read, categorization filters, and delivery preference toggles.
+* **Pastoral Care & Counseling Requests (`/portal/pastoral-care`, `/portal/pastoral-care/request`)**:
+  * View scheduled pastoral counseling appointments and pastoral visit history.
+  * Submit new pastoral counseling or home/hospital visitation requests with preferred dates and confidential notes.
+* **Prayer Petitions & Intercession (`/portal/prayer`, `/portal/prayer/new`)**:
+  * Private personal prayer tracker with answered prayer praise reports.
+  * Submit prayer requests with privacy toggles (Public Intercessory Team vs. Confidential Pastoral Board).
+* **Member Profile & Digital ID (`/portal/profile`)**:
+  * Update contact details, phone, residential address, emergency contacts, occupation, and profile photo.
+* **Spiritual Growth Media & Resources (`/portal/resources`)**:
+  * Access study guides, sermon notes, Bible reading plans, and ministry handbook PDF downloads.
+* **Account Preferences & Security (`/portal/settings`)**:
+  * Multi-channel notification delivery preferences (Email, SMS, App Push).
+  * Password change with strength validation and active session management.
+* **Error Boundary & UX Preview (`/portal/error-preview`)**:
+  * Standardized UX error recovery and empty state testing.
+
+---
+
+### Part III: Administrative Core & Back-Office
+*Located at `app/(admin)/*` (175 Pages across 17 Domains)*
+
+### 1. Authentication, Onboarding & User Profiles
+*Located at `app/(admin)/login`, `app/(admin)/onboarding`, `app/(admin)/dashboard/profile`*
 *Located at `app/(admin)/login`, `app/(admin)/onboarding`, `app/(admin)/dashboard/profile`*
 
 * **Secure Authentication & Session Management (`/login`)**:
@@ -499,7 +557,7 @@ emc-church-management-system/
 │   │   │   └── page.tsx              # Executive dashboard overview
 │   │   ├── login/                    # Secure administrative login portal
 │   │   └── onboarding/               # First-time church setup wizard
-│   ├── (landing)/                    # Public Ministry & Outreach Web Portal
+│   ├── (landing)/                    # Public Ministry & Outreach Web Portal (11 pages)
 │   │   ├── about/                    # Church story, mission/vision, doctrine, leadership
 │   │   ├── contact/                  # Campus directions, inquiry form, visit planner
 │   │   ├── events/                   # Public upcoming events & RSVP registrations
@@ -508,16 +566,37 @@ emc-church-management-system/
 │   │   ├── sermons/                  # Media library, sermon video/audio archive
 │   │   ├── layout.tsx                # Public portal layout with Navbar & Footer
 │   │   └── page.tsx                  # Public homepage
+│   ├── (member)/                     # Member Self-Service Portal (18 pages)
+│   │   └── portal/                   # Authenticated member area with MemberShell
+│   │       ├── attendance/           # Personal & family attendance records & touchless QR
+│   │       ├── events/               # Events catalog, registration tickets & RSVPs
+│   │       ├── family/               # Household graph, linked members & dependents
+│   │       ├── giving/               # Personal contribution ledger, tax statements & pledges
+│   │       ├── groups/               # Small groups & cell fellowships
+│   │       ├── journey/              # Discipleship milestones & spiritual growth path
+│   │       ├── ministries/           # Ministry serving teams & volunteer rosters
+│   │       ├── notifications/        # Personal notification center & announcements inbox
+│   │       ├── pastoral-care/        # Pastoral appointments & counseling requests
+│   │       ├── prayer/               # Personal prayer tracker & answered prayers
+│   │       ├── profile/              # Member profile, avatar upload & contact details
+│   │       ├── resources/            # Digital study materials, sermon guides & media
+│   │       ├── settings/             # Notification preferences & password security
+│   │       ├── error-preview/        # Error boundary and empty state preview
+│   │       ├── layout.tsx            # MemberShell layout with persistent sidebar & header
+│   │       └── page.tsx              # Member personal dashboard overview
 │   ├── globals.css                   # Global theme tokens, typography, and CSS variables
 │   └── layout.tsx                    # Root layout with AuthProvider & CurrencyProvider
 ├── components/                       # React Presentation Components
 │   ├── auth/                         # Authentication forms & login widgets
 │   ├── departments/                  # Department forms and volunteer selectors
+│   ├── errors/                       # Standard UI error boundaries & recovery components
 │   ├── forms/                        # Backward-compatible form adapters
 │   ├── landing/                      # Public website sections (Hero, Sermons, Giving, etc.)
 │   ├── layout/                       # Admin shell components (Header, Sidebar, Search)
+│   ├── member/                       # Member Portal UI domain submodules (18+ modules)
 │   ├── members/                      # Member registration multi-tab forms
 │   ├── motion/                       # Framer Motion animation containers
+│   ├── prayer-requests/              # Intercessory prayer dialogs & components
 │   ├── theme/                        # Light/Dark mode theme provider
 │   └── ui/                           # 40+ atomic shadcn/ui design primitives
 ├── services/                         # Application Domain API Services
@@ -529,6 +608,7 @@ emc-church-management-system/
 │   ├── events/                       # Events & registration service
 │   ├── finance/                      # Tithes, giving, expenses, and budget services
 │   ├── groups/                       # Cell groups & fellowship service
+│   ├── member/                       # 16 dedicated services for the Member Portal
 │   ├── members/                      # Member CRM & documents service
 │   ├── reports/                      # Analytics & custom report generation service
 │   ├── sunday-school/                # Sunday school classes & student service
@@ -537,7 +617,7 @@ emc-church-management-system/
 │   └── index.ts                      # Service barrel export
 ├── lib/                              # Core Domain Logic, Security & Utilities
 │   ├── audit/                        # Structured audit logging engine
-│   ├── authorization/                # RBAC engine, canonical permissions, guards
+│   ├── authorization/                # RBAC engine, canonical permissions, member guards
 │   ├── contexts/                     # AuthContext, CurrencyContext
 │   ├── errors/                       # Standard domain error hierarchy (AppError)
 │   ├── finance/                      # Deterministic precision math & variance engine

@@ -16,22 +16,19 @@ npm run dev
 npm run build
 
 # Start production server
-npm start
+npm run start
 
-# Run linting
+# Run Next.js linting
 npm run lint
 ```
 
-### Testing
+### Testing & Quality Assurance
 ```bash
-# Run all tests (when implemented)
+# Run all automated tests with Vitest
 npm test
 
-# Run tests in watch mode (when implemented)
-npm run test:watch
-
-# Run tests with coverage (when implemented)  
-npm run test:coverage
+# Type check TypeScript strictly without emitting files
+npx tsc --noEmit
 ```
 
 ### Common Development Tasks
@@ -39,218 +36,146 @@ npm run test:coverage
 # Run development server (starts on http://localhost:3000)
 npm run dev
 
-# Build the application
+# Build the production application
 npm run build
-
-# Format code with Prettier (if configured)
-npx prettier --write .
-
-# Type check TypeScript
-npx tsc --noEmit
 ```
+
+---
 
 ## Architecture Overview
 
 ### Technology Stack
-- **Framework**: Next.js 13.5.1 with App Router
-- **Language**: TypeScript with strict type checking
-- **Styling**: Tailwind CSS + shadcn/ui components
-- **State Management**: React Context (AuthProvider, CurrencyProvider)
-- **HTTP Client**: Axios with interceptors for auth
-- **UI Components**: shadcn/ui with Radix UI primitives
+- **Framework**: Next.js 16.2.10 (App Router, Server & Client Components)
+- **UI Library**: React 19.2.7 & React DOM 19.2.7
+- **Language**: TypeScript 5.7.0 with strict type checking
+- **Styling**: Tailwind CSS 3.3.3 + shadcn/ui design primitives
+- **Animations**: Framer Motion 12.23.5
+- **State Management**: React Context (`AuthProvider`, `CurrencyProvider`, `ThemeProvider`)
+- **HTTP Client**: Axios 1.10.0 with JWT Bearer interceptors & automatic 401 redirection
+- **Data Presentation**: TanStack Table v8.21.3 & Recharts 2.15.4
+- **Form & Validation**: React Hook Form 7.60.0 + Zod 3.25.76 (`@hookform/resolvers/zod`)
 - **Icons**: Lucide React
-- **Fonts**: Montserrat (Google Fonts)
-- **Theme**: Dark/light mode with next-themes
+- **Fonts**: Montserrat (Google Fonts) & modern typography tokens
+- **Testing**: Vitest test runner
 
-### Project Structure
+---
+
+### Project Structure (204 Routes Across 3 Primary Facets)
+
 ```
-emc-church-system/
-├── app/                    # Next.js App Router pages
-│   ├── dashboard/         # Protected dashboard routes
-│   │   ├── members/      # Member management
-│   │   ├── finance/      # Financial operations
-│   │   ├── events/       # Event management
-│   │   ├── attendance/   # Attendance tracking
-│   │   ├── assets/       # Asset management
-│   │   ├── analytics/    # Reports and analytics
-│   │   └── ...          # Other modules
-│   ├── layout.tsx        # Root layout with providers
-│   └── page.tsx          # Landing/login page
-├── components/            # Reusable React components
-│   ├── ui/               # Base UI components (shadcn/ui)
-│   ├── forms/            # Form components
-│   ├── layout/           # Layout components
-│   ├── auth/             # Authentication components
-│   └── theme/            # Theme components
-├── services/             # API service layer
-│   ├── api-client.ts     # Axios instance with interceptors
-│   ├── auth-service.ts   # Authentication API calls
-│   ├── members-service.ts # Member operations
-│   ├── finance-service.ts # Financial operations
-│   └── ...               # Other service modules
-├── lib/                  # Utilities and configurations
-│   ├── contexts/         # React contexts
-│   ├── types.ts          # Global TypeScript types
-│   ├── utils.ts          # Utility functions
-│   └── permissions.ts    # Permission definitions
-└── hooks/                # Custom React hooks
-```
-
-### Key Architectural Patterns
-
-#### Service Layer Pattern
-All API interactions are centralized in service classes:
-- **api-client.ts**: Base Axios instance with request/response interceptors
-- **Module services**: Domain-specific API operations (auth, members, finance, etc.)
-- **Error handling**: Centralized error handling with automatic token refresh
-- **Authentication**: JWT tokens automatically attached to requests
-
-#### Context-Based State Management
-- **AuthProvider**: User authentication state and methods
-- **CurrencyProvider**: Global currency management with localStorage persistence
-- **ThemeProvider**: Light/dark theme switching
-
-#### Component Architecture
-- **Base UI components**: Reusable primitives from shadcn/ui
-- **Composite components**: Domain-specific components combining base UI
-- **Page components**: Route-specific implementations with full business logic
-
-### Important Design Patterns
-
-#### Responsive Design (Mobile-First)
-- All components built mobile-first with Tailwind breakpoints
-- Consistent spacing using Tailwind's spacing scale
-- Touch-friendly button sizes (minimum 40px height)
-
-#### Brand Color System
-```css
---brand-primary: #2E8DB0    /* Deep Blue */
---brand-secondary: #28ACD1  /* Light Blue */
---brand-accent: #C49831     /* Gold */
---brand-success: #A5CF5D    /* Green */
---brand-dark: #080A09       /* Dark Text */
-```
-
-#### Currency-Neutral Financial Icons
-- Use universal icons (wallet, banknote, receipt) instead of currency symbols
-- Display actual currency (₵, $, €) in text, not icons
-- Consistent across all financial interfaces
-
-### Key Business Modules
-
-#### Member Management
-- Complete member lifecycle management
-- Family relationship tracking
-- Custom fields support
-- Document attachment system
-
-#### Financial Management
-- Multi-currency support (GHS, USD, EUR, GBP)
-- Comprehensive giving/donation tracking
-- Budget management with approval workflows
-- Expense tracking and reporting
-- Receipt generation
-
-#### Attendance System
-- Service-based attendance tracking
-- QR code check-in support
-- Department and group-based attendance
-- Historical attendance reporting
-
-#### Asset Management
-- Equipment and property tracking
-- Maintenance scheduling
-- Assignment tracking
-- Category-based organization
-
-### Authentication & Authorization
-- JWT-based authentication
-- Role-based access control (RBAC)
-- Permission-based UI rendering
-- Automatic token refresh
-- Protected routes with redirect
-
-### API Integration
-- RESTful API design
-- Standardized response formats
-- Pagination support for list endpoints
-- Search and filtering capabilities
-- File upload handling
-
-### Development Guidelines
-
-#### TypeScript Usage
-- Strict type checking enabled
-- Comprehensive type definitions in `lib/types.ts`
-- Interface-first approach for data structures
-- Proper error typing
-
-#### Component Development
-- Props interface for every component
-- Consistent className prop for styling flexibility
-- DisplayName for debugging
-- Maximum 300 lines per component
-
-#### Navigation Patterns
-- Breadcrumb navigation for nested pages
-- Back navigation on detail pages
-- Consistent page header layouts
-- Context-aware navigation state
-
-### Environment Configuration
-Required environment variables:
-```env
-NEXT_PUBLIC_API_URL=http://localhost:8000/api
-NEXT_PUBLIC_APP_NAME=ChurchMS
+emc-church-management-system/
+├── app/                              # Next.js App Router (204 pages)
+│   ├── (admin)/                      # Authenticated Back-Office & Setup (175 pages)
+│   │   ├── dashboard/                # Main Operations Dashboard (173 pages across 17 domains)
+│   │   │   ├── activity-logs/        # Audit trails & security event timelines (2 pages)
+│   │   │   ├── analytics/            # Executive KPI dashboards & custom report builder (5 pages)
+│   │   │   ├── assets/               # Physical asset register, valuations, maintenance (11 pages)
+│   │   │   ├── attendance/           # Headcounts, QR kiosk, volunteer roll calls (9 pages)
+│   │   │   ├── communications/       # Bulk SMS, scheduled campaigns, email newsletters (16 pages)
+│   │   │   ├── departments/          # Ministry departments, volunteer rosters, minutes (7 pages)
+│   │   │   ├── events/               # Event scheduling, registrations, master calendar (12 pages)
+│   │   │   ├── files/                # Document vault & church file manager (1 page)
+│   │   │   ├── finance/              # Tithes, offerings, expenses, budgets, reports (62 pages)
+│   │   │   ├── groups/               # Small groups, cell fellowships, growth metrics (13 pages)
+│   │   │   ├── members/              # CRM, directory, converts, family links, documents (17 pages)
+│   │   │   ├── pastoral-care/        # Counseling cases, hospital/home visitations (1 page)
+│   │   │   ├── prayer-requests/      # Intercessory requests & pastoral notes (5 pages)
+│   │   │   ├── profile/              # Personal user profile & password management (1 page)
+│   │   │   ├── settings/             # Church profile, branches, users, roles, permissions (11 pages)
+│   │   │   ├── sunday-school/        # Classes, students, safety, teachers, curriculum (18 pages)
+│   │   │   ├── test-lazy-loading/    # Developer utility & dynamic import testing (1 page)
+│   │   │   ├── layout.tsx            # Protected dashboard shell layout with Sidebar & Header
+│   │   │   └── page.tsx              # Executive dashboard overview (1 page)
+│   │   ├── login/                    # Secure administrative login portal (1 page)
+│   │   └── onboarding/               # First-time church setup wizard (1 page)
+│   ├── (landing)/                    # Public Ministry & Community Web Portal (11 pages)
+│   │   ├── about/                    # Church story, mission/vision, doctrine, leadership (5 pages)
+│   │   ├── contact/                  # Campus directions, inquiry form, visit planner (1 page)
+│   │   ├── events/                   # Public upcoming events & RSVP registrations (1 page)
+│   │   ├── give/                     # Online giving & donations portal (1 page)
+│   │   ├── ministries/               # Active church ministry directory (1 page)
+│   │   ├── sermons/                  # Media library, sermon video/audio archive (1 page)
+│   │   ├── layout.tsx                # Public portal layout with Navbar & Footer
+│   │   └── page.tsx                  # Public homepage (1 page)
+│   ├── (member)/                     # Member Self-Service Portal (18 pages)
+│   │   └── portal/                   # Authenticated member area with MemberShell
+│   │       ├── attendance/           # Personal & family attendance records & check-in QR
+│   │       ├── events/               # Member events catalog & registration tickets
+│   │       ├── family/               # Household members & relationship linkages
+│   │       ├── giving/               # Personal contribution ledger & giving statements
+│   │       ├── groups/               # Small groups & cell fellowships
+│   │       ├── journey/              # Discipleship milestones & spiritual growth path
+│   │       ├── ministries/           # Serving teams & ministry involvement
+│   │       ├── notifications/        # Announcements, inbox & direct alerts
+│   │       ├── pastoral-care/        # Pastoral appointments & counseling requests
+│   │       ├── prayer/               # Prayer petition submission & answered prayers
+│   │       ├── profile/              # Member profile, photo upload & personal info
+│   │       ├── resources/            # Digital study materials, sermon guides & media
+│   │       ├── settings/             # Notification preferences & password management
+│   │       ├── error-preview/        # Error boundary and empty state preview
+│   │       ├── layout.tsx            # MemberShell layout with persistent sidebar & header
+│   │       └── page.tsx              # Member personal dashboard overview
+│   ├── globals.css                   # Global theme tokens, typography, and CSS variables
+│   └── layout.tsx                    # Root layout with AuthProvider & CurrencyProvider
+├── components/                       # React Presentation Components
+│   ├── auth/                         # Authentication forms & login widgets
+│   ├── departments/                  # Department forms and volunteer selectors
+│   ├── errors/                       # Standard UI error boundaries & recovery components
+│   ├── forms/                        # Backward-compatible form adapters
+│   ├── landing/                      # Public website sections (Hero, Sermons, Giving, etc.)
+│   ├── layout/                       # Admin shell components (Header, Sidebar, Search)
+│   ├── member/                       # Member Portal UI domain submodules (18+ modules)
+│   ├── members/                      # Member registration multi-tab forms
+│   ├── motion/                       # Framer Motion animation containers
+│   ├── prayer-requests/              # Intercessory prayer dialogs & components
+│   ├── theme/                        # Light/Dark mode theme provider
+│   └── ui/                           # 40+ atomic shadcn/ui design primitives
+├── services/                         # Application Domain API Services
+│   ├── assets/                       # Asset & equipment API calls
+│   ├── attendance/                   # Attendance & check-in service
+│   ├── auth/                         # Authentication & user profile service
+│   ├── communications/               # Bulk SMS & email campaign service
+│   ├── departments/                  # Ministry department service
+│   ├── events/                       # Events & registration service
+│   ├── finance/                      # Tithes, giving, expenses, and budget services
+│   ├── groups/                       # Cell groups & fellowship service
+│   ├── member/                       # 16 dedicated services for the Member Portal
+│   ├── members/                      # Member CRM & documents service
+│   ├── reports/                      # Analytics & custom report generation service
+│   ├── sunday-school/                # Sunday school classes & student service
+│   ├── upload/                       # File and image upload service
+│   ├── api-client.ts                 # Axios instance with Bearer JWT interceptors
+│   └── index.ts                      # Service barrel export
+├── lib/                              # Core Domain Logic, Security & Utilities
+│   ├── audit/                        # Structured audit logging engine
+│   ├── authorization/                # RBAC engine, canonical permissions, member guards
+│   ├── contexts/                     # AuthContext, CurrencyContext
+│   ├── errors/                       # Standard domain error hierarchy (AppError)
+│   ├── finance/                      # Deterministic precision math & variance engine
+│   ├── types/                        # Strongly typed domain models & interfaces
+│   ├── validation/                   # Zod schemas for all domain mutations & queries
+│   ├── date-utils.ts                 # Centralized date-fns parsing & formatters
+│   ├── permissions.ts                # Canonical permission constants & adapters
+│   └── utils.ts                      # ClassName merging and general utilities
+├── tests/                            # Automated Test Suites
+│   └── unit/                         # Unit tests (Notifications, Finance Math, Validation)
+└── docs/                             # Engineering Architecture & Blueprints
+    ├── architecture/                 # UI pages map (204 routes), domain map, backend arch
+    └── member-portal/                # UX/UI consistency checklist & design contract
 ```
 
-### Key Dependencies
-- **UI**: @radix-ui/*, shadcn/ui components
-- **Forms**: react-hook-form, @hookform/resolvers, zod
-- **HTTP**: axios
-- **Styling**: tailwindcss, tailwindcss-animate
-- **Icons**: lucide-react
-- **Charts**: recharts
-- **Date handling**: date-fns
-- **Animation**: framer-motion
+---
 
 ## Important Project Rules
 
-### From PROJECT_RULES.md
+### Brand Standards
+- Primary: `#2E8DB0` (Deep Blue), Secondary: `#28ACD1` (Light Blue)
+- Accent: `#C49831` (Gold), Success: `#A5CF5D` (Green), Dark: `#080A09`
+- Typography: Montserrat & Cabinet Grotesk font family tokens
+- Mobile-first responsive design mandatory across all 204 pages
 
-#### Brand Standards
-- Use official color palette consistently
-- Montserrat font family required
-- Mobile-first responsive design mandatory
-- Minimum touch target size of 40px
-
-#### Component Guidelines
-- Maximum 300 lines per component
-- Always include className prop for flexibility
-- Use TypeScript interfaces for all props
-- Follow established naming conventions
-
-#### Navigation Requirements
-- Breadcrumb navigation on all nested pages
-- Back navigation on detail/edit pages
-- Consistent header layouts across modules
-- Use appropriate contextual icons
-
-#### Currency-Neutral Design
-- Avoid currency symbols in icons
-- Use universal financial icons (wallet, receipt, etc.)
-- Display actual currency in text format only
-
-### Testing Strategy
-- Unit tests for utility functions
-- Component testing with React Testing Library
-- Integration tests for service layer
-- E2E tests for critical user flows
-
-### Performance Considerations
-- Code splitting by route (automatic with Next.js)
-- Image optimization with next/image
-- Lazy loading for below-fold content
-- Bundle analysis for optimization
-
-This system is designed for comprehensive church management with emphasis on user experience, accessibility, and maintainability. The architecture supports multi-tenant usage with branch-based data separation and extensive customization options.
+### UI/UX Contracts
+- Strictly adhere to `AGENTS.md` and `PROJECT_RULES.md`
+- No unnecessary decorative badges, icons, or nested cards
+- Standard page hierarchy: single `<h1>`, contextual action bar, flat content sections
+- Deterministic currency display with text symbols (never symbol icons)

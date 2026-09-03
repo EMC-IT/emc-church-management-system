@@ -1,6 +1,6 @@
 # Components Architecture & Domain Forms Documentation
 
-This directory contains the UI component library and domain forms for the EMC Church Management System. All components strictly adhere to the UI/UX design contract in `PROJECT_RULES.md` and `AGENTS.md`.
+This directory contains the UI component library, domain presentations, and validated forms for the EMC Church Management System. All components strictly adhere to the UI/UX design contracts in [`PROJECT_RULES.md`](file:///Users/bismarkabban/Documents/projects/EMC/emc-church-management-system/PROJECT_RULES.md) and [`AGENTS.md`](file:///Users/bismarkabban/Documents/projects/EMC/emc-church-management-system/AGENTS.md).
 
 ---
 
@@ -17,13 +17,54 @@ components/
 │   ├── currency-display.tsx   # Multi-currency formatted amount display
 │   └── skeleton-loaders.tsx   # Loading state placeholders
 │
-├── members/                   # Domain Member Forms
+├── member/                    # Member Self-Service Portal Domain Components
+│   ├── attendance/            # Attendance history & touchless QR pass components
+│   ├── dashboard/             # Member personal overview & quick metric tiles
+│   ├── events/                # Event card grids, registration dialogs & tickets
+│   ├── family/                # Household member cards & relationship linking dialogs
+│   ├── giving/                # Contribution summaries, pledge bars & donation forms
+│   ├── groups/                # Small group cards, leader contacts & join modals
+│   ├── journey/               # Discipleship milestone timeline & certificate views
+│   ├── layout/                # MemberShell, persistent sidebar, mobile bottom bar & breadcrumbs
+│   ├── ministries/            # Serving team cards & expression of interest dialogs
+│   ├── notifications/         # Notification inbox, category tabs & mark-as-read controls
+│   ├── pastoral-care/         # Pastoral session history & counseling request forms
+│   ├── prayer/                # Personal prayer cards & prayer request forms
+│   ├── profile/               # Member avatar upload, profile form & credentials
+│   ├── resources/             # Media resource cards, category filters & download buttons
+│   ├── settings/              # Multi-channel notification toggles & password change
+│   └── shared/                # MemberEmptyState, MemberErrorState, MemberLoadingState
+│
+├── landing/                   # Public Ministry & Community Web Components
+│   ├── hero-section.tsx       # Dynamic landing hero with CTA
+│   ├── service-times.tsx      # Campus worship schedule
+│   ├── live-stream-bar.tsx    # Live service broadcast indicator
+│   ├── sermons-section.tsx    # Sermon archive grid & media player
+│   ├── giving-section.tsx     # Public online donation form
+│   ├── events-section.tsx     # Public upcoming events preview
+│   ├── ministries-preview.tsx # Ministry highlight cards
+│   ├── community-section.tsx  # Testimonies and church life
+│   ├── navbar.tsx             # Public responsive navigation
+│   └── footer.tsx             # Public footer with campus directories
+│
+├── members/                   # Admin Domain Member Forms
 │   ├── member-form.tsx        # Simple member entry form
 │   ├── member-full-form.tsx   # Comprehensive multi-tab registration form
 │   └── index.ts
 │
-├── departments/               # Domain Department Forms
+├── departments/               # Admin Domain Department Forms
 │   ├── department-form.tsx    # Ministry and department creation/edit form
+│   └── index.ts
+│
+├── prayer-requests/           # Intercessory Prayer Dialogs & Components
+│   └── index.ts
+│
+├── auth/                      # Authentication & Login Components
+│   ├── login-form.tsx         # Secure email & password login form
+│   └── index.ts
+│
+├── errors/                    # Global & Domain Error Boundaries
+│   ├── error-boundary.tsx     # Fallback error container with retry action
 │   └── index.ts
 │
 ├── forms/                     # Backwards-Compatible Adapters
@@ -32,10 +73,10 @@ components/
 │   ├── department-form.tsx    # Adapter re-exporting from components/departments
 │   └── index.ts
 │
-├── layout/                    # Shell Layouts
-│   ├── header.tsx             # Global navigation bar & notifications
-│   ├── sidebar.tsx            # Module navigation hierarchy
-│   └── user-nav.tsx           # User account dropdown
+├── layout/                    # Admin Shell Layouts
+│   ├── header.tsx             # Admin top navigation bar & notifications
+│   ├── sidebar.tsx            # Admin module navigation hierarchy
+│   └── user-nav.tsx           # Admin user account dropdown
 │
 └── theme/                     # Theme & Context Providers
     ├── theme-provider.tsx     # Next-themes provider
@@ -79,7 +120,15 @@ All form inputs and payload mutations across pages are bound to centralized Zod 
 | **Church Profile** | `/dashboard/settings/church-profile` | Church Profile Form | `churchProfileSchema` | `name`, `vision`, `mission`, `coreValues`, `email`, `phone`, `street`, `seniorPastor` |
 | **Users** | `/dashboard/settings/users/add` | User Account Form | `userAccountCreateSchema` | `firstName`, `lastName`, `email`, `username`, `password`, `confirmPassword`, `role` |
 | **Roles** | `/dashboard/settings/roles/add` | Role Permissions Form | `roleCreateSchema` | `name`, `description`, `permissions` (min 1 required) |
-| **Login** | `/` | Login Form | `loginSchema` | `email`, `password` (min 6 chars) |
+| **Login** | `/login` | `LoginForm` | `loginSchema` | `email`, `password` (min 6 chars) |
+| **Member Profile**| `/portal/profile` | `MemberProfileForm` | `memberUpdateSchema` | `firstName`, `lastName`, `phone`, `address`, `occupation` |
+| **Member Prayer**| `/portal/prayer/new` | `PrayerRequestForm` | `prayerRequestCreateSchema` | `title`, `description`, `category`, `isConfidential` |
+| **Member Pastoral**| `/portal/pastoral-care/request` | `PastoralRequestForm` | `pastoralRequestSchema` | `requestType`, `preferredDate`, `preferredTime`, `notes` |
+| **Member Family**| `/portal/family` | Link Family Dialog | `familyLinkSchema` | `familyMemberId`, `relationship` |
+| **Member Settings**| `/portal/settings` | Password Change Form | `changePasswordSchema` | `currentPassword`, `newPassword`, `confirmPassword` |
+| **Public Contact**| `/contact` | `ContactForm` | `contactFormSchema` | `name`, `email`, `subject`, `message` |
+| **Public Giving** | `/give` | Public Giving Form | `donationCreateSchema` | `donorName`, `email`, `amount`, `currency`, `designation` |
+| **Public Events** | `/events` | Event RSVP Dialog | `eventRegistrationSchema` | `eventId`, `name`, `email`, `phone`, `attendeeCount` |
 
 ---
 
@@ -102,7 +151,13 @@ export function MemberCreationComponent() {
   });
 
   const onSubmit = async (data: MemberCreateInput) => {
-    // Validated payload ready for service layer execution
+    // Submit validated payload to application domain service
   };
+
+  return (
+    <form onSubmit={form.handleSubmit(onSubmit)}>
+      {/* Accessible fields bound with form.register or Controller */}
+    </form>
+  );
 }
 ```
