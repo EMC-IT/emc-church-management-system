@@ -73,4 +73,4 @@ backend/
 ├── pyproject.toml
 ├── alembic.ini
 ├── .env.example
-└── AGENTS.md
+└── CLAUDE.md

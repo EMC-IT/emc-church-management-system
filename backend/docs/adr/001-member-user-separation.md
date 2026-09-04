@@ -59,7 +59,7 @@ User ──────── Member
   if at all.
 - Keeps `Member` as the FK target for the finance/attendance/pastoral domains
   (Phase 4+), independent of whether that person ever gets portal access —
-  matches `backend/AGENTS.md` §7's tenant/branch scoping model, which is
+  matches `backend/CLAUDE.md` §7's tenant/branch scoping model, which is
   keyed off resource ownership, not login identity.
 
 ## Consequences

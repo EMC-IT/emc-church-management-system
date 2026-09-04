@@ -130,6 +130,10 @@ Tenant isolation must be enforced at:
 
 Consider PostgreSQL Row-Level Security for sensitive tenant boundaries.
 
+Tenant-scoped tables must carry their integrity constraints in the schema, not
+by convention — see §13 "Tenant-scoped models" for the mandatory
+`tenant_scoped_table_args()` declaration.
+
 ---
 
 ## 8. Authorization
@@ -277,6 +281,41 @@ Every migration must be reviewed for:
 * Tenant isolation
 * Performance
 
+### Tenant-scoped models
+
+A model composing `TenantScopedMixin` gains `tenant_id` and `branch_id`
+columns, but **not** the composite foreign key that proves the referenced
+branch belongs to the same church. That constraint comes from declaring:
+
+```python
+class SomeDomain(UUIDPrimaryKeyMixin, TenantScopedMixin, TimestampMixin, Base):
+    __tablename__ = "some_domain"
+    __table_args__ = tenant_scoped_table_args(
+        UniqueConstraint("tenant_id", "code"),
+    )
+```
+
+`tenant_scoped_table_args()` (in `app/core/database/base.py`) is **mandatory
+on every model with a `branch_id`**, whether or not it adds constraints of
+its own — pass any it does add as arguments to that call. Never write
+`__table_args__` as a plain tuple on such a model.
+
+A model that is tenant-scoped but *not* branch-scoped (`Branch`, `User`,
+`Role`) declares `tenant_id` itself, with its own
+`ForeignKey("churches.id", ondelete="RESTRICT")`, and uses a plain
+`__table_args__` — composing the mixin would add an always-NULL `branch_id`
+and invent a branch scope the contracts do not establish. A model that needs
+a **non-nullable** `branch_id` (`UserBranchAssignment`) declares both columns
+itself but still builds its table args with `tenant_scoped_table_args()`.
+The guard below checks all three shapes on the same terms, by column rather
+than by mixin, so it is the authority on whether a model is correct.
+
+Omitting it raises nothing and fails no type check; it silently produces a
+table that accepts a `branch_id` from another church. `tests/unit/test_tenant_scope_guard.py`
+sweeps every mapped table and fails when a table's columns promise tenant
+scoping that its constraints do not deliver. See
+`docs/adr/007-member-composite-tenant-integrity.md`.
+
 ---
 
 ## 14. Background Processing
@@ -374,7 +413,7 @@ For every phase:
 8. Implement authorization.
 9. Implement API routes.
 10. Write tests.
-11. Run lint/type checks.
+11. Run lint and both type checkers (MyPy and Pyright).
 12. Run migrations.
 13. Run integration tests.
 14. Verify API responses against frontend expectations.
@@ -423,6 +462,7 @@ A backend feature is complete only when:
 * Tests pass
 * Ruff passes
 * MyPy passes
+* Pyright passes
 * Migration works from a clean database
 * API response matches the frontend contract
 * Documentation is updated
@@ -445,7 +485,7 @@ After every meaningful implementation:
 
 * Run tests.
 * Run lint.
-* Run type checks.q
+* Run type checks (both `uv run mypy` and `uv run pyright`).
 * Inspect migration.
 * Verify API behavior.
 

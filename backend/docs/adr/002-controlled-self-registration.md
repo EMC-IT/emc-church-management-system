@@ -9,7 +9,7 @@
 `backend-implementation-plan.md` §10 left open whether `POST /auth/register`
 is public self-registration, and if so, which tenant a self-registered user
 lands in. This is a multi-tenancy and abuse-surface question, not just a
-UX one: `backend/AGENTS.md` §7 is explicit that tenant context must never be
+UX one: `backend/CLAUDE.md` §7 is explicit that tenant context must never be
 derived from client-supplied input, and a naive `{ "church_id": "123", ... }`
 registration payload would let any caller register into any church.
 
@@ -48,13 +48,13 @@ change, only additional ways to mint a valid registration context.
 If the current frontend registration flow assumes global self-registration
 (pick-your-church-at-signup), that flow must be changed to token/link-based
 registration as part of Phase 2 — this is a case where backend integration
-legitimately requires a frontend change, per `backend/AGENTS.md` §5.
+legitimately requires a frontend change, per `backend/CLAUDE.md` §5.
 
 ## Rationale
 
 - Prevents the single most direct tenant-isolation bypass: a client choosing
   its own tenant.
-- Matches `backend/AGENTS.md` §7: "Never trust a client-provided church_id
+- Matches `backend/CLAUDE.md` §7: "Never trust a client-provided church_id
   for authorization... Derive tenant context from the authenticated
   user/session" — extended here to registration, where there is no session
   yet, so the trusted source is the registration token instead.

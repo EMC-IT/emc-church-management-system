@@ -14,7 +14,7 @@ a stored display ``name``).
 ``email``/``username`` use ``CITEXT`` (enabled in 0001 for exactly this
 purpose) rather than ``VARCHAR`` + a functional index on ``lower()``.
 
-Migration review checklist (backend/AGENTS.md §13):
+Migration review checklist (backend/CLAUDE.md §13):
   - [x] No data loss -- new table only, no existing data affected
   - [x] Indexes: `tenant_id` (FK lookups), `deleted_at` (soft-delete filter,
         from `SoftDeleteMixin`) -- both already indexed by the mixins,

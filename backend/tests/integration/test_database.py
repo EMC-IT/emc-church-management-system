@@ -93,7 +93,7 @@ class TestTransactionScope:
         """A failure must discard the whole unit of work.
 
         This is what guarantees a financial write and its audit record either
-        both land or neither does (backend/AGENTS.md §10-§11).
+        both land or neither does (backend/CLAUDE.md §10-§11).
         """
         with pytest.raises(ProgrammingError):
             async with transaction_scope(db_session) as session:

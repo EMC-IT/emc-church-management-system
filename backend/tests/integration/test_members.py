@@ -357,17 +357,13 @@ class TestUniqueness:
         with pytest.raises(IntegrityError):
             await db_session.flush()
 
-    async def test_soft_deleted_members_email_can_be_reused(
-        self, db_session: AsyncSession
-    ) -> None:
+    async def test_soft_deleted_members_email_can_be_reused(self, db_session: AsyncSession) -> None:
         """The partial index excludes deleted_at IS NOT NULL rows."""
         church = _church()
         db_session.add(church)
         await db_session.flush()
 
-        first = _member(
-            tenant_id=church.id, phone="0244000040", email="reused@gracechapel.example"
-        )
+        first = _member(tenant_id=church.id, phone="0244000040", email="reused@gracechapel.example")
         db_session.add(first)
         await db_session.flush()
 

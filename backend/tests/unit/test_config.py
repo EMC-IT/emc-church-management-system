@@ -118,7 +118,7 @@ class TestDeploymentSafety:
 
     def test_production_rejects_a_short_key(self) -> None:
         with pytest.raises(PydanticValidationError, match="at least"):
-            _deployed(SECRET_KEY="too-short")  # noqa: S106
+            _deployed(SECRET_KEY="too-short")
 
     def test_production_rejects_debug(self) -> None:
         with pytest.raises(PydanticValidationError, match="DEBUG must be false"):

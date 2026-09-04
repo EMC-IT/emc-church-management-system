@@ -18,7 +18,13 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession
 from sqlalchemy.orm import Mapped, mapped_column
 
-from app.core.database.base import Base, TenantScopedMixin, TimestampMixin, UUIDPrimaryKeyMixin
+from app.core.database.base import (
+    Base,
+    TenantScopedMixin,
+    TimestampMixin,
+    UUIDPrimaryKeyMixin,
+    tenant_scoped_table_args,
+)
 from app.domains.churches.models import Church
 
 pytestmark = pytest.mark.requires_db
@@ -26,6 +32,7 @@ pytestmark = pytest.mark.requires_db
 
 class _TenantScopedProbe(UUIDPrimaryKeyMixin, TenantScopedMixin, TimestampMixin, Base):
     __tablename__ = "_tenant_scoped_probe"
+    __table_args__ = tenant_scoped_table_args()
 
     name: Mapped[str] = mapped_column(String(50))
 

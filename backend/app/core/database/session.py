@@ -58,13 +58,25 @@ session_factory: async_sessionmaker[AsyncSession] = async_sessionmaker(
 async def get_db() -> AsyncGenerator[AsyncSession]:
     """FastAPI dependency yielding a request-scoped session.
 
-    The session is rolled back and closed on the way out. Committing is the
-    application service's job, not the dependency's, so a request that raises
-    after a partial write leaves nothing behind.
+    The request is the unit of work: the session commits when the handler
+    returns normally and rolls back if anything escapes it, so a request that
+    fails after a partial write leaves nothing behind.
+
+    Without a commit here nothing a route writes would ever reach the
+    database. SQLAlchemy opens a transaction on the first query, so any
+    dependency that reads -- authentication does, on every protected route --
+    means a service can no longer take the outermost transaction for itself:
+    ``transaction_scope`` would find one already open and take its SAVEPOINT
+    path, which releases but never commits. A route would answer 200 having
+    persisted nothing.
+
+    ``transaction_scope`` remains the boundary for an operation that must be
+    atomic in its own right, such as provisioning; it nests inside this one.
     """
     async with session_factory() as session:
         try:
             yield session
+            await session.commit()
         except Exception:
             await session.rollback()
             raise

@@ -16,7 +16,7 @@ prove same-tenant integrity (ADR-007): a plain ``branch_id -> branches.id``
 or ``user_id -> users.id`` only proves the row exists *somewhere*, not that
 it belongs to the member's own church.
 
-Migration review checklist (backend/AGENTS.md §13):
+Migration review checklist (backend/CLAUDE.md §13):
   - [x] No data loss -- one new table; the two ALTERs on `branches`/`users`
         add a unique constraint on already-unique columns (`id` is already
         each table's PK), so no existing data can violate it

@@ -1,6 +1,6 @@
 """Celery application.
 
-Long-running work never blocks an HTTP request (``backend/AGENTS.md`` §14):
+Long-running work never blocks an HTTP request (``backend/CLAUDE.md`` §14):
 bulk SMS, email campaigns, member imports, report generation, large exports and
 PDF rendering all run here. Phase 1 registers no business tasks -- only the
 application, its configuration and a diagnostic ping.

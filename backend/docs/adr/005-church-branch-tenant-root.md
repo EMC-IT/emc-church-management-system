@@ -80,7 +80,7 @@ recommendation.
   field or behavior has been identified anywhere in the documented contract
   that would belong to `Tenant` but not `Church`; `backend-domain-map.md`
   already describes churches as the tenant roots. Adding one now would be
-  exactly the kind of duplicate/invented model `backend/AGENTS.md` §19
+  exactly the kind of duplicate/invented model `backend/CLAUDE.md` §19
   warns against.
 
 ## Addendum (2026-09-03, Phase 2B-1.5): `TenantScopedMixin.tenant_id` Foreign Key

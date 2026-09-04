@@ -9,6 +9,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from starlette.middleware.gzip import GZipMiddleware
 
+from app import models as _model_registry  # noqa: F401 -- side effect; see below
 from app.api.router import api_router
 from app.config import Settings, settings
 from app.core.cache import close_redis
@@ -24,6 +25,15 @@ from app.core.middleware import (
 )
 
 logger = get_logger(__name__)
+
+# `app.models` is imported for its side effect: it registers every domain's
+# tables on `Base.metadata`. Foreign keys are declared against table *names*
+# (`"churches.id"`) so that core never imports a domain package, and SQLAlchemy
+# resolves them at first flush -- which fails if the target's module was never
+# imported. Reaching a domain model through a route is not enough: signing in
+# touches `users`, whose `tenant_id` points at `churches`, a table nothing in
+# the auth path imports. `migrations/env.py` imports this module for the same
+# reason.
 
 # Generous enough for member CSV imports and document uploads; per-endpoint
 # limits tighten this in the files domain (Phase 3).

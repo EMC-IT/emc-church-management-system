@@ -12,7 +12,7 @@ from datetime import UTC, datetime
 
 from sqlalchemy import DateTime, ForeignKey, ForeignKeyConstraint, MetaData, func, text
 from sqlalchemy.dialects.postgresql import UUID
-from sqlalchemy.orm import DeclarativeBase, Mapped, declared_attr, mapped_column
+from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 from sqlalchemy.sql.schema import SchemaItem
 
 # Deterministic constraint names. Without this, Alembic autogenerate emits
@@ -101,20 +101,36 @@ def branch_scope_fk() -> ForeignKeyConstraint:
     requires ``branches`` to carry ``UNIQUE(tenant_id, id)`` in addition to
     its plain PK on ``id`` -- see ADR-007.
 
-    A standalone function, not baked directly into
-    ``TenantScopedMixin.__table_args__``: a subclass that needs
-    ``__table_args__`` of its own (unique constraints, extra indexes) has
-    its own definition fully shadow the mixin's declared_attr version rather
-    than merge with it, so that subclass must call this directly and include
-    it alongside its own entries. ``TenantScopedMixin`` itself still uses it
-    below, so a subclass with no ``__table_args__`` of its own gets the
-    constraint automatically.
+    The primitive behind :func:`tenant_scoped_table_args`, which is what a
+    domain model should normally call.
     """
     return ForeignKeyConstraint(
         ["tenant_id", "branch_id"],
         ["branches.tenant_id", "branches.id"],
         ondelete="RESTRICT",
     )
+
+
+def tenant_scoped_table_args(*extra: SchemaItem) -> tuple[SchemaItem, ...]:
+    """Build ``__table_args__`` for a :class:`TenantScopedMixin` subclass.
+
+    Every tenant-scoped model declares its table args this way, passing any
+    constraints of its own -- unique constraints, extra indexes, its own
+    foreign keys -- as arguments::
+
+        __table_args__ = tenant_scoped_table_args(
+            UniqueConstraint("tenant_id", "code"),
+        )
+
+    A fresh :func:`branch_scope_fk` is built per call because a
+    ``ForeignKeyConstraint`` binds to the one table it is attached to and
+    cannot be shared between models.
+
+    Nothing in SQLAlchemy or the type checkers forces a model to call this,
+    so the invariant is also checked mechanically for every mapped table by
+    ``tests/unit/test_tenant_scope_guard.py``.
+    """
+    return (branch_scope_fk(), *extra)
 
 
 class TenantScopedMixin:
@@ -134,10 +150,24 @@ class TenantScopedMixin:
     ``branch_id`` is nullable so tenant-wide reference data (categories,
     roles, church profile) can share the same table shape as branch-scoped
     operational data. Its same-tenant integrity is enforced by the composite
-    FK in ``branch_scope_fk()`` above -- see ADR-007.
+    FK in :func:`branch_scope_fk` -- see ADR-007.
+
+    That constraint is *not* supplied automatically here. Every model
+    composing this mixin must declare it, always the same way::
+
+        __table_args__ = tenant_scoped_table_args()
+
+    passing any constraints of its own to that call. The mixin used to
+    provide a ``declared_attr`` ``__table_args__`` instead, which a subclass
+    declaring its own silently shadowed rather than merged with -- and since
+    most domains eventually need an index or a unique constraint, that was
+    the common path. One explicit spelling that always applies is simpler to
+    follow than a default that quietly stops applying, and it keeps a table's
+    constraints readable in the model itself. Omitting it is caught by
+    ``tests/unit/test_tenant_scope_guard.py``.
 
     The value is always derived from the authenticated principal, never from a
-    request body -- see ``backend/AGENTS.md`` §7 and the security plan §4.
+    request body -- see ``backend/CLAUDE.md`` §7 and the security plan §4.
     """
 
     tenant_id: Mapped[uuid.UUID] = mapped_column(
@@ -149,10 +179,6 @@ class TenantScopedMixin:
     branch_id: Mapped[uuid.UUID | None] = mapped_column(
         UUID(as_uuid=True), nullable=True, index=True
     )
-
-    @declared_attr.directive
-    def __table_args__(cls) -> tuple[SchemaItem, ...]:
-        return (branch_scope_fk(),)
 
 
 class SoftDeleteMixin:

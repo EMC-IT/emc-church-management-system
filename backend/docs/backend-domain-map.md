@@ -1,7 +1,7 @@
 # EMC CMS — Backend Domain Map
 
 **Status:** Phase 0 discovery output. No implementation.
-**Derived exclusively from:** `README.md`, `AGENTS.md`, `backend/AGENTS.md`, `API_DOCUMENTATION.md`, `api-documentations/*`, `PROJECT_RULES.md`, `docs/architecture/*`, `services/**`, `lib/types/**`, `lib/validation/**`, `lib/authorization/**`, `tests/unit/**`.
+**Derived exclusively from:** `README.md`, `AGENTS.md`, `backend/CLAUDE.md`, `API_DOCUMENTATION.md`, `api-documentations/*`, `PROJECT_RULES.md`, `docs/architecture/*`, `services/**`, `lib/types/**`, `lib/validation/**`, `lib/authorization/**`, `tests/unit/**`.
 
 Anything not traceable to those sources is marked **OPEN QUESTION** and is *not* treated as a requirement.
 
@@ -14,7 +14,7 @@ The backend scaffold (`backend/app/domains/`) already declares 20 domain package
 | # | Backend package | Frontend counterpart | Source of truth for contract |
 | :-- | :-- | :-- | :-- |
 | 1 | `identity` | `services/auth/`, `lib/authorization/*` | Wired HTTP contract (`/auth/*`) |
-| 2 | `churches` | `app/(admin)/onboarding`, `settings/church-profile`, `settings/branches` | Docs + Zod schemas only (no HTTP) |
+| 2 | `churches` | `app/(admin)/onboarding`, `settings/church-profile`, `settings/branches` | `GET\|PUT /settings/church-profile` implemented and authorized (Phase 2B-9); branches remain Zod-only — blocked on OQ-SEC-22/23 and OQ-DB-13 |
 | 3 | `members` | `services/members/` | Wired HTTP contract |
 | 4 | `families` | `services/members/` (family sub-resource) | Wired HTTP contract |
 | 5 | `attendance` | `services/attendance/` | **Mock-only** — docs + service signatures |
@@ -52,6 +52,17 @@ The backend scaffold (`backend/app/domains/`) already declares 20 domain package
 | `PasswordResetToken` | `token, newPassword` exchange | `lib/validation/auth.ts` `resetPasswordSchema` |
 | `UserBranchAssignment` | `assignedBranchIds[]` | `lib/authorization/scope.ts` `SecurityContext` |
 
+> **Identity model (re-verified, Phase 2B-10).** `users.tenant_id` is
+> `NOT NULL` with a foreign key to `churches.id`, and there is no
+> `identities`, `persons` or `memberships` table among the nine that exist.
+> **A user belongs to exactly one tenant, and nothing records that two `users`
+> rows are the same person.** Any post-authentication church picker therefore
+> needs a new global-identity domain model, not a login change — see the Phase
+> 2B-10 addendum to [ADR-012](./adr/012-login-identity-and-credential-failure.md).
+> `UserBranchAssignment` is read-only in practice: `assignedBranchIds` appears
+> only in `lib/authorization/scope.ts` as a context shape, and no form, service
+> or endpoint anywhere *sets* it (OQ-SEC-23, OQ-SEC-24).
+
 Built-in roles (**authoritative list = `lib/authorization/roles.ts`**): `SuperAdmin`, `Admin`, `Pastor`, `Accountant`, `Secretary`, `Teacher`.
 
 ### 2.2 `churches` — Tenant & Branch
@@ -62,9 +73,28 @@ Built-in roles (**authoritative list = `lib/authorization/roles.ts`**): `SuperAd
 | `Branch` | `name, type(Headquarters/Branch/Mission/Outreach Center), established, email, phone, alternativePhone, street, city, state, postalCode, country, pastor, assistantPastor, secretary, capacity, currentMembers, serviceSchedule, facilities, description, status(active/inactive/under-construction)` | `lib/validation/settings.ts` `branchCreateSchema` |
 | `ChurchSettings` | `church{}, appearance{theme,language,timezone,currency}, notifications{email{},sms{}}` | `api-documentations/Settings_Endpoints.md` |
 
+> **Authorization status (Phase 2B-9).** `Church` is served by
+> `GET|PUT /settings/church-profile`, both gated on `settings.church-profile`.
+> It is **tenant-wide reference data** (§5 below), so the query carries a
+> tenant predicate and deliberately **no** branch predicate — this is the first
+> endpoint where tenant isolation stands alone rather than being enforced
+> transitively through branch scope. `Branch` has a table, a field contract and
+> four canonical permission codes, but **no branch endpoint exists**: the
+> directory's own scope is unspecified (OQ-SEC-22), a created branch would be
+> reachable by nobody (OQ-SEC-23), and deletion has unresolved referential
+> consequences (OQ-DB-13). `ChurchSettings` has no table at all.
+
 Known branch value set used in member forms: `Adenta (HQ)`, `Adusa`, `Liberia`, `Somanya`, `Mampong` (`lib/validation/members.ts`). These are **seed data for one tenant**, not an enum — see OQ-11.
 
 ### 2.3 `members` — Membership CRM
+
+> **Authorization status (Phase 2B-8): enforced.** `GET|POST /members` and
+> `GET|PUT /members/{id}` are live, gated by `members.view` / `.create` /
+> `.edit`, scoped to the caller's tenant and assigned branches as query
+> predicates. `DELETE` and every sub-resource remain blocked — see the
+> Phase 2B-8 stopped-items table in
+> [ADR-011](./adr/011-authorization-architecture.md). This is the only domain
+> with any authorization enforcement; 17 of 20 domain packages are still empty.
 
 | Entity | Key fields | Source |
 | :-- | :-- | :-- |
@@ -246,7 +276,7 @@ Per `docs/architecture/domain-map.md` §3 and `backend architecture.md` §9–10
 | `branches`, `users`, `roles`, `sessions` | System-level feature flags (if introduced) |
 | `audit_logs` (carries `church_id`) | |
 
-Rules (`security-boundary-map.md` Rule 1, `backend/AGENTS.md` §7):
+Rules (`security-boundary-map.md` Rule 1, `backend/CLAUDE.md` §7):
 1. `church_id` is **always** derived from the verified JWT, never from the request body, query string, or `X-Tenant-ID` header. The `X-Tenant-ID` / `X-Branch-ID` headers documented in `api-documentations/Introduction.md` may be accepted as a *hint* but must be validated against the token; they can never widen access. **OQ-14.**
 2. Isolation is enforced at four layers: API context → service → repository → database (RLS considered for `pastoral_*`, `finance_*`, `audit_logs`).
 3. A cross-tenant read returns `404`, not `403`, to avoid confirming existence. *(Note: `api-documentations/Errors_Responses.md` §3 says cross-tenant access returns `403`. **OQ-15**.)*
@@ -259,7 +289,7 @@ Rules (`security-boundary-map.md` Rule 1, `backend/AGENTS.md` §7):
 
 - `branch_id` is nullable on the shared mixin (`backend/app/core/database/base.py::TenantScopedMixin`) so tenant-wide rows can share the table shape.
 - Branch access derives from `UserBranchAssignment`. `lib/authorization/scope.ts::validateBranchScope` encodes the rule: an empty `assignedBranchIds` list means "no branch restriction"; a non-empty list is an allow-list. **This "empty = unrestricted" semantic is a security-sensitive default — see OQ-16.**
-- `SuperAdmin` bypasses both tenant and branch checks (`scope.ts`). The backend must **not** bypass tenant scope for SuperAdmin unless SuperAdmin is genuinely a platform-operator role. **OQ-17.**
+- `SuperAdmin` bypasses both tenant and branch checks (`scope.ts`). **Resolved — [ADR-010](./adr/010-superadmin-is-tenant-scoped.md):** the backend does **not** mirror the tenant bypass. `SuperAdmin` is a tenant role spanning every branch of its own church and no others. ~~OQ-17.~~
 
 ---
 
@@ -316,7 +346,7 @@ Permitted direction, per `docs/architecture/domain-map.md` §3 ("no direct inter
 | **OQ-14** | Should `X-Tenant-ID` / `X-Branch-ID` request headers be honoured at all? They are documented as "Optional / Resolved via JWT" but Rule 1 forbids trusting client scope. | `api-documentations/Introduction.md` vs `security-boundary-map.md` Rule 1 |
 | **OQ-15** | Cross-tenant access response code: `403` (documented) or `404` (non-enumerable, security best practice)? | `api-documentations/Errors_Responses.md` §3 |
 | **OQ-16** | `validateBranchScope` treats an empty `assignedBranchIds` array as *unrestricted*. Is that intended (fail-open), or should an unassigned user be denied all branch-scoped data (fail-closed)? | `lib/authorization/scope.ts` |
-| **OQ-17** | Does `SuperAdmin` cross **tenant** boundaries (platform operator) or only branch boundaries within one tenant? `validateTenantScope` returns early for SuperAdmin, which would allow cross-church access. | `lib/authorization/scope.ts` |
+| ~~OQ-17~~ | **Resolved — [ADR-010](./adr/010-superadmin-is-tenant-scoped.md).** Branch boundaries only, within one church. The frontend's tenant bypass is a UX-layer no-op and is deliberately not mirrored server-side. | `lib/authorization/scope.ts` |
 | **OQ-18** | The public/landing portal (11 routes: giving gateway, contact form, anonymous prayer, public event RSVP, sermons archive) is **entirely static** — no service, no types (`lib/types/landing.ts` referenced in `domain-map.md` does not exist), no endpoints. Is a public API in scope for this backend phase? | `docs/architecture/domain-map.md` row "Public Portal" vs `components/landing/*` and `ls lib/types/` |
 | **OQ-19** | Is a `Sermon` entity in scope? It appears in `domain-map.md`'s Public Portal row and README Part I, but has no type, service, admin route, or backend package. | as above |
 | **OQ-20** | Multi-currency: is there an `ExchangeRate` entity and is it authoritative server-side? `backend architecture.md` §6/§15 lists `ExchangeRate` and `financial_transactions.exchange_rate`, but the frontend `CurrencyContext` holds rates client-side and no rate API exists. | `backend architecture.md` §6 vs `architecture-baseline.md` §3 |

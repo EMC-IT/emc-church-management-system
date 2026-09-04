@@ -21,6 +21,7 @@ dependencies = [
     "python-multipart>=0.0.19",
     "httpx>=0.28.0",
     "pwdlib[argon2]>=0.3.1",
+    "pyjwt>=2.10.0",
 ]
 
 [build-system]
@@ -36,6 +37,7 @@ dev = [
     "pytest-asyncio>=0.24.0",
     "ruff>=0.8.0",
     "mypy>=1.13.0",
+    "pyright>=1.1.400",
     "celery-types>=0.22.0",
     "fastapi[standard]>=0.141.1",
 ]
@@ -56,7 +58,7 @@ filterwarnings = ["error::DeprecationWarning:app.*"]
 [tool.ruff]
 target-version = "py313"
 line-length = 100
-src = ["app", "tests"]
+src = ["app", "scripts", "tests"]
 extend-exclude = [".venv", "migrations/versions"]
 
 [tool.ruff.lint]
@@ -85,25 +87,32 @@ ignore = [
 classmethod-decorators = ["directive"]
 
 [tool.ruff.lint.per-file-ignores]
+"scripts/*" = [
+    "T20",  # a code-generation CLI reports what it wrote on stdout
+]
 "tests/*" = [
     "S101",  # assert is the point of a test
     "S608",  # test SQL interpolates fixture-owned literal table names, not input
     "S105",  # password-hashing test fixtures use literal passwords, not credentials
+    "S106",  # ... and pass them as keyword arguments to model/schema constructors
 ]
 
 [tool.ruff.lint.flake8-tidy-imports]
 ban-relative-imports = "all"
 
 [tool.ruff.lint.isort]
-known-first-party = ["app", "tests"]
+known-first-party = ["app", "scripts", "tests"]
 
-# Editor-only. MyPy remains the type gate in CI; this exists so that Pylance /
-# Pyright resolve imports against the project venv instead of a system
+# A type gate alongside MyPy, not editor-only configuration. The two disagree
+# in both directions -- MyPy accepted a `declared_attr.directive` override that
+# Pyright correctly rejected (ADR-007, Phase 2B-3.5), and it went unnoticed for
+# a phase and a half because only MyPy was run. The venv settings also let
+# Pylance resolve imports against the project environment rather than a system
 # interpreter, which otherwise reports every third-party import as missing.
 [tool.pyright]
 venvPath = "."
 venv = ".venv"
-include = ["app", "tests", "migrations"]
+include = ["app", "scripts", "tests", "migrations"]
 exclude = [".venv", "**/__pycache__"]
 pythonVersion = "3.13"
 typeCheckingMode = "standard"

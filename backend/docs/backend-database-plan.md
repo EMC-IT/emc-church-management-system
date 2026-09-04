@@ -2,7 +2,7 @@
 
 **Status:** Phase 0 discovery output. No migrations written, no tables created.
 
-Per `backend/AGENTS.md` §17, no table is proposed here without a traced source. Tables that exist only because a screen would find them convenient are **not** included; where a screen implies a table with no supporting type or contract, it is listed under §9 Open Questions instead.
+Per `backend/CLAUDE.md` §17, no table is proposed here without a traced source. Tables that exist only because a screen would find them convenient are **not** included; where a screen implies a table with no supporting type or contract, it is listed under §9 Open Questions instead.
 
 ---
 
@@ -10,14 +10,14 @@ Per `backend/AGENTS.md` §17, no table is proposed here without a traced source.
 
 | Concern | Decision | Source |
 | :-- | :-- | :-- |
-| Engine | PostgreSQL | `backend/AGENTS.md` §2 |
-| ORM | SQLAlchemy 2.x, async (`asyncpg`) | `backend/AGENTS.md` §13, `backend/app/core/database/session.py` |
-| Migrations | Alembic, one per schema change, reviewed for data loss / indexes / FKs / nullability / uniqueness / tenant isolation / performance | `backend/AGENTS.md` §13 |
+| Engine | PostgreSQL | `backend/CLAUDE.md` §2 |
+| ORM | SQLAlchemy 2.x, async (`asyncpg`) | `backend/CLAUDE.md` §13, `backend/app/core/database/session.py` |
+| Migrations | Alembic, one per schema change, reviewed for data loss / indexes / FKs / nullability / uniqueness / tenant isolation / performance | `backend/CLAUDE.md` §13 |
 | PK | `UUID` (`uuid4`), `id` | `backend/app/core/database/base.py` uses `UUID(as_uuid=True)` |
 | Timestamps | `created_at`, `updated_at` — `TIMESTAMPTZ NOT NULL` | `TimestampMixin` (already implemented) |
 | Tenant column | `tenant_id UUID NOT NULL REFERENCES churches(id) ON DELETE RESTRICT`, indexed | `TenantScopedMixin` (already implemented; FK added Phase 2B-1.5, [ADR-005 addendum](./adr/005-church-branch-tenant-root.md)) |
 | Branch column | `branch_id UUID NULL` indexed, **no FK yet** | `TenantScopedMixin` — constraining it needs a same-tenant check a plain FK can't express; deferred to the first branch-scoped domain, see ADR-005 addendum |
-| Money | `NUMERIC(14,2)`; never `float`/`double` | `backend/AGENTS.md` §10, `api-documentations/Introduction.md` §3 |
+| Money | `NUMERIC(14,2)`; never `float`/`double` | `backend/CLAUDE.md` §10, `api-documentations/Introduction.md` §3 |
 | Currency | `CHAR(3)`, default `'GHS'` | `currencySchema` = `GHS\|USD\|EUR\|GBP\|NGN` |
 | Enums | PostgreSQL native `ENUM` **only** where the value set is settled; `VARCHAR` + CHECK where OQ-flagged | see §9 |
 | Soft delete | `deleted_at TIMESTAMPTZ NULL` on member, financial, and file tables | implied by `Archived`/`Transferred` statuses and audit immutability |
@@ -47,19 +47,28 @@ Per `backend/AGENTS.md` §17, no table is proposed here without a traced source.
 - `member_id UUID NULL FK→members` if members and users are linked — blocked on domain **OQ-01**.
 
 ### `roles`
-`id`, `tenant_id NULL` (NULL ⇒ system role), `name`, `description`, `is_system BOOL`, timestamps.
-- **UNIQUE** (`tenant_id`, `name`).
+`id`, `tenant_id NOT NULL`, `key`, `name`, `description`, `is_system BOOL`, timestamps.
+- **UNIQUE** (`tenant_id`, `name`), **UNIQUE** (`tenant_id`, `key`), **UNIQUE** (`tenant_id`, `id`).
 - Seed the six roles from `lib/authorization/roles.ts`: `SuperAdmin`, `Admin`, `Pastor`, `Accountant`, `Secretary`, `Teacher`.
 
+> **`tenant_id NULL ⇒ system role` is superseded — [ADR-008](./adr/008-rbac-roles-as-per-tenant-instances.md).** Roles are per-tenant *instances*: every church gets its own row for each canonical role, marked `is_system` and identified by the stable `key`. A nullable `tenant_id` cannot support `users.(tenant_id, role_id) → roles(tenant_id, id)`, the composite foreign key that makes assigning another church's role impossible in the database rather than only in service code. `permissions` and `permission_categories` stay global as specified below.
+
 ### `permissions` *(global, not tenant-scoped)*
-`id`, `code` (dot-notation, e.g. `finance.expenses.create`), `name`, `description`, `category`, `resource`, `action`.
-- **UNIQUE** (`code`). Seed from the 158 codes in `lib/authorization/permissions.ts` (see security plan §3).
+`id`, `code` (dot-notation, e.g. `finance.expenses.create`), `name`, `description`, `category_id FK→permission_categories`.
+- **UNIQUE** (`code`). Seed from `lib/authorization/permissions.ts`: **164 codes**, the union of the flat `PERMISSIONS` const and everything reachable through `PERMISSION_CATEGORIES`. Since [ADR-009](./adr/009-permission-catalogue-completeness.md) the two lists agree exactly, so the union is now belt-and-braces rather than load-bearing; it stays because it is what makes a future gap recordable instead of silently under-granting a role. The count of 158 in security plan §3 was always wrong.
+- No `resource`/`action` columns — `PermissionItem` carries only `id`/`name`/`description`, and splitting a code into resource and action is ambiguous for the three-segment codes (`sunday-school.classes.view`). See [ADR-008](./adr/008-rbac-roles-as-per-tenant-instances.md).
+
+### `permission_categories` *(global, not tenant-scoped)*
+`id`, `key`, `name`, `description`, timestamps.
+- **UNIQUE** (`key`). The **15** groupings in `PERMISSION_CATEGORIES`, which carry their own name and description and so are a table rather than a denormalised string column.
 
 ### `role_permissions`
 `role_id FK`, `permission_id FK`. PK (`role_id`, `permission_id`). Seed from `ROLE_PERMISSIONS`.
 
 ### `user_branch_assignments`
-`user_id FK`, `branch_id FK`, `is_primary BOOL`. PK (`user_id`, `branch_id`). Backs `SecurityContext.assignedBranchIds`.
+`id`, `tenant_id`, `user_id`, `branch_id`, `is_primary BOOL`, timestamps. Backs `SecurityContext.assignedBranchIds`.
+- **UNIQUE** (`user_id`, `branch_id`); partial **UNIQUE** (`user_id`) `WHERE is_primary` — at most one primary branch per user, backing `SecurityContext.branchId`.
+- Both references are composite — `(tenant_id, user_id) → users(tenant_id, id)` and `(tenant_id, branch_id) → branches(tenant_id, id)` — so the user and the branch are provably the same church's ([ADR-007](./adr/007-member-composite-tenant-integrity.md)). A surrogate `id` replaces the composite PK so a single assignment is addressable, matching every other table here.
 
 ### `sessions` / `refresh_tokens`
 `id`, `user_id FK`, `token_hash`, `device`, `user_agent`, `ip_address INET`, `issued_at`, `expires_at`, `revoked_at`, `rotated_from_id` self-FK.
@@ -315,7 +324,7 @@ Per `lib/types/departments.ts`. Notable:
 ### `pastoral_cases` *(CONFIDENTIAL)*
 `id`, `tenant_id`, `branch_id`, `member_id FK`, `category`, `priority`, `status`, `assigned_pastor_user_id FK`, `notes`, `scheduled_date`, `next_follow_up_date`, `closed_at`, `closing_notes`, `created_by_user_id`, timestamps.
 - **INDEX** (`tenant_id`, `assigned_pastor_user_id`, `status`), (`tenant_id`, `next_follow_up_date`).
-- Candidate for PostgreSQL **RLS** (`backend/AGENTS.md` §7).
+- Candidate for PostgreSQL **RLS** (`backend/CLAUDE.md` §7).
 
 ### `pastoral_sessions` *(CONFIDENTIAL)*
 `id`, `tenant_id`, `case_id FK`, `session_date TIMESTAMPTZ`, `location`, `summary`, `confidential_notes`, `action_items`, `next_follow_up_date`, `status`, `pastor_user_id FK`, timestamps.
@@ -410,7 +419,7 @@ Per `lib/validation/communications.ts` and the wired `/communications/*` paths.
 
 Consolidated so they can be reviewed as a set:
 
-1. **Decimal only.** `NUMERIC(14,2)` for every money column. No `float`. (`backend/AGENTS.md` §10.)
+1. **Decimal only.** `NUMERIC(14,2)` for every money column. No `float`. (`backend/CLAUDE.md` §10.)
 2. **Positive amounts.** `CHECK amount > 0` on giving, pledges, income, expenses, budgets.
 3. **Breakdown exclusion.** Every aggregate filters `parent_giving_id IS NULL`. Enforce via a `giving_countable` view; forbid raw aggregation.
 4. **Pledges are not giving.** No query may sum `pledges.pledged_amount` into revenue.
@@ -453,7 +462,7 @@ Foreign-key dependencies dictate this order. Each numbered group is one or more 
 | 21 | `0021_jobs_settings` | `jobs`, `settings` |
 | 22 | `0022_analytics_views` | materialised views: `monthly_member_growth`, `weekly_attendance`, `monthly_giving`, `monthly_expenses`, `branch_statistics`, `department_statistics`, `member_retention` (`backend architecture.md` §26) |
 
-Every revision must be verified with a from-clean-database run and a `downgrade()` that is either correct or explicitly refuses (`backend/AGENTS.md` §20).
+Every revision must be verified with a from-clean-database run and a `downgrade()` that is either correct or explicitly refuses (`backend/CLAUDE.md` §20).
 
 ---
 
@@ -470,6 +479,7 @@ Every revision must be verified with a from-clean-database run and a `downgrade(
 | **OQ-DB-07** | Should `SUM(budget_allocations.allocated_amount) <= budgets.amount` be a DB trigger or a service-layer rule only? |
 | **OQ-DB-08** | Should `pastoral_sessions.confidential_notes` (and `prayer_requests.pastoral_notes`) be encrypted at column level, or is disk encryption + RLS sufficient? |
 | **OQ-DB-09** | Retention policy for `audit_logs`, `sessions`, `notifications`, `communication_recipients`. No source specifies one. Needed before partitioning decisions. |
-| **OQ-DB-10** | Is RLS actually enabled, and for which tables? `backend/AGENTS.md` §7 says "consider"; the recommendation here is `pastoral_*`, `prayer_requests`, `member_documents`, `giving`, `expense_records`, `audit_logs`. RLS requires a per-request `SET LOCAL app.tenant_id` and a non-superuser application role. |
+| **OQ-DB-10** | Is RLS actually enabled, and for which tables? `backend/CLAUDE.md` §7 says "consider"; the recommendation here is `pastoral_*`, `prayer_requests`, `member_documents`, `giving`, `expense_records`, `audit_logs`. RLS requires a per-request `SET LOCAL app.tenant_id` and a non-superuser application role. |
 | **OQ-DB-11** | Does the system need `financial_transactions`, `funds` and `accounts` as a general ledger (`backend architecture.md` §6/§15/§23), or is the domain-specific model (giving / income / expenses / budgets) the actual design? The frontend has no ledger, fund, or account concept at all. **Recommendation: no general ledger** — it is not supported by any frontend contract. |
-| **OQ-DB-12** | Seed data: which tenant, branches, roles, categories and admin user are provisioned by the onboarding wizard vs. by a seed script? |
+| **OQ-DB-12** | Seed data: which tenant, branches, categories and admin user are provisioned by the onboarding wizard vs. by a seed script? *Partly resolved for RBAC — [ADR-008](./adr/008-rbac-roles-as-per-tenant-instances.md):* the global permission catalogue is seeded once per deployment by `sync_permission_registry()`, and a church's six canonical roles by `seed_tenant_roles(tenant_id)` at provisioning time. Both are in `app/domains/identity/rbac_seed.py` and are safe to re-run. The rest of the question is open. |
+| **OQ-DB-13** | Branch deletion and archival. `branches` composes no `SoftDeleteMixin`, so `settings.branches.delete` would be a hard `DELETE`, while `branch_scope_fk()` points every branch-scoped table at it with `ondelete="RESTRICT"` — a branch with members cannot be deleted at all. Decide archive versus delete, what happens to dependent records, and what happens to a church whose sole `Headquarters` is removed (`uq_branches_one_headquarters_per_tenant`). Blocks `DELETE /settings/branches/{id}`. |

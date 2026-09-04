@@ -2,7 +2,7 @@
 
 Financial operations must be atomic, and every sensitive mutation must write
 its audit record inside the same transaction as the change it describes, so a
-rollback discards both (``backend/AGENTS.md`` §10-§11). This context manager is
+rollback discards both (``backend/CLAUDE.md`` §10-§11). This context manager is
 the single boundary that guarantees it.
 """
 

@@ -60,7 +60,7 @@ test suite no longer describes the real system.
 - Its permission taxonomy (dot-notation, hierarchical by domain:
   `finance.expenses.approve`, `sunday-school.classes.manage`, etc.) matches
   the domain-driven module boundaries the backend is already organized
-  around (`backend/AGENTS.md` §3, §8).
+  around (`backend/CLAUDE.md` §3, §8).
 
 ## Architecture Implications
 
@@ -81,7 +81,7 @@ user_roles (join table)
 
 - Roles must map to granular permissions server-side via a seeded
   `permission_registry`, mirroring `PERMISSION_CATEGORIES` — not
-  hardcoded `if user.role == "admin"` checks, per `backend/AGENTS.md` §8.
+  hardcoded `if user.role == "admin"` checks, per `backend/CLAUDE.md` §8.
 - Role assignment is scoped by church and optionally branch, matching
   `SecurityContext.assignedBranchIds` in `lib/authorization/scope.ts` — a
   user with no assigned branches is church-wide; one with assigned branches
@@ -96,7 +96,7 @@ user_roles (join table)
   treating an empty branch assignment as unrestricted, and
   `hasMemberPermission` defaulting to the full member permission set) must
   be implemented fail-closed server-side (conflict #16) — the frontend
-  behavior is UX-only per `backend/AGENTS.md` §6, and must not be mirrored
+  behavior is UX-only per `backend/CLAUDE.md` §6, and must not be mirrored
   server-side.
 
 ## Consequences

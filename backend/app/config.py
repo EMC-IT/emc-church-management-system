@@ -75,6 +75,22 @@ class Settings(BaseSettings):
     REDIS_MAX_CONNECTIONS: int = 20
     REDIS_SOCKET_TIMEOUT: float = 5.0
 
+    # Login throttling. `backend-security-plan.md` §7 requires a "much tighter
+    # per-IP limit" on login than the documented general budget, but no source
+    # specifies the number -- OQ-SEC-18. These are a deliberately conservative
+    # placeholder so the *mechanism* exists; they are configuration, not an
+    # authoritative policy, and OQ-SEC-18 stays open until a product decision
+    # sets them. Per-IP only: a per-account counter is account lockout, which
+    # is a separate control still blocked on OQ-SEC-04.
+    LOGIN_RATE_LIMIT_ATTEMPTS: int = Field(default=10, ge=1)
+    LOGIN_RATE_LIMIT_WINDOW_SECONDS: int = Field(default=300, ge=1)
+    # When Redis cannot answer, the limiter cannot do its job. Failing closed
+    # returns 503 rather than silently serving unlimited login attempts; Redis
+    # is already a readiness dependency, so an instance that cannot reach it is
+    # pulled from rotation anyway. Set true to prefer availability instead --
+    # a deliberate, documented trade, never a silent default.
+    LOGIN_RATE_LIMIT_FAIL_OPEN: bool = False
+
     CELERY_BROKER_URL: RedisDsn = Field(default=RedisDsn("redis://localhost:6379/1"))
     CELERY_RESULT_BACKEND: RedisDsn = Field(default=RedisDsn("redis://localhost:6379/2"))
     CELERY_TASK_ALWAYS_EAGER: bool = False

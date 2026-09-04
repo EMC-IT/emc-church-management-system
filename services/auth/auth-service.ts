@@ -18,7 +18,7 @@ export class AuthService {
   async login(credentials: LoginCredentials): Promise<LoginResponse> {
     try {
       const response = await apiClient.post('/auth/login', credentials);
-      const { user, token } = response.data;
+      const { user, token } = response.data.data;
       
       // Store tokens and user data
       localStorage.setItem('token', token);
@@ -26,7 +26,7 @@ export class AuthService {
       
       return {
         success: true,
-        data: response.data,
+        data: response.data.data,
       };
     } catch (error: any) {
       return {
@@ -41,7 +41,7 @@ export class AuthService {
   async register(userData: RegisterData): Promise<LoginResponse> {
     try {
       const response = await apiClient.post('/auth/register', userData);
-      const { user, token } = response.data;
+      const { user, token } = response.data.data;
       
       // Store tokens and user data
       localStorage.setItem('token', token);
@@ -49,7 +49,7 @@ export class AuthService {
       
       return {
         success: true,
-        data: response.data,
+        data: response.data.data,
       };
     } catch (error: any) {
       return {
@@ -84,7 +84,7 @@ export class AuthService {
         refreshToken,
       });
       
-      const { token } = response.data;
+      const { token } = response.data.data;
       localStorage.setItem('token', token);
       return true;
     } catch (error) {
@@ -97,7 +97,7 @@ export class AuthService {
   async getCurrentUser(): Promise<User | null> {
     try {
       const response = await apiClient.get('/auth/me');
-      return response.data;
+      return response.data.data;
     } catch (error) {
       console.error('Get current user failed:', error);
       return null;
@@ -108,7 +108,7 @@ export class AuthService {
   async updateProfile(userData: Partial<User>): Promise<User | null> {
     try {
       const response = await apiClient.put('/auth/profile', userData);
-      const updatedUser = response.data;
+      const updatedUser = response.data.data;
       
       // Update stored user data
       localStorage.setItem('user', JSON.stringify(updatedUser));

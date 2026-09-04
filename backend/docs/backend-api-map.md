@@ -10,7 +10,7 @@ This document reconciles three sources of API truth and ranks them:
 | **2 — DOCUMENTED** | `API_DOCUMENTATION.md` and `api-documentations/*.md` | Authoritative for shape/payload where no wired call exists. |
 | **3 — DERIVED** | Method signatures of mock-backed services (`attendance`, `groups`, `departments`, `sunday-school`, `finance`, all of `services/member/*`) | Shape is real (types + Zod are real); the *path* must be agreed. Flagged below. |
 
-`backend/AGENTS.md` §4 forbids inventing contracts where one is documented, and forbids silently changing frontend behaviour. Where rank 1 and rank 2 disagree, **rank 1 wins and the doc is treated as stale**, and the disagreement is logged as an OPEN QUESTION.
+`backend/CLAUDE.md` §4 forbids inventing contracts where one is documented, and forbids silently changing frontend behaviour. Where rank 1 and rank 2 disagree, **rank 1 wins and the doc is treated as stale**, and the disagreement is logged as an OPEN QUESTION.
 
 ---
 
@@ -18,7 +18,7 @@ This document reconciles three sources of API truth and ranks them:
 
 ### 0.1 Base path — **RESOLVED**
 
-`/api/v1` everywhere. `backend/AGENTS.md` §12 and `backend architecture.md` §21/§32 mandated it, and the sources that still said `/api` were aligned to it.
+`/api/v1` everywhere. `backend/CLAUDE.md` §12 and `backend architecture.md` §21/§32 mandated it, and the sources that still said `/api` were aligned to it.
 
 | Source | Value |
 | :-- | :-- |
@@ -27,7 +27,7 @@ This document reconciles three sources of API truth and ranks them:
 | `API_DOCUMENTATION.md`, `api-documentations/*` | `http://localhost:8000/api/v1` |
 | `README.md` (env table and setup) | `http://localhost:8000/api/v1` |
 
-> **OQ-API-01 — Version prefix. Closed.** Option (b) was taken: adopt `/api/v1` and update the frontend's base URL. This was a one-line code change plus documentation, not a frontend redesign, and is permitted under `backend/AGENTS.md` §5. No aliasing of `/api` is served — one canonical prefix means a stale client fails loudly with a 404 rather than silently pinning itself to an unversioned surface.
+> **OQ-API-01 — Version prefix. Closed.** Option (b) was taken: adopt `/api/v1` and update the frontend's base URL. This was a one-line code change plus documentation, not a frontend redesign, and is permitted under `backend/CLAUDE.md` §5. No aliasing of `/api` is served — one canonical prefix means a stale client fails loudly with a 404 rather than silently pinning itself to an unversioned surface.
 
 ### 0.2 Response envelope
 
@@ -79,19 +79,32 @@ Frontend error consumption: `services/api-client.ts` reads `error.response.data.
 
 | Method | Path | Request | Response | Permission |
 | :-- | :-- | :-- | :-- | :-- |
-| POST | `/auth/login` | `{email, password}` (`loginSchema`, password ≥6) | `{success, data:{user, token, refreshToken}, message}` — `user.role = {name, tenantId, branchId, permissions[]}` | public |
-| POST | `/auth/register` | `{name, email, password, role?, branchId?}` (`registerSchema`, password ≥8) | same as login | public — **OQ-API-04** |
-| POST | `/auth/logout` | — | `{success, message}` | authenticated |
-| POST | `/auth/refresh` | `{refreshToken}` | `{token, refreshToken}` | valid refresh token |
-| GET | `/auth/me` | — | `{success, data: User}` | authenticated |
-| PUT | `/auth/profile` | `Partial<User>` | `{success, data: User, message}` | `profile.edit` |
-| PUT | `/auth/change-password` | `{currentPassword, newPassword}` (≥8) | `{success, message}` | `profile.security` |
-| POST | `/auth/forgot-password` | `{email}` | `{success, message}` | public, rate-limited |
-| POST | `/auth/reset-password` | `{token, newPassword}` | `{success, message}` | reset token |
+| POST | `/auth/login` | `{email, password}` (`loginSchema`, password ≥6) | `{success, data:{user, token, refreshToken}, message}` — `user.role = {name, tenantId, branchId, permissions[]}` | public, **rate-limited per IP** ([ADR-013](./adr/013-login-rate-limiting.md)) — *implemented; no `refreshToken` (no session/refresh-token architecture yet)* |
+| POST | `/auth/register` | `{name, email, password, role?, branchId?}` (`registerSchema`, password ≥8) | same as login | **not public.** OQ-API-04 resolved by [ADR-002](./adr/002-controlled-self-registration.md): tenant-bound via a server-resolved registration token. `registerSchema`'s client-supplied `role`/`branchId` is the shape ADR-002 rejected. *Deferred pending the token mechanism.* |
+| POST | `/auth/logout` | — | `{success, message}` | authenticated — *deferred.* Documented behaviour is "invalidate token"; no revocation store exists and ADR-011 defers the session model. A stateless 200 would claim success while the token stayed valid to expiry. |
+| POST | `/auth/refresh` | `{refreshToken}` | `{token, refreshToken}` | valid refresh token — *deferred.* No `refresh_tokens` table, no session model. |
+| GET | `/auth/me` | — | `{success, data: User}` | authenticated — *implemented* |
+| PUT | `/auth/profile` | `Partial<User>` | `{success, data: User, message}` | `profile.edit` — *deferred.* No self-service schema (`userAccountUpdateSchema` is the admin form, carrying `role`/`status`); `name` vs `first_name`/`last_name` unresolved; and self-service **email** change can manufacture the OQ-AUTH-01 ambiguity across two tenants. |
+| PUT | `/auth/change-password` | `{currentPassword, newPassword}` (≥8) | `{success, message}` | `profile.security` — *implemented* |
+| POST | `/auth/forgot-password` | `{email}` | `{success, message}` | public, rate-limited — *deferred.* No reset-token store and **no email infrastructure at all** (no SMTP config, no `EmailProvider`, no Celery task). |
+| POST | `/auth/reset-password` | `{token, newPassword}` | `{success, message}` | reset token — *deferred.* Same missing reset-token store; lifetime and one-time-use policy unspecified. |
+
+> **Remaining `/auth` endpoints — concrete blockers (re-audited, Phase 2B-10).**
+> Each is blocked by a missing *mechanism*, not a missing decision about shape.
+> The database has nine tables and none of them stores a session, a refresh
+> token, a reset token or a registration token.
+>
+> | Endpoint | Blocker | What it needs first |
+> | :-- | :-- | :-- |
+> | `POST /auth/logout` | Access tokens are stateless and there is no revocation list, so a "logged out" response would be false while the token still works | A session or denylist model |
+> | `POST /auth/refresh` | No refresh-token model. `auth-service.refreshToken()` reads `localStorage.refreshToken` and posts it, and the documented login response advertises a `refreshToken` the backend does not issue | Session/refresh architecture |
+> | `POST /auth/register` | ADR-002 requires a server-resolved registration token; no `registration_tokens` table, issuing surface or redemption contract exists. `registerSchema`'s client-supplied `role`/`branchId` is exactly the shape ADR-002 rejects | The registration-token mechanism |
+> | `POST /auth/forgot-password`, `POST /auth/reset-password` | No reset-token storage and no email delivery infrastructure | Token table + mail provider |
+> | `PUT /auth/profile` | Self-service mutation cannot be scoped safely while OQ-AUTH-01 is open: `email` is the login identity, and changing it changes which account an ambiguous address resolves to. Tenant, role, status and branch authorization must never be self-mutable | OQ-AUTH-01, then a writable-field contract |
 
 **Login response contract is load-bearing.** `AuthContext` and every `hasPermission()` call depend on `user.role.permissions` being the flat dot-notation array. `user.role.tenantId` and `user.role.branchId` in the documented sample must also be populated.
 
-> **OQ-API-04 — Is `POST /auth/register` public self-registration?** It appears in `authService` and the docs, but `README` §17 describes admin-invited users only, and `userAccountCreateSchema` (with `sendWelcomeEmail`, `requirePasswordChange`) implies invitation flow. Open self-registration on a multi-tenant system is a tenant-assignment hole: which `church_id` would a self-registered user land in?
+> **~~OQ-API-04~~ — Resolved by [ADR-002](./adr/002-controlled-self-registration.md).** Registration is **not** public self-registration: it is tenant-bound, with the church resolved server-side from a registration token or church-specific link, never from a client-supplied field. The original concern — "which `church_id` would a self-registered user land in?" — is answered by never letting the client name one. Implementation is deferred: no `registration_tokens` table, no issuing surface and no redemption contract exist yet. See the Phase 2B-6 addendum to [ADR-012](./adr/012-login-identity-and-credential-failure.md).
 
 > **OQ-API-05 — Member portal login.** No `/auth/member/login` exists. Do members use `/auth/login` with a member role, or a separate credential store? Blocks the whole `/member/*` surface. (See domain OQ-01.)
 
@@ -106,11 +119,11 @@ Frontend error consumption: `services/api-client.ts` reads `error.response.data.
 
 | Method | Path | Notes |
 | :-- | :-- | :-- |
-| GET | `/members` | query: `page, limit, search, membershipStatus, gender, ageGroup, sortBy, sortOrder`. `memberSearchSchema` caps `limit ≤ 100`. Returns nested-paginated per docs. |
-| GET | `/members/{id}` | full member |
-| POST | `/members` | `memberCreateSchema` |
-| PUT | `/members/{id}` | `memberUpdateSchema` (partial) |
-| DELETE | `/members/{id}` | soft delete recommended (`membershipStatus: Archived`) — **OQ-API-06** |
+| GET | `/members` | query: `page, limit, search, status, gender, sortBy, sortOrder`. `memberSearchSchema` caps `limit ≤ 100`. **Implemented** — `members.view`, tenant + assigned-branch scoped, **flat** paginated envelope (what `MembersService.getMembers` destructures). `ageGroup` not offered: no age-band definitions exist. |
+| GET | `/members/{id}` | full member — **implemented**, `members.view`. Out-of-scope ids return **404**, never 403. |
+| POST | `/members` | `memberCreateSchema` — **implemented**, `members.create`. Branch validated against assignments; omitted branch falls back to the caller's primary. Accepts only fields the `members` table stores (see divergence note below). |
+| PUT | `/members/{id}` | `memberUpdateSchema` (partial) — **implemented**, `members.edit`. Current *and* target branch both validated, so an update cannot relocate a member out of the caller's reach. |
+| DELETE | `/members/{id}` | **not implemented** — blocked on **OQ-API-06** (soft archive vs hard delete). |
 | POST | `/members/bulk-delete` | `{ids: string[]}` |
 | POST | `/members/{id}/photo` | `multipart/form-data`; returns `{avatar}` |
 | GET | `/members/search` | `?q=` → `Member[]` |
@@ -129,6 +142,10 @@ Frontend error consumption: `services/api-client.ts` reads `error.response.data.
 | DELETE | `/members/{id}/family/{familyMemberId}` | unlink |
 
 **Converts — Rank 2 (DOCUMENTED, not wired).** `api-documentations/Convert_Management_Endpoints.md` specifies: `POST /members/converts`, `GET|PUT /members/{id}/convert`, `POST /members/{id}/convert/promote`, `GET /converts`, `GET /converts/stats`, `GET /converts/search`, `DELETE /converts/{id}`, `POST /converts/bulk-delete`, `POST /converts/{id}/activity`, `GET /converts/{id}/activities`. Request shape from `newConvertSchema` / `convertFollowUpSchema`.
+
+> **Field divergence (Phase 2B-8).** `memberCreateSchema` carries `maritalStatus`, `occupation`, `familyId` and a `branch` *name*, none of which exist as columns on `members`. The backend **rejects** them rather than accepting and dropping them, which would look like a successful write that lost data. Closing this needs either a migration (Members-domain work, not authorization work) or a decision to drop the fields from the form.
+
+> **OQ-API-02 note (Phase 2B-8).** `/members` ships the **flat** envelope, matching `PaginatedResponse<T>`, `MembersService.getMembers` and `Errors_Responses.md`. That settles the shape *for this endpoint only*; OQ-API-02 stays open, because `api-documentations/Pastoral_Care` still specifies a third shape and no endpoint exists yet to reconcile it against.
 
 > **OQ-API-06 — Member deletion semantics.** `membershipStatus` includes `Archived`/`Transferred`, and `members.delete` is withheld from the `Admin` role (only `SuperAdmin` has it — see `ROLE_PERMISSIONS`). Is `DELETE /members/{id}` a soft archive or a hard delete? Financial and attendance history reference `member_id`; a hard delete would orphan audit-relevant records.
 
@@ -225,13 +242,13 @@ Documented-only additions (rank 2): `POST /expenses/bulk`, `GET /expenses/analyt
 **Consolidated reporting (rank 3 — DERIVED, currently computed client-side in `financeService`):**
 `getConsolidatedFinancialReport(fiscalYear)` → `ConsolidatedFinancialReport`, `getFinancialSummary({start,end})` → `FinancialSummary`, `getFinancialAuditRecords({domain,search})` → `FinancialAuditRecord[]`, `exportConsolidatedReport(year, format)` → Blob, `getTithesOfferings()`, `createTitheOffering()`, `getDonations()`, `createDonation()`.
 
-> **OQ-API-10 — Consolidated financial report ownership.** `financeService.getConsolidatedFinancialReport` builds a full statement of activities, monthly trends, department variances and category distributions **in the browser from mock data**. `backend/AGENTS.md` §6 makes the backend authoritative for financial calculations. Proposed endpoints: `GET /finance/reports/consolidated?fiscalYear=`, `GET /finance/summary?start=&end=`, `GET /finance/audit-records`, `GET /finance/reports/consolidated/export?format=`. Paths need sign-off; the response shapes are fixed by `ConsolidatedFinancialReport` / `FinancialSummary` / `FinancialAuditRecord`.
+> **OQ-API-10 — Consolidated financial report ownership.** `financeService.getConsolidatedFinancialReport` builds a full statement of activities, monthly trends, department variances and category distributions **in the browser from mock data**. `backend/CLAUDE.md` §6 makes the backend authoritative for financial calculations. Proposed endpoints: `GET /finance/reports/consolidated?fiscalYear=`, `GET /finance/summary?start=&end=`, `GET /finance/audit-records`, `GET /finance/reports/consolidated/export?format=`. Paths need sign-off; the response shapes are fixed by `ConsolidatedFinancialReport` / `FinancialSummary` / `FinancialAuditRecord`.
 
 > **OQ-API-11 — Tithes & offerings.** `/finance/tithes-offerings/*` is a full admin route tree (list, add, edit, categories, reports) with a `titheOfferingCreateSchema`, but has **no endpoint at any rank**. Required paths must be agreed — likely `GET|POST /tithes-offerings`, `/tithes-offerings/{id}`, `/tithes-offerings/categories`, `/tithes-offerings/reports`.
 
 > **OQ-API-12 — Expense approval workflow.** `README` §6 and `security-boundary-map.md` §3 require an approval/disbursement action gated by `finance.expenses.approve`... but **`finance.expenses.approve` does not exist in `lib/authorization/permissions.ts`**. The permission list has `finance.expenses.{view,create,edit,delete,categories,reports}` only. And no approve endpoint exists. Required: add the permission, and define `POST /expenses/{id}/approve`, `/reject`, `/disburse`. Status enum from the docs: `pending → approved → paid`, plus `rejected`/`cancelled`.
 
-> **OQ-API-13 — Correction/reversal workflow.** `backend/AGENTS.md` §10 and `backend architecture.md` §16 require corrections/reversals rather than in-place edits of historical financial records — yet `PUT /giving/{id}`, `PUT /income/{id}`, `PUT /expenses/{id}` and `DELETE` variants are all wired and used by edit pages. Reconciliation needed: allow edits only before posting/approval, and require a reversal record afterwards? This changes UI behaviour and must be agreed before implementation.
+> **OQ-API-13 — Correction/reversal workflow.** `backend/CLAUDE.md` §10 and `backend architecture.md` §16 require corrections/reversals rather than in-place edits of historical financial records — yet `PUT /giving/{id}`, `PUT /income/{id}`, `PUT /expenses/{id}` and `DELETE` variants are all wired and used by edit pages. Reconciliation needed: allow edits only before posting/approval, and require a reversal record afterwards? This changes UI behaviour and must be agreed before implementation.
 
 ---
 
@@ -326,7 +343,7 @@ Payloads: `smsSendSchema` (≤1600 chars), `emailSendSchema`, `announcementCreat
 
 > **OQ-API-19 — Communications surface.** Reconcile `/communications/{sms,emails}` (wired) vs `/communications/{messages,campaigns,newsletters,overview}` (documented). The admin app has `campaigns/*` and `newsletters/*` route trees that the wired service does not cover, so **both are needed**; the question is whether `/sms` + `/emails` are retained or folded into `/messages`.
 
-**Every send is a background job** (`backend/AGENTS.md` §14) and generates `communications.campaign.sent` audit.
+**Every send is a background job** (`backend/CLAUDE.md` §14) and generates `communications.campaign.sent` audit.
 
 ## 13. Prayer Requests — `/prayer-requests` *(Rank 3 — no path documented at all)*
 
@@ -382,9 +399,20 @@ Documented: `POST /files/upload`, `GET /files`, `DELETE /files/{id}`.
 ## 17. Settings & System Administration — `/settings` *(Rank 2, thin)*
 
 Documented: `GET /settings`, `PUT /settings` only.
+
+**Implemented (Phase 2B-9):** `GET|PUT /settings/church-profile` — `settings.church-profile` on
+both verbs, `SuccessResponse<ChurchProfile>`, fields exactly `churchProfileSchema`. Tenant-wide:
+**no branch scope applies**, so a principal with no branch assignments can still use it
+(ADR-011 Decision 4). The route takes **no church identifier** — the row is the caller's own
+tenant — so there is nothing for a client to supply or for the server to validate. `PUT` is
+partial, matching the one documented settings write, and refuses `null` for a `NOT NULL` column
+rather than silently skipping it. Read is gated on the *manage* permission because no canonical
+code means "view the church profile" — see **OQ-SEC-21**.
+
+Everything else below remains unimplemented; **OQ-API-25 stays open** for it.
 Route tree requires far more: branches CRUD, church-profile, users CRUD + suspend, roles CRUD, permission matrix, notifications defaults, integrations, backup, background-checks, and the onboarding wizard submit.
 
-> **OQ-API-25 — Settings endpoints undefined.** Proposed: `GET|PUT /settings`, `GET|PUT /settings/church-profile`, `GET|POST /settings/branches`, `GET|PUT|DELETE /settings/branches/{id}`, `GET|POST /settings/users`, `GET|PUT|DELETE /settings/users/{id}`, `POST /settings/users/{id}/suspend`, `GET|POST /settings/roles`, `GET|PUT|DELETE /settings/roles/{id}`, `GET /settings/permissions`, `GET|PUT /settings/integrations`, `POST /settings/backup`, `GET|POST /settings/background-checks`, `POST /onboarding`. All need sign-off.
+> **OQ-API-25 — Settings endpoints undefined** *(partially closed: `GET|PUT /settings/church-profile` is implemented as above; the rest still needs sign-off)*.** Proposed: `GET|PUT /settings`, `GET|PUT /settings/church-profile`, `GET|POST /settings/branches`, `GET|PUT|DELETE /settings/branches/{id}`, `GET|POST /settings/users`, `GET|PUT|DELETE /settings/users/{id}`, `POST /settings/users/{id}/suspend`, `GET|POST /settings/roles`, `GET|PUT|DELETE /settings/roles/{id}`, `GET /settings/permissions`, `GET|PUT /settings/integrations`, `POST /settings/backup`, `GET|POST /settings/background-checks`, `POST /onboarding`. All need sign-off.
 
 ## 18. Audit / Activity Logs — `/activity-logs` *(Rank 3 — undefined)*
 
@@ -461,7 +489,7 @@ Rows marked ❌ have **no documented path**; the path shown is a proposal derive
 | OQ-API-01 | `/api` vs `/api/v1` version prefix |
 | OQ-API-02 | Three pagination envelope shapes in play |
 | OQ-API-03 | `success` envelope present on all endpoints, or bare payloads for finance lists? |
-| OQ-API-04 | Is `POST /auth/register` public self-registration? Tenant assignment? |
+| ~~OQ-API-04~~ | **Resolved — [ADR-002](./adr/002-controlled-self-registration.md).** Not public: tenant-bound registration via a server-resolved token/link. Implementation deferred — no `registration_tokens` table or issuing contract exists yet. |
 | OQ-API-05 | Member portal authentication mechanism undefined |
 | OQ-API-06 | `DELETE /members/{id}` — soft archive or hard delete? |
 | OQ-API-07 | Giving surface: wired `/giving/individual\|congregational` vs documented `/giving/donations` + `/giving/reports/*` |

@@ -337,6 +337,15 @@ export const PERMISSION_CATEGORIES: PermissionCategory[] = [
     ]
   },
   {
+    id: 'pastoral-care',
+    name: 'Pastoral Care',
+    description: 'Pastoral cases, counselling sessions, visitations, and follow-up assignments',
+    permissions: [
+      { id: 'pastoral-care.view', name: 'View Pastoral Care', description: 'Access the pastoral care dashboard, cases, and visitation records' },
+      { id: 'pastoral-care.manage', name: 'Manage Pastoral Care', description: 'Create and update pastoral cases, sessions, assignments, and follow-ups' },
+    ]
+  },
+  {
     id: 'events',
     name: 'Events Management',
     description: 'Church events, calendar, registrations, templates, and export',

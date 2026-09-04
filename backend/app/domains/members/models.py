@@ -23,7 +23,7 @@ Fields unique to either (title, ageGroup, lifeDevelopment, occupation,
 maritalStatus, departments[], groups[], waterBaptism, holyGhostBaptism,
 leadershipRole, specialGuestInvitedBy, location) are excluded on that
 basis -- an unwired form schema is exactly the "the UI has it" evidence
-``backend/AGENTS.md`` §19 warns against trusting.
+``backend/CLAUDE.md`` §19 warns against trusting.
 
 Also deliberately excluded:
 
@@ -34,7 +34,7 @@ Also deliberately excluded:
 - A GIN full-text search index (``backend-database-plan.md`` documents one
   for ``/members/search``) -- deferred to whichever phase builds that
   endpoint; an index with no query to serve is exactly the speculative
-  infrastructure ``backend/AGENTS.md`` §17 warns against.
+  infrastructure ``backend/CLAUDE.md`` §17 warns against.
 
 ``department`` stays free text, not ``department_id``: ``backend-domain-map.md``
 §3 says both ``department`` and ``branch`` "must key on ids," but only
@@ -75,7 +75,7 @@ from app.core.database.base import (
     TenantScopedMixin,
     TimestampMixin,
     UUIDPrimaryKeyMixin,
-    branch_scope_fk,
+    tenant_scoped_table_args,
 )
 
 MEMBERSHIP_STATUS_CANDIDATES = (
@@ -119,8 +119,7 @@ class Member(UUIDPrimaryKeyMixin, TenantScopedMixin, TimestampMixin, SoftDeleteM
     """
 
     __tablename__ = "members"
-    __table_args__ = (
-        branch_scope_fk(),
+    __table_args__ = tenant_scoped_table_args(
         ForeignKeyConstraint(
             ["tenant_id", "user_id"],
             ["users.tenant_id", "users.id"],

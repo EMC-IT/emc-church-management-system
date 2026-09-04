@@ -2,7 +2,7 @@
 
 **Status:** Phase 0 discovery output. No implementation.
 
-Sources: `backend/AGENTS.md` §7–§11, `docs/architecture/security-boundary-map.md`, `docs/architecture/backend architecture.md` §12–§17, §36–§37, `lib/authorization/**`, `lib/audit/**`, `lib/errors/**`, `tests/unit/authorization.test.ts`, `api-documentations/Errors_Responses.md`.
+Sources: `backend/CLAUDE.md` §7–§11, `docs/architecture/security-boundary-map.md`, `docs/architecture/backend architecture.md` §12–§17, §36–§37, `lib/authorization/**`, `lib/audit/**`, `lib/errors/**`, `tests/unit/authorization.test.ts`, `api-documentations/Errors_Responses.md`.
 
 ---
 
@@ -47,14 +47,14 @@ Server-side claims to embed: `sub` (user_id), `tid` (tenant_id), `bid` (active b
 
 ### 2.4 Session controls
 - `member_settings.session_timeout_minutes` (15–1440) and `two_factor_enabled` exist in `memberSecuritySettingsSchema`. **2FA has a schema and a settings toggle but no flow, no endpoint, and no backup-code model — OQ-SEC-03.**
-- Login throttling: account lockout after N failures (`users.failed_login_count`, `locked_until`). No source specifies N — **OQ-SEC-04**.
+- Login throttling: account lockout after N failures (`users.failed_login_count`, `locked_until`). No source specifies N — **OQ-SEC-04, still open.** Re-examined in Phase 2B-6: no canonical source supplies a threshold, a duration *or* an unlock mechanism, and those three values are the policy. Neither column exists; none was added. Not to be confused with login rate limiting, which *is* implemented — see [ADR-013](./adr/013-login-rate-limiting.md).
 - `POST /auth/forgot-password` must return an identical response whether or not the email exists (no account enumeration).
 
 ---
 
 ## 3. Authorization Model
 
-**RBAC + policy-based**, per `backend/AGENTS.md` §8. `if user.role == "admin"` is explicitly forbidden.
+**RBAC + policy-based**, per `backend/CLAUDE.md` §8. `if user.role == "admin"` is explicitly forbidden.
 
 ### 3.1 Evaluation order
 
@@ -76,7 +76,7 @@ Every layer re-applies scope. The repository predicate is not an optimisation �
 
 ### 3.2 Admin permission catalogue (dot notation)
 
-158 canonical codes from `lib/authorization/permissions.ts`. These are seeded verbatim into the `permissions` table; the backend **must not invent a parallel scheme** (`backend/AGENTS.md` §19).
+**164** canonical codes from `lib/authorization/permissions.ts` (the count of 158 here was always wrong; the catalogue also gained a `pastoral-care` category in ADR-009 without gaining any code). These are seeded verbatim into the `permissions` table; the backend **must not invent a parallel scheme** (`backend/CLAUDE.md` §19).
 
 | Group | Codes |
 | :-- | :-- |
@@ -107,15 +107,15 @@ Every layer re-applies scope. The repository predicate is not an optimisation �
 | Missing code | Required by |
 | :-- | :-- |
 | `finance.expenses.approve` | `security-boundary-map.md` §3 ("Expense Approval / Disbursement → `finance.expenses.approve`"), README §6 |
-| `finance.transactions.approve` | `backend/AGENTS.md` §8 example permission list |
+| `finance.transactions.approve` | `backend/CLAUDE.md` §8 example permission list |
 | `finance.tithes.create` | referenced by name in `security-boundary-map.md` §3 — **it does exist** in `permissions.ts`; no gap |
-| `pastoral-care.view-confidential` | implied by `backend/AGENTS.md` §9 ("Confidential pastoral information must be explicitly authorized") — pastoral care has only `view`/`manage`, no confidentiality tier, unlike prayer requests which do |
+| `pastoral-care.view-confidential` | implied by `backend/CLAUDE.md` §9 ("Confidential pastoral information must be explicitly authorized") — pastoral care has only `view`/`manage`, no confidentiality tier, unlike prayer requests which do |
 | `files.*` / `documents.*` | The File Vault (`/dashboard/files`) has **no permissions at all**; `members.documents` only covers member-scoped documents |
 | `reports.*` | `/reports/*` endpoints are gated by nothing explicit; `analytics.*` is the closest |
 | `converts.*` | covered by `members.converts` |
 | `notifications.*` (admin) | no admin notification permissions exist |
 
-> **OQ-SEC-05 — Permission catalogue gaps.** At minimum `finance.expenses.approve`, `pastoral-care.view-confidential`, and a `files.*` family must be added. Adding permissions changes `ROLE_PERMISSIONS` and therefore `tests/unit/authorization.test.ts`, so it is a coordinated frontend+backend change and needs sign-off.
+> **OQ-SEC-05 — Permission catalogue gaps. Partly resolved — [ADR-009](./adr/009-permission-catalogue-completeness.md).** A *different* gap was found and closed first: `pastoral-care.view`/`.manage` were granted to Admin and Pastor but belonged to no category, so `SuperAdmin` — computed by flattening the categories — did not receive them. A `pastoral-care` category now holds those two existing codes; no code was invented. `finance.expenses.approve`, `files.*` and `pastoral-care.view-confidential` remain **formally deferred** with the decision each needs recorded in ADR-009, and are pinned as absent by `backend/tests/unit/test_rbac_registry.py`. They are unavailable, not implicitly permitted.
 
 ### 3.3 Role → permission seed
 
@@ -145,7 +145,7 @@ From `lib/authorization/roles.ts` (authoritative):
 
 ### 3.5 Resource policies (beyond RBAC)
 
-`backend/AGENTS.md` §8 requires policies to also evaluate tenant, branch, role, ownership, assignment, confidentiality and approval authority.
+`backend/CLAUDE.md` §8 requires policies to also evaluate tenant, branch, role, ownership, assignment, confidentiality and approval authority.
 
 | Policy | Rule |
 | :-- | :-- |
@@ -164,7 +164,7 @@ From `lib/authorization/roles.ts` (authoritative):
 
 ### 4.1 Tenant
 
-Four enforcement layers (`backend/AGENTS.md` §7, `backend architecture.md` §10):
+Four enforcement layers (`backend/CLAUDE.md` §7, `backend architecture.md` §10):
 
 1. **API/context** — `PrincipalContext.tenant_id` derived from the verified JWT. Client-supplied `tenantId`/`church_id` in body, query, or `X-Tenant-ID` header is **ignored** for authorization. If present and mismatched → reject.
 2. **Service** — every application service takes the principal and passes tenant scope down; no service accepts a caller-chosen tenant.
@@ -174,7 +174,7 @@ Four enforcement layers (`backend/AGENTS.md` §7, `backend architecture.md` §10
 ### 4.2 Branch
 
 - `assigned_branch_ids` comes from `user_branch_assignments`.
-- `lib/authorization/scope.ts::validateBranchScope` treats an **empty** assignment list as unrestricted. Server-side this should be **fail-closed** unless the role is explicitly branch-unrestricted — **OQ-SEC-11** (mirrors domain OQ-16).
+- `lib/authorization/scope.ts::validateBranchScope` treats an **empty** assignment list as unrestricted. **Resolved — [ADR-011](./adr/011-authorization-architecture.md):** the backend implements branch scope fail-closed; tenant-wide reference data stays readable, branch-scoped operational data does not. ~~OQ-SEC-11~~ (mirrors domain OQ-16).
 - Branch switching within a tenant re-validates against assignments (`security-boundary-map.md` Rule 1).
 - Tenant-wide reference data (categories, roles, church profile) is readable across branches; operational data is not.
 
@@ -182,7 +182,7 @@ Four enforcement layers (`backend/AGENTS.md` §7, `backend architecture.md` §10
 
 `validateTenantScope` and `validateBranchScope` both return early for `isSuperAdmin`. If `SuperAdmin` is a *tenant* role (per `ROLE_PERMISSIONS`, which grants it tenant-level permissions), then bypassing **tenant** scope is a cross-church data leak.
 
-> **OQ-SEC-12 — SuperAdmin scope.** Recommended split: `PlatformOperator` (crosses tenants, for support/ops, heavily audited) vs `SuperAdmin` (all permissions within one tenant, never crosses tenants). Until resolved, the backend should **not** bypass tenant scope for any role. Mirrors domain OQ-17.
+> **OQ-SEC-12 — SuperAdmin scope. Resolved — [ADR-010](./adr/010-superadmin-is-tenant-scoped.md).** `SuperAdmin` is a tenant role: every permission within one church, never across churches. **No role, permission or flag bypasses tenant isolation**, and `SecurityContext` carries no `is_super_admin` field. A platform operator would be a separate principal type with its own auth path and audit trail — not a `roles` row — and is not designed yet. Mirrors domain OQ-17.
 
 ### 4.4 Cross-tenant response code
 
@@ -192,7 +192,7 @@ Four enforcement layers (`backend/AGENTS.md` §7, `backend architecture.md` §10
 
 ## 5. Pastoral Care Confidentiality Boundary
 
-The strongest boundary in the system (`backend/AGENTS.md` §9, `backend architecture.md` §17).
+The strongest boundary in the system (`backend/CLAUDE.md` §9, `backend architecture.md` §17).
 
 **Rule: pastoral records are never returned merely because a user can view the member profile.**
 
@@ -206,7 +206,7 @@ Worked examples from `backend architecture.md` §17:
 - Pastor A (assigned) → read/write ✅
 - Pastor B (has `pastoral-care.view`, not assigned) → **denied** ❌
 - Accountant (no pastoral permission) → denied ❌
-- Admin role: has `pastoral-care.view` + `.manage` per `ROLE_PERMISSIONS` — **OQ-SEC-14: should a general Admin see counselling notes?** The current role matrix says yes. The confidentiality requirement suggests no.
+- Admin role: has `pastoral-care.view` + `.manage` per `ROLE_PERMISSIONS` — **OQ-SEC-14: should a general Admin see counselling notes?** The current role matrix says yes. The confidentiality requirement suggests no. Still open, and it is the blocker on `pastoral-care.view-confidential` — see [ADR-009](./adr/009-permission-catalogue-completeness.md).
 
 **Additional controls:**
 - Every read of a pastoral case or session emits an audit event (`backend architecture.md` §25 lists "Pastoral record access" as a sensitive action — read-auditing, not just write-auditing).
@@ -223,7 +223,8 @@ Per `backend architecture.md` §37, extended with the concrete tables:
 | Class | Data | Controls |
 | :-- | :-- | :-- |
 | **PUBLIC** | Church profile (public fields), published events, sermons, service times, leadership bios | No auth; rate-limited; cacheable |
-| **INTERNAL** | Members, families, attendance, groups, departments, events, assets, announcements, resources | Tenant + branch + RBAC |
+| **TENANT-WIDE REFERENCE** | Church profile *(authenticated read/write enforced — Phase 2B-9)*, roles, permissions, categories | Tenant + RBAC; **no** branch predicate (ADR-011 Decision 4) |
+| **INTERNAL** | Members *(enforced — Phase 2B-8)*, families, attendance, groups, departments, events, assets, announcements, resources | Tenant + branch + RBAC |
 | **CONFIDENTIAL** | Giving, tithes, donations, income, expenses, budgets, pledges; pastoral cases & sessions; counselling notes; confidential prayer requests; child safeguarding (medical info, allergies, authorised pickup, background checks); member documents in `medical`/`legal`/`financial`; audit logs; credentials & tokens | Tenant + branch + RBAC + resource policy + read-auditing; RLS candidates; no caching; excluded from generic search/export |
 
 **Never logged, never in an error body, never in an audit `before`/`after` diff:** password hashes, JWTs, refresh tokens, reset tokens, QR check-in tokens, payment credentials, `confidential_notes`, `pastoral_notes`, child medical data. Audit diffs must run through a field redaction allow-list.
@@ -284,9 +285,9 @@ Plus, recommended and not in any source: failed authentication, failed authoriza
 
 ## 8. Input Validation
 
-- **Backend validation is mandatory regardless of frontend validation** (`backend/AGENTS.md` §6). Every Zod schema in `lib/validation/**` has a Pydantic v2 counterpart; the Pydantic model is authoritative.
+- **Backend validation is mandatory regardless of frontend validation** (`backend/CLAUDE.md` §6). Every Zod schema in `lib/validation/**` has a Pydantic v2 counterpart; the Pydantic model is authoritative.
 - Constraints that must be re-expressed server-side (non-exhaustive): password ≥8 with uppercase+digit (member), amounts strictly positive, income amount < 1,000,000, income date ≤ +1 year, SMS ≤1600 chars, prayer title 5–120 / description 10–1000, pastoral reason 10–1000, `limit ≤ 100` on paginated queries, giving amount 1–100,000 per transaction (`giveNowSchema`).
-- Database constraints are the final integrity layer (`backend/AGENTS.md` §6).
+- Database constraints are the final integrity layer (`backend/CLAUDE.md` §6).
 - All SQL through SQLAlchemy parameter binding; no string interpolation.
 - Uploads: extension + MIME sniffing + size cap + virus scan hook; never trust `Content-Type`; store under generated keys, never the client filename; strip EXIF from images.
 - **OQ-SEC-17:** file size/type limits differ by source (5 MB for expense attachments; unspecified elsewhere). Need a single policy table.
@@ -300,8 +301,8 @@ Plus, recommended and not in any source: failed authentication, failed authoriza
 | TLS | HTTPS everywhere in production; HSTS | `API_DOCUMENTATION.md` §Security |
 | CORS | Explicit allow-list. Current default `http://localhost:3000,http://127.0.0.1:3000` — production origins must be configured, `allow_origins=["*"]` never used with `allow_credentials=True` | `backend/app/main.py`, `backend/.env.example` |
 | Security headers | CSP, X-Content-Type-Options, X-Frame-Options, Referrer-Policy | `backend architecture.md` §36 |
-| Rate limiting | Redis-backed. Documented budgets: 1000 req/hour/user general; giving 100/min standard, 20/min reports, 5/min exports; login and forgot-password need much tighter per-IP limits (unspecified — **OQ-SEC-18**) | `api-documentations/Giving_Endpoints.md`, `Income_Endpoints.md` |
-| Secrets | Never hard-coded (`backend/AGENTS.md` §19). `config.py` ships a literal default `SECRET_KEY` — must fail startup in non-development if unset — **OQ-SEC-19** |
+| Rate limiting | Redis-backed. Documented budgets: 1000 req/hour/user general; giving 100/min standard, 20/min reports, 5/min exports. Login is now throttled per-IP, fail-closed — mechanism in `app/core/security/rate_limit.py`, policy in [ADR-013](./adr/013-login-rate-limiting.md). **OQ-SEC-18 remains open for the numbers**; the shipped thresholds are a configurable placeholder, not an authoritative policy. The general per-user budget and forgot-password are still unimplemented. | `api-documentations/Giving_Endpoints.md`, `Income_Endpoints.md` |
+| Secrets | Never hard-coded (`backend/CLAUDE.md` §19). `config.py` ships a literal default `SECRET_KEY` — must fail startup in non-development if unset — **OQ-SEC-19** |
 | Request ID | Every request carries a correlation id, propagated into logs and audit records | `backend architecture.md` §30 |
 | Error leakage | No stack traces, SQL, connection strings, or internal service details in responses | `Errors_Responses.md` §6 |
 | File access | Signed, short-lived URLs only; no public buckets | `backend architecture.md` §18 |
@@ -311,10 +312,10 @@ Plus, recommended and not in any source: failed authentication, failed authoriza
 
 ## 10. Security Test Requirements
 
-`backend/AGENTS.md` §16 requires stronger coverage for finance, authentication, authorization, tenant isolation, pastoral confidentiality, and audit logging. Concretely, before any domain is "done":
+`backend/CLAUDE.md` §16 requires stronger coverage for finance, authentication, authorization, tenant isolation, pastoral confidentiality, and audit logging. Concretely, before any domain is "done":
 
 1. **Tenant isolation** — for every tenant-scoped endpoint: user from tenant A cannot read, update, or delete a tenant B resource by id. Parameterised across all endpoints, not sampled.
-2. **Branch isolation** — a branch-restricted user cannot reach another branch's records; branch switching to an unassigned branch is rejected.
+2. **Branch isolation** — a branch-restricted user cannot reach another branch's records; branch switching to an unassigned branch is rejected. *Proven for Members in Phase 2B-8 (`tests/integration/test_members_authorization.py`), including the indirect paths: list, fetch-by-id, create-into and update-into an unassigned branch.*
 3. **Permission matrix** — for each endpoint, one test per role asserting allow/deny against `ROLE_PERMISSIONS`.
 4. **Pastoral confidentiality** — unassigned pastor denied; accountant denied; member self-scope returns the request without confidential notes; every read produces an audit record.
 5. **Financial integrity** — breakdown records excluded from every aggregate; pledged amounts never in totals; pledge payment creates exactly one countable giving row; expense approval requires a different actor; rollback discards both mutation and audit.
@@ -331,20 +332,49 @@ Plus, recommended and not in any source: failed authentication, failed authoriza
 | **OQ-SEC-01** | Is the public (Tier 1) API in scope? Anonymous prayer, contact form, public RSVP, and the online giving gateway + payment webhook are all described but entirely unimplemented and unspecified. |
 | **OQ-SEC-02** | Keep tokens in `localStorage` (current frontend behaviour) or move refresh to an `HttpOnly` cookie? The latter changes `api-client.ts`. |
 | **OQ-SEC-03** | 2FA: `twoFactorEnabled` exists in `memberSecuritySettingsSchema` with no flow, endpoint, TOTP secret storage, or backup codes. In scope? |
-| **OQ-SEC-04** | Login lockout threshold, window, and unlock mechanism unspecified. |
-| **OQ-SEC-05** | Permission catalogue gaps: `finance.expenses.approve`, `pastoral-care.view-confidential`, a `files.*` family, admin `notifications.*`. Adding them touches `ROLE_PERMISSIONS` and the frontend test suite. |
+| **OQ-SEC-04** | Login lockout threshold, window, and unlock mechanism unspecified. **Still open** after Phase 2B-6; no columns added. Distinct from OQ-SEC-18 rate limiting. |
+| ~~OQ-SEC-05~~ | **Partly resolved — [ADR-009](./adr/009-permission-catalogue-completeness.md).** The `pastoral-care` categorisation gap is closed. `finance.expenses.approve`, `files.*` and `pastoral-care.view-confidential` are formally deferred, each with the decision it needs recorded; admin `notifications.*` remains unexamined. |
 | **OQ-SEC-06** | Three conflicting role lists (code / baseline doc / README). Code is recommended as authoritative. |
 | **OQ-SEC-07** | Are member permissions per-member and revocable, or a fixed set for all members? `hasMemberPermission` currently defaults to fail-open. |
 | **OQ-SEC-08** | Three permission notations in play; the finance API docs' `giving:read`-style admin codes must be discarded. Confirm. |
 | **OQ-SEC-09** | Does expense approval need an amount-threshold ladder (e.g. > ₵10,000 needs a second approver)? No source specifies one. |
 | **OQ-SEC-10** | Child safeguarding: who may read student medical/allergy/pickup data and teacher background checks? `sunday-school.students.view` currently grants the whole record, and `Teacher` role has `students.manage`. |
-| **OQ-SEC-11** | `validateBranchScope` fail-open on an empty assignment list — intended? |
-| **OQ-SEC-12** | Does `SuperAdmin` cross tenant boundaries? Recommend splitting `PlatformOperator` from tenant `SuperAdmin`. |
+| ~~OQ-SEC-11~~ | **Resolved — [ADR-011](./adr/011-authorization-architecture.md).** Fail-closed server-side; the frontend's fail-open is UX only. |
+| ~~OQ-SEC-12~~ | **Resolved — [ADR-010](./adr/010-superadmin-is-tenant-scoped.md).** It does not. No role bypasses tenant isolation; a platform operator would be a separate, undesigned principal type. |
 | **OQ-SEC-13** | Cross-tenant response: documented `403` with tenant echo vs recommended `404` with no echo. |
 | **OQ-SEC-14** | Should the general `Admin` role see pastoral counselling notes? `ROLE_PERMISSIONS` currently grants `pastoral-care.view` + `.manage` to Admin, which sits awkwardly with the confidentiality requirement. |
 | **OQ-SEC-15** | Which audit record shape is the wire contract for `/activity-logs`? Three exist. |
 | **OQ-SEC-16** | Should failed auth, failed authz, tenant-violation attempts, exports, and session revocations be audited? Not listed in any source but standard practice. |
 | **OQ-SEC-17** | Single file size/type policy needed (5 MB is specified only for expense attachments). |
-| **OQ-SEC-18** | Rate limits for login, forgot-password, member QR issuance, and public endpoints are unspecified. |
+| **OQ-SEC-18** | *Partly resolved — [ADR-013](./adr/013-login-rate-limiting.md).* The login mechanism exists (per-IP, Redis, fail-closed); the **threshold and window remain unspecified** and ship as a placeholder. Forgot-password, member QR issuance and public endpoints are still entirely unspecified. |
 | **OQ-SEC-19** | `config.py` ships a literal default `SECRET_KEY`. Confirm that non-development startup must fail when it is unset, and add a startup assertion. |
 | **OQ-SEC-20** | Data-subject rights / deletion: is there any requirement to erase a member's personal data on request, and how does that interact with immutable audit logs and retained financial records? |
+| **OQ-SEC-21** | Church-profile **read** permission. No canonical code means "view the church profile": the catalogue has `settings.church-profile` ("Manage Church Profile") and the broader `settings.view`. Phase 2B-9 gates both `GET` and `PUT` on the former, because that cannot over-grant — but it also means a `Pastor` cannot read the profile. Confirm whether `settings.view` should grant the read. |
+| **OQ-SEC-22** | Branch-directory scope. Every enumeration of tenant-wide reference data (§4.2 here, `backend-domain-map.md` §5, ADR-011 Decision 4) lists *roles, categories, church profile* and never mentions `branches`; the branch-scoped list omits it too. Is `settings.branches.view` tenant-wide, or restricted to the caller's assigned branches? Blocks every branch endpoint. |
+| **OQ-SEC-23** | Branch creation and reachability. A branch created through an API has no `user_branch_assignments`, so under ADR-011 nobody can act in it — including its creator, whose branch reach is assignment data, not a role property. Who is assigned to a new branch, and through which endpoint? Auto-assigning the creator is the implicit branch grant ADR-011 forbids. |
+| **OQ-SEC-24** | User creation confers no branch access. `userAccountCreateSchema` (`lib/validation/settings.ts`) has **no branch field at all** — firstName, lastName, email, phone, username, password, role, department, status, notes — so a user created from it would have zero `user_branch_assignments` and could reach no branch-scoped data. This is OQ-SEC-23's problem one level down: the fix cannot be an implicit grant (ADR-011 forbids it), so branch assignment needs its own contract before `POST /settings/users` can exist. |
+| **OQ-SEC-25** | User creation names a role by string, and the strings disagree. The add-user form offers `super-admin, admin, pastor, accountant, secretary, **volunteer**` while `CANONICAL_ROLES` are `SuperAdmin, Admin, Pastor, Accountant, Secretary, **Teacher**`: different casing, plus `volunteer` which is not canonical and `Teacher` which the form cannot select. Resolving a submitted role string to a tenant-local `roles.id` therefore has no defined mapping, and guessing one would make role assignment depend on a display label. Extends OQ-SEC-06; blocks user creation and editing. |
+
+---
+
+## Enforcement reality (Phase 2B-8)
+
+This plan describes the intended posture for every domain. What is **actually
+enforced in code** is much narrower, and the gap is a fact about the backend's
+maturity rather than a deviation from the plan:
+
+| Layer | Status |
+| :-- | :-- |
+| Authentication (login, `/auth/me`, change-password) | Enforced |
+| Tenant resolution, role and permission resolution, branch resolution | Enforced |
+| RBAC permission checks on domain endpoints | Enforced **for Members only** |
+| Tenant + branch predicates in the repository layer | Enforced **for Members**; the tenant predicate alone is enforced for the **church profile**, the first tenant-wide endpoint (Phase 2B-9) |
+| Resource policies (ownership, confidentiality, approval authority) | **None implemented.** Members is INTERNAL and needs none; every domain that *does* need one has no schema yet. |
+| Audit logging of sensitive reads/mutations | **Not implemented.** The `audit` domain package is empty. |
+| RLS | Not implemented; still a candidate for CONFIDENTIAL tables. |
+
+17 of 20 domain packages under `app/domains/` are empty. §3.1's evaluation
+order is real and implemented as far as the permission and branch steps; the
+resource-policy and audit steps have nothing to run against yet. See the
+Phase 2B-8 addendum to [ADR-011](./adr/011-authorization-architecture.md) for
+the per-domain audit and the blocking question for each.

@@ -54,16 +54,15 @@ have neither), this is exactly the right semantic — a tenant-wide,
 branch-unassigned member, or a member with no linked user account, is
 simply not checked, with no special-casing required.
 
-`TenantScopedMixin.branch_id`'s composite FK is implemented once, in
-`app/core/database/base.py`, via a standalone `branch_scope_fk()` function
-(not inlined into the mixin's own `__table_args__`) so that a subclass
-needing additional `__table_args__` of its own — as `Member` does, for its
-unique email/phone constraints and status CHECK — can call it directly and
-combine it with its own entries, rather than losing it silently (a
-subclass's own `__table_args__` fully shadows a mixin's `declared_attr`
-version; it does not merge automatically). `Member.user_id`'s composite FK
-is declared directly in `Member`, since that relationship is specific to
-this domain, not part of the shared tenant/branch mixin.
+`TenantScopedMixin.branch_id`'s composite FK is defined once, in
+`app/core/database/base.py`, by the `branch_scope_fk()` function. Every
+tenant-scoped model attaches it through `tenant_scoped_table_args()`,
+passing any constraints of its own to that call — as `Member` does, for its
+unique email/phone constraints and status CHECK. The mixin does not attach
+it implicitly; see the Phase 2B-3.5 addendum for why that was removed.
+`Member.user_id`'s composite FK is declared directly in `Member`, since that
+relationship is specific to this domain, not part of the shared
+tenant/branch mixin.
 
 ## ON DELETE Behaviour
 
@@ -74,7 +73,7 @@ this domain, not part of the shared tenant/branch mixin.
 
 ## Rationale
 
-- **This is a security boundary, not a convenience.** `backend/AGENTS.md`
+- **This is a security boundary, not a convenience.** `backend/CLAUDE.md`
   §7 requires tenant isolation "at the database layer where appropriate."
   A cross-tenant `branch_id`/`user_id` reference is precisely the kind of
   invariant that must not depend on every future service function
@@ -95,18 +94,12 @@ this domain, not part of the shared tenant/branch mixin.
 
 ## Consequences
 
-- Every future domain that composes `TenantScopedMixin` and sets
-  `branch_id` gets the same-tenant guarantee automatically, with zero
-  additional code, unless it also needs its own `__table_args__` — in
-  which case it must call `branch_scope_fk()` itself and include it,
-  exactly as `Member` does. This is a real sharp edge worth flagging: the
-  mixin's `declared_attr __table_args__` is silently shadowed, not merged,
-  by a subclass defining its own. A future domain that defines
-  `__table_args__` without remembering to include `branch_scope_fk()`
-  would silently lose the constraint. There is no compiler/mypy check that
-  catches this omission — it can only be caught by inspecting the
-  generated migration (as this phase's own review process did) or a test
-  proving the constraint exists.
+- Every future domain that composes `TenantScopedMixin` must declare
+  `__table_args__ = tenant_scoped_table_args(...)` to get the same-tenant
+  guarantee, exactly as `Member` does. Omitting it is not a type error and
+  raises nothing at runtime, so it is caught by
+  `tests/unit/test_tenant_scope_guard.py`; see the Phase 2B-3.5 addendum
+  below.
 - Any future domain needing the equivalent guarantee for its own optional
   cross-references (the way `Member.user_id` does for `users`) should
   follow the same pattern: add `UNIQUE(tenant_id, id)` to the referenced
@@ -136,3 +129,136 @@ this domain, not part of the shared tenant/branch mixin.
   already having a concrete domain (`Member`) that needs it would only
   make the eventual fix more expensive (a live-data backfill/migration
   instead of a day-one constraint).
+
+## Addendum (2026-09-03, Phase 2B-3.5): Guarding the `__table_args__` Shadowing
+
+A focused review of the above sharp edge confirmed it empirically. A model
+composing `TenantScopedMixin` while declaring its own `__table_args__`
+produces a table with a `branch_id` column and **no** composite foreign key —
+no exception, no warning, no mypy error. Because almost every real domain
+eventually needs an index or a unique constraint of its own, the shadowing
+path is the *common* path, not an exotic one. The failure is silent and lands
+on a security boundary, so it was judged materially dangerous and worth
+mitigating rather than merely documenting.
+
+### Rejected: appending the constraint automatically
+
+The obvious "fix" is to have the mixin re-attach the constraint after the
+subclass's `__table_args__` has been applied, via `__declare_last__` (or an
+equivalent mapper event) calling `table.append_constraint()`. This was
+prototyped and **rejected on evidence**: those hooks run at mapper
+configuration time, whereas `migrations/env.py` reads `Base.metadata`
+directly and never calls `configure_mappers()`. Measured on a probe model,
+the constraint was absent from the metadata as Alembic sees it and present
+only after `configure_mappers()` ran.
+
+That combination is strictly worse than the footgun it removes: the test
+suite (which configures mappers by using the ORM) would see the constraint
+and pass, while the generated migration would omit it and the deployed
+database would have no such foreign key. A silent divergence between what
+the tests prove and what production enforces is a worse outcome than a
+missing constraint that is at least missing everywhere.
+
+Auto-appending would also make a table's constraints non-local — reading the
+model would no longer show what the table enforces — which works against the
+migration-review discipline this project treats as the final integrity layer.
+
+### Accepted: one explicit spelling plus a mechanical guard
+
+1. **`tenant_scoped_table_args(*extra)`** in `app/core/database/base.py` is
+   now the *only* way to build `__table_args__` on a tenant-scoped model. It
+   prepends `branch_scope_fk()` to whatever the domain adds.
+
+   The mixin's own `declared_attr __table_args__` was **removed** rather than
+   kept as a fallback. Keeping it would have left two paths with different
+   failure modes — composing the mixin alone worked, adding `__table_args__`
+   silently broke — whereas one spelling that always applies has nothing to
+   shadow. It also keeps a table's constraints readable in the model itself,
+   which the migration-review discipline depends on. `Member` and both test
+   probes now declare it explicitly.
+
+   Removing it additionally cleared a real type error: `declared_attr.directive`
+   types the attribute as `_declared_directive[tuple[SchemaItem, ...]]`, so
+   `Member`'s plain-tuple override was a `reportAssignmentType` error under
+   Pyright/Pylance (`typeCheckingMode = "standard"`, configured in
+   `pyproject.toml`) from the moment the directive was introduced in Phase
+   2B-3. MyPy accepted it, so CI never flagged it; it surfaced in the editor.
+   There is now no `declared_attr` anywhere in the codebase, and Pyright
+   reports zero errors project-wide.
+2. **`tests/unit/test_tenant_scope_guard.py`** sweeps every table in
+   `Base.metadata` and fails when a table's columns promise tenant scoping
+   that its constraints do not deliver:
+   - a `tenant_id` column without a foreign key to `churches.id`;
+   - a `branch_id` column without the `(tenant_id, branch_id) -> branches(tenant_id, id)`
+     composite foreign key;
+   - a composite `(tenant_id, X) -> T(tenant_id, id)` reference where `T`
+     lacks the `UNIQUE(tenant_id, id)` that Postgres requires as its target.
+
+The helper is the convention; the guard is the guarantee. Neither changes any
+existing schema behaviour — the constraints emitted are byte-identical, as
+confirmed by Alembic autogenerate producing an empty migration both before and
+after the mixin's `declared_attr` was removed.
+
+The guard is deliberately column-driven rather than mixin-driven: it flags any
+table that *looks* tenant-scoped, so a future model that declares `tenant_id`
+by hand (as `Branch` and `User` legitimately do) is checked on the same terms
+as one composing the mixin. `churches` carries no `tenant_id` and is skipped
+by that same rule rather than by an allowlist, so the tenant root needs no
+special-casing. Underscore-prefixed probe tables, which no migration creates,
+are excluded; one of them is deliberately broken to prove the guard fails when
+it should, and the guard was additionally mutation-tested against each of the
+three rules by regressing `Member` and `User` in turn.
+
+---
+
+## Addendum (Phase 2B-7): the guard now covers every cross-tenant reference
+
+The guard written with this ADR checked two things: that a tenant-scoped table
+has `tenant_id -> churches.id`, and that a table with a `branch_id` carries the
+composite `(tenant_id, branch_id) -> branches(tenant_id, id)`.
+
+A Phase 2B-7 mutation sweep found it did **not** cover the more general form of
+the same mistake. Replacing
+
+```python
+ForeignKeyConstraint(["tenant_id", "user_id"], ["users.tenant_id", "users.id"])
+```
+
+with a plain
+
+```python
+ForeignKeyConstraint(["user_id"], ["users.id"])
+```
+
+on `user_branch_assignments` passed **305 tests**, the architectural guard
+included. The same was true of `users.(tenant_id, role_id) -> roles`, which
+ADR-008 identifies as the single most dangerous edge in the RBAC model: a plain
+`role_id -> roles.id` lets a user in church A hold a role belonging to church B.
+
+### Scope of the finding
+
+This was a gap in the *guard*, not in the schema. Every migrated table already
+carries the correct composite constraints, and `alembic check` reports no drift.
+Nor was it exploitable at runtime: `_load_branch_assignments` filters on both
+`user_id` and the authenticated user's stored `tenant_id`, so a mis-scoped row
+would not have been returned anyway.
+
+What was lost was the layer this ADR exists to insist on. Its own rationale is
+that composite integrity must be enforced by the database rather than by
+service code, and `backend/CLAUDE.md` §17 says not to rely exclusively on
+service-layer validation. A guard that cannot see the constraint disappearing
+leaves exactly that reliance in place, silently.
+
+### Rule added
+
+For any table carrying `tenant_id`: a foreign key into another **tenant-scoped**
+table (one that itself has a `tenant_id`) must include `tenant_id` in the
+constraint. References to the tenant root (`churches`) and to global catalogue
+tables (`permissions`, `permission_categories`, which have no `tenant_id`) are
+correctly single-column and are not flagged.
+
+`_PlainCrossTableProbe` demonstrates the footgun in the metadata, so the rule is
+proven to fire rather than merely asserted to exist. Both mutations above now
+fail the build with a message naming the table, the columns and the fix.
+
+No schema change, no migration.

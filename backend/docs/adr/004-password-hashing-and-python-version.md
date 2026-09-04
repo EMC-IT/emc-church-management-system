@@ -10,7 +10,7 @@
 
 - `backend architecture.md` §12 mandates Argon2id for password hashing, but
   the previous scaffold had `passlib[bcrypt]` pinned as a dependency.
-- The stack is mandated as Python 3.13+ (`backend/AGENTS.md` §2), but
+- The stack is mandated as Python 3.13+ (`backend/CLAUDE.md` §2), but
   `pyproject.toml` at the time had `requires-python = ">=3.11"`.
 
 `backend/README.md`'s "Notes from Phase 1" already records that
@@ -44,7 +44,7 @@ and upgraded over time without a code change.
   replacing the dropped `passlib` (last major release predates active
   maintenance concerns) and `python-jose` (superseded by dedicated JWT
   libraries chosen separately in Phase 2 for token issuance).
-- Python 3.13 was already the mandated floor in `backend/AGENTS.md` §2; the
+- Python 3.13 was already the mandated floor in `backend/CLAUDE.md` §2; the
   `>=3.11` floor in `pyproject.toml` was drift from the scaffold stage, not
   a considered alternative.
 
@@ -75,6 +75,6 @@ and upgraded over time without a code change.
   `pwdlib` provides the same Argon2id backend with a smaller, more current
   maintenance surface and a cleaner hash/verify/needs-rehash API — no
   material reason to hand-roll that layer.
-- **Python 3.11/3.12 floor.** Rejected: contradicts `backend/AGENTS.md` §2's
+- **Python 3.11/3.12 floor.** Rejected: contradicts `backend/CLAUDE.md` §2's
   explicit Python 3.13+ requirement. Moot in practice — `pyproject.toml`
   already reflects the 3.13 floor, confirmed during this ADR's review.

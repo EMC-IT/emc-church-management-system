@@ -15,7 +15,7 @@ Corresponds to revision 0001_extensions in
                (users, members) without a functional index on lower().
   - pg_trgm  : trigram indexes backing GET /members/search.
 
-Migration review checklist (backend/AGENTS.md §13):
+Migration review checklist (backend/CLAUDE.md §13):
   - [x] No data loss -- creates extensions only
   - [x] No indexes, foreign keys or nullability changes
   - [x] Tenant isolation unaffected

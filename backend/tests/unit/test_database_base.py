@@ -16,6 +16,7 @@ from app.core.database.base import (
     TenantScopedMixin,
     TimestampMixin,
     UUIDPrimaryKeyMixin,
+    tenant_scoped_table_args,
     utcnow,
 )
 
@@ -28,6 +29,7 @@ class _Probe(Base, UUIDPrimaryKeyMixin, TenantScopedMixin, TimestampMixin, SoftD
     """
 
     __tablename__ = "_probe_model"
+    __table_args__ = tenant_scoped_table_args()
 
     name: Mapped[str] = mapped_column(String(50))
 

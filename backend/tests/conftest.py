@@ -32,10 +32,12 @@ from httpx import ASGITransport, AsyncClient
 from redis.asyncio import Redis
 from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession
 
+from app.api.dependencies import LOGIN_RATE_LIMIT_NAMESPACE
 from app.config import Settings, get_settings
 from app.core.cache import close_redis, get_redis_client
 from app.core.database import session_factory
 from app.core.database.session import engine as app_engine
+from app.core.security.rate_limit import KEY_PREFIX
 from app.main import create_app
 
 
@@ -76,6 +78,29 @@ async def lifespan_client(app: FastAPI) -> AsyncGenerator[AsyncClient]:
         transport = ASGITransport(app=app)
         async with AsyncClient(transport=transport, base_url="http://testserver") as http_client:
             yield http_client
+
+
+@pytest.fixture
+async def clear_login_rate_limit() -> AsyncGenerator[None]:
+    """Empty the login throttle counters around a test.
+
+    The limiter is left wired into the real application for these tests rather
+    than stubbed out, so every login test also proves the throttle is actually
+    mounted on the route. Counters live in Redis and outlive a single test, so
+    without this the suite's own login attempts would accumulate and tests
+    would start failing in whatever order pushed one past the threshold.
+    """
+    pattern = f"{KEY_PREFIX}:{LOGIN_RATE_LIMIT_NAMESPACE}:*"
+
+    async def purge() -> None:
+        client = get_redis_client()
+        keys = [key async for key in client.scan_iter(match=pattern)]
+        if keys:
+            await client.delete(*keys)
+
+    await purge()
+    yield
+    await purge()
 
 
 @pytest.fixture(scope="session")

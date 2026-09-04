@@ -4,7 +4,7 @@ Revision ID: ${up_revision}
 Revises: ${down_revision | comma,n}
 Created: ${create_date}
 
-Migration review checklist (backend/AGENTS.md §13):
+Migration review checklist (backend/CLAUDE.md §13):
   - [ ] No unintended data loss
   - [ ] Indexes added for foreign keys and frequent query predicates
   - [ ] Foreign keys and ON DELETE behaviour correct

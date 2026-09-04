@@ -15,7 +15,15 @@ from app.core.database.base import (
     UUIDPrimaryKeyMixin,
 )
 from app.domains.churches.models import Branch, BranchStatus, BranchType, Church
-from app.domains.identity.models import User, UserStatus
+from app.domains.identity.models import (
+    Permission,
+    PermissionCategory,
+    Role,
+    RolePermission,
+    User,
+    UserBranchAssignment,
+    UserStatus,
+)
 from app.domains.members.models import Gender, Member
 
 __all__ = [
@@ -26,10 +34,15 @@ __all__ = [
     "Church",
     "Gender",
     "Member",
+    "Permission",
+    "PermissionCategory",
+    "Role",
+    "RolePermission",
     "SoftDeleteMixin",
     "TenantScopedMixin",
     "TimestampMixin",
     "UUIDPrimaryKeyMixin",
     "User",
+    "UserBranchAssignment",
     "UserStatus",
 ]

@@ -1,7 +1,7 @@
 """Alembic migrations.
 
 Proves migrations apply to a genuinely clean database, which is the standard
-``backend/AGENTS.md`` §20 sets ("migration works from a clean database"). A
+``backend/CLAUDE.md`` §20 sets ("migration works from a clean database"). A
 scratch database is created for the run and dropped afterwards, so the result
 cannot be an artefact of state left by an earlier suite.
 
@@ -12,6 +12,7 @@ including alembic.ini parsing and settings resolution.
 
 from __future__ import annotations
 
+import re
 import subprocess
 import sys
 import uuid
@@ -31,6 +32,7 @@ BACKEND_ROOT = Path(__file__).resolve().parents[2]
 MIGRATION_TIMEOUT_SECONDS = 120
 
 EXPECTED_EXTENSIONS = frozenset({"pgcrypto", "citext", "pg_trgm"})
+HEAD_PATTERN = re.compile(r"^([0-9a-z_]+) \(head\)", re.MULTILINE)
 
 
 def _admin_url(database_url: str) -> str:
@@ -77,6 +79,20 @@ def _base_env() -> dict[str, str]:
     return {k: v for k, v in os.environ.items() if k != "DATABASE_URL"}
 
 
+def _head_revision(database_url: str) -> str:
+    """The revision Alembic itself considers head.
+
+    Derived rather than hard-coded: these tests assert that an upgraded
+    database sits *at head*, which is a property of the migration graph, not
+    of whichever revision happens to be latest today.
+    """
+    result = _alembic("heads", database_url=database_url)
+    assert result.returncode == 0, result.stderr
+    matched = HEAD_PATTERN.search(result.stdout)
+    assert matched is not None, f"could not read a head revision from:\n{result.stdout}"
+    return matched.group(1)
+
+
 @pytest.fixture
 async def clean_database(settings: Settings) -> AsyncGenerator[str]:
     """Create an empty database for one test, and drop it afterwards."""
@@ -111,7 +127,7 @@ class TestMigrationsRunFromClean:
         finally:
             await engine.dispose()
 
-        assert revision == "0003"
+        assert revision == _head_revision(clean_database)
 
     async def test_creates_the_required_extensions(self, clean_database: str) -> None:
         _alembic("upgrade", "head", database_url=clean_database)
@@ -154,7 +170,7 @@ class TestMigrationTooling:
         _alembic("upgrade", "head", database_url=clean_database)
         result = _alembic("current", database_url=clean_database)
         assert result.returncode == 0
-        assert "0003" in result.stdout
+        assert _head_revision(clean_database) in result.stdout
 
     async def test_offline_mode_emits_sql(self, clean_database: str) -> None:
         """`alembic upgrade head --sql` works for review and for DBA hand-off."""

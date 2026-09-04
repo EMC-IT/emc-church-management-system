@@ -12,7 +12,7 @@ roots themselves"). Field lists trace to ``lib/validation/settings.ts``
 deliberate omissions (``churches.status``/``timezone``/``currency``,
 ``branches.current_members``).
 
-Migration review checklist (backend/AGENTS.md §13):
+Migration review checklist (backend/CLAUDE.md §13):
   - [x] No data loss -- new tables only, no existing data affected
   - [x] Indexes: `(tenant_id, status)` for branch listing/filtering by
         status within a tenant; PK indexes on both tables

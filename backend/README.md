@@ -113,7 +113,7 @@ The database URL is read from application settings, **not** from `alembic.ini`,
 so migrations and the running application cannot disagree about the target
 database and no credential is committed.
 
-Every revision carries the review checklist from `AGENTS.md` §13 and must be
+Every revision carries the review checklist from `CLAUDE.md` §13 and must be
 verified against a clean database before it is considered done.
 
 ## Layout

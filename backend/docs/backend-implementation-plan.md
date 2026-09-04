@@ -16,7 +16,7 @@
 | :-- | :-- |
 | `README.md` (51 KB) | Complete feature catalogue: 204 routes across 3 tiers, 17 admin domains |
 | `AGENTS.md` | UI/UX design contract (frontend-only; no backend bearing beyond "don't redesign the UI") |
-| `backend/AGENTS.md` | The engineering contract: stack, modular monolith, tenancy, RBAC, finance, audit, testing, definition of done |
+| `backend/CLAUDE.md` | The engineering contract: stack, modular monolith, tenancy, RBAC, finance, audit, testing, definition of done |
 | `API_DOCUMENTATION.md` (97 KB, 5056 lines) | ~200 documented endpoints with payload samples |
 | `api-documentations/*` (22 files, 180 KB) | Deeper per-domain specs for giving, income, expenses, converts, attendance, departments, groups, Sunday School, pastoral care, analytics, settings, errors |
 | `PROJECT_RULES.md` | Mostly frontend design/process rules; §1361–1407 carries the architecture invariants |
@@ -41,7 +41,7 @@ This matters for planning: for the wired domains the contract is fixed and testa
 
 ## 2. Adopted Architecture
 
-Unchanged from `docs/architecture/backend architecture.md` and `backend/AGENTS.md`. Restated for completeness:
+Unchanged from `docs/architecture/backend architecture.md` and `backend/CLAUDE.md`. Restated for completeness:
 
 ```
 Next.js  →  REST/JSON  →  FastAPI Domain-Driven Modular Monolith
@@ -65,15 +65,15 @@ These are requirements extracted from source, not proposals. They are the highes
 
 | # | Rule | Source |
 | :-- | :-- | :-- |
-| F1 | Money is `NUMERIC(14,2)` in PostgreSQL and `Decimal` in Python. Float arithmetic on money is forbidden anywhere in the stack. | `backend/AGENTS.md` §10; `api-documentations/Introduction.md` §3 |
+| F1 | Money is `NUMERIC(14,2)` in PostgreSQL and `Decimal` in Python. Float arithmetic on money is forbidden anywhere in the stack. | `backend/CLAUDE.md` §10; `api-documentations/Introduction.md` §3 |
 | F2 | Congregational giving may carry identified-contribution children (`parent_giving_id`). **Children are attribution only and must never be counted in any aggregate.** Every stat, total, report, and export applies the exclusion. | `lib/types.ts` `Giving.parentGivingId`, `IdentifiedContribution`, `GivingSearchParams.excludeBreakdowns`; `giving-service.ts` comments |
 | F3 | A pledge is a *commitment*, not giving. `pledgedAmount` must never appear in Total Giving or revenue. | `lib/types.ts` `Pledge` |
 | F4 | A pledge payment is real money: it creates exactly one countable `Giving` record and links back via `PledgePayment.givingId`. | `lib/types.ts` `PledgePayment` |
 | F5 | `GivingAnalytics.totalAmount` = actual giving received only; `activePledgesCount` counts unfulfilled pledges separately. | `lib/types.ts` `GivingAnalytics` |
 | F6 | Campaign `receivedAmount` (actual) and `pledgedAmount` (commitments) are distinct; `outstandingAmount = pledged − received`. | `lib/types.ts` `FundraisingCampaign` |
-| F7 | Financial operations are transactional and atomic; a financial write and its audit record share one transaction. | `backend/AGENTS.md` §10, §11 |
-| F8 | Historical financial records are corrected by reversal/correction entries, not silently overwritten. | `backend/AGENTS.md` §10; `backend architecture.md` §16 |
-| F9 | Every financial mutation produces an audit record. | `backend/AGENTS.md` §10 |
+| F7 | Financial operations are transactional and atomic; a financial write and its audit record share one transaction. | `backend/CLAUDE.md` §10, §11 |
+| F8 | Historical financial records are corrected by reversal/correction entries, not silently overwritten. | `backend/CLAUDE.md` §10; `backend architecture.md` §16 |
+| F9 | Every financial mutation produces an audit record. | `backend/CLAUDE.md` §10 |
 | F10 | Budget utilisation: `remaining = budget − spent`; status `SAFE` < 80%, `WARNING` ≥ 80%, `EXCEEDED` when `spent > budget`; percentage clamped to [0,100]. The backend must reproduce `calculateBudgetUtilization` exactly. | `lib/finance/finance-math.ts` + `tests/unit/finance-math.test.ts` |
 | F11 | Rounding is half-away-from-zero to 2 dp, matching `roundToTwoDecimals`. Python `Decimal` with `ROUND_HALF_UP` reproduces this. | `lib/finance/finance-math.ts` |
 | F12 | Expense workflow states: `pending → approved → paid`, plus `rejected` / `cancelled`. Approval requires `finance.expenses.approve` and produces `finance.expense.approved`. | `api-documentations/Expenses_Endpoints.md`; `security-boundary-map.md` §3 |
@@ -103,7 +103,7 @@ Full matrix in [`backend-security-plan.md`](./backend-security-plan.md) §7. Sum
 
 ## 5. Background Jobs
 
-`backend/AGENTS.md` §14 and `backend architecture.md` §19 require Celery + Redis. `lib/jobs/job-types.ts` already fixes the job taxonomy and the tracking shape the frontend expects:
+`backend/CLAUDE.md` §14 and `backend architecture.md` §19 require Celery + Redis. `lib/jobs/job-types.ts` already fixes the job taxonomy and the tracking shape the frontend expects:
 
 | Job type (from `JobType`) | Trigger | Notes |
 | :-- | :-- | :-- |
@@ -128,13 +128,13 @@ Job state is persisted in a `jobs` table mirroring `BackgroundJob` (`id, type, t
 
 > **OQ-JOB-03.** None of the scheduled jobs has a defined cadence, template, opt-out path, or configuration surface. `notification_preferences` gives per-member opt-out for categories, which is a start.
 
-**Rule:** no HTTP request blocks on bulk SMS, email campaigns, large exports, imports, PDF generation, or report generation (`backend/AGENTS.md` §14).
+**Rule:** no HTTP request blocks on bulk SMS, email campaigns, large exports, imports, PDF generation, or report generation (`backend/CLAUDE.md` §14).
 
 ---
 
 ## 6. External Integrations
 
-All behind replaceable interfaces (`backend/AGENTS.md` §15). The scaffold already has `app/integrations/{payments,sms,email,storage,maps}/`.
+All behind replaceable interfaces (`backend/CLAUDE.md` §15). The scaffold already has `app/integrations/{payments,sms,email,storage,maps}/`.
 
 | Interface | Purpose | Concrete providers named in sources | Status |
 | :-- | :-- | :-- | :-- |
@@ -142,7 +142,7 @@ All behind replaceable interfaces (`backend/AGENTS.md` §15). The scaffold alrea
 | `SmsProvider` | Bulk SMS, campaigns, alerts | Twilio or local providers (`backend architecture.md` §2) | Provider unchosen. Needs: sender-id registration, segment counting, delivery receipts, credit balance (`/communications/stats` exposes an SMS balance). **OQ-INT-02.** |
 | `EmailProvider` | Newsletters, receipts, password reset, welcome emails | SES / SendGrid (`backend architecture.md` §2) | Provider unchosen. **OQ-INT-03.** |
 | `FileStorageProvider` | Documents, certificates, receipts, media, avatars | S3 / MinIO / R2. `config.py` already has `STORAGE_BACKEND`, `AWS_*`, `S3_ENDPOINT_URL` and defaults to `local` | Ready to implement; key layout fixed by `backend architecture.md` §18 |
-| `MapsProvider` | Campus location map, GPS coordinates on member addresses | listed in `backend/AGENTS.md` §15 and the scaffold | **No UI consumer found beyond the static contact page — OQ-INT-04: in scope?** |
+| `MapsProvider` | Campus location map, GPS coordinates on member addresses | listed in `backend/CLAUDE.md` §15 and the scaffold | **No UI consumer found beyond the static contact page — OQ-INT-04: in scope?** |
 
 ---
 
@@ -152,11 +152,11 @@ All behind replaceable interfaces (`backend/AGENTS.md` §15). The scaffold alrea
 | :-- | :-- | :-- |
 | Split storage | Metadata in PostgreSQL, bytes in object storage | `backend architecture.md` §18 |
 | Key layout | `churches/{tenant_id}/members/{member_id}/documents/…`, `.../certificates/…`, `.../finance/receipts/…`, `.../finance/invoices/…`, `.../communications/campaigns/…` | ibid. |
-| Access | Short-lived signed URLs after policy evaluation. No public buckets. | ibid.; `backend/AGENTS.md` §15 |
+| Access | Short-lived signed URLs after policy evaluation. No public buckets. | ibid.; `backend/CLAUDE.md` §15 |
 | Upload modes | Simple multipart (`/upload/file`), multi-file (`/upload/files`), **chunked** (`/upload/init` → `/upload/chunk` → `/upload/complete`) | `services/upload/upload-service.ts` |
 | Derivatives | Thumbnail generation, image resize | `/upload/files/{id}/thumbnail`, `/resize` |
 | Consumers | Member documents & certificates, expense receipts, giving receipts (PDF), event cover images, teaching materials, member resources library, newsletter images, asset photos/documents, member avatars, journey certificates, backup exports | across README + types |
-| Validation | Extension + MIME sniff + size cap + optional AV scan; strip EXIF; store under generated keys | `backend/AGENTS.md` §16 hygiene, standard practice |
+| Validation | Extension + MIME sniff + size cap + optional AV scan; strip EXIF; store under generated keys | `backend/CLAUDE.md` §16 hygiene, standard practice |
 
 Open: `/upload` vs `/files` prefix (**OQ-API-22**), multipart vs base64 (**OQ-API-23**), a single size/type policy (**OQ-SEC-17**).
 
@@ -186,13 +186,13 @@ Open: `/upload` vs `/files` prefix (**OQ-API-22**), multipart vs base64 (**OQ-AP
 
 **Constraint:** all analytics respect tenant, branch, and confidentiality boundaries. Pastoral and confidential-prayer data never enters an aggregate. Financial aggregates apply the F2 breakdown exclusion. Report exports are background jobs.
 
-**Moving the consolidated report server-side is a `backend/AGENTS.md` §6 requirement** ("the backend is authoritative for financial calculations") and is one of the few places where frontend integration code will legitimately change (permitted by §5).
+**Moving the consolidated report server-side is a `backend/CLAUDE.md` §6 requirement** ("the backend is authoritative for financial calculations") and is one of the few places where frontend integration code will legitimately change (permitted by §5).
 
 ---
 
 ## 9. Recommended Implementation Order
 
-Ordered by dependency, then by risk-reduction. Each phase follows the 15-step discipline in `backend/AGENTS.md` §18 and is not started until the previous one is green (lint, types, tests, migration-from-clean).
+Ordered by dependency, then by risk-reduction. Each phase follows the 15-step discipline in `backend/CLAUDE.md` §18 and is not started until the previous one is green (lint, types, tests, migration-from-clean).
 
 ### Phase 0 — this document. ✅ Complete.
 **Gate:** the blocking open questions in §10 are answered before Phase 2 begins.
@@ -287,11 +287,14 @@ These stop specific phases. Everything else is tracked in the companion document
 | :-- | :-- | :-- |
 | ~~Phase 1~~ | ~~OQ-API-01~~ | **Closed.** `/api/v1` adopted; `NEXT_PUBLIC_API_URL`, `API_DOCUMENTATION.md` and `api-documentations/*` updated to match. |
 | Phase 1 | OQ-API-02/03 | Response envelope: which pagination shape, and is `success` present on every endpoint? Three shapes are currently in use. |
-| Phase 1 | OQ-SEC-12 | Does `SuperAdmin` cross tenant boundaries? Determines whether the base repository can ever skip the tenant predicate. |
+| ~~Phase 1~~ | ~~OQ-SEC-12~~ | **Resolved — [ADR-010](./adr/010-superadmin-is-tenant-scoped.md).** It does not. The base repository must **never** skip the tenant predicate, for any role. |
 | ~~Phase 2~~ | ~~OQ-01~~ | **Resolved — [ADR-001](./adr/001-member-user-separation.md).** `Member` and `User` are separate entities; `members.user_id → users.id`, nullable, optional one-to-one. |
 | ~~Phase 2~~ | ~~OQ-API-04~~ | **Resolved — [ADR-002](./adr/002-controlled-self-registration.md).** Self-registration is tenant-bound via a server-resolved registration token/link, never a client-supplied `church_id`. Unrestricted global registration is out of scope for Phase 2. |
 | ~~Phase 2~~ | ~~OQ-SEC-06~~ | **Resolved — [ADR-003](./adr/003-authoritative-rbac-model.md).** `lib/authorization/roles.ts` (six roles) and its `ROLE_PERMISSIONS`/dot-notation permissions are authoritative; `architecture-baseline.md`'s five-role list and the finance docs' colon-notation admin scheme are discarded. |
 | ~~Phase 2~~ | ~~OQ-DB-03~~ | **Resolved — [ADR-004](./adr/004-password-hashing-and-python-version.md).** Argon2id via `pwdlib[argon2]`. Python 3.13 floor and removal of `passlib`/`python-jose` were already correct in `pyproject.toml`; only `pwdlib` still needs to be added. |
+| ~~Phase 2B-4A~~ | ~~OQ-DB-12 (RBAC half)~~ | **Resolved — [ADR-008](./adr/008-rbac-roles-as-per-tenant-instances.md).** Roles are per-tenant instances, not global system rows — the only shape that lets `users.(tenant_id, role_id) → roles(tenant_id, id)` enforce cross-tenant role assignment in the database. Also fixes role identity (`key` stable, `name` display) and the seed's idempotency. |
+| ~~Phase 2B-4A~~ | ~~OQ-SEC-05 (partial)~~ | **Partly resolved — [ADR-009](./adr/009-permission-catalogue-completeness.md).** The `pastoral-care` categorisation gap that left `SuperAdmin` less privileged than `Admin` is closed. `finance.expenses.approve`, `files.*` and `pastoral-care.view-confidential` are formally deferred, each with its blocking decision recorded. |
+| ~~Phase 2B-4B~~ | ~~OQ-SEC-11~~ | **Resolved — [ADR-011](./adr/011-authorization-architecture.md).** Authorization resolves permission codes only (never role names); tokens carry identity, not permissions; tenant scope is derived from the principal; branch scope is a separate axis enforced fail-closed. Also fixes the 2B-4B scope boundary — pipeline, not policy engine. |
 | Phase 4 | OQ-04 | Canonical `membershipStatus` value set — four variants exist. |
 | Phase 4 | OQ-API-06 | Is `DELETE /members/{id}` a soft archive or a hard delete? Financial and attendance history reference `member_id`. |
 | Phase 6 | OQ-05 | Canonical `AttendanceStatus` value set — three variants. |
@@ -309,7 +312,7 @@ These stop specific phases. Everything else is tracked in the companion document
 
 ## 11. Architectural Conflicts Found
 
-Recorded plainly, because `backend/AGENTS.md` §4 requires identifying conflicts before implementing through them.
+Recorded plainly, because `backend/CLAUDE.md` §4 requires identifying conflicts before implementing through them.
 
 1. **API version prefix** — `/api` (shipped frontend + backend config) vs `/api/v1` (contract + architecture doc).
 2. **Endpoint tree divergence, finance** — the documentation describes `/finance/donations|budgets|expenses|reports` and `/giving/donations|reports/*`; the shipped frontend calls `/income`, `/expenses`, `/budgets`, `/giving/individual`, `/giving/congregational`, `/giving/search`. These are disjoint trees for the same capability.
@@ -334,7 +337,7 @@ Recorded plainly, because `backend/AGENTS.md` §4 requires identifying conflicts
 
 ---
 
-## 12. Definition of Done (per feature, per `backend/AGENTS.md` §20)
+## 12. Definition of Done (per feature, per `backend/CLAUDE.md` §20)
 
 Schema exists · migration exists and runs from clean · models exist · Pydantic schemas exist · business logic exists · authorization exists · tenant + branch scope enforced at all four layers · endpoint exists · error handling exists · audit implemented · tests pass (unit + integration + API + authorization + tenant isolation) · Ruff passes · MyPy passes · **API response verified against the frontend contract** · documentation updated.
 
